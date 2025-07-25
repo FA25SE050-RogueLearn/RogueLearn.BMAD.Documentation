@@ -10,8 +10,9 @@ graph TD
         A[Start] --> B{New User?};
         B -- Yes --> C[Create Account & Onboard];
         C --> D[Select Class & Route];
-        D --> E[Upload Academic Docs];
-        E --> F[View Character Sheet];
+        D --> E{Provide Academic Docs};
+        E -- Manual Upload --> E_MANUAL[Upload Docs];
+        E_MANUAL --> F[View Character Sheet];
         F --> G{Manage Notes}; 
         G --> H[Create/Organize Notes];
         F --> I{Engage with Quests};
@@ -25,7 +26,8 @@ graph TD
     end
 
     subgraph "System & AI Interaction"
-        E -- Ingested by --> S1[System];
+        E_MANUAL -- Ingested by --> S1[System];
+        E_EXTRACT -- Ingested by --> S1;
         S1 -- Parsed by --> AI1[AI Engine];
         AI1 --> J;
         AI1 -- Influences --> F;
@@ -37,7 +39,9 @@ graph TD
     end
 
     subgraph "Browser Extension"
-        Ext1[Browser Extension] -- Scans & Extracts --> G;
+        E -- Use Extension --> E_EXTRACT[Extract Docs];
+        E_EXTRACT --> F;
+        Ext1[Browser Extension] -- Scans & Extracts Web Content --> G;
         Ext1 -- Displays Relevant Notes --> G;
     end
 ```

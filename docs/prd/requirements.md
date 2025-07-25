@@ -3,7 +3,7 @@
 ### **Functional - Phase 1 (MVP - Student Experience)**
 
 1.  **FR1 (User):** The system must allow a new user to create an account and onboard via a "Character Creation" flow. This includes selecting a "Class" (career goal, e.g., Full-Stack Developer) and a "Route" (current academic path, e.g., Software Engineering).
-2.  **FR2 (User):** During character creation or from their profile, users must be able to upload academic documents such as their GPA, transcripts, timetable, and examination schedule.
+2.  **FR2 (User):** During character creation or from their profile, users must be able to manually upload academic documents such as their GPA, transcripts, timetable, and examination schedule.
 3.  **FR3 (System):** The system must be able to ingest user-uploaded documents (e.g., PDF, DOCX) representing a course syllabus.
 4.  **FR4 (AI):** The system's AI must parse the uploaded syllabus and, based on the user's selected "Class" and "Route," generate a personalized "main quest line" that connects their current studies to their career goal.
 5.  **FR5 (AI):** The system's AI must use the uploaded academic data (GPA, transcripts, schedules) to influence the character's initial stats, populate the skill tree with acquired knowledge, and automatically create tasks or events in the quest line based on schedules.
@@ -12,7 +12,7 @@
 8.  **FR8 (User):** The user's personal study notes ("Arsenal") must be a rich text editor with Notion-like functionalities, allowing for flexible content creation and organization.
 9.  **FR9 (System):** The skill tree must be able to display links to relevant notes within the user's "Arsenal" for each skill node.
 10. **FR10 (System):** The system must be able to generate gamified mock exams ("Boss Fights") based on the topics in the quest line and the user's notes. These events should include descriptions of the challenge and the specific skills (knowledge) required to succeed.
-11. **FR11 (Browser Extension):** The system must provide a browser extension to scan and extract university-related information (timetables, exams, curriculum) and web content (videos, articles, etc.).
+11. **FR11 (Browser Extension):** The system must provide a browser extension to scan and extract academic documents and information (e.g., syllabus, GPA, timetables, exams, curriculum) from university portals and other web pages.
 12. **FR12 (Browser Extension):** The browser extension must automatically organize extracted information and web content into the user's "Arsenal" (notes), categorizing it appropriately.
 13. **FR13 (Browser Extension):** When a user highlights text on a webpage, the extension must trigger a popup that displays relevant notes from their "Arsenal" based on the highlighted keywords.
 14. **FR14 (User):** A user must be able to create a "Party" (study group) with configurable rules and permissions.
