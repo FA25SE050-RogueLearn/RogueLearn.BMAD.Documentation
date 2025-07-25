@@ -73,6 +73,19 @@ graph TD
     D --> E[Create/Assign Training Drills];
 ```
 
+## Party Leader Flow
+
+```mermaid
+graph TD
+    A[Student decides to create a Party] --> B[Becomes Party Leader];
+    B --> C[Set Party Rules & Permissions];
+    B --> D{Invite Members};
+    D --> E[Invite Friends Directly];
+    D --> F[Browse and Invite Strangers];
+    C --> G[Manage Party];
+    G --> H[Use Shared Party Stash];
+```
+
 ## System Admin (The Game Master) Flow
 
 ```mermaid
