@@ -7,4 +7,5 @@
 - [User Interface Design Goals](./user-interface-design-goals.md)
 - [Technical Assumptions](./technical-assumptions.md)
 - [Epic List](./epic-list.md)
+- [User Roles and Actors](./user-roles.md)
 - [Epic Details](./epic-details.md)
