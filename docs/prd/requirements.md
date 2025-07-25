@@ -55,6 +55,25 @@
 3.  **FR39 (System):** The marketplace must use an in-game currency that players can acquire through various in-app activities like daily tasks and boss events.
 4.  **FR40 (Player):** Players must be able to trade items (e.g., notes, documents) with other players using the in-game currency. The platform will also support transactions with real money, and sellers can determine the value of their products or negotiate prices.
 
+### **Success Metrics (KPIs)**
+
+To measure the success of the QuestLearn MVP, we will track the following Key Performance Indicators (KPIs):
+
+*   **Weekly Active Users (WAU)**: The number of unique users who interact with the platform in a given week. This is a primary indicator of user engagement and retention.
+*   **Average Number of Quests Completed per User per Week**: This metric will help us understand how effectively users are engaging with the core functionality of the platform.
+*   **Party Creation Rate**: The number of new parties created per week. This will indicate the adoption of the social learning feature.
+*   **User Retention Rate**: The percentage of users who return to the platform week after week. This is a critical measure of the platform's value and stickiness.
+*   **User Feedback Score**: We will collect user feedback through surveys and other mechanisms to gauge user satisfaction and identify areas for improvement. A Net Promoter Score (NPS) or a similar metric will be used.
+
+### **MVP Validation Approach**
+
+To validate the QuestLearn MVP, we will use a combination of qualitative and quantitative methods:
+
+*   **User Interviews**: We will conduct in-depth interviews with a small group of target users to gather feedback on the platform's usability, features, and overall value proposition.
+*   **Surveys**: We will use surveys to collect quantitative data on user satisfaction, feature usage, and other key metrics.
+*   **A/B Testing**: We will use A/B testing to compare different versions of the platform and identify the most effective design and features.
+*   **Analytics**: We will use analytics tools to track user behavior and identify patterns and trends. This will help us understand how users are interacting with the platform and where we can make improvements.
+
 ### **Non Functional (All Phases)**
 
 1. **NFR1:** The application must be a responsive web application.
