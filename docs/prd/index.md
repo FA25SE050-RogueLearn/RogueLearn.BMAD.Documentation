@@ -8,4 +8,5 @@
 - [Technical Assumptions](./technical-assumptions.md)
 - [Epic List](./epic-list.md)
 - [User Roles and Actors](./user-roles.md)
+- [User Flows](./user-flows.md)
 - [Epic Details](./epic-details.md)
