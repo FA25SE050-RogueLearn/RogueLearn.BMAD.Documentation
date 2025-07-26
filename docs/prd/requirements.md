@@ -95,19 +95,19 @@ To validate the QuestLearn MVP, we will use a combination of qualitative and qua
 *   **A/B Testing**: We will use A/B testing to compare different versions of the platform and identify the most effective design and features.
 *   **Analytics**: We will use analytics tools to track user behavior and identify patterns and trends. This will help us understand how users are interacting with the platform and where we can make improvements.
 
-### **Non Functional (All Phases)**
+### Non-Functional Requirements (All Phases)
 
-1. **NFR1:** The application must be a responsive web application.
-2. **NFR2:** The system must use Clerk for user authentication.
-3. **NFR3:** The system must use .NET for all backend services.
-4. **NFR4:** The system must use Next.js for the frontend application.
-5. **NFR5:** The system must use Supabase for database and file storage.
-6. **NFR6:** The system must integrate with Stripe for future subscription management.
-7. **NFR7:** Core API endpoints must respond in under 500ms under normal load.
-8. **NFR8:** The web application's core pages must achieve a Google Lighthouse performance score of 85 or higher.
-9. **NFR9:** The system shall be designed to maintain at least 99.5% uptime.
-10. **NFR10:** All user data stored in Supabase must have a point-in-time recovery (PITR) backup plan.
-11. **NFR11:** The application must implement basic security best practices (OWASP Top 10).
-12. **NFR12:** The system must be designed with data privacy as a priority and include a configurable data retention policy.
-13. **NFR13 (Security):** The system must implement a robust Role-Based Access Control (RBAC) system.
-14. **NFR14 (Scalability):** The architecture must support scalable and cost-effective infrastructure for intensive AI/ML workloads.
+1.  **NFR1 (Responsiveness):** The application must be a responsive web application, providing an optimal viewing and interaction experience across a range of devices (desktops, tablets, and mobile phones). All functionality must be accessible and usable on screen widths from 320px to 1920px.
+2.  **NFR2 (Authentication):** The system must use Clerk for user authentication, ensuring secure and reliable user management.
+3.  **NFR3 (Backend Technology):** The system must use .NET 8 for all backend services, leveraging its performance and security features.
+4.  **NFR4 (Frontend Technology):** The system must use Next.js (version 14 or later) for the frontend application to enable server-side rendering and a fast user experience.
+5.  **NFR5 (Data Storage):** The system must use Supabase for database and file storage, configured for scalability and reliability.
+6.  **NFR6 (Payment Integration):** The system must integrate with Stripe for future subscription and payment processing, with the initial implementation being a placeholder or a lightweight integration.
+7.  **NFR7 (Performance):** Core API endpoints (including user authentication, quest generation, and data retrieval) must respond in under 500ms under a normal load of 100 concurrent users.
+8.  **NFR8 (Frontend Performance):** The web application's core pages (Dashboard, Skill Tree, Quest Log) must achieve a Google Lighthouse performance score of 85 or higher on both mobile and desktop.
+9.  **NFR9 (Availability):** The system shall be designed to maintain at least 99.5% uptime, excluding scheduled maintenance windows. Maintenance windows will be limited to a maximum of 4 hours per month and scheduled outside of peak usage times (9 AM - 9 PM local time).
+10. **NFR10 (Data Backup & Recovery):** All user data stored in Supabase must have a point-in-time recovery (PITR) backup plan with a recovery point objective (RPO) of 1 hour and a recovery time objective (RTO) of 4 hours.
+11. **NFR11 (Security):** The application must implement security best practices to mitigate risks from the OWASP Top 10, including secure data handling, input validation, and protection against injection attacks.
+12. **NFR12 (Data Privacy):** The system must be designed with data privacy as a priority, complying with GDPR principles. It must include a configurable data retention policy allowing for automated data deletion upon user request or after a defined period of inactivity.
+13. **NFR13 (Access Control):** The system must implement a robust Role-Based Access Control (RBAC) system to ensure users can only access data and functionality appropriate for their role (e.g., Student, Guild Master, Guide, Game Master).
+14. **NFR14 (Scalability):** The architecture must support horizontal scaling for both the backend services and the database to handle a 50% increase in user traffic over a 3-month period without significant performance degradation. AI/ML workloads must be managed in a cost-effective manner, using serverless functions or dedicated instances as appropriate.
