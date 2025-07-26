@@ -113,20 +113,30 @@ graph TD
 
 ```mermaid
 graph TD
+    A[Start] --> B[Access Game Master Dashboard];
+
+    subgraph "System Analytics & Insights"
+        B --> C{View Analytics};
+        C --> D[Feature Usage Dashboard];
+        D --> D1[Most Used Quests];
+        D --> D2[Marketplace Trends];
+        C --> E[User Cohort Analysis];
+        E --> E1[Class & Route Popularity];
+        E --> E2[Completion Rates by Cohort];
+        C --> F[Platform Health Monitoring];
+    end
+
     subgraph "Platform Management"
-        A[Start] --> B[Access Admin Dashboard];
-        B --> C[Monitor Application Health];
-        B --> D{Manage Global Events};
-        D --> E[Trigger Bonus XP Day];
-        D --> F[Schedule Platform-Wide Challenges];
+        B --> G{Manage Global Settings};
+        G --> H[Set Bonus XP Days];
+        G --> I[Launch Platform-Wide Challenges];
     end
 
     subgraph "Community Moderation"
-        B --> G{Review Moderation Queue};
-        G --> H[View User-Reported Content];
-        H --> I{Take Action};
-        I --> J[Mute User];
-        I --> K[Ban User];
-        I --> L[Delete Content];
+        B --> J{Review Moderation Queue};
+        J --> K[Review Reported Content/Users];
+        K --> L{Take Action};
+        L --> M[Mute/Ban User];
+        L --> N[Delete Content];
     end
 ```

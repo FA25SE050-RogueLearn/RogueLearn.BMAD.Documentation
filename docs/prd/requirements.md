@@ -51,26 +51,30 @@
 41. **FR41 (Game Master):** A Game Master must be able to trigger "Global Events", such as bonus XP days, randomized mini-boss challenges, or knowledge-based invasions that affect all players or Guilds.
 42. **FR42 (Game Master):** A Game Master must be able to schedule and configure "Event Scripts" — timed platform-wide challenges or coordinated PvP events with specific participation conditions.
 43. **FR43 (Game Master):** A Game Master must be able to moderate "PvP Disputes" and manage community-reported abuse, including banning or muting users, flagging inappropriate content, or rolling back unfair scores.
-44. **FR44 (Game Master):** The Game Master must be able to publish "Seasonal Lore Updates" that expand the world map, unlock new skill paths, introduce new factions or threats, and set the stage for the upcoming semester.
+44. **FR44 (Game Master):** A Game Master must have access to a comprehensive analytics dashboard to monitor system health and user engagement. This includes:
+    - **Feature Usage:** Tracking the popularity of quests, marketplace items, and other features.
+    - **User Cohort Analysis:** Viewing data on class/route choices, completion rates, and other user segments.
+    - **Platform Health:** Monitoring key performance indicators for the overall system.
+45. **FR45 (Game Master):** The Game Master must be able to publish "Seasonal Lore Updates" that expand the world map, unlock new skill paths, introduce new factions or threats, and set the stage for the upcoming semester.
 
 ### **Functional - Phase 3 (Living Ecosystem & Social)**
 
-45. **FR45 (AI):** The system's AI must be able to proactively scan a Player's 'Arsenal' and suggest the creation of 'spells' (study aids).
-46. **FR46 (AI):** The system must provide a feature to ingest audio/video recordings of online classes and generate text summaries.
-47. **FR47 (AI):** The system must have a predictive analytics module that can identify Players who are at risk of falling behind.
-48. **FR48 (Guild Master):** The system must feature a "Guild-vs-Guild" competition mode, which can be initiated by the Guild Master.
-49. **FR49 (System):** The system must include a personal achievements/badges system.
-50. **FR50 (Player):** PvP events can be based on coding challenges related to the user's quest line (e.g., system design, CSS battles, algorithm battles, design patterns).
+46. **FR46 (AI):** The system's AI must be able to proactively scan a Player's 'Arsenal' and suggest the creation of 'spells' (study aids).
+47. **FR47 (AI):** The system must provide a feature to ingest audio/video recordings of online classes and generate text summaries.
+48. **FR48 (AI):** The system must have a predictive analytics module that can identify Players who are at risk of falling behind.
+49. **FR49 (Guild Master):** The system must feature a "Guild-vs-Guild" competition mode, which can be initiated by the Guild Master.
+50. **FR50 (System):** The system must include a personal achievements/badges system.
+51. **FR51 (Player):** PvP events can be based on coding challenges related to the user's quest line (e.g., system design, CSS battles, algorithm battles, design patterns).
 
 ### **Functional - Phase 4 (Marketplace & Economy)**
 
-51. **FR51 (Player):** The system must include a "Marketplace" where users can upload and share high-quality study materials.
-52. **FR52 (Player):** The Marketplace must include a rating and review system for shared content.
-53. **FR53 (System):** The marketplace must use an in-game currency that players can acquire through various in-app activities like daily tasks and boss events.
-54. **FR54 (Player):** Players must be able to trade items (e.g., notes, documents) with other players using the in-game currency. The platform will also support transactions with real money, and sellers can determine the value of their products or negotiate prices.
-55. **FR55 (AI):** The system's AI must be able to review, rate, and elevate user-generated notes or study materials to the shared “Eternal Codex,” making them publicly searchable and globally accessible.
-56. **FR56 (AI):** The system's AI must be able to curate "Knowledge Packs" (bundles of notes and resources) for specific themes, subjects, or exams, and publish them in the Marketplace.
-57. **FR57 (AI):** The system's AI must be able to tag materials with "meta-skills" (e.g., critical thinking, synthesis, memorization) to better inform AI search and Arsenal suggestions.
+52. **FR52 (Player):** The system must include a "Marketplace" where users can upload and share high-quality study materials.
+53. **FR53 (Player):** The Marketplace must include a rating and review system for shared content.
+54. **FR54 (System):** The marketplace must use an in-game currency that players can acquire through various in-app activities like daily tasks and boss events.
+55. **FR55 (Player):** Players must be able to trade items (e.g., notes, documents) with other players using the in-game currency. The platform will also support transactions with real money, and sellers can determine the value of their products or negotiate prices.
+56. **FR56 (AI):** The system's AI must be able to review, rate, and elevate user-generated notes or study materials to the shared “Eternal Codex,” making them publicly searchable and globally accessible.
+57. **FR57 (AI):** The system's AI must be able to curate "Knowledge Packs" (bundles of notes and resources) for specific themes, subjects, or exams, and publish them in the Marketplace.
+58. **FR58 (AI):** The system's AI must be able to tag materials with "meta-skills" (e.g., critical thinking, synthesis, memorization) to better inform AI search and Arsenal suggestions.
 
 ### **Success Metrics (KPIs)**
 
