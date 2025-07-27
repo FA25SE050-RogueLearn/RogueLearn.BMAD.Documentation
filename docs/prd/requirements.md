@@ -78,7 +78,7 @@
 
 ### **Success Metrics (KPIs)**
 
-To measure the success of the QuestLearn MVP, we will track the following Key Performance Indicators (KPIs):
+To measure the success of the RogueLearn MVP, we will track the following Key Performance Indicators (KPIs):
 
 *   **Weekly Active Users (WAU)**: The number of unique users who interact with the platform in a given week. This is a primary indicator of user engagement and retention.
 *   **Average Number of Quests Completed per User per Week**: This metric will help us understand how effectively users are engaging with the core functionality of the platform.
@@ -88,7 +88,7 @@ To measure the success of the QuestLearn MVP, we will track the following Key Pe
 
 ### **MVP Validation Approach**
 
-To validate the QuestLearn MVP, we will use a combination of qualitative and quantitative methods:
+To validate the RogueLearn MVP, we will use a combination of qualitative and quantitative methods:
 
 *   **User Interviews**: We will conduct in-depth interviews with a small group of target users to gather feedback on the platform's usability, features, and overall value proposition.
 *   **Surveys**: We will use surveys to collect quantitative data on user satisfaction, feature usage, and other key metrics.

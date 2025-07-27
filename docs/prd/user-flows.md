@@ -1,6 +1,6 @@
 # User Interaction Flows
 
-This document visualizes the primary interaction flows for each user role within the QuestLearn platform using Mermaid diagrams.
+This document visualizes the primary interaction flows for each user role within the RogueLearn platform using Mermaid diagrams.
 
 ## Student (Player) Flow
 

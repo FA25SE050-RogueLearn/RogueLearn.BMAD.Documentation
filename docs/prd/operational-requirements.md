@@ -1,6 +1,6 @@
 # Operational Requirements
 
-This document specifies the operational requirements for the QuestLearn platform, addressing a key blocker identified in the PRD checklist report.
+This document specifies the operational requirements for the RogueLearn platform, addressing a key blocker identified in the PRD checklist report.
 
 ## Deployment
 

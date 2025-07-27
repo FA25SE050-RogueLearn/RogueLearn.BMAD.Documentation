@@ -1,6 +1,6 @@
 # Stakeholder Alignment Plan
 
-This document outlines the plan for keeping stakeholders informed and aligned throughout the development of the QuestLearn platform.
+This document outlines the plan for keeping stakeholders informed and aligned throughout the development of the RogueLearn platform.
 
 ## Key Stakeholders
 

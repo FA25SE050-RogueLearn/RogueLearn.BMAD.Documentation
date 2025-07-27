@@ -1,6 +1,6 @@
 # Rationale for MVP Scope Decisions
 
-This document provides the rationale behind the features included in and excluded from the QuestLearn MVP.
+This document provides the rationale behind the features included in and excluded from the RogueLearn MVP.
 
 ## Core Loop Focus
 

@@ -1,6 +1,6 @@
 # **User Roles and Actors**
 
-This document outlines the key user roles and actors within the QuestLearn ecosystem.
+This document outlines the key user roles and actors within the RogueLearn ecosystem.
 
 *   **Student (Player):** The primary user of the application. They create a character, pursue a personalized quest line based on their academic and career goals, manage their notes, and interact with the gamified elements of the platform.
 
@@ -10,4 +10,4 @@ This document outlines the key user roles and actors within the QuestLearn ecosy
 
 *   **Party Leader:** A student who creates a "Party" (study group). They have the ability to set party rules and invite other students to join.
 
-*   **System Admin (The Game Master):** A privileged user responsible for the technical oversight and maintenance of the QuestLearn platform. They have access to the back-end interface to monitor application health and performance.
+*   **System Admin (The Game Master):** A privileged user responsible for the technical oversight and maintenance of the RogueLearn platform. They have access to the back-end interface to monitor application health and performance.

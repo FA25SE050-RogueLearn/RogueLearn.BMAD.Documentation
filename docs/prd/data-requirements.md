@@ -1,12 +1,12 @@
 # Data Requirements
 
-This document outlines the preliminary data model for QuestLearn, addressing a key blocker identified in the PRD checklist report.
+This document outlines the preliminary data model for RogueLearn, addressing a key blocker identified in the PRD checklist report.
 
 ## Core Entities and Relationships
 
 A preliminary data model is proposed to guide the architecture design. The main entities and their relationships are as follows:
 
-*   **User**: Represents an individual using the QuestLearn platform.
+*   **User**: Represents an individual using the RogueLearn platform.
     *   `user_id` (Primary Key)
     *   `username`
     *   `email`

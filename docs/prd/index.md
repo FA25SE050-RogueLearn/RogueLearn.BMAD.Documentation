@@ -1,4 +1,4 @@
-# **QuestLearn Product Requirements Document (PRD)**
+# **RogueLearn Product Requirements Document (PRD)**
 
 ## Sections
 

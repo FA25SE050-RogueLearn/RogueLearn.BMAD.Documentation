@@ -112,7 +112,7 @@ This document provides detailed user stories for each epic, aligned with the pha
 *Goal: Integrate the learning experience directly into the student's existing web-based academic workflow.*
 
 #### **Story: Extension for Document Extraction**
-**As a** student, **I want** a browser extension that can extract academic info from my university portal, **so that** I can easily import it into QuestLearn.
+**As a** student, **I want** a browser extension that can extract academic info from my university portal, **so that** I can easily import it into RogueLearn.
 
 #### **Story: Contextual Note Access**
 **As a** student, **I want** the extension to show me my relevant notes when I highlight text on a webpage, **so that** I can quickly access my knowledge.

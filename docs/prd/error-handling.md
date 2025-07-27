@@ -1,6 +1,6 @@
 # Error Handling and Recovery
 
-This document outlines the strategy for handling errors and ensuring system recovery for the QuestLearn platform.
+This document outlines the strategy for handling errors and ensuring system recovery for the RogueLearn platform.
 
 ## Guiding Principles
 
