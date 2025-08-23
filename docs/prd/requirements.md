@@ -1,6 +1,7 @@
 # **Requirements**
 
-### **Functional - Phase 1 (MVP - Student Experience)**
+### **Functional - Phase 1: Core Student MVP**
+*Focus: Establish the fundamental single-player experience.*
 
 1.  **FR1 (User):** The system must allow a new user to create an account and onboard via a "Character Creation" flow. This includes selecting a "Class" (career goal, e.g., Full-Stack Developer) and a "Route" (current academic path, e.g., Software Engineering).
 2.  **FR2 (User):** During character creation or from their profile, users must be able to manually upload academic documents such as their GPA, transcripts, timetable, and examination schedule.
@@ -12,6 +13,13 @@
 8.  **FR8 (User):** The user's personal study notes ("Arsenal") must be a rich text editor with Notion-like functionalities, allowing for flexible content creation and organization.
 9.  **FR9 (System):** The skill tree must be able to display links to relevant notes within the user's "Arsenal" for each skill node.
 10. **FR10 (System):** The system must be able to generate gamified mock exams ("Boss Fights") based on the topics in the quest line and the user's notes. These events should include descriptions of the challenge and the specific skills (knowledge) required to succeed.
+18. **FR18 (System):** The system must feature leaderboards that display player rankings, both within specific "Classes", for PvP events, and overall.
+19. **FR19 (AI):** The main quest line must be dynamic, allowing for AI-driven changes to uncompleted tasks based on user preferences or new information.
+20. **FR20 (System):** The system must have a notification system to inform users of changes to their quest line and suggest new learning paths.
+
+### **Functional - Phase 2: Social & Extension MVP**
+*Focus: Introduce multiplayer and external integration features.*
+
 11. **FR11 (Browser Extension):** The system must provide a browser extension to scan and extract academic documents and information (e.g., syllabus, GPA, timetables, exams, curriculum) from university portals and other web pages.
 12. **FR12 (Browser Extension):** The browser extension must automatically organize extracted information and web content into the user's "Arsenal" (notes), categorizing it appropriately.
 13. **FR13 (Browser Extension):** When a user highlights text on a webpage, the extension must trigger a popup that displays relevant notes from their "Arsenal" based on the highlighted keywords.
@@ -22,11 +30,9 @@
     - Set the party to be open for anyone to join.
 16. **FR16 (User):** A Party Leader must be able to invite other registered users to their Party.
 17. **FR17 (User):** Party members must have access to a shared resource space ("Party Stash") to post notes and links.
-18. **FR18 (System):** The system must feature leaderboards that display player rankings, both within specific "Classes", for PvP events, and overall.
-19. **FR19 (AI):** The main quest line must be dynamic, allowing for AI-driven changes to uncompleted tasks based on user preferences or new information.
-20. **FR20 (System):** The system must have a notification system to inform users of changes to their quest line and suggest new learning paths.
 
-### **Functional - Phase 2 (Educator & Admin Toolkit)**
+### **Functional - Phase 3: Educator & Admin Toolkit**
+*Focus: Empower educators and administrators with tools to manage and enhance the learning experience.*
 
 21. **FR21 (Guild Master):** Guild Masters (Lecturers or Players) must be able to create "Guilds" and upload their own course materials.
 22. **FR22 (Player):** Players (Students) in a Guild must be able to use Guild Master-uploaded materials to adjust or supplement their personal quest lines.
@@ -42,7 +48,7 @@
 32. **FR32 (Guide):** A Guide (Tutor) must be able to be assigned to a specific Player for a specific course by a Guild Master.
 33. **FR33 (Guide):** Upon assignment, a Guide (as a Party Leader) must have read-only access to the assigned Player's progress and notes for that course only.
 34. **FR34 (Guide):** A Guide must be able to create and assign custom, non-graded 'training drills' to their assigned Player.
-35. **FR35 (Guide):** A Guide must be able to send "Mentor Reflections", which are motivational or advisory notes (text, voice, or video) tied to specific parts of the student’s quest line or skill tree.
+35. **FR35 (Guide):** A Guide must be able to send "Mentor Reflections", which are motivational or advisory notes (text, voice, or video) tied to specific parts of the student's quest line or skill tree.
 36. **FR36 (Guide):** A Guide must be able to create and assign "Training Grounds" — short, focused drills targeting a single micro-skill (e.g., recursion, essay structure, grammar rules).
 37. **FR37 (Guide):** A Guide must be able to view "Burnout Forecasts" for their assigned students, which predict disengagement based on quest abandonment, repeated failures, or low Arsenal activity.
 38. **FR38 (Guide):** A Guide must have read-only access to a student's "Arsenal Loadout" and may leave inline feedback or suggest links between notes and missing skill nodes.
@@ -57,7 +63,8 @@
     - **Platform Health:** Monitoring key performance indicators for the overall system.
 45. **FR45 (Game Master):** The Game Master must be able to publish "Seasonal Lore Updates" that expand the world map, unlock new skill paths, introduce new factions or threats, and set the stage for the upcoming semester.
 
-### **Functional - Phase 3 (Living Ecosystem & Social)**
+### **Functional - Phase 4: Living Ecosystem & Social**
+*Focus: Enhance the platform with advanced AI, social, and competitive features.*
 
 46. **FR46 (AI):** The system's AI must be able to proactively scan a Player's 'Arsenal' and suggest the creation of 'spells' (study aids).
 47. **FR47 (AI):** The system must provide a feature to ingest audio/video recordings of online classes and generate text summaries.
@@ -66,13 +73,14 @@
 50. **FR50 (System):** The system must include a personal achievements/badges system.
 51. **FR51 (Player):** PvP events can be based on coding challenges related to the user's quest line (e.g., system design, CSS battles, algorithm battles, design patterns).
 
-### **Functional - Phase 4 (Marketplace & Economy)**
+### **Functional - Phase 5: Marketplace & Economy**
+*Focus: Introduce a user-driven economy for sharing and monetizing knowledge.*
 
 52. **FR52 (Player):** The system must include a "Marketplace" where users can upload and share high-quality study materials.
 53. **FR53 (Player):** The Marketplace must include a rating and review system for shared content.
 54. **FR54 (System):** The marketplace must use an in-game currency that players can acquire through various in-app activities like daily tasks and boss events.
 55. **FR55 (Player):** Players must be able to trade items (e.g., notes, documents) with other players using the in-game currency. The platform will also support transactions with real money, and sellers can determine the value of their products or negotiate prices.
-56. **FR56 (AI):** The system's AI must be able to review, rate, and elevate user-generated notes or study materials to the shared “Eternal Codex,” making them publicly searchable and globally accessible.
+56. **FR56 (AI):** The system's AI must be able to review, rate, and elevate user-generated notes or study materials to the shared "Eternal Codex," making them publicly searchable and globally accessible.
 57. **FR57 (AI):** The system's AI must be able to curate "Knowledge Packs" (bundles of notes and resources) for specific themes, subjects, or exams, and publish them in the Marketplace.
 58. **FR58 (AI):** The system's AI must be able to tag materials with "meta-skills" (e.g., critical thinking, synthesis, memorization) to better inform AI search and Arsenal suggestions.
 

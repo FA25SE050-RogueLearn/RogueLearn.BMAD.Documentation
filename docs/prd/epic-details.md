@@ -119,4 +119,86 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
-*Details for Phases 3, 4, and 5 will be elaborated in future planning sessions. This allows the team to focus on delivering the core MVP first while maintaining a clear vision for future development.*
+## **Phase 3: Educator & Admin Toolkit**
+*Focus: Empower educators and administrators with tools to manage and enhance the learning experience.*
+
+### **Epic: Guild Master Toolkit**
+*Goal: Provide educators with tools to create, manage, and enhance courses as interactive "Guilds".*
+
+#### **Story: Guild Creation & Course Material Upload**
+**As a** Guild Master, **I want** to create a Guild and upload course materials, **so that** I can establish an interactive learning environment for my students.
+
+#### **Story: Guild Dashboard & Analytics**
+**As a** Guild Master, **I want** to view aggregated progress data for all students in my Guild, **so that** I can identify areas where students are struggling.
+
+---
+
+### **Epic: Guide (Tutor) Toolkit**
+*Goal: Enable tutors to provide personalized guidance and support to individual students.*
+
+#### **Story: Guide Assignment & Student Progress Access**
+**As a** Guide, **I want** to be assigned to specific students and access their progress, **so that** I can provide targeted assistance.
+
+#### **Story: Custom Training Creation**
+**As a** Guide, **I want** to create custom training drills for my assigned students, **so that** I can help them improve in specific areas.
+
+---
+
+### **Epic: Game Master (Admin) Toolkit**
+*Goal: Provide system administrators with tools to manage and monitor the platform.*
+
+#### **Story: System Monitoring & Analytics**
+**As a** Game Master, **I want** to access a comprehensive analytics dashboard, **so that** I can monitor system health and user engagement.
+
+#### **Story: Global Event Management**
+**As a** Game Master, **I want** to create and trigger global events, **so that** I can enhance user engagement across the platform.
+
+---
+
+## **Phase 4: Living Ecosystem & Social**
+*Focus: Enhance the platform with advanced AI, social, and competitive features.*
+
+### **Epic: Advanced AI & Proactive Assistance**
+*Goal: Leverage AI to provide proactive assistance and enhance the learning experience.*
+
+#### **Story: AI-Powered Study Aid Suggestions**
+**As a** student, **I want** the AI to scan my notes and suggest study aids, **so that** I can improve my learning efficiency.
+
+#### **Story: Class Recording Processing**
+**As a** student, **I want** to upload recordings of my classes and have the AI generate summaries, **so that** I can review key points efficiently.
+
+---
+
+### **Epic: Advanced Social & Competition**
+*Goal: Enhance social interaction and competition to increase engagement.*
+
+#### **Story: Guild vs Guild Competitions**
+**As a** Guild Master, **I want** to initiate competitions between Guilds, **so that** I can foster healthy competition and engagement.
+
+#### **Story: Achievement System**
+**As a** student, **I want** to earn badges and achievements for my accomplishments, **so that** I can showcase my progress and skills.
+
+---
+
+## **Phase 5: Marketplace & Economy**
+*Focus: Introduce a user-driven economy for sharing and monetizing knowledge.*
+
+### **Epic: Marketplace**
+*Goal: Create a platform for students to share and monetize their knowledge.*
+
+#### **Story: Marketplace Creation & Content Upload**
+**As a** student, **I want** to upload and share my study materials in the Marketplace, **so that** I can help others and potentially earn rewards.
+
+#### **Story: Content Rating & Review**
+**As a** student, **I want** to rate and review content in the Marketplace, **so that** I can help others find quality materials.
+
+---
+
+### **Epic: AI-Powered Curation**
+*Goal: Use AI to curate and enhance user-generated content.*
+
+#### **Story: AI Content Review & Elevation**
+**As a** platform administrator, **I want** the AI to review and elevate high-quality user content, **so that** the best materials are easily accessible to all users.
+
+#### **Story: Knowledge Pack Creation**
+**As a** student, **I want** the AI to curate themed bundles of study materials, **so that** I can access comprehensive resources for specific topics or exams.

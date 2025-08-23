@@ -17,7 +17,7 @@ The primary goal of the MVP is to validate the core user loop: **Upload Syllabus
 
 ## Excluded Features (Post-MVP)
 
-*   **Educator & Admin Toolkit (Phase 2)**: While important for long-term success, this is not essential for validating the core student experience.
-*   **Advanced Social Features (Phase 3)**: Features like Guild-vs-Guild competitions are extensions of the core social loop and can be added later.
-*   **Marketplace & Economy (Phase 4)**: This is a complex feature set that is not required to validate the primary learning and gamification hypotheses.
+*   **Educator & Admin Toolkit (Phase 3)**: While important for long-term success, this is not essential for validating the core student experience.
+*   **Advanced Social Features (Phase 4)**: Features like Guild-vs-Guild competitions are extensions of the core social loop and can be added later.
+*   **Marketplace & Economy (Phase 5)**: This is a complex feature set that is not required to validate the primary learning and gamification hypotheses.
 *   **Advanced AI Features**: Features like proactive 'spell' suggestions and predictive analytics are enhancements that can be built on top of the core AI engine once it is validated.
