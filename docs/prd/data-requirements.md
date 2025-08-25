@@ -17,7 +17,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `account_status` (e.g., 'Active', 'Inactive', 'Suspended')
 
 *   **UserProfile**: Extends User with game-specific attributes.
-    *   `profile_id` (Primary Key)
+    *   `user_profile_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `class_id` (Foreign Key to `Class`, representing career goal)
     *   `route_id` (Foreign Key to `Route`, representing academic path)
@@ -45,7 +45,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `description`
     *   `created_at`
     *   `updated_at`
-    *   `status` (e.g., 'Active', 'Completed', 'Archived')
+    *   `activation_status` (e.g., 'Active', 'Completed', 'Archived')
 
 *   **Syllabus**: Represents the document uploaded by the user for a course.
     *   `syllabus_id` (Primary Key)
@@ -58,7 +58,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `processing_status` (e.g., 'Pending', 'Processing', 'Completed', 'Failed')
 
 *   **AcademicDocument**: Represents additional academic documents uploaded by the user.
-    *   `document_id` (Primary Key)
+    *   `academic_document_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `document_type` (e.g., 'GPA', 'Transcript', 'Timetable', 'Exam Schedule')
     *   `content` (The raw text or structured data from the uploaded file)
@@ -76,14 +76,14 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `description`
     *   `created_at`
     *   `updated_at`
-    *   `status` (e.g., 'Active', 'Completed', 'Archived')
+    *   `activation_status` (e.g., 'Active', 'Completed', 'Archived')
 
 *   **Quest**: Represents a learning task or objective generated from the syllabus.
     *   `quest_id` (Primary Key)
     *   `quest_line_id` (Foreign Key to `QuestLine`)
     *   `title`
     *   `description`
-    *   `status` (e.g., 'Not Started', 'In Progress', 'Completed')
+    *   `progress_status` (e.g., 'Not Started', 'In Progress', 'Completed')
     *   `due_date` (Optional)
     *   `created_at`
     *   `updated_at`
@@ -131,7 +131,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `title`
     *   `description`
     *   `difficulty` (e.g., 'Easy', 'Medium', 'Hard')
-    *   `status` (e.g., 'Not Started', 'In Progress', 'Completed', 'Failed')
+    *   `progress_status` (e.g., 'Not Started', 'In Progress', 'Completed', 'Failed')
     *   `created_at`
     *   `started_at`
     *   `completed_at`
@@ -150,7 +150,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `points`
 
 *   **UserAnswer**: Represents a user's answer to a question.
-    *   `answer_id` (Primary Key)
+    *   `user_answer_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `question_id` (Foreign Key to `Question`)
     *   `boss_fight_id` (Foreign Key to `BossFight`)
@@ -169,7 +169,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `updated_at`
 
 *   **LeaderboardEntry**: Represents a user's position on a leaderboard.
-    *   `entry_id` (Primary Key)
+    *   `leaderboard_entry_id` (Primary Key)
     *   `leaderboard_id` (Foreign Key to `Leaderboard`)
     *   `user_id` (Foreign Key to `User`)
     *   `score`
