@@ -263,7 +263,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `created_by` (Foreign Key to `User`, the Guild Master)
     *   `created_at`
     *   `updated_at`
-    *   `status` (e.g., 'Active', 'Archived')
+    *   `activation_status` (e.g., 'Active', 'Archived')
     *   `join_type` (e.g., 'Invite Only', 'Open', 'Code Required')
     *   `join_code` (Optional)
 
@@ -272,10 +272,10 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `guild_id` (Foreign Key to `Guild`)
     *   `role` (e.g., 'Guild Master', 'Player', 'Guide')
     *   `joined_at`
-    *   `status` (e.g., 'Active', 'Inactive')
+    *   `account_status` (e.g., 'Active', 'Inactive')
 
 *   **GuildMaterial**: Represents course materials uploaded by a Guild Master.
-    *   `material_id` (Primary Key)
+    *   `guild_material_id` (Primary Key)
     *   `guild_id` (Foreign Key to `Guild`)
     *   `uploader_id` (Foreign Key to `User`)
     *   `title`
@@ -285,13 +285,13 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `uploaded_at`
 
 *   **GuildQuestTemplate**: Represents a quest template created by a Guild Master.
-    *   `template_id` (Primary Key)
+    *   `guild_quest_template_id` (Primary Key)
     *   `guild_id` (Foreign Key to `Guild`)
     *   `creator_id` (Foreign Key to `User`)
     *   `title`
     *   `description`
     *   `quest_type` (e.g., 'Side Quest', 'Boss Fight', 'Training Drill')
-    *   `difficulty`
+    *   `difficulty` (e.g., 'Easy', 'Medium', 'Hard')
     *   `estimated_duration`
     *   `experience_points`
     *   `created_at`
@@ -300,39 +300,39 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 
 *   **GuildQuest**: Represents an instance of a quest assigned to guild members.
     *   `guild_quest_id` (Primary Key)
-    *   `template_id` (Foreign Key to `GuildQuestTemplate`)
+    *   `guild_quest_template_id` (Foreign Key to `GuildQuestTemplate`)
     *   `guild_id` (Foreign Key to `Guild`)
     *   `assigner_id` (Foreign Key to `User`)
     *   `title`
     *   `description`
-    *   `status` (e.g., 'Draft', 'Published', 'Archived')
+    *   `creation_status` (e.g., 'Draft', 'Published', 'Archived')
     *   `start_date`
     *   `due_date`
     *   `created_at`
     *   `updated_at`
 
 *   **GuildQuestAssignment**: Represents the assignment of a guild quest to a specific user.
-    *   `assignment_id` (Primary Key)
+    *   `guild_quest_assignment_id` (Primary Key)
     *   `guild_quest_id` (Foreign Key to `GuildQuest`)
     *   `user_id` (Foreign Key to `User`)
-    *   `status` (e.g., 'Not Started', 'In Progress', 'Completed', 'Overdue')
+    *   `progress_status` (e.g., 'Not Started', 'In Progress', 'Completed', 'Failed')
     *   `assigned_at`
     *   `started_at`
     *   `completed_at`
 
 *   **SkillTreeOverlay**: Represents a custom skill tree overlay created by a Guild Master.
-    *   `overlay_id` (Primary Key)
+    *   `skill_tree_overlay_id` (Primary Key)
     *   `guild_id` (Foreign Key to `Guild`)
     *   `creator_id` (Foreign Key to `User`)
     *   `name`
     *   `description`
     *   `created_at`
     *   `updated_at`
-    *   `status` (e.g., 'Draft', 'Published', 'Archived')
+    *   `creation_status` (e.g., 'Draft', 'Published', 'Archived')
 
 *   **OverlaySkill**: Represents a skill in a custom skill tree overlay.
     *   `overlay_skill_id` (Primary Key)
-    *   `overlay_id` (Foreign Key to `SkillTreeOverlay`)
+    *   `skill_tree_overlay_id` (Foreign Key to `SkillTreeOverlay`)
     *   `name`
     *   `description`
     *   `level` (Required proficiency level)
@@ -342,7 +342,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `prerequisites` (JSON array of prerequisite overlay skill IDs)
 
 *   **LoreFragment**: Represents a narrative description for a course topic.
-    *   `fragment_id` (Primary Key)
+    *   `lore_fragment_id` (Primary Key)
     *   `guild_id` (Foreign Key to `Guild`)
     *   `creator_id` (Foreign Key to `User`)
     *   `topic`
@@ -351,7 +351,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `updated_at`
 
 *   **GuildBuff**: Represents a temporary boost or reward for guild members.
-    *   `buff_id` (Primary Key)
+    *   `guild_buff_id` (Primary Key)
     *   `guild_id` (Foreign Key to `Guild`)
     *   `creator_id` (Foreign Key to `User`)
     *   `name`
@@ -361,32 +361,32 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `effect` (JSON object describing the buff effect)
     *   `start_date`
     *   `end_date`
-    *   `status` (e.g., 'Active', 'Inactive', 'Expired')
+    *   `activation_status` (e.g., 'Active', 'Inactive', 'Expired')
 
 *   **GuideAssignment**: Represents the assignment of a Guide (Tutor) to a specific Player.
-    *   `assignment_id` (Primary Key)
+    *   `guide_assignment_id` (Primary Key)
     *   `guide_id` (Foreign Key to `User`, the Guide)
     *   `player_id` (Foreign Key to `User`, the Player)
     *   `guild_id` (Foreign Key to `Guild`)
     *   `assigner_id` (Foreign Key to `User`, the Guild Master)
     *   `assigned_at`
-    *   `status` (e.g., 'Active', 'Inactive')
+    *   `account_status` (e.g., 'Active', 'Inactive')
 
 *   **TrainingDrill**: Represents a custom training exercise created by a Guide.
-    *   `drill_id` (Primary Key)
+    *   `training_drill_id` (Primary Key)
     *   `guide_id` (Foreign Key to `User`)
     *   `player_id` (Foreign Key to `User`)
     *   `title`
     *   `description`
-    *   `drill_type` (e.g., 'Practice', 'Review', 'Challenge')
+    *   `training_drill_type` (e.g., 'Practice', 'Review', 'Challenge')
     *   `content`
     *   `created_at`
     *   `assigned_at`
     *   `due_date`
-    *   `status` (e.g., 'Not Started', 'In Progress', 'Completed')
+    *   `progress_status` (e.g., 'Not Started', 'In Progress', 'Completed')
 
 *   **MentorReflection**: Represents feedback or advice from a Guide to a Player.
-    *   `reflection_id` (Primary Key)
+    *   `mentor_reflection_id` (Primary Key)
     *   `guide_id` (Foreign Key to `User`)
     *   `player_id` (Foreign Key to `User`)
     *   `quest_id` (Foreign Key to `Quest`, optional)
@@ -405,7 +405,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `generated_at`
 
 *   **MentorArchetype**: Represents a thematic persona for a Guide.
-    *   `archetype_id` (Primary Key)
+    *   `mentor_archetype_id` (Primary Key)
     *   `name` (e.g., 'Sage', 'Trickster', 'Warrior')
     *   `description`
     *   `icon_url`
@@ -414,19 +414,19 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 
 *   **GuideMentorArchetype**: A junction table to associate Guides with their chosen Mentor Archetypes.
     *   `guide_id` (Foreign Key to `User`)
-    *   `archetype_id` (Foreign Key to `MentorArchetype`)
+    *   `mentor_archetype_id` (Foreign Key to `MentorArchetype`)
     *   `selected_at`
     *   `is_active` (Boolean)
 
 *   **SystemHealth**: Represents the health status of the application.
-    *   `health_id` (Primary Key)
+    *   `system_health_id` (Primary Key)
     *   `component` (e.g., 'API', 'Database', 'AI Service')
-    *   `status` (e.g., 'Healthy', 'Degraded', 'Down')
+    *   `system_status` (e.g., 'Healthy', 'Degraded', 'Down')
     *   `details`
     *   `checked_at`
 
 *   **GlobalEvent**: Represents a platform-wide event triggered by a Game Master.
-    *   `event_id` (Primary Key)
+    *   `global_event_id` (Primary Key)
     *   `creator_id` (Foreign Key to `User`, the Game Master)
     *   `name`
     *   `description`
@@ -434,21 +434,21 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `effect` (JSON object describing the event effect)
     *   `start_date`
     *   `end_date`
-    *   `status` (e.g., 'Scheduled', 'Active', 'Completed', 'Cancelled')
+    *   `activation_status` (e.g., 'Scheduled', 'Active', 'Completed', 'Cancelled')
 
 *   **EventScript**: Represents a scheduled platform-wide event.
-    *   `script_id` (Primary Key)
+    *   `event_script_id` (Primary Key)
     *   `creator_id` (Foreign Key to `User`, the Game Master)
     *   `name`
     *   `description`
-    *   `script_type` (e.g., 'Challenge', 'PvP Event')
+    *   `event_type` (e.g., 'Challenge', 'PvP Event')
     *   `configuration` (JSON object with event parameters)
     *   `participation_conditions` (JSON object with conditions)
     *   `schedule_date`
-    *   `status` (e.g., 'Scheduled', 'Active', 'Completed', 'Cancelled')
+    *   `activation_status` (e.g., 'Scheduled', 'Active', 'Completed', 'Cancelled')
 
 *   **AbuseReport**: Represents a report of inappropriate content or behavior.
-    *   `report_id` (Primary Key)
+    *   `abuse_report_id` (Primary Key)
     *   `reporter_id` (Foreign Key to `User`)
     *   `reported_user_id` (Foreign Key to `User`, optional)
     *   `reported_content_type` (e.g., 'User', 'Note', 'Party', 'Message')
@@ -456,13 +456,13 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `reason`
     *   `details`
     *   `reported_at`
-    *   `status` (e.g., 'Pending', 'Under Review', 'Resolved', 'Dismissed')
+    *   `processing_status` (e.g., 'Pending', 'Processing', 'Completed')
     *   `resolution`
     *   `resolved_by` (Foreign Key to `User`, the Game Master)
     *   `resolved_at`
 
 *   **AnalyticsDashboard**: Represents a comprehensive analytics dashboard for Game Masters.
-    *   `dashboard_id` (Primary Key)
+    *   `analytics_dashboard_id` (Primary Key)
     *   `name`
     *   `description`
     *   `dashboard_type` (e.g., 'Feature Usage', 'User Cohort', 'Platform Health')
@@ -471,7 +471,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `updated_at`
 
 *   **SeasonalLoreUpdate**: Represents a major update to the game world and lore.
-    *   `update_id` (Primary Key)
+    *   `seasonal_lore_update_id` (Primary Key)
     *   `creator_id` (Foreign Key to `User`, the Game Master)
     *   `title`
     *   `description`
@@ -481,7 +481,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `new_factions` (JSON array of new factions)
     *   `new_threats` (JSON array of new threats)
     *   `release_date`
-    *   `status` (e.g., 'Draft', 'Published', 'Archived')
+    *   `creation_status` (e.g., 'Draft', 'Published', 'Archived')
 
 ### Phase 4: Living Ecosystem & Social
 
