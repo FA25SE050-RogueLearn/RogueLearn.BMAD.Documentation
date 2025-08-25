@@ -195,7 +195,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `created_by` (Foreign Key to `User`)
     *   `created_at`
     *   `updated_at`
-    *   `status` (e.g., 'Active', 'Archived')
+    *   `activation_status` (e.g., 'Active', 'Archived')
     *   `join_type` (e.g., 'Invite Only', 'Open')
     *   `max_members` (Optional)
 
@@ -204,28 +204,28 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `party_id` (Foreign Key to `Party`)
     *   `role` (e.g., 'Leader', 'Member')
     *   `joined_at`
-    *   `status` (e.g., 'Active', 'Inactive')
+    *   `account_status` (e.g., 'Active', 'Inactive')
 
 *   **PartyInvitation**: Represents an invitation to join a party.
-    *   `invitation_id` (Primary Key)
+    *   `party_invitation_id` (Primary Key)
     *   `party_id` (Foreign Key to `Party`)
     *   `inviter_id` (Foreign Key to `User`)
     *   `invitee_id` (Foreign Key to `User`)
-    *   `status` (e.g., 'Pending', 'Accepted', 'Declined')
+    *   `invitation_status` (e.g., 'Pending', 'Accepted', 'Declined')
     *   `created_at`
     *   `responded_at`
 
 *   **PartyStash**: Represents the shared resource space for a party.
-    *   `stash_id` (Primary Key)
+    *   `party_stash_id` (Primary Key)
     *   `party_id` (Foreign Key to `Party`)
     *   `name`
     *   `description`
     *   `created_at`
     *   `updated_at`
 
-*   **StashItem**: Represents an item in the party stash.
-    *   `item_id` (Primary Key)
-    *   `stash_id` (Foreign Key to `PartyStash`)
+*   **PartyStashItem**: Represents an item in the party stash.
+    *   `party_stash_item_id` (Primary Key)
+    *   `party_stash_id` (Foreign Key to `PartyStash`)
     *   `contributor_id` (Foreign Key to `User`)
     *   `item_type` (e.g., 'Note', 'Link', 'File')
     *   `title`
@@ -234,7 +234,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `updated_at`
 
 *   **BrowserExtensionData**: Represents data extracted by the browser extension.
-    *   `data_id` (Primary Key)
+    *   `browser_extension_data_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `source_url`
     *   `data_type` (e.g., 'Syllabus', 'GPA', 'Timetable', 'Exam Schedule', 'Web Content')
