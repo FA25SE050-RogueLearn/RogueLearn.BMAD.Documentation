@@ -597,7 +597,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `market_status` (e.g., 'Listed', 'Sold', 'Removed')
     *   `tags` (JSON array of tag strings)
 
-*   **MarketPlaceItemRating**: Represents a rating and review for a marketplace item.
+*   **MarketplaceItemRating**: Represents a rating and review for a marketplace item.
     *   `marketplace_item_rating_id` (Primary Key)
     *   `marketplace_item_id` (Foreign Key to `MarketplaceItem`)
     *   `user_id` (Foreign Key to `User`)
