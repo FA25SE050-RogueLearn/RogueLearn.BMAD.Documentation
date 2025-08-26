@@ -397,7 +397,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `created_at`
 
 *   **BurnoutForecast**: Represents a prediction of student disengagement.
-    *   `forecast_id` (Primary Key)
+    *   `burnout_forecast_id` (Primary Key)
     *   `player_id` (Foreign Key to `User`)
     *   `guild_id` (Foreign Key to `Guild`)
     *   `risk_level` (e.g., 'Low', 'Medium', 'High')
