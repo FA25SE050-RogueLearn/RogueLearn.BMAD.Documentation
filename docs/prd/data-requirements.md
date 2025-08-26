@@ -580,26 +580,26 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `description`
     *   `created_at`
     *   `updated_at`
-    *   `status` (e.g., 'Active', 'Maintenance')
+    *   `system_status` (e.g., 'Active', 'Maintenance')
 
 *   **MarketplaceItem**: Represents an item listed in the marketplace.
-    *   `item_id` (Primary Key)
+    *   `marketplace_item_id` (Primary Key)
     *   `seller_id` (Foreign Key to `User`)
     *   `title`
     *   `description`
-    *   `item_type` (e.g., 'Note', 'Document', 'Knowledge Pack')
+    *   `item_type` (e.g., 'Note', 'File', 'Knowledge Pack')
     *   `content_url` (URL to the item content)
     *   `preview_url` (URL to a preview of the item)
     *   `price` (In-game currency amount)
     *   `real_money_price` (Optional, for real money transactions)
     *   `created_at`
     *   `updated_at`
-    *   `status` (e.g., 'Listed', 'Sold', 'Removed')
+    *   `market_status` (e.g., 'Listed', 'Sold', 'Removed')
     *   `tags` (JSON array of tag strings)
 
-*   **ItemRating**: Represents a rating and review for a marketplace item.
-    *   `rating_id` (Primary Key)
-    *   `item_id` (Foreign Key to `MarketplaceItem`)
+*   **MarketPlaceItemRating**: Represents a rating and review for a marketplace item.
+    *   `marketplace_item_rating_id` (Primary Key)
+    *   `marketplace_item_id` (Foreign Key to `MarketplaceItem`)
     *   `user_id` (Foreign Key to `User`)
     *   `rating` (1-5 stars)
     *   `review` (Text review)
@@ -615,7 +615,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `updated_at`
 
 *   **UserWallet**: Represents a user's currency balance.
-    *   `wallet_id` (Primary Key)
+    *   `user_wallet_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `currency_id` (Foreign Key to `Currency`)
     *   `balance`
@@ -628,21 +628,21 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `receiver_wallet_id` (Foreign Key to `UserWallet`)
     *   `amount`
     *   `transaction_type` (e.g., 'Purchase', 'Sale', 'Reward', 'System')
-    *   `item_id` (Foreign Key to `MarketplaceItem`, optional)
+    *   `marketplace_item_id` (Foreign Key to `MarketplaceItem`, optional)
     *   `description`
     *   `created_at`
-    *   `status` (e.g., 'Pending', 'Completed', 'Failed', 'Refunded')
+    *   `processing_status` (e.g., 'Pending', 'Completed', 'Failed', 'Refunded')
 
 *   **EternalCodex**: Represents the public repository of high-quality study materials.
-    *   `codex_id` (Primary Key)
+    *   `eternal_codex_id` (Primary Key)
     *   `name`
     *   `description`
     *   `created_at`
     *   `updated_at`
 
-*   **CodexEntry**: Represents an entry in the Eternal Codex.
-    *   `entry_id` (Primary Key)
-    *   `codex_id` (Foreign Key to `EternalCodex`)
+*   **EternalCodexEntry**: Represents an entry in the Eternal Codex.
+    *   `eternal_codex_entry_id` (Primary Key)
+    *   `eternal_codex_id` (Foreign Key to `EternalCodex`)
     *   `original_item_id` (Foreign Key to `MarketplaceItem`)
     *   `contributor_id` (Foreign Key to `User`)
     *   `title`
@@ -653,7 +653,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `tags` (JSON array of tag strings)
 
 *   **KnowledgePack**: Represents a curated bundle of study materials.
-    *   `pack_id` (Primary Key)
+    *   `knowledge_pack_id` (Primary Key)
     *   `curator_id` (Foreign Key to `User`, can be AI)
     *   `title`
     *   `description`
@@ -663,11 +663,11 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `created_at`
     *   `updated_at`
     *   `price` (In-game currency amount)
-    *   `status` (e.g., 'Draft', 'Published', 'Archived')
+    *   `creation_status` (e.g., 'Draft', 'Published', 'Archived')
 
-*   **PackItem**: A junction table to associate items with knowledge packs.
-    *   `pack_id` (Foreign Key to `KnowledgePack`)
-    *   `item_id` (Foreign Key to `MarketplaceItem` or `CodexEntry`)
+*   **KnowledgePackItem**: A junction table to associate items with knowledge packs.
+    *   `knowledge_pack_id` (Foreign Key to `KnowledgePack`)
+    *   `marketplace_item_id` (Foreign Key to `MarketplaceItem` or `EternalCodexEntry`)
     *   `order` (For ordering items within the pack)
     *   `added_at`
 
@@ -679,8 +679,8 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `created_at`
 
 *   **ItemMetaSkill**: A junction table to associate meta-skills with marketplace items or codex entries.
-    *   `item_type` (e.g., 'MarketplaceItem', 'CodexEntry')
-    *   `item_id`
+    *   `item_type` (e.g., 'MarketplaceItem', 'EternalCodexEntry')
+    *   `item_id` (Foreign Key to `MarketplaceItem` or `EternalCodexEntry`)
     *   `meta_skill_id` (Foreign Key to `MetaSkill`)
     *   `relevance_score` (How relevant the meta-skill is to the item)
     *   `tagged_at`
