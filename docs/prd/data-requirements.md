@@ -486,7 +486,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 ### Phase 4: Living Ecosystem & Social
 
 *   **AISpellSuggestion**: Represents a study aid suggested by the AI.
-    *   `suggestion_id` (Primary Key)
+    *   `ai_spell_suggestion_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `title`
     *   `description`
@@ -494,10 +494,10 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `content`
     *   `source_note_ids` (JSON array of source note IDs)
     *   `suggested_at`
-    *   `status` (e.g., 'Suggested', 'Accepted', 'Rejected')
+    *   `suggestion_status` (e.g., 'Suggested', 'Accepted', 'Rejected')
 
 *   **ClassRecording**: Represents an audio/video recording of a class.
-    *   `recording_id` (Primary Key)
+    *   `class_recording_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `guild_id` (Foreign Key to `Guild`, optional)
     *   `title`
@@ -508,23 +508,22 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `processing_status` (e.g., 'Pending', 'Processing', 'Completed', 'Failed')
 
 *   **RecordingSummary**: Represents a text summary generated from a class recording.
-    *   `summary_id` (Primary Key)
+    *   `recording_summary_id` (Primary Key)
     *   `recording_id` (Foreign Key to `ClassRecording`)
     *   `content`
     *   `key_points` (JSON array of key points)
     *   `generated_at`
 
 *   **AtRiskPlayer**: Represents a player identified as at risk of falling behind.
-    *   `at_risk_id` (Primary Key)
+    *   `at_risk_player_id` (Primary Key)
     *   `player_id` (Foreign Key to `User`)
     *   `guild_id` (Foreign Key to `Guild`, optional)
     *   `risk_level` (e.g., 'Low', 'Medium', 'High')
     *   `risk_factors` (JSON array of risk factors)
     *   `identified_at`
-    *   `status` (e.g., 'Active', 'Resolved', 'Monitoring')
 
 *   **GuildVsGuildCompetition**: Represents a competition between guilds.
-    *   `competition_id` (Primary Key)
+    *   `guild_vs_guild_competition_id` (Primary Key)
     *   `initiator_guild_id` (Foreign Key to `Guild`)
     *   `opponent_guild_id` (Foreign Key to `Guild`)
     *   `title`
@@ -533,7 +532,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `rules` (JSON object with competition rules)
     *   `start_date`
     *   `end_date`
-    *   `status` (e.g., 'Scheduled', 'Active', 'Completed')
+    *   `activation_status` (e.g., 'Scheduled', 'Active', 'Completed')
     *   `winner_guild_id` (Foreign Key to `Guild`, optional)
     *   `initiator_score`
     *   `opponent_score`
@@ -554,24 +553,24 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `progress` (For achievements with progress tracking)
 
 *   **PvPEvent**: Represents a player-versus-player competition.
-    *   `event_id` (Primary Key)
+    *   `pvp_event_id` (Primary Key)
     *   `title`
     *   `description`
     *   `event_type` (e.g., 'Coding Challenge', 'CSS Battle', 'Algorithm Battle')
     *   `rules` (JSON object with event rules)
     *   `start_date`
     *   `end_date`
-    *   `status` (e.g., 'Scheduled', 'Active', 'Completed')
+    *   `activation_status` (e.g., 'Scheduled', 'Active', 'Completed')
     *   `max_participants`
 
 *   **PvPParticipant**: A junction table to track participants in PvP events.
-    *   `participant_id` (Primary Key)
+    *   `pvp_participant_id` (Primary Key)
     *   `event_id` (Foreign Key to `PvPEvent`)
     *   `user_id` (Foreign Key to `User`)
     *   `score`
     *   `rank`
     *   `joined_at`
-    *   `status` (e.g., 'Registered', 'Active', 'Completed', 'Disqualified')
+    *   `participation_status` (e.g., 'Registered', 'Active', 'Completed', 'Disqualified')
 
 ### Phase 5: Marketplace & Economy
 
