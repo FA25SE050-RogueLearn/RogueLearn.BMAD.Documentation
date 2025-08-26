@@ -565,7 +565,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 
 *   **PvPParticipant**: A junction table to track participants in PvP events.
     *   `pvp_participant_id` (Primary Key)
-    *   `event_id` (Foreign Key to `PvPEvent`)
+    *   `pvp_event_id` (Foreign Key to `PvPEvent`)
     *   `user_id` (Foreign Key to `User`)
     *   `score`
     *   `rank`
