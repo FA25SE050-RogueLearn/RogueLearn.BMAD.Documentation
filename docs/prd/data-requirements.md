@@ -25,6 +25,16 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `experience_points`
     *   `created_at`
     *   `updated_at`
+  
+*   **UserRole**: Represents a role that a user can have in different contexts.
+    *   `user_role_id` (Primary Key)
+    *   `user_id` (Foreign Key to `User`)
+    *   `context_type` (e.g., 'Party', 'Guild')
+    *   `context_id` (ID of the context entity)
+    *   `role` (e.g., 'Guild Master', 'Guide', 'Player', 'Party Leader', 'Game Master')
+    *   `assigned_at`
+    *   `assigned_by` (Foreign Key to `User`, optional)
+    *   `status` (e.g., 'Active', 'Inactive')
 
 *   **Class**: Represents a career goal that a user can select.
     *   `class_id` (Primary Key)
@@ -90,6 +100,12 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `completion_date`
     *   `experience_points` (XP reward for completion)
     *   `prerequisites` (JSON array of prerequisite quest IDs)
+
+*   **QuestSkillRelationship**: A junction table to manage relationships between quests and skills.
+    *   `quest_skill_relationship_id` (Primary Key)
+    *   `quest_id` (Foreign Key to `Quest`)
+    *   `skill_id` (Foreign Key to `Skill`)
+    *   `relationship_type` (e.g., 'Requires', 'Rewards', 'Enhances')
 
 *   **SkillTree**: Represents the user's knowledge structure.
     *   `skill_tree_id` (Primary Key)
@@ -192,17 +208,18 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `party_id` (Primary Key)
     *   `name`
     *   `description`
-    *   `created_by` (Foreign Key to `User`)
     *   `created_at`
     *   `updated_at`
     *   `activation_status` (e.g., 'Active', 'Archived')
     *   `join_type` (e.g., 'Invite Only', 'Open')
     *   `max_members` (Optional)
 
-*   **PartyMember**: A junction table to manage the many-to-many relationship between `User` and `Party`.
+*   **PartyMembership**: A junction table to manage the many-to-many relationship between `User` and `Party`.
+    *   `party_membership_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `party_id` (Foreign Key to `Party`)
-    *   `role` (e.g., 'Leader', 'Member')
+    *   `is_creator` (Boolean)
+    *   `permission_level` (e.g., 'View', 'Comment', 'Edit')
     *   `joined_at`
     *   `account_status` (e.g., 'Active', 'Inactive')
 
@@ -260,17 +277,17 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `guild_id` (Primary Key)
     *   `name`
     *   `description`
-    *   `created_by` (Foreign Key to `User`, the Guild Master)
     *   `created_at`
     *   `updated_at`
     *   `activation_status` (e.g., 'Active', 'Archived')
     *   `join_type` (e.g., 'Invite Only', 'Open', 'Code Required')
     *   `join_code` (Optional)
 
-*   **GuildMember**: A junction table to manage the many-to-many relationship between `User` and `Guild`.
+*   **GuildMembership**: A junction table to manage the many-to-many relationship between `User` and `Guild`.
+    *   `guild_membership_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `guild_id` (Foreign Key to `Guild`)
-    *   `role` (e.g., 'Guild Master', 'Player', 'Guide')
+    *   `is_creator` (Boolean)
     *   `joined_at`
     *   `account_status` (e.g., 'Active', 'Inactive')
 
@@ -688,6 +705,8 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 
 ## Data Relationships and Constraints
 
+### Core Relationships
+
 *   A User can have multiple Courses, but each Course belongs to only one User.
 *   A Course can have one Syllabus, and a Syllabus belongs to only one Course.
 *   A User can have multiple AcademicDocuments.
@@ -695,18 +714,34 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 *   A User can have multiple SkillTrees, and each SkillTree can have multiple Skills.
 *   A User can create multiple Notes, which can be associated with Courses, Quests, or Skills.
 *   A User can have multiple BossFights, and each BossFight can have multiple Questions.
-*   A User can create or join multiple Parties, and a Party can have multiple PartyMembers.
-*   A Party can have one PartyStash, which can contain multiple StashItems.
-*   A User can be a Guild Master for multiple Guilds, and a Guild can have multiple GuildMembers.
-*   A Guild Master can create multiple GuildQuestTemplates, which can be instantiated as GuildQuests.
-*   A Guide can be assigned to multiple Players, and a Player can have multiple Guides.
-*   A Game Master can create multiple GlobalEvents and EventScripts.
-*   A User can earn multiple Achievements, and an Achievement can be earned by multiple Users.
-*   A User can list multiple MarketplaceItems, and a MarketplaceItem can have multiple ItemRatings.
-*   A User has one UserWallet, which can be involved in multiple Transactions.
-*   The EternalCodex can contain multiple CodexEntries, which are elevated from MarketplaceItems.
-*   A KnowledgePack can contain multiple PackItems, which reference MarketplaceItems or CodexEntries.
-*   A MarketplaceItem or CodexEntry can be tagged with multiple MetaSkills.
+
+### Many-to-Many Relationships with Junction Tables
+
+*   Users and Parties have a many-to-many relationship managed through the `PartyMembership` junction table, which stores additional relationship attributes like permission levels and join dates.
+*   Users and Guilds have a many-to-many relationship managed through the `GuildMembership` junction table, which tracks membership status and join dates.
+*   Quests and Skills have a many-to-many relationship managed through the `QuestSkillRelationship` junction table, which defines the type of relationship (requires, rewards, enhances).
+*   Users and Achievements have a many-to-many relationship managed through the `UserAchievement` junction table, which tracks when achievements were earned.
+*   Users and PvP Events have a many-to-many relationship managed through the `PvPParticipant` junction table, which tracks scores, ranks, and participation status.
+*   Guides and Mentor Archetypes have a many-to-many relationship managed through the `GuideMentorArchetype` junction table, which tracks selected archetypes and their active status.
+*   Knowledge Packs and Marketplace Items have a many-to-many relationship managed through the `KnowledgePackItem` junction table, which tracks the order of items within packs.
+*   Marketplace Items/Codex Entries and Meta Skills have a many-to-many relationship managed through the `ItemMetaSkill` junction table, which tracks relevance scores and tagging information.
+
+### Hierarchical and Unidirectional Relationships
+
+*   A Party can have one PartyStash, which can contain multiple PartyStashItems, creating a hierarchical relationship that prevents circular dependencies.
+*   A Guild Master (User) can create multiple GuildQuestTemplates, which can be instantiated as GuildQuests, maintaining a unidirectional flow of relationships.
+*   Guide-Player relationships are managed through the `GuideAssignment` entity, which creates a structured relationship between Users in different roles without direct circular references.
+*   The EternalCodex can contain multiple CodexEntries, which reference MarketplaceItems through a unidirectional relationship, preventing circular dependencies.
+
+### Ownership and Transaction Relationships
+
+*   A User has one UserWallet, which can be involved in multiple Transactions as either sender or receiver.
+*   Transactions can reference MarketplaceItems through an optional foreign key, creating a unidirectional relationship that prevents circular dependencies.
+*   A User can list multiple MarketplaceItems as a seller, and a MarketplaceItem can have multiple ItemRatings from different Users, with clear directional relationships that avoid circularity.
+
+### Administrative Relationships
+
+*   A Game Master (User) can create multiple GlobalEvents and EventScripts, maintaining a unidirectional relationship that prevents circular dependencies.
 
 ## Data Migration and Versioning
 
