@@ -10,6 +10,15 @@ This directory contains detailed user flow documentation for the RogueLearn plat
 - [Party Leader Flows](./party-leader-flows.md) - Flows for students managing study groups
 - [System Admin (Game Master) Flows](./system-admin-flows.md) - Flows for technical personnel maintaining the platform
 
+## Page Descriptions
+
+- [Page Descriptions Index](./pages/index.md) - Detailed descriptions of all pages in the application
+- [Student Pages](./pages/student-pages.md) - Pages for the student user role
+- [Guild Master Pages](./pages/guild-master-pages.md) - Pages for the guild master user role
+- [Tutor Pages](./pages/tutor-pages.md) - Pages for the tutor user role
+- [Party Leader Pages](./pages/party-leader-pages.md) - Pages for the party leader user role
+- [System Admin Pages](./pages/system-admin-pages.md) - Pages for the system admin user role
+
 ## Overview
 
 These user flows document the step-by-step processes that different user roles follow to accomplish their goals within the RogueLearn platform. Each flow includes:
