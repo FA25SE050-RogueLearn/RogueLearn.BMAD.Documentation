@@ -526,7 +526,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 
 *   **RecordingSummary**: Represents a text summary generated from a class recording.
     *   `recording_summary_id` (Primary Key)
-    *   `recording_id` (Foreign Key to `ClassRecording`)
+    *   `class_recording_id` (Foreign Key to `ClassRecording`)
     *   `content`
     *   `key_points` (JSON array of key points)
     *   `generated_at`
