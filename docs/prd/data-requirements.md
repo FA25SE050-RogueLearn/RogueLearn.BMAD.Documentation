@@ -1410,4 +1410,263 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 *   API design will follow RESTful principles with GraphQL for complex queries.
 *   Real-time features will be implemented using WebSocket connections and event streaming.
 *   Content delivery will be optimized through CDN integration for file storage and retrieval.
+
+## Detailed Data Validation Rules
+
+### Core Entity Field Validation
+
+**User Management Validation**
+- `email`: RFC 5322 compliant, max 255 chars, unique globally, case-insensitive
+- `username`: 3-30 chars, regex: `^[a-zA-Z0-9_-]+$`, unique globally, reserved words blocked
+- `password`: Min 8 chars, must contain: uppercase, lowercase, digit, special char (!@#$%^&*)
+- `character_name`: 2-50 chars, Unicode support, profanity filter, unique per user
+- `birth_date`: Valid ISO 8601 date, age ≥13 years, not future date
+- `profile_picture_url`: Valid HTTPS URL, max 500 chars, allowed domains whitelist
+- `bio`: Max 500 chars, HTML sanitization, profanity filter
+- `privacy_settings`: JSON schema validation with predefined structure
+- `clerk_user_id`: External ID format validation, unique constraint
+
+**Academic Document Validation**
+- `title`: 1-200 chars, required, HTML entities escaped
+- `file_url`: HTTPS URL, max 1000 chars, domain whitelist, file extension validation
+- `file_size`: Max 50MB (52,428,800 bytes), positive integer
+- `document_type`: Enum validation ('PDF', 'DOCX', 'TXT', 'MD', 'PPTX')
+- `processing_status`: State machine validation with allowed transitions
+- `extracted_text`: Max 1MB UTF-8 text, content sanitization
+- `ai_analysis_result`: Valid JSON schema, confidence scores 0-1 range
+
+**Quest System Validation**
+- `title`: 5-200 chars, required, no leading/trailing whitespace
+- `description`: 10-2000 chars, rich text validation, image URL validation
+- `difficulty`: Enum ('Easy', 'Medium', 'Hard', 'Expert', 'Legendary')
+- `experience_points`: 1-10000 range, integer, difficulty-based constraints
+- `estimated_duration`: 5-480 minutes, integer, realistic time bounds
+- `quest_type`: Predefined enum with extensibility support
+- `prerequisites`: JSON array, circular dependency detection algorithm
+- `completion_criteria`: JSON schema validation, required fields check
+- `ai_generated_content`: Boolean flag with generation metadata
+
+**Skill Tree Validation**
+- `skill_name`: 2-100 chars, unique within tree, localization support
+- `proficiency_level`: 0-100 integer, non-decreasing constraint
+- `prerequisites`: JSON array, DAG validation, max depth limit (10 levels)
+- `position_x`, `position_y`: Integer coordinates, canvas bounds (0-5000)
+- `unlock_threshold`: 0-100 range, ≤ max_level, prerequisite consistency
+- `skill_category`: Hierarchical taxonomy validation
+- `icon_url`: Valid URL, SVG/PNG format, size limits (max 100KB)
+
+### Advanced Validation Rules
+
+**Business Logic Validation**
+- Party membership: Max 10 active parties per user
+- Quest prerequisites: Topological sort validation for dependency chains
+- Skill unlocking: Prerequisite completion verification
+- Experience caps: Daily (5000 XP), weekly (25000 XP) anti-gaming limits
+- Currency transactions: Non-negative balance enforcement
+- File uploads: Virus scanning integration, MIME type validation
+- Content moderation: AI-powered inappropriate content detection
+- Rate limiting: API endpoint specific limits (100-1000 req/min)
+
+**Temporal Validation**
+- `created_at`: Auto-generated UTC timestamp, immutable
+- `updated_at`: Auto-updated on modification, ≥ created_at
+- `due_date`: Must be future date, reasonable time bounds (max 1 year)
+- `start_date` < `end_date`: Chronological order validation
+- Session timestamps: Logical ordering, overlap detection
+- Event scheduling: Conflict detection, timezone handling
+
+**Data Integrity Constraints**
+- Foreign key cascading: Defined cascade/restrict rules per relationship
+- Soft delete implementation: `deleted_at` timestamp, filtered queries
+- Audit trail: Change tracking for sensitive operations
+- Concurrent modification: Optimistic locking with version numbers
+- Data consistency: Cross-service transaction coordination
+
+## Comprehensive Data Flow Specifications
+
+### User Lifecycle Data Flows
+
+**Registration & Onboarding Flow**
+```
+1. Initial Registration
+   Input: {email, username, password, character_name, birth_date}
+   Validation: Email uniqueness check, password strength validation
+   Processing: Password hashing (bcrypt), verification token generation
+   Storage: User record creation, email verification queue
+   Output: {user_id, verification_token}, welcome email trigger
+   
+2. Email Verification
+   Input: {verification_token}
+   Validation: Token expiry check (24 hours), single-use verification
+   Processing: Account activation, initial skill tree creation
+   Storage: User status update, default preferences setup
+   Output: Account activation confirmation, onboarding flow initiation
+   
+3. Profile Completion
+   Input: {bio, profile_picture, privacy_settings, academic_info}
+   Validation: Image format/size, content filtering, privacy options
+   Processing: Image optimization, content moderation
+   Storage: Profile data persistence, search index update
+   Output: Complete profile, personalized dashboard setup
+```
+
+**Document Processing Pipeline**
+```
+1. Document Upload
+   Input: {file_data, document_type, course_id, metadata}
+   Validation: File type whitelist, size limits (50MB), virus scan
+   Processing: File encryption, cloud storage upload (S3/Azure Blob)
+   Storage: Document metadata, processing queue entry
+   Output: {document_id, upload_url}, processing status notification
+   
+2. Content Extraction & Analysis
+   Input: {document_id, file_url}
+   Processing: 
+     - OCR/text extraction (Tesseract/Azure Cognitive Services)
+     - Content analysis (NLP, topic modeling)
+     - Skill mapping (AI classification)
+     - Quality assessment (readability, completeness)
+   Storage: Extracted text, analysis results, skill associations
+   Output: Processed content, skill tree updates, quest generation triggers
+   
+3. AI-Powered Quest Generation
+   Input: {extracted_content, user_skill_level, learning_preferences}
+   Processing:
+     - Content chunking and difficulty analysis
+     - Question generation (GPT-4, Claude)
+     - Answer validation and scoring rubrics
+     - Adaptive difficulty calibration
+   Storage: Generated quests, difficulty metadata, success metrics
+   Output: Personalized quest recommendations, skill progression updates
+```
+
+**Real-time Collaboration Flow**
+```
+1. Party Session Initialization
+   Input: {party_id, session_type, invited_participants}
+   Validation: Party membership verification, session limits
+   Processing: WebSocket server allocation, shared state initialization
+   Storage: Session metadata, participant tracking
+   Output: Session credentials, real-time connection establishment
+   
+2. Synchronized Learning Activities
+   Input: Real-time user actions via WebSocket
+   Processing:
+     - Operational transformation for concurrent edits
+     - Conflict resolution algorithms
+     - State synchronization across clients
+     - Progress tracking and analytics
+   Storage: Event sourcing, periodic state snapshots
+   Output: Synchronized UI updates, progress notifications
+   
+3. Session Completion & Analytics
+   Input: Session end trigger, final state
+   Processing: 
+     - Participation metrics calculation
+     - Learning outcome assessment
+     - Experience point distribution
+     - Achievement unlock checks
+   Storage: Session summary, individual progress updates
+   Output: Session report, reward notifications, recommendation updates
+```
+
+### Assessment & Progression Flows
+
+**Adaptive Assessment Pipeline**
+```
+1. Quest Attempt Initiation
+   Input: {quest_id, user_id, attempt_context}
+   Validation: Quest availability, prerequisite completion, attempt limits
+   Processing: Personalized question selection, difficulty calibration
+   Storage: Attempt record creation, analytics tracking
+   Output: Customized quest instance, progress tracking initialization
+   
+2. Real-time Answer Processing
+   Input: {question_id, user_response, response_time}
+   Processing:
+     - Answer validation and partial credit calculation
+     - Response pattern analysis
+     - Adaptive difficulty adjustment
+     - Hint system activation
+   Storage: Response data, performance metrics
+   Output: Immediate feedback, next question selection
+   
+3. Skill Proficiency Assessment
+   Input: Quest completion data, historical performance
+   Processing:
+     - Bayesian knowledge tracing
+     - Skill mastery probability calculation
+     - Learning curve analysis
+     - Personalized recommendation generation
+   Storage: Updated skill proficiency, learning analytics
+   Output: Skill tree updates, next learning recommendations
+```
+
+**Gamification & Reward Flow**
+```
+1. Achievement Detection
+   Input: User activity data, milestone triggers
+   Processing: Achievement criteria evaluation, progress calculation
+   Storage: Achievement progress updates, unlock notifications
+   Output: Achievement notifications, reward distribution
+   
+2. Experience & Currency Management
+   Input: Completed activities, performance metrics
+   Processing: XP calculation, currency rewards, bonus multipliers
+   Validation: Daily/weekly limits, anti-gaming measures
+   Storage: User wallet updates, transaction records
+   Output: Balance updates, leaderboard position changes
+   
+3. Social Recognition System
+   Input: Achievement unlocks, milestone completions
+   Processing: Social feed updates, peer notifications
+   Storage: Activity feed, social interaction records
+   Output: Social notifications, community engagement metrics
+```
+
+## API Integration Specifications
+
+### Authentication & Security
+- **JWT Implementation**: RS256 algorithm, 24-hour access tokens, 7-day refresh tokens
+- **Rate Limiting**: Sliding window algorithm, per-endpoint limits, burst allowance
+- **API Versioning**: Semantic versioning in URL path (/api/v1/), backward compatibility
+- **Request Validation**: JSON Schema validation, input sanitization, CORS policies
+- **Audit Logging**: Request/response logging, user action tracking, security events
+
+### Data Exchange Standards
+- **Response Format**: JSON:API specification compliance, consistent error formats
+- **Pagination**: Cursor-based pagination for large datasets, configurable page sizes
+- **Filtering & Sorting**: Query parameter standards, field selection, relationship inclusion
+- **Caching Headers**: ETags for conditional requests, cache-control directives
+- **Compression**: Gzip compression for responses >1KB, content negotiation
+
+### Real-time Communication
+- **WebSocket Protocol**: Socket.IO implementation, automatic reconnection, heartbeat monitoring
+- **Event Broadcasting**: Room-based messaging, selective event subscription
+- **Message Queuing**: RabbitMQ for async processing, dead letter queues, retry policies
+- **Push Notifications**: Firebase/APNs integration, user preference management
+- **Offline Synchronization**: Local storage queuing, conflict resolution on reconnection
+
+## Performance & Scalability Specifications
+
+### Database Optimization
+- **Query Performance**: <200ms response time for 95th percentile, query plan optimization
+- **Indexing Strategy**: Composite indexes for common queries, partial indexes for filtered data
+- **Connection Management**: Connection pooling (max 100), connection lifecycle management
+- **Read Scaling**: Read replicas for analytics, query routing based on operation type
+- **Write Optimization**: Batch operations, async processing for non-critical updates
+
+### Caching Architecture
+- **Multi-level Caching**: L1 (application), L2 (Redis), L3 (CDN)
+- **Cache Invalidation**: Event-driven invalidation, TTL-based expiration, cache warming
+- **Session Management**: Redis-based session storage, session clustering
+- **Static Asset Caching**: CDN integration, versioned assets, cache busting
+- **Query Result Caching**: Materialized views, computed aggregations
+
+### Monitoring & Analytics
+- **Performance Metrics**: Response times, throughput, error rates, resource utilization
+- **Business Metrics**: User engagement, learning outcomes, feature adoption
+- **Real-time Dashboards**: Grafana integration, alert thresholds, automated notifications
+- **Log Aggregation**: Centralized logging (ELK stack), structured logging, log retention
+- **Health Checks**: Service health endpoints, dependency monitoring, circuit breakers
   

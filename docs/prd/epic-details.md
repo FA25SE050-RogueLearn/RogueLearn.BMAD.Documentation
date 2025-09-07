@@ -10,57 +10,138 @@ This document provides detailed user stories for each epic, aligned with the pha
 ### **Epic: User Onboarding & Profile Management**
 *Goal: Create a seamless and engaging entry point for new users, allowing them to set up their accounts and profiles.*
 
-#### **Story: Foundational Project Setup**
-**As a** Developer, **I want** to set up the initial project structure for both the Next.js frontend and the .NET backend, including basic CI/CD pipelines, **so that** we have a stable and automated foundation for development.
+#### **Story: Project Infrastructure Setup**
+**As a** Developer, **I want** to establish the foundational project infrastructure with proper CI/CD pipelines, **so that** we have a reliable development and deployment foundation.
 
 *   **Acceptance Criteria:**
-    *   A new Git repository is created for both frontend and backend.
-    *   Basic "Hello World" applications are running for both projects.
-    *   A CI pipeline runs on every commit to the main branch, building and running basic tests.
-    *   A health check endpoint is available on the backend (e.g., `/health`).
+    *   Git repositories are created for frontend (Next.js) and backend (.NET) with proper branching strategy
+    *   Basic "Hello World" applications are deployable and accessible via health check endpoints
+    *   CI/CD pipeline triggers on commits with automated testing (minimum 80% code coverage)
+    *   Environment-specific configuration management is implemented (dev, staging, prod)
+    *   Docker containerization is set up for both frontend and backend
+    *   Basic monitoring and logging infrastructure is configured
 
-#### **Story: User Sign-Up and Login**
-**As a** new user, **I want** to be able to sign up for an account and log in using my email and password via Clerk, **so that** my access is secure.
-
-*   **Acceptance Criteria:**
-    *   A user can navigate to a sign-up page.
-    *   A user can create an account with a unique email and a password.
-    *   A user can log in with their credentials.
-    *   Upon successful login, the user is redirected to the main dashboard.
-    *   Clerk is successfully integrated for handling authentication.
-
-#### **Story: Protected Routes and Initial Dashboard**
-**As a** logged-in user, **I want** to be directed to a personal dashboard that is only accessible after logging in, **so that** my private information is protected.
+#### **Story: Authentication Service Integration**
+**As a** Developer, **I want** to integrate Clerk authentication service with proper error handling, **so that** users can securely access the platform.
 
 *   **Acceptance Criteria:**
-    *   The main dashboard route (e.g., `/dashboard`) is protected and requires authentication.
-    *   Unauthenticated users attempting to access the dashboard are redirected to the login page.
-    *   The dashboard displays a welcome message and a prompt to start the onboarding process if the user's profile is incomplete.
+    *   Clerk SDK is properly configured in both frontend and backend
+    *   JWT token validation middleware is implemented on backend API routes
+    *   Authentication state management is implemented in frontend (React Context/Redux)
+    *   Session persistence and refresh token handling is configured
+    *   Rate limiting is implemented for authentication endpoints (5 attempts per minute)
+    *   Proper error messages are displayed for authentication failures
 
-#### **Story: Multi-Step Onboarding - Syllabus Upload**
-**As a** new user on my first login, **I want** to be guided through a multi-step onboarding process, starting with uploading my course syllabus, **so that** the system can begin creating my personalized learning path.
-
-*   **Acceptance Criteria:**
-    *   A modal or dedicated page guides the user through onboarding steps.
-    *   The first step prompts the user to upload a syllabus file (PDF, DOCX).
-    *   The system provides feedback on whether the upload was successful or if there was an error.
-    - The uploaded file is securely stored in Supabase storage.
-
-#### **Story: Onboarding - Profile and Goal Selection**
-**As a** new user, **I want** to complete my profile by selecting my 'Class' (career goal) and 'Route' (academic path) during onboarding, **so that** the system can tailor my quest line.
+#### **Story: User Registration Flow**
+**As a** prospective student, **I want** to create an account with email verification, **so that** I can access the RogueLearn platform securely.
 
 *   **Acceptance Criteria:**
-    *   The onboarding flow includes a step for selecting a 'Class' from a predefined list.
-    *   The user can also select their 'Route'.
-    *   These selections are saved to the user's profile in the database.
+    *   Registration form validates email format and password strength (8+ chars, mixed case, numbers)
+    *   Email verification is required before account activation
+    *   Duplicate email registration is prevented with clear error messaging
+    *   User agreement and privacy policy acceptance is required
+    *   Registration success triggers welcome email with next steps
+    *   Failed registration attempts are logged for security monitoring
+
+#### **Story: User Login and Session Management**
+**As a** registered user, **I want** to log in securely with session persistence, **so that** I can access my personalized learning dashboard.
+
+*   **Acceptance Criteria:**
+    *   Login form supports email/password authentication with "Remember Me" option
+    *   Failed login attempts are rate-limited (5 attempts, then 15-minute lockout)
+    *   Successful login redirects to appropriate page (dashboard or onboarding)
+    *   Session timeout is configured (24 hours with refresh capability)
+    *   "Forgot Password" functionality is available with secure reset flow
+    *   Login activity is logged for security auditing
+
+#### **Story: Route Protection and Authorization**
+**As a** system administrator, **I want** proper route protection implemented, **so that** user data and functionality are secured appropriately.
+
+*   **Acceptance Criteria:**
+    *   Protected routes require valid authentication tokens
+    *   Unauthenticated access redirects to login with return URL preservation
+    *   Role-based access control is implemented for different user types
+    *   API endpoints validate user permissions before processing requests
+    *   Unauthorized access attempts are logged and monitored
+    *   Session expiry handling gracefully prompts for re-authentication
+
+#### **Story: Onboarding Flow Initialization**
+**As a** new user, **I want** to be guided through a structured onboarding process, **so that** I can set up my learning profile effectively.
+
+*   **Acceptance Criteria:**
+    *   Onboarding status is tracked in user profile (not_started, in_progress, completed)
+    *   Multi-step progress indicator shows current step and overall completion
+    *   Users can save progress and return to complete onboarding later
+    *   Skip options are available for optional steps with clear consequences
+    *   Onboarding completion triggers character sheet generation
+    *   Analytics track onboarding completion rates and drop-off points
+
+#### **Story: Academic Profile Setup**
+**As a** new user, **I want** to define my academic profile with institution and program details, **so that** the system can provide relevant content and connections.
+
+*   **Acceptance Criteria:**
+    *   Institution selection from searchable database with "Add New" option
+    *   Program/major selection with custom entry capability
+    *   Academic year/level selection (Freshman, Sophomore, Junior, Senior, Graduate)
+    *   Study preferences configuration (learning style, time availability, goals)
+    *   Profile information is validated and saved to user database
+    *   Profile completeness score is calculated and displayed
+
+#### **Story: Character Class Selection**
+**As a** new user, **I want** to choose my character class based on career goals, **so that** my learning path aligns with my professional aspirations.
+
+*   **Acceptance Criteria:**
+    *   Predefined class options are presented with detailed descriptions and career paths
+    *   Class selection includes associated skills, strengths, and typical quest types
+    *   Custom class creation option for unique career goals
+    *   Class selection impacts initial skill tree structure and available quests
+    *   Class information is stored in user profile with modification capability
+    *   Class-specific onboarding tips and resources are provided
+
+#### **Story: Academic Route Configuration**
+**As a** new user, **I want** to define my academic route and learning preferences, **so that** the system can customize my educational journey.
+
+*   **Acceptance Criteria:**
+    *   Route selection includes academic focus areas and specializations
+    *   Learning pace preferences (intensive, moderate, relaxed) are configurable
+    *   Study schedule preferences (morning, afternoon, evening, weekend) are captured
+    *   Difficulty preference and challenge level are selectable
+    *   Route configuration affects quest generation and skill tree progression
+    *   Route can be modified later with impact assessment provided
+
+#### **Story: Document Upload and Validation**
+**As a** new user, **I want** to upload my course syllabus and academic documents, **so that** the AI can create my personalized learning path.
+
+*   **Acceptance Criteria:**
+    *   File upload supports PDF, DOCX, TXT formats with 10MB size limit
+    *   Drag-and-drop interface with progress indicators and error handling
+    *   Document validation checks for academic content and readability
+    *   Multiple document upload capability for different courses
+    *   Secure file storage with encryption and access controls
+    *   Upload status tracking with retry capability for failed uploads
+    *   Document processing queue with estimated completion times
 
 #### **Story: Initial Character Sheet Generation**
-**As a** new user, **I want** to see my personalized "Character Sheet" populated with my name, class, and route after completing the initial onboarding, **so that** I can see the immediate result of my setup.
+**As a** new user, **I want** to see my personalized character sheet after onboarding completion, **so that** I can visualize my learning persona and initial stats.
 
 *   **Acceptance Criteria:**
-    *   Upon completing the final onboarding step, the user is navigated to their dashboard.
-    *   The Character Sheet component on the dashboard displays the user's name, selected Class, and Route.
-    *   A placeholder or loading state is shown for the skill tree and quest line, which will be populated by the AI service.
+    *   Character sheet displays user name, selected class, and academic route
+    *   Initial stats are calculated based on profile information and assessments
+    *   Character avatar/image is generated or selected during onboarding
+    *   Skill tree structure is initialized with locked/unlocked nodes
+    *   Character sheet includes progress tracking elements (XP, level, achievements)
+    *   Character sheet is accessible from main dashboard with edit capabilities
+
+#### **Story: Onboarding Completion and Dashboard Transition**
+**As a** new user, **I want** to smoothly transition from onboarding to the main dashboard, **so that** I can begin my learning journey immediately.
+
+*   **Acceptance Criteria:**
+    *   Onboarding completion celebration/animation provides positive reinforcement
+    *   Dashboard tutorial highlights key features and navigation elements
+    *   Initial quest recommendations are generated based on uploaded documents
+    *   Quick start guide is accessible for immediate learning activities
+    *   Onboarding can be revisited to modify profile settings
+    *   User feedback collection on onboarding experience for continuous improvement
 
 ---
 
