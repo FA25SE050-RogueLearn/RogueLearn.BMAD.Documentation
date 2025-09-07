@@ -106,6 +106,42 @@ This document provides detailed user stories for each epic, aligned with the pha
 #### **Story: Shared 'Party Stash'**
 **As a** party member, **I want** access to a shared space for notes and resources, **so that** we can easily collaborate.
 
+#### **Story: Meeting Scheduling & Organization**
+**As a** Party Leader, **I want** to schedule and organize study meetings within my party, **so that** we can coordinate collaborative learning sessions effectively.
+
+*   **Acceptance Criteria:**
+    *   Party Leader can create new meetings with title, description, and agenda.
+    *   Meeting types can be selected: Study Session, Project Discussion, Exam Prep, or General Meeting.
+    *   Date, time, and duration can be set for meetings.
+    *   Meeting invitations are automatically sent to all party members.
+    *   Party members can accept, decline, or mark as tentative for meeting invitations.
+    *   Meeting details are visible in the party dashboard and individual calendars.
+
+#### **Story: Meeting Content Recording & Capture**
+**As a** party member, **I want** the browser extension to capture and record our meeting content during study sessions, **so that** we can preserve important discussions and decisions for future reference.
+
+*   **Acceptance Criteria:**
+    *   Browser extension can be activated during party meetings to start recording.
+    *   Multiple recording methods are supported: manual entry, audio transcription, and automated capture.
+    *   Participant discussions, shared resources, and key decisions are captured.
+    *   Recording quality and completeness are tracked and displayed.
+    *   Raw content is stored securely and linked to the specific meeting.
+    *   Recording can be paused, resumed, and stopped by authorized party members.
+
+#### **Story: AI-Generated Meeting Summaries & Action Items**
+**As a** party member, **I want** to receive comprehensive AI-generated summaries of our meetings with clear action items, **so that** we can stay organized and follow up on important tasks and decisions.
+
+*   **Acceptance Criteria:**
+    *   AI processes recorded meeting content to generate structured summaries.
+    *   Summary includes executive overview, key discussion points, and decisions made.
+    *   Action items are automatically extracted with clear assignments and deadlines.
+    *   Next steps and follow-up actions are identified and organized.
+    *   Resources mentioned during the meeting are catalogued and linked.
+    *   Study materials covered are mapped to relevant skill tree nodes.
+    *   Unresolved questions are highlighted for future discussion.
+    *   Summary can be reviewed, edited, and approved by party members before sharing.
+    *   Action items can be assigned to specific party members with notifications.
+
 ---
 
 ### **Epic: Browser Extension**

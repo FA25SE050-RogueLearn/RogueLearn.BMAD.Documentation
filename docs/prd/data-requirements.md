@@ -271,6 +271,86 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `created_at`
     *   `updated_at`
 
+*   **PartyMeeting**: Represents a study session or meeting conducted by a party.
+    *   `party_meeting_id` (Primary Key)
+    *   `party_id` (Foreign Key to `Party`)
+    *   `organizer_id` (Foreign Key to `User`)
+    *   `title`
+    *   `description`
+    *   `meeting_type` (e.g., 'Study Session', 'Project Discussion', 'Exam Prep', 'General Meeting')
+    *   `scheduled_start_time`
+    *   `scheduled_end_time`
+    *   `actual_start_time` (Optional)
+    *   `actual_end_time` (Optional)
+    *   `meeting_status` (e.g., 'Scheduled', 'In Progress', 'Completed', 'Cancelled')
+    *   `meeting_url` (Optional, for virtual meetings)
+    *   `location` (Optional, for physical meetings)
+    *   `created_at`
+    *   `updated_at`
+
+*   **MeetingAttendance**: Tracks attendance for party meetings.
+    *   `meeting_attendance_id` (Primary Key)
+    *   `party_meeting_id` (Foreign Key to `PartyMeeting`)
+    *   `user_id` (Foreign Key to `User`)
+    *   `attendance_status` (e.g., 'Invited', 'Confirmed', 'Attended', 'Absent', 'Late')
+    *   `joined_at` (Optional)
+    *   `left_at` (Optional)
+    *   `notes` (Optional, personal notes about attendance)
+    *   `created_at`
+    *   `updated_at`
+
+*   **MeetingRecord**: Represents the recorded content and activities during a party meeting.
+    *   `meeting_record_id` (Primary Key)
+    *   `party_meeting_id` (Foreign Key to `PartyMeeting`)
+    *   `recorder_id` (Foreign Key to `User`)
+    *   `recording_method` (e.g., 'Browser Extension', 'Manual Entry', 'Audio Transcription')
+    *   `raw_content` (Raw captured content - text, audio transcript, etc.)
+    *   `structured_content` (JSON formatted structured data)
+    *   `topics_discussed` (JSON array of main topics)
+    *   `decisions_made` (JSON array of decisions and action items)
+    *   `participants_active` (JSON array of active participant IDs)
+    *   `recording_quality` (e.g., 'High', 'Medium', 'Low', 'Partial')
+    *   `processing_status` (e.g., 'Raw', 'Processing', 'Processed', 'Failed')
+    *   `created_at`
+    *   `updated_at`
+    *   `processed_at` (Optional)
+
+*   **MeetingSummary**: Represents AI-generated or manual summaries of party meetings.
+    *   `meeting_summary_id` (Primary Key)
+    *   `party_meeting_id` (Foreign Key to `PartyMeeting`)
+    *   `meeting_record_id` (Foreign Key to `MeetingRecord`, optional)
+    *   `summary_type` (e.g., 'AI Generated', 'Manual', 'Collaborative')
+    *   `created_by` (Foreign Key to `User`, optional for AI-generated)
+    *   `title`
+    *   `executive_summary` (Brief overview)
+    *   `key_points` (JSON array of main discussion points)
+    *   `action_items` (JSON array of tasks and assignments)
+    *   `next_steps` (JSON array of planned follow-up actions)
+    *   `resources_mentioned` (JSON array of links, documents, references)
+    *   `study_materials_covered` (JSON array of topics/materials discussed)
+    *   `questions_raised` (JSON array of unresolved questions)
+    *   `summary_quality_score` (Optional, for AI-generated summaries)
+    *   `is_approved` (Boolean, for review workflow)
+    *   `approved_by` (Foreign Key to `User`, optional)
+    *   `approved_at` (Optional)
+    *   `created_at`
+    *   `updated_at`
+
+*   **MeetingActionItem**: Represents specific tasks or follow-ups assigned during meetings.
+    *   `meeting_action_item_id` (Primary Key)
+    *   `meeting_summary_id` (Foreign Key to `MeetingSummary`)
+    *   `assigned_to` (Foreign Key to `User`)
+    *   `assigned_by` (Foreign Key to `User`)
+    *   `title`
+    *   `description`
+    *   `priority` (e.g., 'High', 'Medium', 'Low')
+    *   `due_date` (Optional)
+    *   `completion_status` (e.g., 'Pending', 'In Progress', 'Completed', 'Cancelled')
+    *   `completion_notes` (Optional)
+    *   `completed_at` (Optional)
+    *   `created_at`
+    *   `updated_at`
+
 ### Phase 3: Educator & Admin Toolkit
 
 *   **Guild**: Represents a course managed by a Guild Master (Lecturer).
@@ -718,6 +798,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 ### Many-to-Many Relationships with Junction Tables
 
 *   Users and Parties have a many-to-many relationship managed through the `PartyMembership` junction table, which stores additional relationship attributes like permission levels and join dates.
+*   Users and Party Meetings have a many-to-many relationship managed through the `MeetingAttendance` junction table, which tracks attendance status, join/leave times, and personal notes.
 *   Users and Guilds have a many-to-many relationship managed through the `GuildMembership` junction table, which tracks membership status and join dates.
 *   Quests and Skills have a many-to-many relationship managed through the `QuestSkillRelationship` junction table, which defines the type of relationship (requires, rewards, enhances).
 *   Users and Achievements have a many-to-many relationship managed through the `UserAchievement` junction table, which tracks when achievements were earned.
@@ -729,6 +810,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 ### Hierarchical and Unidirectional Relationships
 
 *   A Party can have one PartyStash, which can contain multiple PartyStashItems, creating a hierarchical relationship that prevents circular dependencies.
+*   A Party can have multiple PartyMeetings, each of which can have one MeetingRecord and multiple MeetingSummaries, with MeetingSummaries containing multiple MeetingActionItems, creating a clear hierarchical structure for meeting data.
 *   A Guild Master (User) can create multiple GuildQuestTemplates, which can be instantiated as GuildQuests, maintaining a unidirectional flow of relationships.
 *   Guide-Player relationships are managed through the `GuideAssignment` entity, which creates a structured relationship between Users in different roles without direct circular references.
 *   The EternalCodex can contain multiple CodexEntries, which reference MarketplaceItems through a unidirectional relationship, preventing circular dependencies.

@@ -24,6 +24,9 @@ graph TD
     subgraph "Social & Community"
         F --> M{Social Interaction};
         M --> N[Create/Join Party];
+        N --> N1{Party Meeting Invited};
+        N1 --> N2[Join & Participate in Meeting];
+        N2 --> N3[Receive Meeting Summary];
         M --> O[View Leaderboards];
         M --> P{Participate in Events};
         P --> Q[Join PvP Skill Challenge];
@@ -107,6 +110,16 @@ graph TD
     D --> F[Browse and Invite Strangers];
     C --> G[Manage Party];
     G --> H[Use Shared Party Stash];
+    G --> I{Schedule Meeting};
+    
+    subgraph "Meeting Management"
+        I --> J[Configure Meeting];
+        J --> K[Send Invitations];
+        K --> L[Conduct Meeting];
+        L --> M[Record & Capture Content];
+        M --> N[Generate AI Summary];
+        N --> O[Share Results & Action Items];
+    end
 ```
 
 ## System Admin (The Game Master) Flow
