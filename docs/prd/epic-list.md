@@ -106,17 +106,15 @@
 *   **FR67:** Players can access "Global Leaderboard".
 *   **FR68:** Players can participate in "Seasonal Events".
 *   **FR69:** Players can join "Learning Circles".
-*   **FR70:** Players can create and customize "Learning Space".
 
 ### **Epic: Advanced AI & Proactive Assistance**
-*   **FR71:** AI proactively scans Player's 'Arsenal' to suggest 'spells'.
-*   **FR72:** Ingest audio/video recordings and generate text summaries.
-*   **FR73:** Predictive analytics to identify at-risk Players.
+*   **FR70:** AI proactively scans Player's 'Arsenal' to suggest 'spells'.
+*   **FR71:** Ingest audio/video recordings and generate text summaries.
 
 ### **Epic: Advanced Social & Competition**
-*   **FR74:** "Guild-vs-Guild" competition mode.
-*   **FR75:** Personal achievements/badges system.
-*   **FR76:** PvP events based on coding challenges.
+*   **FR72:** "Guild-vs-Guild" competition mode.
+*   **FR73:** Personal achievements/badges system.
+*   **FR74:** PvP events based on coding challenges.
 
 ---
 
@@ -124,12 +122,12 @@
 *Focus: Introduce a user-driven economy for sharing and monetizing knowledge.*
 
 ### **Epic: Marketplace**
-*   **FR77:** "Marketplace" for sharing study materials.
-*   **FR78:** Rating and review system for shared content.
-*   **FR79:** In-game currency system.
-*   **FR80:** Trade items with other players.
+*   **FR75:** "Marketplace" for sharing study materials.
+*   **FR76:** Rating and review system for shared content.
+*   **FR77:** In-game currency system.
+*   **FR78:** Trade items with other players.
 
 ### **Epic: AI-Powered Curation**
-*   **FR81:** AI reviews and elevates user-generated content to "Eternal Codex".
-*   **FR82:** AI curates "Knowledge Packs".
-*   **FR83:** AI tags materials with "meta-skills".
+*   **FR79:** AI reviews and elevates user-generated content to "Eternal Codex".
+*   **FR80:** AI curates "Knowledge Packs".
+*   **FR81:** AI tags materials with "meta-skills".
