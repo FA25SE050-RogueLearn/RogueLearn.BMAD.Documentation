@@ -10,6 +10,7 @@
 
 #### **Service Architecture**
 - **Frontend:** Next.js 14+ with App Router, TypeScript, Tailwind CSS
+- **Game Engine:** Unity 2022.3 LTS with WebGL build target for boss fight mechanics
 - **Backend:** .NET 8 Web API with Clean Architecture pattern
 - **Database:** PostgreSQL 15+ with Entity Framework Core
 - **Cache:** Redis for session management and API response caching
@@ -19,9 +20,10 @@
 #### **Technology Stack Constraints**
 - **Node.js:** Version 18+ (LTS) for frontend development
 - **.NET:** Version 8.0+ for backend services
+- **Unity:** Version 2022.3 LTS for game development with WebGL support
 - **Database:** PostgreSQL 15+ (required for advanced JSON operations)
-- **Browser Support:** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
-- **Mobile:** Responsive design targeting iOS 14+ and Android 10+
+- **Browser Support:** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+ (WebGL 2.0 required)
+- **Mobile:** Responsive design targeting iOS 14+ and Android 10+ with WebGL compatibility
 
 ### **Technical Decision Framework**
 
@@ -38,10 +40,18 @@ All significant technical decisions will be evaluated against the following crit
 #### **Development Patterns & Standards**
 - **Frontend Architecture:**
   - Component-based architecture with React Server Components
+  - Unity WebGL integration with JavaScript bridge for game communication
   - Custom hooks for state management and API calls
   - Atomic design methodology for component organization
   - Strict TypeScript configuration with no implicit any
   - ESLint + Prettier for code formatting and quality
+
+- **Unity Game Architecture:**
+  - 2D boss fight mechanics with educational quiz integration
+  - WebGL build optimization for browser performance
+  - JavaScript-Unity communication via Unity WebGL API
+  - Game state synchronization with backend APIs
+  - Responsive UI design for various screen sizes
 
 - **Backend Architecture:**
   - Clean Architecture with CQRS pattern
@@ -107,6 +117,7 @@ All significant technical decisions will be evaluated against the following crit
 
 - **Infrastructure:**
   - **Frontend:** Vercel with custom domain and CDN
+  - **Unity WebGL:** Static hosting via CDN with CORS configuration for game assets
   - **Backend:** Docker containers on Azure Container Apps or AWS Fargate
   - **Database:** Managed PostgreSQL (Azure Database or AWS RDS)
   - **Cache:** Managed Redis (Azure Cache or AWS ElastiCache)
@@ -223,6 +234,7 @@ All significant technical decisions will be evaluated against the following crit
 #### **Required Tools & Versions**
 - **Node.js:** 18.17.0+ (use nvm for version management)
 - **.NET SDK:** 8.0.100+
+- **Unity:** 2022.3 LTS with WebGL build support
 - **Docker:** 24.0+ with Docker Compose
 - **PostgreSQL:** 15.3+ (or Docker container)
 - **Redis:** 7.0+ (or Docker container)
@@ -230,6 +242,7 @@ All significant technical decisions will be evaluated against the following crit
 
 #### **IDE Configuration**
 - **VS Code Extensions:** ESLint, Prettier, C# Dev Kit, Docker
+- **Unity Editor:** 2022.3 LTS with WebGL build module installed
 - **JetBrains Rider:** Recommended for .NET development
 - **Database Tools:** pgAdmin 4 or DBeaver for PostgreSQL management
 

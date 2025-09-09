@@ -162,13 +162,40 @@ This document provides detailed user stories for each epic, aligned with the pha
 ---
 
 ### **Epic: Gamification & Assessment**
-*Goal: Make learning engaging and measurable through gamified challenges and progress tracking.*
+*Goal: Make learning engaging and measurable through Unity-based interactive challenges and progress tracking.*
 
-#### **Story: 'Boss Fight' Challenge Generation**
-**As a** student, **I want** the system to generate a 'Boss Fight' (quiz) for a specific topic, **so that** I can test my knowledge.
+#### **Story: Unity Boss Fight System Setup**
+**As a** developer, **I want** to integrate Unity WebGL builds into the Next.js frontend, **so that** students can experience immersive 2D boss fight challenges.
 
-#### **Story: 'Boss Fight' Gameplay & Results**
-**As a** student, **I want** to complete the challenge and see my results, **so that** I can see my character progress.
+*   **Acceptance Criteria:**
+    *   Unity 2022.3 LTS project is created with WebGL build target configured
+    *   Unity WebGL builds are integrated into Next.js pages with proper loading states
+    *   JavaScript-Unity communication bridge is established for data exchange
+    *   Unity game state synchronizes with backend APIs for progress tracking
+    *   WebGL builds are optimized for browser performance and mobile compatibility
+    *   Error handling and fallback mechanisms are implemented for Unity loading failures
+
+#### **Story: Interactive Boss Fight Challenge Generation**
+**As a** student, **I want** the system to generate Unity-based 'Boss Fight' challenges with visual feedback and animations, **so that** I can test my knowledge in an engaging interactive format.
+
+*   **Acceptance Criteria:**
+    *   AI generates multiple choice questions based on uploaded course materials
+    *   Unity 2D boss characters are created with different visual themes per subject
+    *   Question difficulty levels trigger corresponding boss attack patterns and animations
+    *   Real-time visual feedback shows correct/incorrect answers with particle effects
+    *   Boss health decreases with correct answers, increases with incorrect ones
+    *   Progressive difficulty scaling adjusts boss mechanics based on student performance
+
+#### **Story: Boss Fight Gameplay & Results Visualization**
+**As a** student, **I want** to complete Unity boss fight challenges and see detailed results with visual progress indicators, **so that** I can track my character progression and learning outcomes.
+
+*   **Acceptance Criteria:**
+    *   Unity interface displays real-time score updates and progress bars
+    *   Victory/defeat animations play based on final performance
+    *   Detailed results screen shows question-by-question breakdown with explanations
+    *   XP and skill points are awarded based on performance and difficulty
+    *   Results are synchronized with backend for skill tree and leaderboard updates
+    *   Achievement unlocks and badges are displayed for milestone completions
 
 ---
 

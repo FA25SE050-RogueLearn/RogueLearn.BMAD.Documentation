@@ -6,6 +6,31 @@ This document outlines the comprehensive integration requirements for RogueLearn
 
 ## Core System Integrations
 
+### Unity WebGL Game Integration
+
+**Unity 2022.3 LTS Integration**
+- **Service**: Unity WebGL Build Target
+- **Purpose**: Interactive 2D boss fight mechanics and gamified assessments
+- **Integration Points**:
+  - Frontend: Unity WebGL builds embedded in Next.js pages
+  - Backend: Game state synchronization via REST APIs
+  - Real-time: WebSocket connections for live multiplayer features
+- **Technical Specifications**:
+  - Unity WebGL Template: Custom template with Next.js styling integration
+  - Build Optimization: Compression enabled, streaming assets for faster loading
+  - Memory Management: Target <512MB heap size for mobile compatibility
+  - Performance: 60 FPS target on desktop, 30 FPS minimum on mobile
+- **Communication Bridge**:
+  - JavaScript-Unity API for bidirectional data exchange
+  - Game state persistence to backend database
+  - Real-time score updates and progress tracking
+  - Error handling and graceful degradation for unsupported browsers
+- **API Endpoints**:
+  - `/api/game/session/start` - Initialize game session with user context
+  - `/api/game/session/update` - Update game state and progress
+  - `/api/game/session/complete` - Finalize session and award points
+  - `/api/game/leaderboard` - Retrieve and update leaderboard data
+
 ### Authentication & Identity Management
 
 **Clerk Integration**
