@@ -115,19 +115,19 @@ This document outlines the comprehensive integration requirements for RogueLearn
 
 ## External Service Integrations
 
-### CDN & Asset Delivery
+### Static Asset Delivery
 
-**Azure Blob Storage / AWS S3**
+**Basic Static File Server**
 - **Purpose**: Static asset storage and content delivery
 - **Integration Requirements**:
   - Automatic asset optimization and compression
-  - Global CDN distribution for low latency
+  - Optimized static file serving
   - Secure file upload and download workflows
   - Image processing and thumbnail generation
 - **Performance Targets**:
-  - Asset delivery: <200ms globally
+  - Asset delivery: <500ms locally
   - Upload processing: <5 seconds for standard files
-  - Storage redundancy: 99.999999999% durability
+  - Storage redundancy: Local backup strategy
 
 ### Communication & Messaging
 
@@ -268,7 +268,7 @@ This document outlines the comprehensive integration requirements for RogueLearn
 ### Caching Strategy
 
 **Multi-Layer Caching**
-- **CDN**: Static asset caching with global distribution
+- **Static Assets**: Server-side caching for static files
 - **Application Cache**: Redis for session and frequently accessed data
 - **Database Cache**: Query result caching with invalidation strategies
 - **Browser Cache**: Client-side caching with cache-busting mechanisms
@@ -353,7 +353,7 @@ This document outlines the comprehensive integration requirements for RogueLearn
 - **Multi-Region Deployment**: Active-passive configuration with automatic failover
 - **Database Clustering**: Master-slave replication with read scaling
 - **Message Queue Clustering**: RabbitMQ cluster with mirrored queues
-- **CDN Failover**: Multiple CDN providers with automatic switching
+- **Static Asset Failover**: Backup static file servers with automatic switching
 
 ## Future Integration Considerations
 

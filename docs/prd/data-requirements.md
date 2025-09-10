@@ -1379,7 +1379,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 *   Caching strategies will be implemented at multiple levels:
     *   Application-level caching using Redis for session data and frequently accessed objects
     *   Database query result caching
-    *   CDN caching for static assets and file content
+    *   Basic caching for static assets and file content
 *   Database scaling strategies will be prepared for growth:
     *   Read replicas for distributing read operations
     *   Database sharding by user ID for horizontal scaling
@@ -1409,7 +1409,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   Feature-based partitioning for different functional domains
 *   API design will follow RESTful principles with GraphQL for complex queries.
 *   Real-time features will be implemented using WebSocket connections and event streaming.
-*   Content delivery will be optimized through CDN integration for file storage and retrieval.
+*   Content delivery will be optimized through efficient file storage and retrieval.
 
 ## Detailed Data Validation Rules
 
@@ -1657,10 +1657,10 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 - **Write Optimization**: Batch operations, async processing for non-critical updates
 
 ### Caching Architecture
-- **Multi-level Caching**: L1 (application), L2 (Redis), L3 (CDN)
+- **Multi-level Caching**: L1 (application), L2 (Redis)
 - **Cache Invalidation**: Event-driven invalidation, TTL-based expiration, cache warming
 - **Session Management**: Redis-based session storage, session clustering
-- **Static Asset Caching**: CDN integration, versioned assets, cache busting
+- **Static Asset Caching**: Server-side caching, versioned assets, cache busting
 - **Query Result Caching**: Materialized views, computed aggregations
 
 ### Monitoring & Analytics

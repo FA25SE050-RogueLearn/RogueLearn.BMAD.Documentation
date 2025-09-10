@@ -16,7 +16,7 @@
 13. **FR13 (System):** The skill tree visualization must show relationships between skills and highlight missing skills needed to reach the user's goal.
 14. **FR14 (User):** The user's personal study notes ("Arsenal") must be a rich text editor with Notion-like functionalities, allowing for flexible content creation and organization.
 15. **FR15 (System):** The skill tree must be able to display links to relevant notes within the user's "Arsenal" for each skill node, with visual indicators showing which Arsenal items contribute to each skill's development.
-16. **FR16 (System):** The system must generate gamified mock exams ("Boss Fights") as Unity-based 2D interactive experiences with multiple choice questions, visual feedback, and engaging animations based on upcoming tests input by the player.
+16. **FR16 (System):** The system must generate gamified mock exams ("Boss Fights") as Unity-based interactive experiences with multiple choice questions, visual feedback, and engaging animations based on upcoming tests input by the player.
 17. **FR17 (System):** Each Boss Fight question must have an assigned difficulty level, with higher difficulty questions awarding more points and triggering more challenging visual boss mechanics.
 18. **FR18 (System):** The total Boss Fight score must be calculated based on correctly answered questions, weighted by their difficulty levels, with real-time score updates and visual progress indicators in the Unity game interface.
 19. **FR19 (System):** The system must feature leaderboards that display player rankings, both within specific "Classes", for PvP events, and overall.
@@ -39,6 +39,9 @@
 32. **FR32 (Player):** Players must be able to schedule, organize, and manage study meetings within their party, including setting meeting titles, descriptions, types (Study Session, Project Discussion, Exam Prep, General Meeting), and scheduling details.
 33. **FR33 (Player):** The browser extension must be able to capture and record meeting content during party study sessions, including participant discussions, shared resources, and key decisions, with support for multiple recording methods (manual entry, audio transcription, automated capture).
 34. **FR34 (AI/Player):** The system must generate comprehensive meeting summaries from recorded content, including executive summaries, key discussion points, action items with assignments, next steps, resources mentioned, study materials covered, and unresolved questions, with options for both AI-generated and manual/collaborative summary creation.
+35. **FR35 (System):** The notification system must support email notifications and push notifications for mobile devices with user-configurable preferences.
+36. **FR36 (System):** The notification system must support real-time notifications for party activities, quest updates, and social interactions.
+37. **FR37 (System):** The system must support advanced party management features including shared calendars and automated meeting scheduling with conflict detection.
 
 ### **Functional - Phase 3: Educator & Admin Toolkit**
 *Focus: Empower educators and administrators with tools.*
@@ -81,8 +84,10 @@
 66. **FR66 (System):** The system must include a personal achievements/badges system.
 67. **FR67 (Player):** PvP events can be based on coding challenges related to the user's quest line (e.g., system design, CSS battles, algorithm battles, design patterns).
 
+
 ### **Functional - Phase 5: Marketplace & Economy**
 *Focus: Introduce a user-driven economy for sharing and monetizing knowledge.*
+
 
 68. **FR68 (Player):** The system must include a "Marketplace" where users can upload and share high-quality study materials.
 69. **FR69 (Player):** The Marketplace must include a rating and review system for shared content.
@@ -91,3 +96,60 @@
 72. **FR72 (AI):** The system's AI must be able to review, rate, and elevate user-generated notes or study materials to the shared "Eternal Codex," making them publicly searchable and globally accessible.
 73. **FR73 (AI):** The system's AI must be able to curate "Knowledge Packs" (bundles of notes and resources) for specific themes, subjects, or exams, and publish them in the Marketplace.
 74. **FR74 (AI):** The system's AI must be able to tag materials with "meta-skills" (e.g., critical thinking, synthesis, memorization) to better inform AI search and Arsenal suggestions.
+
+### **Cross-Cutting Requirements (All Phases)**
+*Focus: Core system capabilities that support all phases.*
+
+88. **FR88 (System):** The system must implement basic in-app notifications for quest updates and system announcements.
+89. **FR89 (System):** The system must implement structured logging for debugging and basic performance monitoring.
+90. **FR90 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
+91. **FR91 (System):** The platform must support scalable content delivery with optimized asset loading.
+
+
+
+### **Success Metrics (KPIs)**
+
+To measure the success of the RogueLearn MVP, we will track the following Key Performance Indicators (KPIs):
+
+*   **Weekly Active Users (WAU)**: The number of unique users who interact with the platform in a given week. This is a primary indicator of user engagement and retention.
+*   **Average Number of Quests Completed per User per Week**: This metric will help us understand how effectively users are engaging with the core functionality of the platform.
+*   **Party Creation Rate**: The number of new parties created per week. This will indicate the adoption of the social learning feature.
+*   **User Retention Rate**: The percentage of users who return to the platform week after week. This is a critical measure of the platform's value and stickiness.
+*   **User Feedback Score**: We will collect user feedback through surveys and other mechanisms to gauge user satisfaction and identify areas for improvement. A Net Promoter Score (NPS) or a similar metric will be used.
+
+### **MVP Validation Approach**
+
+To validate the RogueLearn MVP, we will use a combination of qualitative and quantitative methods:
+
+*   **User Interviews**: We will conduct in-depth interviews with a small group of target users to gather feedback on the platform's usability, features, and overall value proposition.
+*   **Surveys**: We will use surveys to collect quantitative data on user satisfaction, feature usage, and other key metrics.
+*   **A/B Testing**: We will use A/B testing to compare different versions of the platform and identify the most effective design and features.
+*   **Analytics**: We will use analytics tools to track user behavior and identify patterns and trends. This will help us understand how users are interacting with the platform and where we can make improvements.
+
+### Non-Functional Requirements (All Phases)
+
+1.  **NFR1 (Responsiveness):** The application must be a responsive web application, providing an optimal viewing and interaction experience across a range of devices (desktops, tablets, and mobile phones). All functionality must be accessible and usable on screen widths from 320px to 1920px.
+2.  **NFR2 (Authentication):** The system must use Clerk for user authentication, ensuring secure and reliable user management.
+3.  **NFR3 (Backend Technology):** The system must use .NET 8 and Golang for all backend services, leveraging its performance and security features.
+4.  **NFR4 (Services Communication):** System's services must use RabbitMQ to communicate.
+5.  **NFR5 (Frontend Technology):** The system must use Next.js (version 14 or later) for the frontend application to enable server-side rendering and a fast user experience.
+6.  **NFR6 (Data Storage):** The system must use Supabase for database and file storage, configured for scalability and reliability.
+7.  **NFR7 (Unity Integration):** Boss Fight interactive experiences must be implemented using Unity WebGL to ensure rich interactive gameplay while maintaining browser compatibility.
+8.  **NFR8 (Payment Integration):** The system must integrate with Stripe for future subscription and payment processing, with the initial implementation being a placeholder or a lightweight integration.
+9.  **NFR9 (Performance):** Core API endpoints (including user authentication, quest generation, and data retrieval) must respond in under 500ms under a normal load of 100 concurrent users.
+10. **NFR10 (Frontend Performance):** The web application's core pages (Dashboard, Skill Tree, Quest Log) must achieve a Google Lighthouse performance score of 85 or higher on both mobile and desktop.
+11. **NFR11 (Availability):** The system shall be designed to maintain at least 99.5% uptime, excluding scheduled maintenance windows. Maintenance windows will be limited to a maximum of 4 hours per month and scheduled outside of peak usage times (9 AM - 9 PM local time).
+12. **NFR12 (Data Backup & Recovery):** All user data stored in Supabase must have a point-in-time recovery (PITR) backup plan with a recovery point objective (RPO) of 1 hour and a recovery time objective (RTO) of 4 hours.
+13. **NFR13 (Security):** The application must implement security best practices to mitigate risks from the OWASP Top 10, including secure data handling, input validation, and protection against injection attacks.
+14. **NFR14 (Data Privacy):** The system must be designed with data privacy as a priority, complying with GDPR principles. It must include a configurable data retention policy allowing for automated data deletion upon user request or after a defined period of inactivity.
+15. **NFR15 (Access Control):** The system must implement a robust Role-Based Access Control (RBAC) system to ensure users can only access data and functionality appropriate for their role (e.g., Student, Guild Master, Guide, Game Master).
+16. **NFR16 (Scalability):** The architecture must support horizontal scaling for both the backend services and the database to handle a 50% increase in user traffic over a 3-month period without significant performance degradation. AI/ML workloads must be managed in a cost-effective manner, using serverless functions or dedicated instances as appropriate.
+17. **NFR17 (Microservices Architecture):** The system must be built using a microservices architecture with clearly defined service boundaries, independent deployment capabilities, and fault isolation to ensure system resilience and maintainability.
+18. **NFR18 (API Design):** All services must expose RESTful APIs with comprehensive OpenAPI documentation, consistent error handling, rate limiting, and versioning support to enable seamless integration and future extensibility.
+19. **NFR19 (Real-time Communication):** The system must support real-time communication through WebSocket connections for live notifications, collaborative features, and multiplayer interactions with automatic reconnection and message queuing capabilities.
+20. **NFR20 (Content Management):** The system must implement a flexible content management system supporting rich media uploads, automatic transcoding, content versioning, and efficient content delivery with appropriate caching strategies.
+21. **NFR21 (Integration Capabilities):** The platform must provide webhook support, third-party API integrations, and plugin architecture to enable seamless integration with external learning management systems, university portals, and educational tools.
+22. **NFR22 (Mobile Responsiveness):** The system must provide native mobile app capabilities through progressive web app (PWA) technology with offline functionality, push notifications, and device-specific optimizations for iOS and Android platforms.
+23. **NFR23 (Analytics & Monitoring):** The system must implement comprehensive telemetry, distributed tracing, and business intelligence capabilities with real-time dashboards, automated alerting, and data export functionality for institutional reporting.
+24. **NFR24 (Compliance & Accessibility):** The platform must comply with WCAG 2.1 AA accessibility standards, support multiple languages and localization, and maintain compliance with educational data privacy regulations including FERPA and COPPA where applicable.
+

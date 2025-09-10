@@ -98,7 +98,7 @@ All significant technical decisions will be evaluated against the following crit
   - Image optimization with Next.js Image component
   - Bundle analysis and tree shaking
   - Service Worker for offline functionality
-  - CDN integration for static assets
+  - Basic static asset serving
 
 - **Backend:**
   - Database query optimization with EF Core query analysis
@@ -116,8 +116,8 @@ All significant technical decisions will be evaluated against the following crit
   - Manual approval required for production deployment
 
 - **Infrastructure:**
-  - **Frontend:** Vercel with custom domain and CDN
-  - **Unity WebGL:** Static hosting via CDN with CORS configuration for game assets
+  - **Frontend:** Vercel with custom domain
+- **Unity WebGL:** Static hosting with CORS configuration for game assets
   - **Backend:** Docker containers on Azure Container Apps or AWS Fargate
   - **Database:** Managed PostgreSQL (Azure Database or AWS RDS)
   - **Cache:** Managed Redis (Azure Cache or AWS ElastiCache)
@@ -200,7 +200,7 @@ All significant technical decisions will be evaluated against the following crit
   - Implement horizontal scaling with load balancers
   - Use database read replicas for query optimization
   - Implement circuit breaker pattern for external services
-  - Use CDN for static asset delivery
+  - Use efficient static asset delivery
   - Implement graceful degradation for non-critical features
 
 ### **Technology-Specific Constraints**

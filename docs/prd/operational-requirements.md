@@ -22,7 +22,7 @@ This document specifies the operational requirements for the RogueLearn platform
 ### Scalability Targets
 - **Horizontal Scaling**: Auto-scale to handle 3x normal load within 5 minutes
 - **Database Performance**: Query response time ≤ 100ms for 95% of queries
-- **CDN Performance**: Static asset delivery ≤ 100ms globally
+- **Static Asset Performance**: Static asset delivery ≤ 500ms
 
 ## Security Requirements
 
@@ -218,11 +218,11 @@ This document specifies the operational requirements for the RogueLearn platform
   4. Queue write operations for replay after recovery
   5. Notify users of temporary service limitations
 
-#### **CDN & Static Asset Failures**
-- **Scenario**: CDN outage affecting static assets and images
+#### **Static Asset Failures**
+- **Scenario**: Static asset server outage affecting images and files
 - **Detection**: Increased 404 errors and asset load failures
 - **Recovery Procedure**:
-  1. Automatic failover to backup CDN provider
+  1. Automatic failover to backup static file server
   2. Serve critical assets from application servers temporarily
   3. Implement asset versioning for cache invalidation
   4. Monitor asset delivery performance continuously
