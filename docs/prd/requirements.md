@@ -100,10 +100,10 @@
 ### **Cross-Cutting Requirements (All Phases)**
 *Focus: Core system capabilities that support all phases.*
 
-88. **FR88 (System):** The system must implement basic in-app notifications for quest updates and system announcements.
-89. **FR89 (System):** The system must implement structured logging for debugging and basic performance monitoring.
-90. **FR90 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
-91. **FR91 (System):** The platform must support scalable content delivery with optimized asset loading.
+88. **FR75 (System):** The system must implement basic in-app notifications for quest updates and system announcements.
+89. **FR76 (System):** The system must implement structured logging for debugging and basic performance monitoring.
+90. **FR77 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
+91. **FR78 (System):** The platform must support scalable content delivery with optimized asset loading.
 
 
 
