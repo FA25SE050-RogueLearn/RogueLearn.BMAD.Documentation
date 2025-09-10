@@ -50,52 +50,22 @@ graph TD
         L -- Scanned by --> AI2[Proactive AI Companion];
         AI2 --> Y[Suggests Study Aids];
     end
-```
 
 ## Guild Master (Lecturer or Player) Flow
 
 ```mermaid
 graph TD
-    subgraph "Guild & Course Management"
+    subgraph "Guild & Knowledge Management"
         A[Start] --> B[Create/Manage Guild];
-        B --> C[Upload Course Materials];
+        B --> C[Share Knowledge/Materials];
         B --> D{Monitor Guild Members};
         D --> E[View Anonymized Progress Dashboard];
-        E --> F[Identify Struggling Topics];
     end
 
-    subgraph "Custom Content Creation"
-        B --> G{Create Custom Content};
-        G -- AI-Assisted --> H[Draft Side Quests];
-        H --> I[Review, Edit & Assign Quests];
-        G --> J[Design Custom Skill Tree Overlays];
-        G --> K[Create Custom 'Boss Fights'];
-    end
-
-    subgraph "Community & Events"
+    subgraph "Community Events"
         B --> L{Engage Community};
-        L --> M[Initiate Guild-vs-Guild Battle];
-        L --> N[Assign Guides to Students];
-    end
-```
-
-## Tutor (The Guide) Flow
-
-```mermaid
-graph TD
-    subgraph "Student Support"
-        A[Start] --> B{Assigned to Student by Guild Master};
-        B -- Yes --> C[View Scoped Student Dashboard];
-        C --> D[Review Quest Progress & Skill Tree];
-        C --> E[Read Student's 'Arsenal' Notes];
-        C --> F[View Burnout Forecast];
-    end
-
-    subgraph "Mentorship Actions"
-        E --> G{Provide Support};
-        G --> H[Create & Assign Training Drills];
-        G --> I[Send Mentor Reflections];
-        G --> J[Leave Inline Feedback on Notes];
+        L --> M[Create & Manage Guild Events];
+        M --> N[Initiate Guild-vs-Guild Battle];
     end
 ```
 

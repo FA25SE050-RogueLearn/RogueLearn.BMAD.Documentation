@@ -20,3 +20,4 @@ University students often face significant challenges with motivation and connec
 | **Date** | **Version** | **Description** | **Author** |
 | --- | --- | --- | --- |
 | *Initial Draft* | 1.0 | Initial PRD creation, expanded to include Phases 1, 2, & 3. | John, PM |
+| September 10, 2025 | 1.1 | Refined scope to focus on Software Engineering students. Removed "Guide" role and clarified "Lecturer" into a "Verified" status for the "Guild Master" role. Generalized competitions to an "Events" system. | John, PM |
