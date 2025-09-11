@@ -38,7 +38,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `user_id` (Foreign Key to `User`)
     *   `context_type` (e.g., 'Party', 'Guild')
     *   `context_id` (ID of the context entity)
-    *   `role` (e.g., 'Guild Master', 'Guide', 'Player', 'Party Leader', 'Game Master')
+    *   `role` (e.g., 'Guild Master', 'Player', 'Party Leader', 'Game Master')
     *   `assigned_at`
     *   `assigned_by` (Foreign Key to `User`, optional)
     *   `status` (e.g., 'Active', 'Inactive')
@@ -478,7 +478,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 
 **Guild System (Course Management)**
 
-*   **Guild**: Represents a course managed by a Guild Master (Lecturer).
+*   **Guild**: Represents a course managed by a Guild Master.
     *   `guild_id` (Primary Key)
     *   `name`
     *   `description`
@@ -667,108 +667,6 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `end_date`
     *   `activation_status` (e.g., 'Pending', 'Active', 'Inactive', 'Expired')
     *   `activated_at` (Optional)
-
-**Guide System (Tutoring)**
-
-*   **GuideAssignment**: Represents the assignment of a Guide (Tutor) to a specific Player.
-    *   `guide_assignment_id` (Primary Key)
-    *   `guide_id` (Foreign Key to `User`, the Guide)
-    *   `player_id` (Foreign Key to `User`, the Player)
-    *   `guild_id` (Foreign Key to `Guild`)
-    *   `assigner_id` (Foreign Key to `User`, the Guild Master)
-    *   `assignment_scope` (e.g., 'Full Course', 'Specific Topics')
-    *   `access_permissions` (JSON object defining what Guide can access)
-    *   `assigned_at`
-    *   `account_status` (e.g., 'Active', 'Inactive')
-
-*   **TrainingDrill**: Represents a custom training exercise created by a Guide.
-    *   `training_drill_id` (Primary Key)
-    *   `guide_id` (Foreign Key to `User`)
-    *   `player_id` (Foreign Key to `User`)
-    *   `title`
-    *   `description`
-    *   `training_drill_type` (e.g., 'Practice', 'Review', 'Challenge')
-    *   `content`
-    *   `target_micro_skill` (Specific skill being targeted)
-    *   `is_graded` (Boolean, always false for training drills)
-    *   `created_at`
-    *   `assigned_at`
-    *   `due_date`
-    *   `progress_status` (e.g., 'Not Started', 'In Progress', 'Completed')
-
-*   **TrainingGround**: Represents focused drills targeting single micro-skills.
-    *   `training_ground_id` (Primary Key)
-    *   `guide_id` (Foreign Key to `User`)
-    *   `player_id` (Foreign Key to `User`)
-    *   `title`
-    *   `description`
-    *   `micro_skill_target` (e.g., 'recursion', 'essay structure', 'grammar rules')
-    *   `drill_content`
-    *   `expected_duration` (In minutes)
-    *   `difficulty_level` (e.g., 'Beginner', 'Intermediate', 'Advanced')
-    *   `created_at`
-    *   `assigned_at`
-    *   `completion_status` (e.g., 'Not Started', 'In Progress', 'Completed')
-
-*   **MentorReflection**: Represents feedback or advice from a Guide to a Player.
-    *   `mentor_reflection_id` (Primary Key)
-    *   `guide_id` (Foreign Key to `User`)
-    *   `player_id` (Foreign Key to `User`)
-    *   `quest_id` (Foreign Key to `Quest`, optional)
-    *   `skill_id` (Foreign Key to `Skill`, optional)
-    *   `reflection_type` (e.g., 'Motivational', 'Advisory', 'Feedback')
-    *   `content`
-    *   `media_type` (e.g., 'Text', 'Voice', 'Video')
-    *   `media_url` (For voice or video reflections)
-    *   `is_tied_to_progress` (Boolean, whether tied to specific progress)
-    *   `created_at`
-
-**Student Analytics & Burnout Prevention**
-
-*   **BurnoutForecast**: Represents a prediction of student disengagement.
-    *   `burnout_forecast_id` (Primary Key)
-    *   `player_id` (Foreign Key to `User`)
-    *   `guild_id` (Foreign Key to `Guild`)
-    *   `risk_level` (e.g., 'Low', 'Medium', 'High')
-    *   `risk_factors` (JSON array of disengagement indicators)
-    *   `prediction_confidence` (Confidence score of the prediction)
-    *   `recommended_interventions` (JSON array of suggested interventions)
-    *   `generated_at`
-    *   `expires_at`
-    *   `is_active` (Boolean)
-
-*   **ArsenalLoadout**: Represents a student's current Arsenal organization for Guide review.
-    *   `arsenal_loadout_id` (Primary Key)
-    *   `player_id` (Foreign Key to `User`)
-    *   `guide_id` (Foreign Key to `User`)
-    *   `snapshot_date`
-    *   `note_organization` (JSON object showing how notes are organized)
-    *   `skill_connections` (JSON object showing note-skill relationships)
-    *   `missing_connections` (JSON array of suggested note-skill links)
-    *   `guide_feedback` (Optional feedback from Guide)
-    *   `feedback_date` (Optional)
-
-**Mentor Archetype System**
-
-*   **MentorArchetype**: Represents a thematic persona for a Guide.
-    *   `mentor_archetype_id` (Primary Key)
-    *   `name` (e.g., 'Sage', 'Trickster', 'Warrior')
-    *   `description`
-    *   `icon_url`
-    *   `dialogue_tone`
-    *   `advice_style` (JSON object describing advice characteristics)
-    *   `available_cosmetics` (JSON array of cosmetic item IDs)
-    *   `thematic_dialogue_options` (JSON array of dialogue templates)
-    *   `created_at`
-    *   `updated_at`
-
-*   **GuideMentorArchetype**: A junction table to associate Guides with their chosen Mentor Archetypes.
-    *   `guide_mentor_archetype_id` (Primary Key)
-    *   `guide_id` (Foreign Key to `User`)
-    *   `mentor_archetype_id` (Foreign Key to `MentorArchetype`)
-    *   `selected_at`
-    *   `is_active` (Boolean)
-    *   `customizations` (JSON object with personalized archetype modifications)
 
 **System Administration**
 
@@ -1297,105 +1195,69 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 
 ### Many-to-Many Relationships with Junction Tables
 
-*   Users and Parties have a many-to-many relationship managed through the `PartyMembership` junction table, which stores additional relationship attributes like permission levels and join dates.
-*   Users and Party Meetings have a many-to-many relationship managed through the `MeetingAttendance` junction table, which tracks attendance status, join/leave times, and personal notes.
-*   Users and Guilds have a many-to-many relationship managed through the `GuildMembership` junction table, which tracks membership status and join dates.
-*   Quests and Skills have a many-to-many relationship managed through the `QuestSkillRelationship` junction table, which defines the type of relationship (requires, rewards, enhances).
-*   Users and Achievements have a many-to-many relationship managed through the `UserAchievement` junction table, which tracks when achievements were earned and progress data.
-*   Users and PvP Events have a many-to-many relationship managed through the `PvPParticipant` junction table, which tracks scores, ranks, and participation status.
-*   Guides and Mentor Archetypes have a many-to-many relationship managed through the `GuideMentorArchetype` junction table, which tracks selected archetypes and their active status.
-*   Knowledge Packs and Marketplace Items have a many-to-many relationship managed through the `KnowledgePackItem` junction table, which tracks the order of items within packs.
-*   Marketplace Items/Codex Entries and Meta Skills have a many-to-many relationship managed through the `ItemMetaSkill` junction table, which tracks relevance scores and tagging information.
+*   Users and Parties have a many-to-many relationship managed through the `PartyMembership` junction table.
+*   Users and Party Meetings have a many-to-many relationship managed through the `MeetingAttendance` junction table.
+*   Users and Guilds have a many-to-many relationship managed through the `GuildMembership` junction table.
+*   Quests and Skills have a many-to-many relationship managed through the `QuestSkillRelationship` junction table.
+*   Users and Achievements have a many-to-many relationship managed through the `UserAchievement` junction table.
+*   Users and PvP Events have a many-to-many relationship managed through the `PvPParticipant` junction table.
+*   Knowledge Packs and Marketplace Items have a many-to-many relationship managed through the `KnowledgePackItem` junction table.
+*   Marketplace Items/Codex Entries and Meta Skills have a many-to-many relationship managed through the `ItemMetaSkill` junction table.
 *   Users and Learning Circles have a many-to-many relationship managed through the `LearningCircleMembership` junction table.
 *   Users and Study Parties have a many-to-many relationship managed through the `StudyPartyParticipant` junction table.
 *   Users and Seasonal Events have a many-to-many relationship managed through the `SeasonalEventParticipant` junction table.
 
 ### Hierarchical and Unidirectional Relationships
 
-*   A Party can have one PartyStash, which can contain multiple PartyStashItems, creating a hierarchical relationship that prevents circular dependencies.
-*   A Party can have multiple PartyMeetings, each of which can have one MeetingRecord and multiple MeetingSummaries, with MeetingSummaries containing multiple MeetingActionItems, creating a clear hierarchical structure for meeting data.
-*   A Guild Master (User) can create multiple GuildQuestTemplates, which can be instantiated as GuildQuests, maintaining a unidirectional flow of relationships.
-*   Guide-Player relationships are managed through the `GuideAssignment` entity, which creates a structured relationship between Users in different roles without direct circular references.
-*   The EternalCodex can contain multiple CodexEntries, which reference MarketplaceItems through a unidirectional relationship, preventing circular dependencies.
-*   Classes suggest Routes through a JSON array, maintaining a flexible relationship without requiring junction tables.
-*   Skills can reference other Skills as prerequisites through JSON arrays, creating a directed acyclic graph structure.
+*   A Party can have one PartyStash, which can contain multiple PartyStashItems.
+*   A Party can have multiple PartyMeetings, each with potential MeetingRecords, Summaries, and ActionItems.
+*   A Guild Master can create GuildQuestTemplates, which are instantiated as GuildQuests.
+*   The EternalCodex contains CodexEntries, which reference MarketplaceItems.
+*   Skills can reference other Skills as prerequisites.
 
 ### Ownership and Transaction Relationships
 
-*   A User has one UserWallet per Currency type, which can be involved in multiple Transactions as either sender or receiver.
-*   Transactions can reference MarketplaceItems, Quests, or other entities through optional foreign keys, creating unidirectional relationships that prevent circular dependencies.
-*   A User can list multiple MarketplaceItems as a seller, and a MarketplaceItem can have multiple ItemRatings from different Users, with clear directional relationships that avoid circularity.
-*   Currency transactions maintain audit trails through the Transaction entity, ensuring financial integrity.
+*   A User has one UserWallet per Currency type for Transactions.
+*   Transactions can reference MarketplaceItems or Quests.
+*   A User (seller) can list multiple MarketplaceItems, which can receive multiple ItemRatings.
 
 ### Administrative Relationships
 
-*   A Game Master (User) can create multiple GlobalEvents, EventScripts, and SeasonalEvents, maintaining unidirectional relationships that prevent circular dependencies.
-*   System health monitoring is tracked through SystemHealth entities that reference system components without creating circular relationships.
-*   Analytics dashboards aggregate data from multiple sources through the AnalyticsDashboard and AnalyticsMetric entities.
+*   A Game Master can create GlobalEvents, EventScripts, and SeasonalEvents.
 
 ### AI and Content Relationships
 
-*   AI-generated content (suggestions, summaries, etc.) maintains references to source materials through foreign keys and JSON arrays.
-*   Browser extension data flows unidirectionally from extraction to processing to integration with user content.
-*   Lore fragments and narrative content are associated with academic concepts through the LoreFragment entity.
+*   AI-generated content maintains references to its source materials.
+*   Browser extension data flows from extraction to processing and integration.
 
 ## Data Migration and Versioning
 
-*   The data model will be versioned to track changes over time using semantic versioning (e.g., v1.0.0, v1.1.0, v2.0.0).
-*   Migration scripts will be created for each major version change to ensure data integrity and backward compatibility.
-*   A comprehensive backup and recovery strategy will be implemented to protect against data loss, including:
-    *   Daily automated backups of the entire database
-    *   Point-in-time recovery capabilities
-    *   Cross-region backup replication for disaster recovery
-*   Database schema changes will be managed through migration files that can be applied incrementally.
-*   Data validation rules will be implemented to ensure consistency during migrations.
+*   The data model will be versioned.
+*   Migration scripts will be created for major version changes.
+*   A comprehensive backup and recovery strategy will be implemented.
 
 ## Data Security and Privacy
 
-*   All sensitive user data will be encrypted at rest using AES-256 encryption and in transit using TLS 1.3.
-*   Access to user data will be restricted based on role-based access control (RBAC) and the principle of least privilege.
-*   Personal identifiable information (PII) will be handled in compliance with GDPR, CCPA, and other relevant data protection regulations.
-*   Data retention policies will be implemented to automatically purge data that is no longer needed:
-    *   User account data: Retained for 7 years after account deletion
-    *   Learning progress data: Retained for 5 years after course completion
-    *   System logs: Retained for 1 year
-    *   Financial transaction records: Retained for 7 years for compliance
-*   Regular security audits will be conducted quarterly to identify and address potential vulnerabilities.
-*   User consent management will be implemented for data collection and processing activities.
-*   Data anonymization techniques will be applied for analytics and research purposes.
+*   Sensitive user data will be encrypted at rest and in transit.
+*   Access will be restricted by RBAC.
+*   PII will be handled in compliance with relevant data protection regulations.
+*   Data retention policies will be implemented.
+*   Regular security audits will be conducted.
 
 ## Performance Considerations
 
-*   Database indexes will be strategically created on frequently queried fields to improve performance:
-    *   Primary keys and foreign keys (automatic)
-    *   User lookup fields (email, username, clerk_user_id)
-    *   Timestamp fields for chronological queries
-    *   Status and type fields for filtering
-    *   JSON field paths for frequently accessed nested data
-*   Query optimization strategies will be implemented:
-    *   Denormalization for read-heavy operations (e.g., user statistics, leaderboards)
-    *   Materialized views for complex aggregations
-    *   Query result caching for frequently accessed data
-*   Caching strategies will be implemented at multiple levels:
-    *   Application-level caching using Redis for session data and frequently accessed objects
-    *   Database query result caching
-    *   Basic caching for static assets and file content
-*   Database scaling strategies will be prepared for growth:
-    *   Read replicas for distributing read operations
-    *   Database sharding by user ID for horizontal scaling
-    *   Partitioning of large tables by date or other logical boundaries
-*   Connection pooling will be implemented to manage database connections efficiently.
-*   Monitoring and alerting will be set up to track database performance metrics and identify bottlenecks.
+*   Database indexes will be strategically created on frequently queried fields.
+*   Query optimization strategies will be implemented.
+*   Caching strategies will be implemented at multiple levels.
+*   Database scaling strategies will be prepared for growth.
 
 ## Data Consistency and Integrity
 
-*   Foreign key constraints will be enforced to maintain referential integrity.
-*   Check constraints will be implemented for data validation (e.g., valid email formats, positive numeric values).
-*   Unique constraints will prevent duplicate data where appropriate.
-*   Transaction boundaries will be carefully designed to ensure ACID properties.
-*   Eventual consistency patterns will be used for non-critical data synchronization across services.
-*   Data validation will be implemented at both the application and database levels.
-*   Audit trails will be maintained for critical data changes through dedicated audit tables.
+*   Foreign key constraints will be enforced.
+*   Check and unique constraints will be implemented.
+*   Transactions will be used to ensure ACID properties.
+*   Data validation will be implemented at both application and database levels.
+
 
 ## Scalability Architecture
 
