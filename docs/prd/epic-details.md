@@ -277,17 +277,6 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
-### **Epic: Guide (Tutor) Toolkit**
-*Goal: Enable tutors to provide personalized guidance and support to individual students.*
-
-#### **Story: Guide Assignment & Student Progress Access**
-**As a** Guide, **I want** to be assigned to specific students and access their progress, **so that** I can provide targeted assistance.
-
-#### **Story: Custom Training Creation**
-**As a** Guide, **I want** to create custom training drills for my assigned students, **so that** I can help them improve in specific areas.
-
----
-
 ### **Epic: Game Master (Admin) Toolkit**
 *Goal: Provide system administrators with tools to manage and monitor the platform.*
 
@@ -316,8 +305,8 @@ This document provides detailed user stories for each epic, aligned with the pha
 ### **Epic: Advanced Social & Competition**
 *Goal: Enhance social interaction and competition to increase engagement.*
 
-#### **Story: Guild vs Guild Competitions**
-**As a** Guild Master, **I want** to initiate competitions between Guilds, **so that** I can foster healthy competition and engagement.
+#### **Story: Guild Event Creation & Management**
+**As a** Guild Master, **I want** to create and manage competitive Events for my Guild members, **so that** I can foster healthy competition and engagement.
 
 #### **Story: Achievement System**
 **As a** student, **I want** to earn badges and achievements for my accomplishments, **so that** I can showcase my progress and skills.
