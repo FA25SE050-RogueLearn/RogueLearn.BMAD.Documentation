@@ -288,28 +288,96 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
-## **Phase 4: Living Ecosystem & Social**
-*Focus: Enhance the platform with advanced AI, social, and competitive features.*
+## **Phase 4: Advanced Social & Collaboration Features**
+*Focus: Enhanced social learning and competitive features.*
 
-### **Epic: Advanced AI & Proactive Assistance**
-*Goal: Leverage AI to provide proactive assistance and enhance the learning experience.*
+### **Epic: Advanced Social Learning & Competition**
+*Goal: Enhance social interaction, competition, and collaborative learning to increase engagement.*
 
-#### **Story: AI-Powered Study Aid Suggestions**
-**As a** student, **I want** the AI to scan my notes and suggest study aids, **so that** I can improve my learning efficiency.
+#### **Story: Advanced Party Management Tools**
+**As a** party leader, **I want** advanced management tools for my study group, **so that** I can coordinate complex study sessions and track member progress effectively.
 
-#### **Story: Class Recording Processing**
-**As a** student, **I want** to upload recordings of my classes and have the AI generate summaries, **so that** I can review key points efficiently.
+*   **Acceptance Criteria:**
+    *   Party analytics dashboard showing member engagement and progress
+    *   Advanced scheduling tools with calendar integration
+    *   Customizable party roles and permissions system
+    *   Party performance metrics and goal tracking
+    *   Automated reminders and notifications for party activities
+
+#### **Story: Real-time Study Session Coordination**
+**As a** party member, **I want** real-time coordination tools during study sessions, **so that** I can collaborate effectively with my study group.
+
+*   **Acceptance Criteria:**
+    *   Live session status indicators for all party members
+    *   Real-time shared whiteboard and note-taking tools
+    *   Voice/video integration for remote study sessions
+    *   Screen sharing capabilities for collaborative work
+    *   Session recording and playback functionality
+
+#### **Story: Peer-to-Peer Learning System**
+**As a** student, **I want** to engage in peer teaching and learning, **so that** I can both help others and deepen my own understanding.
+
+*   **Acceptance Criteria:**
+    *   Peer tutoring matching system based on skills and needs
+    *   Knowledge sharing rewards and recognition system
+    *   Peer review and feedback mechanisms
+    *   Collaborative problem-solving tools
+    *   Peer teaching session scheduling and management
+
+#### **Story: Competitive Learning Challenges**
+**As a** student, **I want** to participate in competitive learning challenges, **so that** I can test my knowledge against peers and stay motivated.
+
+*   **Acceptance Criteria:**
+    *   Tournament-style knowledge competitions
+    *   Skill-based matchmaking for fair competition
+    *   Real-time leaderboards and rankings
+    *   Achievement badges and rewards system
+    *   Team-based challenges and competitions
+
+#### **Story: Knowledge Duels**
+**As a** student, **I want** to challenge other students to knowledge duels, **so that** I can test my understanding in a fun, competitive format.
+
+*   **Acceptance Criteria:**
+    *   One-on-one challenge system with topic selection
+    *   Real-time duel interface with timer and scoring
+    *   Duel history and statistics tracking
+    *   Spectator mode for other students to watch
+    *   Ranking system based on duel performance
 
 ---
 
-### **Epic: Advanced Social & Competition**
-*Goal: Enhance social interaction and competition to increase engagement.*
+### **Epic: Enhanced Browser Extension Integration**
+*Goal: Provide seamless web integration and contextual learning assistance.*
 
-#### **Story: Guild Event Creation & Management**
-**As a** Guild Master, **I want** to create and manage competitive Events for my Guild members, **so that** I can foster healthy competition and engagement.
+#### **Story: Advanced Web Content Extraction**
+**As a** student, **I want** the browser extension to intelligently extract and organize web content, **so that** I can build my knowledge base efficiently while browsing.
 
-#### **Story: Achievement System**
-**As a** student, **I want** to earn badges and achievements for my accomplishments, **so that** I can showcase my progress and skills.
+*   **Acceptance Criteria:**
+    *   AI-powered content analysis and categorization
+    *   Automatic tagging and metadata extraction
+    *   Smart content summarization and key point extraction
+    *   Integration with existing Arsenal organization system
+    *   Bulk content processing and organization tools
+
+#### **Story: Contextual Learning Assistance**
+**As a** student, **I want** contextual learning assistance while browsing, **so that** I can connect new information to my existing knowledge.
+
+*   **Acceptance Criteria:**
+    *   Real-time content analysis and related knowledge suggestions
+    *   Popup displays of relevant Arsenal notes and connections
+    *   Skill tree integration showing how content relates to learning goals
+    *   Difficulty assessment and learning recommendations
+    *   Progress tracking for web-based learning activities
+
+#### **Story: Cross-Platform Synchronization**
+**As a** student, **I want** seamless synchronization across all my devices, **so that** my learning progress and content are always up-to-date.
+
+*   **Acceptance Criteria:**
+    *   Real-time sync of Arsenal content across devices
+    *   Offline capability with sync when connection restored
+    *   Conflict resolution for simultaneous edits
+    *   Progress synchronization across web and mobile platforms
+    *   Backup and restore functionality for all user data
 
 ---
 

@@ -16,22 +16,23 @@ This document covers use cases for the simplified MVP scope focusing on:
 
 The use cases are organized into three main phases:
 
-1. **Phase 1: Core Student MVP** (UC-001 to UC-015)
+1. **Phase 1: Core Student MVP** (UC-001 to UC-007)
    - User registration and onboarding
    - Document upload and AI processing
    - Skill tree visualization and navigation
    - Quest generation and completion
    - Progress tracking and achievements
 
-2. **Phase 2: Social & Extension MVP** (UC-016 to UC-020)
+2. **Phase 2: Social & Extension MVP** (UC-008 to UC-010)
    - Browser extension integration
    - Social features and leaderboards
    - Enhanced gamification elements
 
-3. **Phase 3: Educator & Admin Toolkit** (UC-021 to UC-025)
+3. **Phase 3: Educator & Admin Toolkit** (UC-011 to UC-018)
    - Verified Lecturer system
    - Guild management and administration
    - Advanced analytics and monitoring
+   - Security, privacy, and system integration
 
 ---
 

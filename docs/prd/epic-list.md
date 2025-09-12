@@ -40,9 +40,7 @@
 ## **Phase 2: Social & Extension MVP**
 *Focus: Introduce multiplayer and external integration features.*
 
-*Note: Phase 2 features have been moved to post-MVP based on mentor feedback to focus on core student experience validation.*
-
-### **Epic: Social & Collaboration (Parties)** (Post-MVP)
+### **Epic: Social & Collaboration (Parties)**
 *   Create "Party" (study group).
 *   Party invitation and joining options.
 *   Party leader can invite users.
@@ -54,7 +52,7 @@
 *   Real-time collaboration tools within parties.
 *   Party-specific communication channels.
 
-### **Epic: Browser Extension** (Post-MVP)
+### **Epic: Browser Extension**
 *   Scan and extract academic documents from web pages.
 *   Automatic organization of extracted information into "Arsenal".
 *   Contextual note display on text highlight.
@@ -75,15 +73,30 @@
 
 ---
 
+## **Phase 4: Advanced Social & Collaboration Features**
+*Focus: Enhanced social learning and competitive features.*
+
+### **Epic: Advanced Social Learning & Competition**
+*   Advanced party management and collaboration tools
+*   Real-time study session coordination
+*   Peer-to-peer learning and knowledge sharing
+*   Competitive learning challenges and tournaments
+*   Knowledge duels between party members
+*   Peer teaching and mentorship systems
+*   Global leaderboards and seasonal events
+*   Advanced social features for enhanced collaboration
+
+### **Epic: Enhanced Browser Extension Integration**
+*   Web content extraction and organization
+*   Contextual learning assistance during browsing
+*   Seamless integration with Arsenal knowledge base
+*   Cross-platform synchronization
+*   Advanced web page analysis and content categorization
+*   Smart content recommendations based on study goals
+
+---
+
 ## **Future Phases: Post-MVP Expansion**
-
-*The following phases have been moved to post-MVP development based on mentor feedback to focus on core value proposition validation:*
-
-### **Phase 4: Advanced Social & AI Features** (Future)
-- Advanced social learning and competition systems
-- AI-powered proactive assistance and recommendations
-- Global leaderboards and seasonal events
-- Peer teaching and knowledge duels
 
 ### **Phase 5: Marketplace & Economy** (Future)
 - User-driven marketplace for learning resources

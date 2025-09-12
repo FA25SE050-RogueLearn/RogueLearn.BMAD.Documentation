@@ -16,10 +16,10 @@
 - **File Storage:** Local file system for MVP (Azure Blob Storage for production)
 - **AI Services:** OpenAI GPT-4 API (simplified quest generation only)
 
-**Removed from MVP (Post-MVP Features):**
-- Unity Game Engine (boss fight mechanics moved to post-MVP)
-- Complex skill tree visualization (basic tree structure only)
-- Advanced AI processing (proactive assistance, predictive analytics)
+**Unity Integration for Boss Fights:**
+- Unity WebGL for interactive boss fight experiences
+- Seamless browser integration with web-native UI
+- Unity-to-web communication for progress tracking
 
 #### **Technology Stack Constraints (MVP Focused)**
 - **Node.js:** Version 18+ (LTS) for frontend development
@@ -194,9 +194,9 @@ All significant technical decisions will be evaluated against the following crit
   - Cache skill tree data to minimize API calls
   - Use progressive enhancement for visual effects
 
-**Moved to Post-MVP:**
-- Complex dynamic visualization with large knowledge graphs
-- WebGL-based rendering and advanced interactions
+**Advanced Features Included:**
+- Dynamic visualization with interactive knowledge graphs
+- Enhanced rendering and user interactions
 - Real-time collaborative skill tree updates
 
 #### **Scalability & Performance**
@@ -276,14 +276,19 @@ All significant technical decisions will be evaluated against the following crit
 - Basic user authentication and authorization
 - File upload with local storage
 
-#### **Moved to Post-MVP (60% of Original Features)**
-- Unity game engine and WebGL boss fights
-- Complex skill tree visualization with WebGL
-- Advanced AI features (proactive assistance, predictive analytics)
-- Complex educator analytics and reporting tools
-- Advanced social features and guild competitions
-- Marketplace and creator economy features
-- Advanced performance optimizations
-- Multi-region deployment and scaling
+#### **Comprehensive MVP Features (All Phases 1-4)**
+- Unity WebGL integration for boss fight experiences
+- Interactive skill tree visualization with dynamic updates
+- Social collaboration features including party system
+- Browser extension for content extraction and organization
+- Educator toolkit with guild management capabilities
+- Real-time synchronization and collaborative features
+- Core AI-powered quest generation and personalization
 
-**Rationale:** This simplified technical stack focuses on validating the core gamified learning hypothesis while maintaining development velocity and reducing complexity. Advanced features can be incrementally added based on user feedback and market validation.
+#### **Future Development (Post-MVP)**
+- Marketplace and creator economy features
+- Enterprise analytics and institutional integrations
+- Advanced AI features (proactive assistance, predictive analytics)
+- Multi-region deployment and advanced scaling
+
+**Rationale:** The expanded MVP scope provides a complete learning experience including social collaboration and Unity integration, validating the full gamified learning hypothesis while maintaining focused development priorities.

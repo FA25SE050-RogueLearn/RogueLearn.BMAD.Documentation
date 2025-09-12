@@ -60,19 +60,19 @@
 23. **FR23 (Guild Master):** A Guild Master must be able to upload basic reference materials and share them with guild members.
 24. **FR24 (Guild Master):** A Guild Master must be able to create simple announcements and communications for their guild.
 
-*Note: Advanced educator features (complex analytics, AI-generated quests, skill tree overlays, curriculum alchemy tools, guild buffs, and advanced game master capabilities) have been moved to post-MVP based on mentor feedback to focus on core student experience validation.*
+### **Phase 4: Advanced Social & Collaboration Features**
 
-### **Phase 4: Future Expansion (Post-MVP)**
+**Social Learning & Competition:**
+- Advanced party management and collaboration tools
+- Real-time study session coordination
+- Peer-to-peer learning and knowledge sharing
+- Competitive learning challenges and tournaments
 
-*Note: Phase 4 and Phase 5 features have been moved to post-MVP based on mentor feedback to focus on core value proposition validation.*
-
-**Planned Future Features:**
-- Advanced social learning and competition systems
-- AI-powered proactive assistance and recommendations
-- Marketplace and creator economy features
-- Enterprise integrations and advanced analytics
-
-*These features will be considered for future development phases after successful MVP validation.*
+**Browser Extension Integration:**
+- Web content extraction and organization
+- Contextual learning assistance
+- Seamless integration with Arsenal knowledge base
+- Cross-platform synchronization
 
 ### **Cross-Cutting Requirements (All Phases)**
 *Focus: Core system capabilities that support all phases.*

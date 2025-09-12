@@ -20,13 +20,21 @@ The primary goal of the MVP is to validate the core user loop: **Upload Syllabus
 *   **Enhanced User Roles**: Added Verified Lecturer system to maintain educational quality while keeping complexity low.
 *   **Simplified Educator Tools**: Basic guild management and document sharing to support educator use cases without overwhelming complexity.
 
-## Excluded Features (Post-MVP)
+## Included MVP Features (All Phases 1-4)
 
-**Based on mentor feedback, the following have been moved to post-MVP to strengthen focus on core value proposition:**
+**The MVP now includes comprehensive features across all core phases:**
 
-*   **Advanced Educator Toolkit**: Complex analytics, AI-assisted quest generation, skill tree overlays, and comprehensive administrative tools.
-*   **Advanced Social Features (Phase 4)**: Guild-vs-Guild competitions, advanced leaderboards, peer teaching systems, and social learning circles.
-*   **Marketplace & Economy (Phase 5)**: User-driven marketplace, creator economy, virtual currency, and monetization features.
+*   **Phase 1**: Core student experience with AI-powered quest generation and skill trees
+*   **Phase 2**: Social collaboration features including party system and browser extension
+*   **Phase 3**: Educator toolkit with guild management and verified lecturer system
+*   **Phase 4**: Advanced social features and browser extension integration
+
+## Future Features (Post-MVP)
+
+**The following advanced features remain for future development:**
+
+*   **Marketplace & Economy**: User-driven marketplace, creator economy, virtual currency, and monetization features.
+*   **Enterprise Features**: Advanced analytics, institutional integrations, and comprehensive administrative tools.
 *   **Advanced AI Features**: Proactive assistance, predictive analytics, audio/video processing, and AI-powered content curation.
 
-**Rationale for Exclusions**: These features, while valuable, represent 60% of the original scope and could distract from validating the core hypothesis: that gamified learning with RPG mechanics significantly improves student motivation and learning outcomes.
+**Rationale**: The expanded MVP scope validates the complete core learning experience including social collaboration, while advanced monetization and enterprise features can be developed based on user feedback and market validation.

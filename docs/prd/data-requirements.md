@@ -199,7 +199,7 @@ This document outlines the comprehensive data model for RogueLearn, covering all
 
 **Gamified Assessment System**
 
-*   **BossFight**: Represents a gamified mock exam with difficulty-based scoring.
+*   **BossFight**: Represents a gamified mock exam with difficulty-based scoring and Unity WebGL integration.
     *   `boss_fight_id` (Primary Key)
     *   `user_id` (Foreign Key to `User`)
     *   `quest_id` (Foreign Key to `Quest`, optional)
@@ -209,6 +209,10 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `progress_status` (e.g., 'Not Started', 'In Progress', 'Completed', 'Failed')
     *   `generation_source` (e.g., 'User Input', 'AI Generated')
     *   `upcoming_test_date` (Optional, from user input)
+    *   `unity_scene_id` (Unity scene identifier for boss fight)
+    *   `unity_game_state` (JSON object storing Unity game progress)
+    *   `unity_session_id` (Session ID for Unity WebGL instance)
+    *   `interactive_elements` (JSON array of Unity interactive components)
     *   `created_at`
     *   `started_at`
     *   `completed_at`
@@ -771,59 +775,52 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `release_date`
     *   `creation_status` (e.g., 'Draft', 'Published', 'Archived')
 
-### Phase 4: Living Ecosystem & Social
+### Phase 4: Advanced Social & Collaboration Features
 
-**Advanced AI Features**
+**Advanced Party Management & Analytics**
 
-*   **AISpellSuggestion**: Represents a study aid suggested by the AI from Arsenal scanning.
-    *   `ai_spell_suggestion_id` (Primary Key)
-    *   `user_id` (Foreign Key to `User`)
-    *   `title`
-    *   `description`
-    *   `spell_type` (e.g., 'Flashcard', 'Summary', 'Practice Quiz', 'Mind Map')
-    *   `content`
-    *   `source_note_ids` (JSON array of source note IDs from Arsenal)
-    *   `ai_confidence_score` (Confidence in the suggestion quality)
-    *   `suggested_at`
-    *   `suggestion_status` (e.g., 'Suggested', 'Accepted', 'Rejected', 'Modified')
-    *   `user_modifications` (JSON object with user changes to the suggestion)
-
-*   **ClassRecording**: Represents an audio/video recording of a class.
-    *   `class_recording_id` (Primary Key)
-    *   `user_id` (Foreign Key to `User`)
-    *   `guild_id` (Foreign Key to `Guild`, optional)
-    *   `title`
-    *   `description`
-    *   `file_url`
-    *   `duration`
-    *   `file_size`
-    *   `recording_quality` (e.g., 'High', 'Medium', 'Low')
-    *   `uploaded_at`
-    *   `processing_status` (e.g., 'Pending', 'Processing', 'Completed', 'Failed')
-
-*   **RecordingSummary**: Represents a text summary generated from a class recording.
-    *   `recording_summary_id` (Primary Key)
-    *   `class_recording_id` (Foreign Key to `ClassRecording`)
-    *   `content`
-    *   `key_points` (JSON array of key points)
-    *   `topics_covered` (JSON array of topics discussed)
-    *   `important_timestamps` (JSON array of significant moments with timestamps)
-    *   `summary_quality_score` (AI confidence in summary quality)
+*   **PartyAnalytics**: Represents analytics data for party performance and engagement.
+    *   `party_analytics_id` (Primary Key)
+    *   `party_id` (Foreign Key to `Party`)
+    *   `analytics_period` (e.g., 'Daily', 'Weekly', 'Monthly')
+    *   `member_engagement_scores` (JSON object with member engagement metrics)
+    *   `study_session_count`
+    *   `total_study_hours`
+    *   `average_session_duration`
+    *   `completion_rates` (JSON object with quest/task completion rates)
+    *   `collaboration_score` (Overall party collaboration effectiveness)
     *   `generated_at`
-    *   `processing_time` (Time taken to generate summary)
+    *   `period_start_date`
+    *   `period_end_date`
 
-*   **AtRiskPlayer**: Represents a player identified as at risk of falling behind.
-    *   `at_risk_player_id` (Primary Key)
-    *   `player_id` (Foreign Key to `User`)
-    *   `guild_id` (Foreign Key to `Guild`, optional)
-    *   `risk_level` (e.g., 'Low', 'Medium', 'High')
-    *   `risk_factors` (JSON array of risk factors)
-    *   `prediction_model_version` (Version of the AI model used)
-    *   `confidence_score` (Confidence in the prediction)
-    *   `recommended_interventions` (JSON array of suggested actions)
-    *   `identified_at`
-    *   `last_updated`
-    *   `intervention_taken` (Boolean, whether action was taken)
+*   **PartyRole**: Represents custom roles within parties with specific permissions.
+    *   `party_role_id` (Primary Key)
+    *   `party_id` (Foreign Key to `Party`)
+    *   `role_name`
+    *   `role_description`
+    *   `permissions` (JSON object with permission settings)
+    *   `can_schedule_sessions` (Boolean)
+    *   `can_manage_members` (Boolean)
+    *   `can_edit_shared_content` (Boolean)
+    *   `can_view_analytics` (Boolean)
+    *   `created_at`
+    *   `updated_at`
+
+*   **StudySessionCoordination**: Represents real-time coordination data for study sessions.
+    *   `session_coordination_id` (Primary Key)
+    *   `party_id` (Foreign Key to `Party`)
+    *   `session_id` (Unique session identifier)
+    *   `coordinator_id` (Foreign Key to `User`)
+    *   `session_type` (e.g., 'Live Study', 'Virtual Meeting', 'Collaborative Work')
+    *   `active_participants` (JSON array of currently active participant IDs)
+    *   `session_status` (e.g., 'Starting', 'Active', 'Break', 'Ending')
+    *   `shared_resources` (JSON array of shared documents/links)
+    *   `real_time_notes` (JSON object with collaborative notes)
+    *   `voice_channel_active` (Boolean)
+    *   `screen_sharing_active` (Boolean)
+    *   `recording_enabled` (Boolean)
+    *   `started_at`
+    *   `last_activity_at`
 
 **Social Learning Features**
 
@@ -862,13 +859,13 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `last_updated`
     *   `final_snapshot` (JSON object with final state)
 
-**Competitive Learning**
+**Competitive Learning & Knowledge Duels**
 
 *   **KnowledgeDuel**: Represents real-time competitive quizzes or problem-solving challenges.
     *   `knowledge_duel_id` (Primary Key)
     *   `challenger_id` (Foreign Key to `User`)
     *   `opponent_id` (Foreign Key to `User`)
-    *   `duel_type` (e.g., 'Quick Quiz', 'Problem Solving', 'Speed Challenge')
+    *   `duel_type` (e.g., 'Quick Quiz', 'Problem Solving', 'Speed Challenge', 'Topic Mastery')
     *   `topic` (Subject area for the duel)
     *   `difficulty_level` (e.g., 'Easy', 'Medium', 'Hard')
     *   `time_limit` (Duration in minutes)
@@ -877,35 +874,116 @@ This document outlines the comprehensive data model for RogueLearn, covering all
     *   `winner_id` (Foreign Key to `User`, optional)
     *   `xp_reward`
     *   `cosmetic_rewards` (JSON array of cosmetic rewards)
+    *   `spectator_count` (Number of users watching)
+    *   `duel_recording_url` (Optional recording for replay)
     *   `started_at`
     *   `completed_at`
     *   `duel_status` (e.g., 'Challenged', 'Accepted', 'In Progress', 'Completed', 'Declined')
 
-*   **PeerTeaching**: Represents mini-lessons or tutorials created by players.
+*   **CompetitiveTournament**: Represents tournament-style competitions.
+    *   `tournament_id` (Primary Key)
+    *   `name`
+    *   `description`
+    *   `tournament_type` (e.g., 'Single Elimination', 'Round Robin', 'Swiss System')
+    *   `topic_focus`
+    *   `max_participants`
+    *   `entry_requirements` (JSON object with participation requirements)
+    *   `prize_pool` (JSON object with rewards)
+    *   `registration_start`
+    *   `registration_end`
+    *   `tournament_start`
+    *   `tournament_end`
+    *   `current_round`
+    *   `tournament_status` (e.g., 'Registration', 'Active', 'Completed', 'Cancelled')
+    *   `created_at`
+
+*   **TournamentParticipant**: Junction table for tournament participation.
+    *   `tournament_participant_id` (Primary Key)
+    *   `tournament_id` (Foreign Key to `CompetitiveTournament`)
+    *   `user_id` (Foreign Key to `User`)
+    *   `registration_date`
+    *   `current_rank`
+    *   `total_score`
+    *   `matches_played`
+    *   `matches_won`
+    *   `participation_status` (e.g., 'Registered', 'Active', 'Eliminated', 'Withdrawn')
+
+*   **PeerTeaching**: Represents peer-to-peer learning sessions and tutorials.
     *   `peer_teaching_id` (Primary Key)
     *   `teacher_id` (Foreign Key to `User`)
+    *   `student_id` (Foreign Key to `User`, optional for group sessions)
+    *   `session_type` (e.g., 'One-on-One', 'Group Session', 'Tutorial Creation')
     *   `title`
     *   `description`
     *   `content` (Rich text content of the lesson)
-    *   `teaching_format` (e.g., 'Written Tutorial', 'Video', 'Interactive Demo')
+    *   `teaching_format` (e.g., 'Written Tutorial', 'Video', 'Interactive Demo', 'Live Session')
     *   `topic`
     *   `difficulty_level` (e.g., 'Beginner', 'Intermediate', 'Advanced')
     *   `estimated_duration`
+    *   `scheduled_time` (For live sessions)
     *   `mentor_xp_earned`
+    *   `student_xp_earned`
     *   `view_count`
     *   `rating_average`
     *   `created_at`
     *   `updated_at`
+    *   `session_status` (e.g., 'Scheduled', 'Active', 'Completed', 'Cancelled')
     *   `publication_status` (e.g., 'Draft', 'Published', 'Archived')
 
-*   **PeerTeachingRating**: Represents ratings for peer teaching content.
-    *   `peer_teaching_rating_id` (Primary Key)
+*   **PeerTeachingFeedback**: Represents feedback and ratings for peer teaching sessions.
+    *   `peer_teaching_feedback_id` (Primary Key)
     *   `peer_teaching_id` (Foreign Key to `PeerTeaching`)
-    *   `rater_id` (Foreign Key to `User`)
+    *   `reviewer_id` (Foreign Key to `User`)
+    *   `reviewer_type` (e.g., 'Student', 'Peer', 'System')
     *   `rating` (1-5 stars)
-    *   `review` (Optional text review)
-    *   `helpful_votes` (Number of users who found this review helpful)
+    *   `feedback_text` (Optional text feedback)
+    *   `helpful_votes` (Number of users who found this feedback helpful)
+    *   `improvement_suggestions` (JSON array of suggestions)
     *   `created_at`
+
+**Enhanced Browser Extension Integration**
+
+*   **WebContentExtraction**: Represents advanced web content extraction and analysis.
+    *   `web_content_extraction_id` (Primary Key)
+    *   `user_id` (Foreign Key to `User`)
+    *   `source_url`
+    *   `page_title`
+    *   `extracted_content` (JSON object with structured content)
+    *   `content_type` (e.g., 'Article', 'Video', 'PDF', 'Academic Paper', 'Tutorial')
+    *   `ai_analysis` (JSON object with AI-generated insights)
+    *   `auto_tags` (JSON array of automatically generated tags)
+    *   `difficulty_assessment` (AI-assessed difficulty level)
+    *   `related_skills` (JSON array of related skill tree nodes)
+    *   `extraction_quality_score` (Quality assessment of extraction)
+    *   `extracted_at`
+    *   `processing_status` (e.g., 'Pending', 'Processed', 'Failed')
+
+*   **ContextualAssistance**: Represents contextual learning assistance data.
+    *   `contextual_assistance_id` (Primary Key)
+    *   `user_id` (Foreign Key to `User`)
+    *   `trigger_content` (Text that triggered the assistance)
+    *   `assistance_type` (e.g., 'Related Notes', 'Skill Connection', 'Learning Suggestion')
+    *   `suggested_content` (JSON object with suggested Arsenal content)
+    *   `skill_connections` (JSON array of related skill tree connections)
+    *   `confidence_score` (AI confidence in suggestions)
+    *   `user_interaction` (e.g., 'Viewed', 'Clicked', 'Dismissed', 'Saved')
+    *   `effectiveness_rating` (User rating of assistance quality)
+    *   `triggered_at`
+    *   `interaction_at`
+
+*   **CrossPlatformSync**: Represents synchronization data across devices and platforms.
+    *   `sync_session_id` (Primary Key)
+    *   `user_id` (Foreign Key to `User`)
+    *   `device_identifier`
+    *   `platform_type` (e.g., 'Web', 'Mobile', 'Browser Extension')
+    *   `sync_type` (e.g., 'Full Sync', 'Incremental', 'Conflict Resolution')
+    *   `data_types_synced` (JSON array of synced data types)
+    *   `sync_status` (e.g., 'In Progress', 'Completed', 'Failed', 'Partial')
+    *   `conflicts_detected` (JSON array of sync conflicts)
+    *   `conflicts_resolved` (JSON array of resolved conflicts)
+    *   `sync_started_at`
+    *   `sync_completed_at`
+    *   `data_size_synced` (Size in bytes)
 
 **Global Leaderboards & Rankings**
 
