@@ -21,3 +21,4 @@ University students often face significant challenges with motivation and connec
 | --- | --- | --- | --- |
 | *Initial Draft* | 1.0 | Initial PRD creation, expanded to include Phases 1, 2, & 3. | John, PM |
 | September 10, 2025 | 1.1 | Refined scope to focus on Software Engineering students. Removed "Guide" role and clarified "Lecturer" into a "Verified" status for the "Guild Master" role. Generalized competitions to an "Events" system. | John, PM |
+| *Current* | 2.0 | **MENTOR-DRIVEN PIVOT:** Significantly simplified scope based on mentor feedback. Removed Phases 4-5 (60% of features) and streamlined Phase 3 to focus on core MVP validation. Enhanced Verified Lecturer system while maintaining gamified learning focus. | John, PM |

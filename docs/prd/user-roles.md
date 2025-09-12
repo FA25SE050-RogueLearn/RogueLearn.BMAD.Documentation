@@ -12,4 +12,19 @@ This document outlines the key user roles and actors within the RogueLearn ecosy
 
 **Special Status: Verified Lecturer**
 
-To signify credibility and expertise, a user can apply to receive a "Verified Lecturer" status. This status is displayed as a prominent badge next to their name throughout the application. While it does not grant different functional permissions than a standard user, it provides a mark of authority and trust, particularly for users who are also Guild Masters.
+To signify credibility and expertise, a user can apply to receive a "Verified Lecturer" status through an academic credential validation process. This includes:
+
+**Verification Requirements:**
+- University affiliation or teaching position documentation
+- Academic credentials (degrees, certifications, teaching qualifications)
+- Professional references or institutional endorsement
+- Identity verification through secure document upload
+
+**Enhanced Privileges:**
+- Special "Verified" badge and credibility indicators
+- Streamlined guild creation process with educational templates
+- Enhanced guild visibility and discoverability
+- Access to basic educator analytics and progress tracking
+- Priority support for educational use cases
+
+**Benefits:** Verified Lecturers' guilds become more attractive to students seeking structured, academic-quality learning experiences, while maintaining the platform's focus on gamified learning rather than complex administrative tools.

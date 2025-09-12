@@ -1,891 +1,915 @@
-# **RogueLearn Use Case Documentation**
+# RogueLearn Use Cases Documentation
 
 ## **Document Overview**
 
-This document provides comprehensive use case specifications for the RogueLearn gamified learning platform. It serves as a bridge between the Product Requirements Document (PRD) and the technical architecture phase, detailing system behaviors, user interactions, and business logic flows.
+### **Purpose**
+This document defines the detailed use cases for RogueLearn, a gamified learning platform that transforms academic documents into interactive learning experiences. Each use case describes specific user interactions and system behaviors that support the functional requirements (FR1-FR28).
 
-**Document Purpose:** Enable architecture design by providing detailed behavioral specifications for all system components and user interactions.
+### **Scope**
+This document covers use cases for the simplified MVP scope focusing on:
+- Core student learning experience (web-first approach)
+- Verified Lecturer system and guild management
+- Essential gamification features
+- Cross-cutting requirements (security, performance, analytics)
 
-**Scope:** Covers all functional requirements across 5 development phases, organized by user roles and system capabilities.
+### **Use Case Categories**
+
+The use cases are organized into three main phases:
+
+1. **Phase 1: Core Student MVP** (UC-001 to UC-015)
+   - User registration and onboarding
+   - Document upload and AI processing
+   - Skill tree visualization and navigation
+   - Quest generation and completion
+   - Progress tracking and achievements
+
+2. **Phase 2: Social & Extension MVP** (UC-016 to UC-020)
+   - Browser extension integration
+   - Social features and leaderboards
+   - Enhanced gamification elements
+
+3. **Phase 3: Educator & Admin Toolkit** (UC-021 to UC-025)
+   - Verified Lecturer system
+   - Guild management and administration
+   - Advanced analytics and monitoring
 
 ---
 
-## **Use Case Categories**
-
-### **1. Core Student Experience (Phase 1)**
-### **2. Social & Collaboration Features (Phase 2)**
-### **3. Educator & Administrative Tools (Phase 3)**
-### **4. Advanced Social & AI Features (Phase 4)**
-### **5. Marketplace & Economy (Phase 5)**
-
----
-
-## **1. Core Student Experience Use Cases**
+## **Phase 1: Core Student MVP Use Cases**
 
 ### **UC-001: User Registration and Onboarding**
 
-**Primary Actor:** Prospective Student/Lecturer  
-**Goal:** Create account and complete initial profile setup  
-**Preconditions:** User has valid email address  
-**Success Guarantee:** User has active account with completed character profile  
+**Actor:** New Student
+**Goal:** Create account and complete initial platform setup
+**Preconditions:** User has internet access and valid email address
+**Trigger:** User visits RogueLearn platform for the first time
 
 **Main Success Scenario:**
-1. User navigates to registration page
-2. System presents registration form (email, password, terms acceptance)
-3. User submits valid registration information (all users register as students initially)
-4. System validates email format and password strength (8+ chars, mixed case, numbers)
-5. System sends email verification link
-6. User clicks verification link in email
-7. System activates account and redirects to onboarding flow
-8. User completes character creation (Class selection, Route selection, focus on Software Engineering)
-9. System generates initial character sheet and skill tree
-10. For lecturer applicants:
-    - 10a. User applies for lecturer status through profile settings
-    - 10b. System reviews application
-    - 10c. Upon approval, user gains lecturer privileges
-11. User is redirected to main dashboard
+1. **Account Creation**: User creates account using email/password or social login (Clerk integration)
+2. **Profile Setup**: User completes basic profile information (name, academic level, interests)
+3. **Platform Introduction**: System presents interactive tutorial explaining core concepts:
+   - Document-to-quest transformation process
+   - Skill tree navigation and progression
+   - XP and achievement system
+   - Arsenal (personal knowledge repository)
+4. **Initial Preferences**: User selects learning preferences and notification settings
+5. **Welcome Quest**: System generates introductory quest using sample document
+6. **Dashboard Access**: User gains access to personalized learning dashboard
 
 **Extensions:**
-- 4a. Invalid email format: System displays error, user corrects
-- 4b. Weak password: System displays requirements, user strengthens
-- 4c. Email already exists: System displays error, offers login option
-- 6a. Verification link expired: System offers resend option
-- 8a. User skips optional onboarding steps: System saves partial progress
-- 10b. Lecturer application rejected: System provides feedback, user can reapply
+- 1a. Social login fails: System offers email registration alternative
+- 3a. User skips tutorial: System provides help tooltips during first interactions
+- 5a. Sample quest fails: System offers manual quest creation tutorial
 
 **Business Rules:**
-- Email verification required before account activation
-- Password must meet security requirements
-- Onboarding can be completed in multiple sessions
-- Character class affects initial skill tree structure
-- All users initially register as students
-- Lecturer status requires separate application and approval process
-- Initial focus on Software Engineering students with FLM (FPTU Learning Materials) import capability
+- All user data must be encrypted and GDPR compliant
+- Tutorial completion unlocks full platform features
+- Default notification settings prioritize learning progress
 
 ---
 
-### **UC-002: Academic Document Upload and Processing**
+### **UC-002: Academic Document Upload and AI Processing**
 
-**Primary Actor:** Student  
-**Goal:** Upload and process academic documents to personalize learning experience  
-**Preconditions:** User has active account and completed basic onboarding  
-**Success Guarantee:** Academic data is processed and integrated into character profile  
+**Actor:** Student
+**Goal:** Upload academic document and receive AI-generated learning content
+**Preconditions:** User is authenticated and has completed onboarding
+**Trigger:** User selects "Upload Document" from dashboard
 
 **Main Success Scenario:**
-1. User navigates to Arsenal document upload section
-2. System presents upload interface for multiple document types
-3. User selects document type (GPA, transcript, syllabus, schedule)
-4. User uploads document file (PDF, DOCX supported)
-5. System validates file format and size (<25MB)
-6. System queues document for AI processing and stores in Arsenal
-7. AI engine extracts relevant academic information
-8. System updates character stats based on GPA and academic performance
-9. System populates skill tree with acquired knowledge from transcripts
-10. System generates quest line items and extracts exam schedules only (no automated timetable generation)
-11. User reviews and confirms processed information
-12. System saves updated character profile and documents in Arsenal
+1. **Document Selection**: User selects document file (PDF, DOCX, TXT) or provides URL
+2. **Upload Validation**: System validates file format, size, and content type
+3. **AI Processing Initiation**: System begins intelligent document analysis:
+   - Content extraction and structure analysis
+   - Key concept identification
+   - Learning objective generation
+   - Difficulty assessment
+4. **Progress Monitoring**: User sees real-time processing status with estimated completion time
+5. **Content Generation**: AI creates structured learning content:
+   - Skill tree nodes representing key concepts
+   - Progressive quest sequences
+   - Knowledge check questions
+   - Summary and key takeaways
+6. **Arsenal Integration**: Processed document is added to user's personal Arsenal
+7. **Learning Path Creation**: System generates recommended learning path based on content
+8. **Completion Notification**: User receives notification when processing is complete
 
 **Extensions:**
-- 5a. Invalid file format: System displays error, requests correct format
-- 5b. File too large: System displays size limit, requests smaller file
-- 7a. AI processing fails: System offers manual entry option
-- 11a. User disputes processed information: System allows manual corrections
+- 2a. Invalid file format: System provides format conversion suggestions
+- 2b. File too large: System offers document splitting guidance
+- 4a. Processing fails: System provides manual content creation tools
+- 5a. Low-quality content detected: System requests user review and feedback
 
 **Business Rules:**
-- Only authenticated users can upload documents
-- Document processing may take up to 5 minutes
-- Users can upload multiple versions of same document type
-- AI suggestions can be overridden by user input
-- Documents are stored in user's Arsenal
-- Schedule extraction focuses on exam dates only, no automated timetable generation
+- Maximum file size: 50MB per document
+- Supported formats: PDF, DOCX, TXT, web URLs
+- Processing time should not exceed 5 minutes for standard documents
+- All uploaded content remains private to the user unless explicitly shared
 
 ---
 
 ### **UC-003: Skill Tree Visualization and Navigation**
 
-**Primary Actor:** Student  
-**Goal:** View and interact with personalized skill tree to understand learning progress  
-**Preconditions:** User has active account with processed academic data  
-**Success Guarantee:** User can navigate skill tree and understand learning pathways  
+**Actor:** Student
+**Goal:** Navigate and interact with skill tree to understand learning progression
+**Preconditions:** User has uploaded at least one document with generated content
+**Trigger:** User accesses skill tree from dashboard or document view
 
 **Main Success Scenario:**
-1. User navigates to skill tree section from dashboard
-2. System renders interactive mind map visualization
-3. System displays skill nodes with current levels and progress
-4. User clicks on specific skill node
-5. System displays detailed skill information (level, contributing notes, related quests)
-6. System highlights connected skills and prerequisites
-7. User can navigate between connected skills
-8. System shows missing skills needed for career goal
-9. User can bookmark skills for focused learning
-10. System updates skill tree based on completed quests and activities
+1. **Skill Tree Display**: System renders interactive skill tree visualization:
+   - Hierarchical node structure representing concepts
+   - Visual indicators for completion status (locked, available, completed)
+   - Prerequisite relationships between concepts
+   - Estimated time and difficulty for each node
+2. **Node Interaction**: User clicks on skill tree nodes to view details:
+   - Concept description and learning objectives
+   - Associated quests and activities
+   - Prerequisites and dependencies
+   - Progress indicators and completion criteria
+3. **Path Planning**: System highlights recommended learning paths:
+   - Optimal progression sequences
+   - Alternative routes based on user preferences
+   - Estimated completion times
+4. **Progress Tracking**: User sees visual progress indicators:
+   - Completed nodes marked with achievements
+   - Current position in learning journey
+   - XP gained from each completed concept
+5. **Navigation Controls**: User can:
+   - Zoom and pan across large skill trees
+   - Filter nodes by difficulty, topic, or status
+   - Search for specific concepts
+   - Bookmark important nodes for quick access
 
 **Extensions:**
-- 2a. Large skill tree: System provides zoom and pan controls
-- 4a. Skill node has no data: System suggests relevant learning resources
-- 8a. No clear path to goal: System recommends additional courses or skills
+- 1a. Large skill tree performance issues: System implements progressive loading
+- 2a. Node details fail to load: System provides cached summary information
+- 4a. Progress sync issues: System offers manual progress refresh
 
 **Business Rules:**
-- All skill nodes start at level 0, regardless of uploaded documents
-- Skill levels only increase upon quest completion and verified achievements
-- Document upload alone does not increase skill levels - active quest completion required
-- Skill connections are determined by curriculum analysis and AI recommendations
-- Users cannot manually edit skill levels but can add notes and resources
+- Skill trees must maintain logical prerequisite relationships
+- Visual design should be accessible and mobile-friendly
+- Progress data must sync across all user devices
+- Node completion requires passing associated assessments
 
 ---
 
-### **UC-004: Semester Journey and Quest Management**
+### **UC-004: Quest Generation and Management**
 
-**Primary Actor:** Student  
-**Goal:** Navigate through Semester Journey with weekly nodes, manage Personal Quests, and complete Interactive/Action-oriented/Verifiable (IAV) objectives  
-**Preconditions:** User has completed onboarding, uploaded syllabus documents, and has active skill tree  
-**Success Guarantee:** User can track and complete learning objectives through structured semester progression  
+**Actor:** Student
+**Goal:** Engage with AI-generated quests to learn document content interactively
+**Preconditions:** User has processed document with generated skill tree
+**Trigger:** User selects quest from skill tree node or dashboard
 
 **Main Success Scenario:**
-1. User accesses Semester Journey dashboard
-2. System displays semester timeline with weekly nodes based on uploaded syllabus
-3. User navigates to current week's node
-4. System presents two quest categories:
-   - **Syllabus Tasks**: Reading quests, lectures, quests, exams (IAV objectives)
-   - **Personal Quests**: Videos, concept exploration, coding practice (IAV objectives)
-5. User selects quest from either category
-6. System displays quest with Interactive/Action-oriented/Verifiable objectives:
-   - Interactive: Engaging activities (quizzes, simulations, discussions)
-   - Action-oriented: Practical tasks (coding, writing, problem-solving)
-   - Verifiable: Measurable outcomes with evidence submission
-7. User completes quest activities and submits verification evidence
-8. System validates completion through automated checks or peer/instructor review
-9. Upon verification, user gains experience points and skill tree progression
-10. System unlocks next week's node or advanced Personal Quests
-11. User can track overall semester progress and quest completion statistics
+1. **Quest Selection**: User chooses quest from available options:
+   - Main story quests (core document concepts)
+   - Side quests (supplementary topics)
+   - Challenge quests (advanced applications)
+2. **Quest Briefing**: System presents quest details:
+   - Learning objectives and expected outcomes
+   - Estimated completion time and difficulty
+   - Required prerequisites and recommended preparation
+   - Reward structure (XP, achievements, unlocks)
+3. **Interactive Learning Activities**: User engages with varied quest content:
+   - **Knowledge Checks**: Multiple choice and true/false questions
+   - **Concept Mapping**: Drag-and-drop relationship building
+   - **Scenario Analysis**: Case study problem solving
+   - **Reflection Prompts**: Open-ended critical thinking questions
+4. **Progress Tracking**: System monitors quest completion:
+   - Real-time progress indicators
+   - Checkpoint saves for longer quests
+   - Performance analytics and learning insights
+5. **Adaptive Difficulty**: System adjusts quest difficulty based on performance:
+   - Additional hints for struggling concepts
+   - Bonus challenges for advanced learners
+   - Alternative explanation methods
+6. **Quest Completion**: User completes quest and receives rewards:
+   - XP points added to profile
+   - Skill tree nodes unlocked
+   - Achievement badges earned
+   - Progress toward larger learning goals
 
 **Extensions:**
-- 2a. No syllabus uploaded: System provides generic weekly structure
-- 4a. Week locked: System shows prerequisites needed to unlock
-- 7a. Evidence insufficient: System provides specific feedback for resubmission
-- 8a. Automated validation fails: System routes to manual review queue
-- 10a. Prerequisites not met: System suggests prerequisite quests
+- 3a. User struggles with activity: System provides hints and alternative approaches
+- 4a. Progress not saving: System implements local storage backup
+- 5a. Difficulty adjustment fails: System offers manual difficulty selection
+- 6a. Reward system error: System queues rewards for later distribution
 
 **Business Rules:**
-- Semester Journey follows academic calendar with weekly progression
-- Syllabus Tasks are generated from uploaded course documents
-- Personal Quests supplement syllabus content with additional learning opportunities
-- All objectives must be Interactive, Action-oriented, and Verifiable (IAV)
-- Weekly nodes unlock sequentially based on completion of previous week's core requirements
-- Personal Quests can be completed ahead of schedule for bonus experience
-- Evidence submission is mandatory for all quest completions
-- Skill tree progression only occurs upon verified quest completion
+- Quest content must align with original document learning objectives
+- Minimum 70% completion required for quest success
+- Adaptive difficulty should maintain appropriate challenge level
+- All quest interactions must be tracked for learning analytics
 
 ---
 
-### **UC-005: Boss Fight (Gamified Exam) Experience**
+### **UC-005: Personal Arsenal Management**
 
-**Primary Actor:** Student/Lecturer  
-**Goal:** Complete gamified exam experience with interactive Unity-based interface using dual creation approach  
-**Preconditions:** User has upcoming exam in schedule, Boss Fight is generated  
-**Success Guarantee:** User completes exam simulation with score and feedback  
+**Actor:** Student
+**Goal:** Organize and manage personal collection of processed documents and learning materials
+**Preconditions:** User has uploaded and processed at least one document
+**Trigger:** User accesses Arsenal from main navigation
 
 **Main Success Scenario:**
-1. **Boss Fight Creation (Dual Approach):**
-   - **Automated**: System generates boss fights from uploaded exam/quest documents
-   - **Manual**: Lecturer creates custom boss fights using pre-populated forms
-2. User receives notification of available Boss Fight
-3. User clicks to start Boss Fight from dashboard
-4. System launches Unity-based 2D game interface
-5. System presents exam questions as interactive boss battle
-6. User answers multiple choice questions
-7. System provides real-time visual feedback for correct/incorrect answers
-8. System adjusts boss difficulty based on answer accuracy
-9. User completes all questions in Boss Fight
-10. System calculates weighted score based on question difficulty
-11. System displays final score with visual celebration/commiseration
-12. System updates character stats and skill tree based on performance
-13. System provides detailed performance analysis and study recommendations
+1. **Arsenal Overview**: User views organized collection of learning materials:
+   - Grid/list view of all processed documents
+   - Filtering options (subject, date, completion status, difficulty)
+   - Search functionality across document content
+   - Sort options (recent, alphabetical, progress, rating)
+2. **Document Management**: User performs organizational actions:
+   - Create custom folders and categories
+   - Tag documents with custom labels
+   - Star important or frequently accessed materials
+   - Archive completed or outdated content
+3. **Progress Visualization**: System displays learning progress for each document:
+   - Completion percentage and status indicators
+   - Time spent and XP earned
+   - Skill tree progress and unlocked concepts
+   - Recent activity and last accessed date
+4. **Quick Actions**: User can perform rapid document operations:
+   - Resume learning from last checkpoint
+   - Generate new quests from existing content
+   - Share documents with study groups (if enabled)
+   - Export notes and progress summaries
+5. **Arsenal Analytics**: User views personal learning insights:
+   - Learning velocity and consistency metrics
+   - Subject area strengths and improvement areas
+   - Goal progress and achievement tracking
+   - Recommended next steps and content suggestions
 
 **Extensions:**
-- 1a. Automated generation fails: System falls back to manual creation option
-- 1b. Manual creation: System provides pre-populated templates and forms
-- 6a. User answers incorrectly: Boss becomes more challenging visually
-- 6b. User answers correctly: Boss shows damage, encouraging animations
-- 9a. Time limit reached: System auto-submits current answers
-- 11a. High score achieved: System unlocks bonus content or achievements
+- 1a. Large Arsenal performance issues: System implements pagination and lazy loading
+- 2a. Folder creation fails: System provides default categorization
+- 4a. Export functionality unavailable: System offers alternative sharing methods
+- 5a. Analytics data incomplete: System provides available metrics with explanations
 
 **Business Rules:**
-- Boss fights represent major learning milestones
-- Automated boss fights generated from uploaded assessment documents
-- Manual boss fights use pre-populated forms for efficient creation
-- Boss Fight difficulty correlates with actual exam difficulty
-- Higher difficulty questions award more points
-- Performance data is used to adjust future quest recommendations
-- Boss Fights can be retaken for practice (lower XP rewards)
-- Both creation methods produce equivalent assessment experiences
+- Arsenal content remains private unless explicitly shared
+- Document organization preferences sync across devices
+- Deleted documents can be recovered within 30 days
+- Arsenal storage has reasonable limits with upgrade options
 
 ---
 
-### **UC-006: Arsenal (Notes) Management**
+### **UC-006: Learning Progress Tracking and Analytics**
 
-**Primary Actor:** Student  
-**Goal:** Create, organize, and manage personal study notes with rich text capabilities  
-**Preconditions:** User has active account  
-**Success Guarantee:** User can effectively organize and retrieve study materials  
+**Actor:** Student
+**Goal:** Monitor learning progress and gain insights into study patterns and performance
+**Preconditions:** User has completed at least one quest or learning activity
+**Trigger:** User accesses Progress Dashboard from main navigation
 
 **Main Success Scenario:**
-1. User navigates to Arsenal section
-2. System displays existing notes organized by categories/tags
-3. User creates new note or selects existing note to edit
-4. System provides rich text editor with Notion-like functionality
-5. User creates content with text formatting, images, links, and embedded media
-6. User assigns tags and categories to note
-7. System auto-saves note content periodically
-8. User can link notes to specific skill tree nodes
-9. System suggests related notes based on content analysis
-10. User can search notes by content, tags, or linked skills
+1. **Progress Dashboard**: User views comprehensive learning analytics:
+   - **Overall Progress**: Total XP, level, and achievement count
+   - **Learning Streak**: Consecutive days of platform engagement
+   - **Subject Mastery**: Progress across different academic areas
+   - **Recent Activity**: Timeline of completed quests and milestones
+2. **Detailed Analytics**: User explores specific performance metrics:
+   - **Learning Velocity**: Concepts mastered per week/month
+   - **Difficulty Progression**: Advancement through complexity levels
+   - **Time Investment**: Study time distribution across subjects
+   - **Retention Rates**: Knowledge retention over time
+3. **Goal Setting and Tracking**: User manages learning objectives:
+   - Set daily, weekly, and monthly learning goals
+   - Track progress toward academic milestones
+   - Receive recommendations for achievable targets
+   - Celebrate goal completions with rewards
+4. **Performance Insights**: System provides personalized learning insights:
+   - Optimal study times based on performance patterns
+   - Subject areas needing additional focus
+   - Learning style preferences and recommendations
+   - Predicted completion times for ongoing content
+5. **Progress Sharing**: User can share achievements and milestones:
+   - Generate progress reports for educators or parents
+   - Share achievement badges on social platforms
+   - Compare progress with study group members (if enabled)
 
 **Extensions:**
-- 5a. User uploads images: System optimizes and stores securely
-- 5b. User embeds external content: System validates and caches
-- 8a. Note relates to multiple skills: System allows multiple linkages
-- 10a. Search returns no results: System suggests alternative terms
+- 2a. Insufficient data for analytics: System provides guidance on building learning history
+- 3a. Goal setting interface unavailable: System offers simple target setting
+- 4a. Insight generation fails: System provides basic progress summaries
+- 5a. Sharing features disabled: System focuses on personal progress tracking
 
 **Business Rules:**
-- Notes are private by default but can be shared with parties
-- Note content is indexed for search functionality
-- Linked notes contribute to skill tree node information
-- Note version history is maintained for recovery
+- All analytics data must respect user privacy preferences
+- Progress tracking should motivate rather than discourage learning
+- Goal recommendations should be realistic and achievable
+- Shared progress data requires explicit user consent
 
 ---
 
-## **2. Social & Collaboration Use Cases**
+### **UC-007: Achievement System and Gamification**
 
-### **UC-007: Party (Study Group) Creation and Management**
-
-**Primary Actor:** Student (Party Leader)  
-**Goal:** Create and manage study group with configurable permissions and Arsenal note sharing  
-**Preconditions:** User has active account  
-**Success Guarantee:** Functional study group is created with invited members and shared resources  
+**Actor:** Student
+**Goal:** Earn achievements and engage with gamification elements to maintain motivation
+**Preconditions:** User is actively using the platform and completing learning activities
+**Trigger:** User completes quests, reaches milestones, or demonstrates consistent engagement
 
 **Main Success Scenario:**
-1. User navigates to social/party section
-2. User clicks "Create Party" button
-3. System presents party creation form
-4. User enters party name, description, and study focus
-5. User configures party settings (open/invite-only, permissions)
-6. User invites members via direct invitation or browse feature
-7. System sends invitations to selected users
-8. Invited users accept invitations
-9. System creates party with configured permissions
-10. Party members gain access to shared Party Stash
-11. **Arsenal Note Sharing**: Party members can share notes from their Arsenal to Party Stash
-    - Shared notes are copied (non-synced) to Party Stash
-    - Original Arsenal notes remain private and unaffected
-    - All party members can access shared copies in Party Stash
-12. Party Leader can modify permissions and manage members
+1. **Achievement Unlocking**: System automatically awards achievements for various accomplishments:
+   - **Learning Milestones**: First quest completed, skill tree mastered, XP thresholds reached
+   - **Consistency Rewards**: Daily streaks, weekly goals, monthly targets
+   - **Mastery Badges**: Subject expertise, difficulty progression, comprehensive understanding
+   - **Special Accomplishments**: Creative problem solving, helping others, platform exploration
+2. **Achievement Notification**: User receives immediate feedback for earned achievements:
+   - Visual celebration with animations and sound effects
+   - Achievement badge display with description and rarity
+   - XP bonus and additional rewards
+   - Social sharing options (if enabled)
+3. **Achievement Gallery**: User can view and manage their achievement collection:
+   - Organized display of all earned badges and trophies
+   - Progress indicators for partially completed achievements
+   - Achievement descriptions and earning criteria
+   - Rarity statistics and completion percentages
+4. **Gamification Elements**: User engages with various motivational features:
+   - **XP System**: Points earned for all learning activities
+   - **Level Progression**: Advancing through learner ranks and titles
+   - **Leaderboards**: Optional comparison with other learners
+   - **Challenges**: Time-limited special objectives and events
+5. **Motivation Maintenance**: System provides ongoing engagement features:
+   - Daily login bonuses and streak rewards
+   - Personalized challenges based on learning patterns
+   - Achievement recommendations and progress hints
+   - Celebration of learning anniversaries and milestones
 
 **Extensions:**
-- 6a. User browses strangers: System shows relevant stats and compatibility
-- 6b. User sets party as open: System lists in public party directory
-- 8a. Invited user declines: System notifies Party Leader
-- 11a. Note sharing fails: System provides error feedback and retry option
-- 11b. Large note files: System compresses or splits for sharing
-- 12a. Member violates party rules: Leader can remove member
+- 1a. Achievement system error: System queues achievements for later awarding
+- 2a. Notification system disabled: System provides achievement summary in dashboard
+- 4a. Leaderboard privacy concerns: System offers anonymous participation options
+- 5a. Motivation features overwhelming: System provides customization options
 
 **Business Rules:**
-- Party Leader has full administrative control
-- Party Stash permissions are role-based (view, edit, comment)
-- Arsenal notes shared to Party Stash are non-synced copies
-- Original Arsenal notes remain private to the owner
-- Party Stash is accessible to all party members
-- Parties can have maximum of 10 members for optimal collaboration
-- Party activity contributes to member engagement metrics
+- Achievement criteria must be fair, achievable, and educationally meaningful
+- Gamification should enhance rather than distract from learning
+- User privacy preferences must be respected in social features
+- Achievement data should contribute to learning analytics insights
 
 ---
 
-### **UC-008: Browser Extension - Document Extraction**
+## **Phase 2: Social & Extension MVP Use Cases**
 
-**Primary Actor:** Student  
-**Goal:** Extract and save academic content from web pages to Arsenal with enhanced extraction capabilities  
-**Preconditions:** User has browser extension installed and is logged in  
-**Success Guarantee:** Web content is extracted and organized in user's Arsenal  
+### **UC-008: Browser Extension Integration**
+
+**Actor:** Student
+**Goal:** Capture and process web content directly from browser for learning
+**Preconditions:** User has installed RogueLearn browser extension and is authenticated
+**Trigger:** User encounters educational content while browsing the web
 
 **Main Success Scenario:**
-1. User navigates to university portal or academic website
-2. Extension detects academic content (syllabus, schedule, grades)
-3. Extension displays extraction notification
-4. User clicks to extract content
-5. Extension presents extraction options:
-   - Full page content
-   - Selected text/paragraphs with **paragraph highlighting**
-   - Images and diagrams
-   - Reference citations
-6. **Paragraph Highlighting**: User can highlight specific paragraphs for focused extraction
-   - Highlighted paragraphs are visually marked on the page
-   - User can select multiple non-contiguous paragraphs
-   - System preserves paragraph context and formatting
-7. Extension scrapes relevant information from page
-8. Extension categorizes content by type and subject
-9. **Manual Extraction Fallback**: If automatic extraction fails:
-   - Extension provides manual selection tools
-   - User can manually select and copy content
-   - System attempts to preserve basic formatting
-10. Extension creates new Arsenal entry with extracted content
-11. System processes content for skill tree and quest line updates
-12. User receives notification of new Arsenal content
-13. User can review and edit extracted content
+1. **Content Detection**: Browser extension identifies educational content on web pages:
+   - Academic articles, research papers, educational blogs
+   - Online course materials, lecture notes, study guides
+   - News articles, documentation, reference materials
+2. **Quick Capture**: User initiates content capture through extension interface:
+   - One-click capture of entire page or selected text
+   - Automatic metadata extraction (title, author, source, date)
+   - Option to add personal notes and tags during capture
+3. **Processing Integration**: Extension seamlessly integrates with main platform:
+   - Content sent to RogueLearn for AI processing
+   - Real-time processing status updates in extension popup
+   - Notification when quest generation is complete
+4. **Instant Access**: User can immediately engage with captured content:
+   - Quick preview of generated skill tree concepts
+   - Direct links to start related quests
+   - Integration with existing Arsenal organization
+5. **Contextual Learning**: Extension provides contextual learning opportunities:
+   - Highlight unfamiliar terms with definitions and related quests
+   - Suggest related content from user's Arsenal
+   - Offer quick knowledge checks based on current reading
 
 **Extensions:**
-- 2a. No academic content detected: Extension remains inactive
-- 5a. Extraction fails: Extension automatically activates manual extraction fallback
-- 6a. Paragraph highlighting fails: System falls back to standard text selection
-- 9a. Manual extraction tools fail: Extension provides basic copy-paste interface
-- 10a. Content already exists: Extension offers merge or update options
-- 13a. User wants to exclude content: System provides ignore option
+- 1a. Content detection fails: User can manually select and capture content
+- 2a. Capture fails due to site restrictions: Extension provides alternative capture methods
+- 3a. Processing queue full: Extension offers priority processing options
+- 4a. Network connectivity issues: Extension caches content for later processing
 
 **Business Rules:**
-- Extension only activates on educational domains or detected academic content
-- Extracted content respects copyright and fair use guidelines
-- Users can configure extraction preferences and exclusions
-- Extension works offline by queuing extractions for later processing
-- Manual extraction fallback is always available as backup
-- Paragraph highlighting preserves original document structure
+- Extension must respect website terms of service and copyright
+- Captured content should maintain source attribution
+- Processing should not interfere with normal browsing experience
+- User privacy and browsing data must be protected
 
 ---
 
-### **UC-009: Study Meeting Management**
+### **UC-009: Social Learning Features**
 
-**Primary Actor:** Party Member  
-**Goal:** Schedule, conduct, and document collaborative study sessions with system-based recording and separate meeting history  
-**Preconditions:** User is member of active party  
-**Success Guarantee:** Study meeting is successfully conducted with documented outcomes  
+**Actor:** Student
+**Goal:** Engage with other learners through social features and collaborative learning
+**Preconditions:** User has opted into social features and has learning progress to share
+**Trigger:** User accesses social features from main navigation or completes shareable achievement
 
 **Main Success Scenario:**
-1. Party member creates meeting invitation
-2. System presents meeting creation form
-3. User sets meeting details (title, type, date/time, agenda)
-4. System sends invitations to party members
-5. Members respond to meeting invitation
-6. System creates meeting room with built-in collaboration tools
-7. Members join meeting at scheduled time
-8. **System-based recording**: Built-in audio/video recording with real-time transcription
-9. Members collaborate using integrated whiteboard and shared resources
-10. Meeting concludes with action items assignment
-11. **System-based summarization**: AI processes recorded content internally
-12. **Meeting History storage**: Summary and recordings stored in dedicated Meeting History section
-13. All attendees receive meeting summary and can access content via Meeting History
+1. **Social Dashboard**: User views social learning interface:
+   - Friend/connection list with recent activity
+   - Leaderboards for various metrics (XP, streaks, achievements)
+   - Shared achievements and milestone celebrations
+   - Study group invitations and recommendations
+2. **Achievement Sharing**: User shares learning accomplishments:
+   - Post achievement badges to social feed
+   - Share progress milestones with friends
+   - Celebrate learning streaks and goals
+   - Provide encouragement to other learners
+3. **Collaborative Learning**: User engages in group learning activities:
+   - Join study groups focused on specific subjects
+   - Participate in group challenges and competitions
+   - Share helpful resources and study materials
+   - Provide peer support and motivation
+4. **Friendly Competition**: User participates in motivational competitions:
+   - Weekly XP challenges with friends
+   - Subject mastery competitions
+   - Learning streak contests
+   - Achievement hunting events
+5. **Privacy Controls**: User manages social sharing preferences:
+   - Control visibility of progress and achievements
+   - Manage friend requests and connections
+   - Set boundaries for competitive features
+   - Opt out of specific social elements
 
 **Extensions:**
-- 5a. Member cannot attend: System offers alternative times
-- 8a. System recording fails: System continues with manual note-taking and backup options
-- 9a. Technical issues: System provides backup collaboration tools
-- 11a. AI summary generation fails: System saves raw data and prompts for manual summary
-- 12a. Meeting History storage fails: System provides local download options
+- 1a. Social features disabled: System provides individual learning focus
+- 2a. Sharing fails: System queues content for later posting
+- 3a. Study group unavailable: System suggests alternative collaborative options
+- 4a. Competition causes stress: System offers non-competitive alternatives
 
 **Business Rules:**
-- Meeting recordings require explicit consent from all participants
-- Meeting summaries include action items with assigned owners
-- Meeting content is accessible only to party members
-- **No external dependencies**: All recording and summarization handled by core system
-- **Meeting History**: Separate storage system independent of Party Stash
-- Meeting History is searchable and categorizable by party and topic
-- Meeting history contributes to party engagement metrics
+- All social features must be optional and privacy-respecting
+- Competitive elements should motivate rather than discourage
+- User data sharing requires explicit consent
+- Social interactions must maintain educational focus
 
 ---
 
-## **3. Educator & Administrative Use Cases**
+### **UC-010: Enhanced Gamification Elements**
 
-### **UC-010: Guild Management (Social Media Platform)**
-
-**Primary Actor:** Student/Lecturer  
-**Goal:** Participate in social media platform for material sharing, discussions, and collaborative learning  
-**Preconditions:** User has active account and completed initial onboarding  
-**Success Guarantee:** User can effectively share materials, participate in discussions, and collaborate through social platform  
+**Actor:** Student
+**Goal:** Engage with advanced gamification features for sustained motivation
+**Preconditions:** User has completed basic learning activities and unlocked advanced features
+**Trigger:** User reaches experience thresholds or completes prerequisite achievements
 
 **Main Success Scenario:**
-1. User navigates to Guild social media platform
-2. User can perform social media activities:
-   - Create posts sharing study materials, insights, or questions
-   - Comment on and react to other users' posts
-   - Share materials from their Arsenal to the community
-   - Follow other users and join topic-based discussions
-3. User can create or join study groups within the platform
-4. For material sharing:
-   - User uploads or shares documents, notes, or resources
-   - System categorizes content by subject, difficulty, and type
-   - Other users can bookmark, comment, and rate shared materials
-5. For meetings and workshops:
-   - User can schedule or join virtual study sessions
-   - System records meeting content and generates summaries
-   - Meeting summaries are automatically posted to relevant groups
-6. System provides content discovery through:
-   - Trending topics and popular materials
-   - Personalized recommendations based on user interests
-   - Search functionality across all shared content
-7. User can track engagement metrics and contribution scores
+1. **Advanced Achievement System**: User unlocks complex achievement categories:
+   - **Mastery Chains**: Sequential achievements requiring sustained excellence
+   - **Cross-Subject Synthesis**: Achievements for connecting concepts across disciplines
+   - **Innovation Badges**: Recognition for creative problem-solving approaches
+   - **Mentorship Awards**: Achievements for helping other learners
+2. **Dynamic Challenges**: User participates in time-limited special events:
+   - **Weekly Themes**: Focused learning challenges on specific topics
+   - **Seasonal Events**: Special quests and rewards tied to academic calendar
+   - **Community Challenges**: Platform-wide collaborative objectives
+   - **Personal Challenges**: AI-generated challenges based on learning patterns
+3. **Advanced Progression Systems**: User engages with sophisticated advancement mechanics:
+   - **Specialization Tracks**: Deep expertise paths in chosen subjects
+   - **Prestige Levels**: Advanced progression beyond basic level caps
+   - **Skill Combinations**: Bonus rewards for mastering related concept clusters
+   - **Legacy Achievements**: Long-term accomplishments spanning months or years
+4. **Customization Options**: User personalizes their gamification experience:
+   - **Avatar Customization**: Unlock appearance options through achievements
+   - **Dashboard Themes**: Personalize interface based on preferences and progress
+   - **Notification Preferences**: Customize celebration styles and frequency
+   - **Challenge Difficulty**: Adjust challenge intensity based on comfort level
+5. **Recognition Systems**: User receives recognition for exceptional engagement:
+   - **Leaderboard Features**: Highlighting in various achievement categories
+   - **Spotlight Opportunities**: Featured learner showcases and success stories
+   - **Exclusive Content**: Access to advanced features and beta testing
+   - **Community Roles**: Opportunities to mentor new users or moderate discussions
 
 **Extensions:**
-- 2a. Content violates guidelines: System flags for moderation
-- 4a. Upload fails: System provides error feedback and retry option
-- 5a. Meeting recording fails: System provides manual summary option
-- 6a. No relevant content found: System suggests creating new content
+- 1a. Achievement system overload: User can disable specific achievement categories
+- 2a. Challenge participation optional: System provides alternative engagement paths
+- 3a. Progression system too complex: System offers simplified advancement options
+- 4a. Customization overwhelming: System provides preset configuration options
 
 **Business Rules:**
-- Platform operates as open social media for educational content
-- All shared materials must be educational and appropriate
-- Meeting summaries are automatically generated and shared
-- Users can control privacy settings for their shared content
-- Content is searchable and discoverable across the platform
-- Contribution scores reward active participation and quality content
-- Moderation system ensures content quality and appropriateness
+- Advanced gamification should enhance rather than complicate the learning experience
+- All gamification elements must remain educationally meaningful
+- User choice and customization should be prioritized
+- Recognition systems must be fair and inclusive
 
 ---
 
-### **UC-011: Custom Quest Creation with AI Assistance**
+## **Phase 3: Educator & Admin Toolkit Use Cases**
 
-**Primary Actor:** Lecturer, Advanced Student  
-**Goal:** Create custom learning quests with enhanced AI-powered content generation and simplified creation process  
-**Preconditions:** User has quest creation permissions and access to course materials  
-**Success Guarantee:** Custom quests are created and assigned to guild members  
+### **UC-011: Verified Lecturer Registration and Verification**
+
+**Actor:** Educator/Lecturer
+**Goal:** Register as a Verified Lecturer and gain access to educator tools
+**Preconditions:** User has valid academic credentials and institutional affiliation
+**Trigger:** Educator selects "Apply for Verified Lecturer Status" from registration
 
 **Main Success Scenario:**
-1. User navigates to quest creation interface
-2. User selects quest type (knowledge, skill, project-based)
-3. User defines learning objectives and target skills
-4. **Enhanced AI Analysis**: AI analyzes objectives and automatically generates comprehensive quest structure:
-   - **Intelligent difficulty progression** based on student performance data
-   - **Contextual activities and milestones** tailored to learning objectives
-   - **Dynamic resource recommendations** from Arsenal and external sources
-   - **Adaptive prerequisites** based on skill tree analysis
-5. **Streamlined Customization**: User reviews AI-generated quest with simplified editing tools
-6. **AI-Assisted Content Creation**: System automatically generates:
-   - Detailed instructions and evaluation criteria
-   - Sample solutions and common pitfalls
-   - Progress checkpoints and feedback mechanisms
-7. **Automated Validation**: AI validates quest coherence, difficulty balance, and learning alignment
-8. User sets quest metadata (duration, points, prerequisites) with AI recommendations
-9. **Simplified Publishing**: System creates quest and automatically integrates with skill tree and semester journey
-10. **AI-Powered Testing**: System simulates quest completion to identify potential issues
-11. Students can view and begin custom quest from their quest line
+1. **Application Submission**: Educator completes comprehensive verification application:
+   - **Academic Credentials**: Upload degrees, certifications, and qualifications
+   - **Institutional Affiliation**: Provide current employment verification
+   - **Teaching Experience**: Document teaching history and expertise areas
+   - **Professional References**: Contact information for academic references
+2. **Document Verification**: System processes submitted credentials:
+   - Automated verification of institutional email addresses
+   - Cross-reference with academic databases and directories
+   - Verification of degree authenticity through institutional APIs
+   - Background check for educational misconduct (where applicable)
+3. **Manual Review Process**: RogueLearn verification team conducts thorough review:
+   - Credential authenticity verification
+   - Reference contact and validation
+   - Teaching portfolio assessment
+   - Interview scheduling for borderline cases
+4. **Verification Decision**: System processes verification outcome:
+   - **Approved**: Lecturer gains Verified status with special badge and privileges
+   - **Pending**: Additional documentation or clarification requested
+   - **Rejected**: Clear explanation provided with reapplication guidelines
+5. **Onboarding Process**: Verified Lecturers complete specialized onboarding:
+   - Introduction to educator tools and guild management features
+   - Training on content creation and student engagement best practices
+   - Setup of lecturer profile with expertise areas and teaching philosophy
+   - Access to exclusive educator resources and community
 
 **Extensions:**
-- 4a. AI generation insufficient: System provides enhanced prompting and context tools
-- 5a. User wants manual control: System provides advanced editing mode with AI assistance
-- 7a. Validation identifies issues: AI automatically suggests and implements fixes
-- 9a. Integration conflicts: System automatically resolves conflicts and notifies user
-- 10a. Simulation reveals problems: AI automatically refines quest parameters
+- 2a. Automated verification fails: System escalates to manual review process
+- 3a. References unavailable: System accepts alternative verification methods
+- 4a. Verification system error: Application enters manual review queue
+- 5a. Onboarding incomplete: System provides flexible completion timeline
 
 **Business Rules:**
-- **Enhanced AI capabilities**: Suggestions based on real-time student performance and engagement data
-- Custom quests automatically align with course learning objectives through AI analysis
-- **Dynamic difficulty calibration**: AI continuously adjusts based on student success rates
-- **Streamlined approval**: AI pre-validates quests, reducing manual approval requirements
-- Quest creators retain full control with comprehensive usage analytics and AI insights
-- **Transparent AI generation**: All AI-generated content includes confidence scores and reasoning
+- Verification process must maintain high standards for educational credibility
+- All submitted documents must be handled with strict confidentiality
+- Verification status can be revoked for misconduct or false information
+- Regular re-verification may be required to maintain status
 
 ---
 
-### **UC-012: Student Progress Monitoring Dashboard**
+### **UC-012: Guild Creation and Management**
 
-**Primary Actor:** Guild Master  
-**Goal:** Monitor student progress with pain point detection and early intervention capabilities  
-**Preconditions:** Guild Master has active guild with enrolled students  
-**Success Guarantee:** Guild Master can identify and address student learning needs with proactive intervention  
+**Actor:** Verified Lecturer
+**Goal:** Create and manage educational guilds for student groups
+**Preconditions:** User has Verified Lecturer status and access to guild management tools
+**Trigger:** Lecturer selects "Create New Guild" from educator dashboard
 
 **Main Success Scenario:**
-1. Guild Master accesses guild dashboard
-2. System displays comprehensive student progress overview with anonymized data
-3. **Pain Point Monitoring**: System continuously analyzes student behavior for early warning signs:
-   - **Engagement drop detection**: Identifies sudden decreases in activity
-   - **Struggle pattern recognition**: Detects repeated failures or extended time on tasks
-   - **Learning velocity analysis**: Monitors pace of progress compared to peers
-   - **Emotional state indicators**: Analyzes interaction patterns for frustration signals
-4. Guild Master views aggregated performance metrics by topic with pain point indicators
-5. System highlights topics where significant percentage of students struggle with severity levels
-6. **Enhanced Analytics**: Guild Master drills down into specific problem areas:
-   - **Real-time pain point alerts** with suggested interventions
-   - Detailed analytics for struggling topics with intervention history
-   - **Predictive risk modeling** for early identification of at-risk students
-7. Guild Master identifies patterns in student difficulties with AI-assisted insights
-8. **Proactive Intervention System**: System suggests targeted interventions:
-   - **Personalized intervention recommendations** based on pain point analysis
-   - Additional resources and modified quests tailored to specific struggles
-   - **Automated early warning triggers** for immediate attention
-9. Guild Master implements recommended interventions with tracking mechanisms
-10. System tracks intervention effectiveness over time with success metrics
-11. Guild Master adjusts course materials based on analytics insights and intervention outcomes
+1. **Guild Setup**: Lecturer configures new guild parameters:
+   - **Basic Information**: Guild name, description, subject area, and academic level
+   - **Membership Settings**: Open enrollment, invitation-only, or application-based
+   - **Learning Objectives**: Define specific educational goals and outcomes
+   - **Guild Structure**: Set up roles, permissions, and organizational hierarchy
+2. **Content Curation**: Lecturer establishes guild learning resources:
+   - Upload and organize course materials and required readings
+   - Create custom quest sequences aligned with curriculum
+   - Set up skill trees reflecting course learning progression
+   - Establish assessment criteria and grading rubrics
+3. **Student Enrollment**: Lecturer manages guild membership:
+   - Send invitations to students via email or platform messaging
+   - Review and approve membership applications
+   - Set enrollment limits and prerequisites
+   - Manage student roster and contact information
+4. **Guild Customization**: Lecturer personalizes guild experience:
+   - Design guild badge and visual identity
+   - Set up custom achievement categories and rewards
+   - Configure notification preferences and communication channels
+   - Establish guild rules and behavioral expectations
+5. **Launch and Monitoring**: Lecturer activates guild and begins oversight:
+   - Publish guild to make it discoverable by students
+   - Monitor student engagement and progress
+   - Facilitate discussions and provide guidance
+   - Adjust guild settings based on student feedback and performance
 
 **Extensions:**
-- 3a. Pain point detection unclear: System provides manual assessment tools
-- 5a. No struggling areas identified: System shows overall positive trends with preventive recommendations
-- 6a. Insufficient data for analysis: System requests more time for data collection with interim monitoring
-- 8a. No clear intervention suggestions: System offers consultation resources and escalation options
-- 10a. Intervention shows no improvement: System suggests alternative approaches and expert consultation
+- 1a. Guild setup incomplete: System saves progress and allows later completion
+- 2a. Content upload fails: System provides alternative upload methods
+- 3a. Student enrollment issues: System offers manual enrollment options
+- 4a. Customization options limited: System provides template-based alternatives
 
 **Business Rules:**
-- All student data must be anonymized and aggregated while enabling effective intervention
-- **Pain point monitoring**: Focuses on early detection and prevention rather than punishment
-- Progress monitoring respects student privacy regulations with ethical AI practices
-- Analytics focus on learning outcomes and proactive support rather than surveillance
-- **Intervention effectiveness**: All suggested interventions are tracked for continuous improvement
-- Intervention suggestions are evidence-based and pedagogically sound
+- Only Verified Lecturers can create and manage guilds
+- Guild content must align with educational standards and platform policies
+- Student privacy and data protection must be maintained
+- Guild activities must support legitimate educational objectives
 
 ---
 
-### **UC-013: Guide (Tutor) Assignment and Mentorship**
+### **UC-013: Student Progress Monitoring and Assessment**
 
-**Primary Actor:** Guide (Tutor), Guild Master  
-**Goal:** Establish comprehensive Guide system for mentorship, peer support, and knowledge transfer  
-**Preconditions:** System has active users with varying experience levels and Guide candidates  
-**Success Guarantee:** Student receives effective personalized guidance through structured mentorship program  
+**Actor:** Verified Lecturer
+**Goal:** Monitor student progress within guild and provide educational guidance
+**Preconditions:** Lecturer has active guild with enrolled students
+**Trigger:** Lecturer accesses guild management dashboard
 
 **Main Success Scenario:**
-1. **Guide Certification System**: Guild Master evaluates potential Guides based on:
-   - **Academic performance and skill mastery levels**
-   - **Peer interaction history and helpfulness metrics**
-   - **Communication skills and empathy indicators**
-   - **Availability and commitment assessment**
-2. **Intelligent Matching Algorithm**: System analyzes and suggests optimal Guide-student pairings:
-   - **Multi-dimensional compatibility analysis** (learning styles, personalities, goals)
-   - **Skill gap identification** and complementary expertise matching
-   - **Schedule synchronization** and timezone compatibility
-   - **Cultural and language preferences** alignment
-3. Guild Master reviews and approves Guide assignments with AI recommendations
-4. **Guide Onboarding**: System provides comprehensive Guide training:
-   - **Mentorship best practices and techniques**
-   - **Platform-specific guidance tools and features**
-   - **Crisis intervention and escalation protocols**
-5. System creates enhanced Guide workspace:
-   - **Multi-channel communication** (text, voice, video, screen sharing)
-   - **Collaborative goal setting** with progress visualization
-   - **Integrated learning path planning** with milestone tracking
-   - **Resource library access** and sharing capabilities
-   - **Peer Guide collaboration** for complex challenges
-6. **Structured Mentorship Program**: Guide and student establish comprehensive learning plan
-7. **AI-Assisted Guidance**: System provides real-time support:
-   - **Conversation prompts** and discussion topics
-   - **Progress insights** and intervention suggestions
-   - **Resource recommendations** based on student needs
-8. **Continuous Monitoring**: Regular check-ins with automated progress tracking
-9. Guide creates custom training drills targeting specific skill gaps
-10. Guide provides inline feedback on student's Arsenal notes and quest progress
-11. **Guide Network**: System facilitates Guide-to-Guide collaboration and knowledge sharing
-12. **Impact Measurement**: System tracks mentorship effectiveness with detailed analytics
-13. **Recognition System**: Guides receive badges, credits, and public recognition
+1. **Progress Dashboard**: Lecturer views comprehensive student analytics:
+   - **Individual Progress**: Detailed view of each student's learning journey
+   - **Class Overview**: Aggregate progress metrics and performance trends
+   - **Engagement Metrics**: Participation rates, time spent, and activity patterns
+   - **Achievement Tracking**: Student accomplishments and milestone completions
+2. **Performance Analysis**: Lecturer analyzes student learning patterns:
+   - **Concept Mastery**: Understanding levels across different topics
+   - **Learning Velocity**: Pace of progress through curriculum
+   - **Difficulty Areas**: Concepts where students struggle most
+   - **Collaboration Patterns**: Student interaction and peer learning behaviors
+3. **Intervention Identification**: System highlights students needing support:
+   - **At-Risk Alerts**: Students falling behind or showing disengagement
+   - **Struggling Concepts**: Topics requiring additional instruction or resources
+   - **Exceptional Performance**: Students ready for advanced challenges
+   - **Behavioral Concerns**: Unusual patterns requiring attention
+4. **Personalized Guidance**: Lecturer provides targeted student support:
+   - Send personalized messages with encouragement and guidance
+   - Assign additional resources or alternative learning paths
+   - Schedule one-on-one meetings or office hours
+   - Create custom quests addressing individual learning needs
+5. **Assessment and Feedback**: Lecturer evaluates student work and provides feedback:
+   - Review quest completions and assess understanding quality
+   - Provide detailed feedback on student responses and approaches
+   - Grade assignments and update academic records
+   - Generate progress reports for institutional requirements
 
 **Extensions:**
-- 1a. Insufficient Guide candidates: System provides Guide recruitment and training programs
-- 2a. No suitable matches found: System expands matching criteria or suggests group mentorship
-- 4a. Guide training incomplete: System provides additional resources and support
-- 7a. AI assistance unavailable: System provides manual guidance tools and resources
-- 8a. Progress concerns identified: System triggers intervention protocols and supervisor alerts
-- 12a. Mentorship ineffective: System facilitates relationship adjustment, additional training, or reassignment
+- 1a. Analytics data incomplete: System provides available metrics with explanations
+- 3a. Alert system overwhelmed: Lecturer can adjust sensitivity and criteria
+- 4a. Communication tools unavailable: System provides alternative contact methods
+- 5a. Assessment tools limited: System offers basic evaluation options
 
 **Business Rules:**
-- **Guide Certification**: All Guides must complete training and maintain performance standards
-- **Voluntary Participation**: Mentorship participation is voluntary with clear expectations
-- **Guide Recognition**: Guides receive academic credit, badges, and career development opportunities
-- **Quality Assurance**: All Guide interactions are monitored for quality and appropriateness
-- **Scalable Support**: Guide system supports 1-to-1, 1-to-many, and peer group mentorship models
-- **Privacy Protection**: All mentorship activities are confidential with appropriate data protection
-- **Continuous Improvement**: System learns from successful mentorship patterns to improve matching
+- Student data access must comply with educational privacy regulations (FERPA)
+- Progress monitoring should support rather than surveil students
+- Feedback should be constructive and educationally meaningful
+- Assessment data must be securely stored and properly managed
 
 ---
 
-## **4. Advanced Social & AI Use Cases**
+### **UC-014: Guild Content Creation and Curriculum Management**
 
-### **UC-014: Knowledge Duels and PvP Coding Battles**
-
-**Primary Actor:** Student  
-**Goal:** Engage in competitive knowledge-based challenges and PvP coding battles with peers  
-**Preconditions:** User has active account with sufficient skill level  
-**Success Guarantee:** User participates in fair, educational competition across multiple formats  
+**Actor:** Verified Lecturer
+**Goal:** Create and manage educational content within guild structure
+**Preconditions:** Lecturer has established guild with defined learning objectives
+**Trigger:** Lecturer selects content creation tools from guild management interface
 
 **Main Success Scenario:**
-1. User navigates to competitive arena with multiple battle types
-2. System presents enhanced duel options:
-   - **Traditional Knowledge Duels**: Quick-fire Q&A competitions
-   - **PvP Coding Battles**: Real-time programming challenges
-   - **Algorithm Racing**: Speed-based coding competitions
-   - **Code Review Duels**: Peer code analysis and improvement challenges
-   - Tournament and league competitions across all formats
-   - Practice mode with AI opponents for all battle types
-3. **Battle Type Selection**: User selects specific competition format:
-   - **Knowledge Duels**: Traditional Q&A with adaptive difficulty
-   - **Coding Battles**: Live coding challenges with shared problem sets
-   - **Hybrid Challenges**: Combined knowledge and coding components
-4. **Advanced Matching System**: System matches user with appropriate opponent based on:
-   - **Skill level and coding proficiency**
-   - **Preferred programming languages**
-   - **Battle type experience and win rates**
-5. **Enhanced Battle Experience**:
-   - **Knowledge Duels**: Real-time Q&A with multimedia questions
-   - **Coding Battles**: Live code editor with syntax highlighting and testing
-   - **Spectator Mode**: Other users can watch and learn from battles
-6. **Real-time Competition**: Both participants engage in selected battle format
-7. **Advanced Scoring**: System provides comprehensive performance metrics:
-   - **Knowledge accuracy and speed**
-   - **Code quality, efficiency, and correctness**
-   - **Problem-solving approach and creativity**
-8. **Battle Conclusion**: Winner determination with detailed performance analysis
-9. **Enhanced Rewards**: Participants receive:
-   - **Experience points and skill progression**
-   - **Battle-specific badges and achievements**
-   - **Coding portfolio contributions**
-   - **Leaderboard ranking updates**
-10. **Learning Integration**: System updates skill trees and suggests improvement areas
-11. **Post-Battle Analysis**: User can review performance with AI-generated insights
-12. System offers rematch or new battle options
+1. **Curriculum Planning**: Lecturer designs comprehensive learning sequence:
+   - **Learning Objectives**: Define specific, measurable educational outcomes
+   - **Content Sequencing**: Organize topics in logical progression
+   - **Assessment Strategy**: Plan evaluation methods and criteria
+   - **Timeline Management**: Set deadlines and pacing guidelines
+2. **Content Creation**: Lecturer develops educational materials:
+   - **Custom Quests**: Design learning activities aligned with objectives
+   - **Skill Tree Design**: Create visual learning progression maps
+   - **Assessment Items**: Develop questions, scenarios, and evaluation rubrics
+   - **Supplementary Resources**: Curate additional readings and materials
+3. **Interactive Elements**: Lecturer incorporates engaging learning features:
+   - **Gamification Design**: Create meaningful achievements and rewards
+   - **Collaborative Activities**: Design group projects and peer learning
+   - **Real-world Applications**: Connect concepts to practical scenarios
+   - **Multimedia Integration**: Include videos, simulations, and interactive content
+4. **Quality Assurance**: Lecturer reviews and refines content:
+   - **Content Review**: Ensure accuracy, clarity, and educational value
+   - **Accessibility Check**: Verify content meets accessibility standards
+   - **Pilot Testing**: Test content with small student groups
+   - **Feedback Integration**: Incorporate student and peer feedback
+5. **Content Deployment**: Lecturer publishes and manages live content:
+   - **Staged Release**: Gradually unlock content based on student progress
+   - **Version Control**: Maintain content history and enable rollbacks
+   - **Performance Monitoring**: Track content effectiveness and engagement
+   - **Continuous Improvement**: Update content based on learning analytics
 
 **Extensions:**
-- 4a. No suitable opponents available: System offers AI opponent with adjustable difficulty
-- 5a. Connection issues during battle: System implements robust reconnection and state recovery
-- 6a. Coding environment issues: System provides backup editors and testing environments
-- 7a. Performance measurement unclear: System provides detailed rubrics and explanations
-- 8a. Tie result: System initiates sudden-death round appropriate to battle type
-- 9a. Skill progression blocked: System provides alternative advancement paths and challenges
+- 1a. Planning tools unavailable: Lecturer uses external planning and imports content
+- 2a. Content creation tools limited: System provides template-based alternatives
+- 3a. Interactive features not working: System offers static content alternatives
+- 4a. Quality assurance tools missing: Lecturer performs manual review process
 
 **Business Rules:**
-- **Fair Competition**: All battles are balanced based on participant skill levels and experience
-- **Multi-format Support**: System supports various programming languages and challenge types
-- **Anti-cheating**: Advanced detection for code plagiarism and unfair assistance
-- **Learning Focus**: Battle results contribute to overall learning progress and skill development
-- **Code Quality**: PvP coding battles emphasize both correctness and code quality
-- **Community Standards**: Participants can report inappropriate behavior with swift resolution
-- **Performance Analytics**: Detailed battle history maintained for continuous improvement
+- All content must align with established educational standards
+- Content creation should leverage platform AI capabilities where appropriate
+- Intellectual property rights must be respected in all materials
+- Content should be designed for accessibility and inclusive learning
 
 ---
 
-### **UC-015: AI-Powered Study Aid Generation**
+### **UC-015: Advanced Analytics and Reporting**
 
-**Primary Actor:** Student  
-**Goal:** Receive AI-generated study aids based on personal Arsenal content  
-**Preconditions:** User has substantial content in Arsenal  
-**Success Guarantee:** User receives relevant, personalized study aids  
+**Actor:** Verified Lecturer or Administrator
+**Goal:** Access comprehensive analytics and generate reports for educational insights
+**Preconditions:** User has appropriate permissions and access to analytics data
+**Trigger:** User accesses advanced analytics dashboard from educator tools
 
 **Main Success Scenario:**
-1. AI system proactively scans user's Arsenal content
-2. AI identifies knowledge gaps and learning patterns
-3. AI generates study aid suggestions (flashcards, summaries, practice questions)
-4. System notifies user of available AI-generated study aids
-5. User reviews suggested study aids
-6. User selects desired study aids for generation
-7. AI creates personalized study materials based on user's notes
-8. System presents study aids in interactive format
-9. User engages with study aids and provides feedback
-10. AI learns from user feedback to improve future suggestions
-11. System tracks study aid effectiveness on learning outcomes
+1. **Analytics Dashboard**: User views comprehensive educational analytics:
+   - **Learning Outcomes**: Measurement of educational objective achievement
+   - **Engagement Metrics**: Student participation and platform usage patterns
+   - **Performance Trends**: Progress tracking over time and across cohorts
+   - **Content Effectiveness**: Analysis of which materials and methods work best
+2. **Custom Report Generation**: User creates tailored analytical reports:
+   - **Student Progress Reports**: Individual and group performance summaries
+   - **Curriculum Effectiveness**: Analysis of learning sequence success
+   - **Engagement Analysis**: Detailed view of student interaction patterns
+   - **Comparative Studies**: Cross-guild or cross-semester comparisons
+3. **Predictive Analytics**: User accesses AI-powered educational insights:
+   - **At-Risk Identification**: Early warning systems for struggling students
+   - **Success Prediction**: Likelihood of student achievement based on current patterns
+   - **Optimization Recommendations**: Suggestions for improving educational outcomes
+   - **Resource Allocation**: Guidance on where to focus educational efforts
+4. **Data Visualization**: User explores data through interactive visualizations:
+   - **Progress Dashboards**: Real-time visual representation of learning metrics
+   - **Trend Analysis**: Historical data visualization and pattern identification
+   - **Comparative Charts**: Side-by-side analysis of different groups or methods
+   - **Interactive Exploration**: Drill-down capabilities for detailed investigation
+5. **Export and Sharing**: User manages report distribution and storage:
+   - **Multiple Formats**: Export reports in PDF, Excel, CSV, and presentation formats
+   - **Automated Reporting**: Schedule regular report generation and distribution
+   - **Secure Sharing**: Share reports with appropriate stakeholders while maintaining privacy
+   - **Archive Management**: Store historical reports for longitudinal analysis
 
 **Extensions:**
-- 2a. Insufficient content for analysis: AI suggests content creation strategies
-- 6a. User rejects all suggestions: AI requests feedback for improvement
-- 7a. AI generation fails: System offers manual study aid creation tools
-- 9a. User finds aids unhelpful: System adjusts AI parameters
+- 1a. Analytics data insufficient: System provides guidance on data collection improvement
+- 2a. Report generation fails: System offers simplified reporting options
+- 3a. Predictive analytics unavailable: System provides descriptive analytics alternatives
+- 4a. Visualization tools not loading: System provides tabular data alternatives
 
 **Business Rules:**
-- AI suggestions are based on proven educational methodologies
-- Study aids respect user's learning style preferences
-- AI-generated content is clearly marked as such
-- User feedback is used to continuously improve AI performance
+- All analytics must comply with student privacy regulations and institutional policies
+- Data should be anonymized when shared beyond immediate educational context
+- Analytics should support educational decision-making and improvement
+- Report accuracy and data integrity must be maintained at all times
 
 ---
 
+## **Cross-Cutting Requirements Use Cases**
 
+### **UC-016: Security and Privacy Management**
 
-## **5. Marketplace & Economy Use Cases**
-
-### **UC-016: Study Material Marketplace and Currency System**
-
-**Primary Actor:** Student (Buyer/Seller)  
-**Goal:** Buy or sell high-quality study materials using dual currency system and manage virtual economy  
-**Preconditions:** User has active account and sufficient currency (for buying)  
-**Success Guarantee:** Successful transaction with quality study materials exchanged and currency properly managed  
+**Actor:** System Administrator, Student, Lecturer
+**Goal:** Ensure platform security and protect user privacy across all interactions
+**Preconditions:** User has appropriate access levels and security permissions
+**Trigger:** Various security-related events and user privacy management needs
 
 **Main Success Scenario:**
-1. **Marketplace Navigation**: User navigates to marketplace section
-2. **Material Discovery**: System displays available study materials with ratings, previews, and dual currency pricing
-3. **Advanced Filtering**: User searches/filters materials by subject, type, rating, or currency type
-4. **Material Preview**: User selects material to view detailed information
-5. **Dual Currency Pricing**: System shows material preview, seller rating, and price in both:
-   - **Coins**: For standard materials and everyday transactions
-   - **Gems**: For premium materials and exclusive content
-6. **Currency Selection**: User decides to purchase using preferred currency type
-7. **Transaction Processing**: System processes transaction and transfers appropriate currency
-8. **Access Granted**: System grants user access to purchased material
-9. **Material Access**: User downloads/accesses study material
-10. **Feedback System**: User can rate and review material after use
-11. **Seller Rating Update**: System updates seller's rating based on user feedback
-12. **Currency Earning**: Seller receives currency based on transaction type and platform fees
-
-**For Selling:**
-1. **Seller Interface**: User navigates to "Sell Materials" section
-2. **Upload Interface**: System presents material upload interface with currency options
-3. **Material Submission**: User uploads study material with description, tags, and currency preference
-4. **Quality Validation**: System validates material quality and originality
-5. **Dual Pricing**: User sets price in Coins, Gems, or both currencies
-6. **Marketplace Listing**: System lists material in marketplace with appropriate currency tags
-7. **Purchase Processing**: Other users purchase material using selected currency
-8. **Earnings Transfer**: System transfers earnings to seller's currency wallet
-
-**Currency Management:**
-1. **Earning Coins**: Users earn Coins through:
-   - Daily login bonuses
-   - Quest completion
-   - Material sales
-   - Community participation
-2. **Earning Gems**: Users earn Gems through:
-   - Exceptional achievements
-   - Tournament victories
-   - High-quality material creation
-   - Milestone completions
-3. **Spending Options**: Both currencies can be used for:
-   - Study material purchases
-   - Cosmetic upgrades
-   - Premium features
-   - Social gifts
+1. **Authentication and Authorization**: System manages secure user access:
+   - **Multi-factor Authentication**: Optional 2FA for enhanced account security
+   - **Role-based Access Control**: Appropriate permissions based on user type
+   - **Session Management**: Secure session handling with automatic timeouts
+   - **Password Security**: Strong password requirements and secure storage
+2. **Data Protection**: System implements comprehensive data security:
+   - **Encryption**: All sensitive data encrypted in transit and at rest
+   - **Privacy Controls**: User control over personal data sharing and visibility
+   - **Data Minimization**: Collection and storage of only necessary information
+   - **Consent Management**: Clear consent processes for data usage
+3. **Privacy Management**: Users control their privacy settings:
+   - **Profile Visibility**: Control who can see profile information and progress
+   - **Learning Data**: Manage sharing of learning analytics and performance data
+   - **Communication Preferences**: Control contact methods and frequency
+   - **Social Features**: Opt-in/opt-out of social and collaborative features
+4. **Compliance Monitoring**: System ensures regulatory compliance:
+   - **GDPR Compliance**: European data protection regulation adherence
+   - **FERPA Compliance**: Educational privacy requirements for US institutions
+   - **Accessibility Standards**: WCAG compliance for inclusive access
+   - **Security Auditing**: Regular security assessments and vulnerability testing
+5. **Incident Response**: System handles security incidents and privacy breaches:
+   - **Threat Detection**: Automated monitoring for suspicious activities
+   - **Incident Reporting**: Clear processes for reporting security concerns
+   - **Breach Notification**: Timely notification of any data breaches
+   - **Recovery Procedures**: Systematic approach to incident recovery
 
 **Extensions:**
-- 6a. Insufficient currency: System offers earning suggestions and alternative currency options
-- 4a (Selling). Material fails validation: System provides improvement suggestions and resubmission options
-- 10a. User reports inappropriate material: System investigates and may remove with currency refund
-- 12a. Currency transfer fails: System queues transaction and retries with notification
+- 1a. Authentication system failure: System provides alternative access methods
+- 2a. Encryption key issues: System implements key recovery procedures
+- 3a. Privacy settings conflict: System provides clear resolution guidance
+- 4a. Compliance audit failure: System implements corrective action plans
 
 **Business Rules:**
-- **Quality Standards**: All materials must pass quality and originality checks
-- **Dual Currency Economy**: Sellers can set prices in Coins, Gems, or both
-- **Platform Fees**: Platform takes percentage of transactions (lower for Coins, higher for Gems)
-- **Currency Balance**: Users maintain separate wallets for Coins and Gems
-- **Exchange Limits**: Limited conversion between currencies to maintain economic balance
-- **Anti-fraud**: System monitors for currency exploitation and maintains transaction logs
-- **Rating Impact**: Material ratings affect currency earning potential for sellers
+- Security measures must not significantly impact user experience
+- Privacy settings must be easily accessible and understandable
+- All data handling must comply with applicable regulations
+- Security incidents must be handled with transparency and urgency
 
 ---
 
-## **Cross-Cutting Use Cases**
+### **UC-017: Performance Optimization and Scalability**
 
-### **UC-017: Notification and Communication System**
-
-**Primary Actor:** System  
-**Goal:** Keep users informed of relevant activities and changes  
-**Preconditions:** User has active account with notification preferences set  
-**Success Guarantee:** Users receive timely, relevant notifications  
+**Actor:** System Administrator, All Users
+**Goal:** Maintain optimal platform performance under varying load conditions
+**Preconditions:** System is operational with monitoring capabilities enabled
+**Trigger:** Performance monitoring alerts or user experience degradation
 
 **Main Success Scenario:**
-1. System event triggers notification requirement
-2. System determines affected users and notification type
-3. System checks user notification preferences
-4. System formats notification according to user preferences
-5. System delivers notification via preferred channels (in-app, email, push)
-6. User receives and can interact with notification
-7. System tracks notification delivery and engagement
-8. User can mark notifications as read or take action
-9. System updates notification status and user activity
+1. **Performance Monitoring**: System continuously tracks performance metrics:
+   - **Response Times**: API and page load performance across all features
+   - **Resource Utilization**: Server CPU, memory, and storage usage
+   - **User Experience**: Real user monitoring and synthetic testing
+   - **Error Rates**: Application errors and system failures
+2. **Automatic Scaling**: System responds to load changes:
+   - **Horizontal Scaling**: Add/remove server instances based on demand
+   - **Vertical Scaling**: Adjust resource allocation for existing instances
+   - **Database Optimization**: Query optimization and connection pooling
+   - **CDN Management**: Content delivery optimization for global users
+3. **Performance Optimization**: System implements efficiency improvements:
+   - **Caching Strategies**: Multi-level caching for frequently accessed data
+   - **Code Optimization**: Regular performance profiling and optimization
+   - **Database Tuning**: Index optimization and query performance improvement
+   - **Asset Optimization**: Image compression and resource bundling
+4. **User Experience Optimization**: System prioritizes user-facing performance:
+   - **Progressive Loading**: Prioritize critical content and features
+   - **Offline Capabilities**: Enable offline access to essential features
+   - **Mobile Optimization**: Ensure optimal performance on mobile devices
+   - **Accessibility Performance**: Maintain performance for assistive technologies
+5. **Capacity Planning**: System plans for future growth:
+   - **Usage Forecasting**: Predict future resource needs based on growth trends
+   - **Infrastructure Planning**: Plan hardware and software capacity increases
+   - **Performance Testing**: Regular load testing and stress testing
+   - **Disaster Recovery**: Maintain performance during recovery scenarios
 
 **Extensions:**
-- 3a. User has disabled notifications: System respects preference
-- 5a. Delivery fails: System retries with alternative channel
-- 6a. User doesn't engage: System adjusts future notification frequency
+- 1a. Monitoring system failure: System implements backup monitoring solutions
+- 2a. Scaling limits reached: System implements manual scaling procedures
+- 3a. Optimization efforts insufficient: System prioritizes critical performance areas
+- 4a. User experience degradation: System implements emergency performance measures
 
 **Business Rules:**
-- Users control their notification preferences
-- Critical notifications (security, deadlines) override some preferences
-- Notification frequency is balanced to avoid spam
-- Notification content is personalized and relevant
+- Performance targets must be defined and regularly reviewed
+- Scaling decisions should balance cost and performance requirements
+- User experience should remain consistent across different load conditions
+- Performance optimizations should not compromise security or functionality
 
 ---
 
-### **UC-018: System Analytics, Performance Monitoring, and Structured Logging**
+### **UC-018: System Integration and API Management**
 
-**Primary Actor:** Game Master (System Admin)  
-**Goal:** Monitor system health, user engagement, platform performance, and analyze user behavior through structured logging  
-**Preconditions:** Game Master has administrative access  
-**Success Guarantee:** System performance is monitored, issues are identified, and comprehensive analytics are available  
+**Actor:** System Administrator, Third-party Developers, Integration Partners
+**Goal:** Manage system integrations and provide API access for external services
+**Preconditions:** System has established integration requirements and API infrastructure
+**Trigger:** Integration setup requests or API access needs
 
 **Main Success Scenario:**
-1. **Dashboard Access**: Game Master accesses enhanced analytics dashboard with multiple monitoring sections
-2. **Real-time Monitoring**: System displays comprehensive real-time performance metrics:
-   - **System Health**: Server metrics, response times, error rates, resource utilization
-   - **User Engagement**: Active users, session duration, feature usage patterns
-   - **Learning Analytics**: Progress tracking, completion rates, skill development trends
-3. **Structured Data Analysis**: Game Master reviews user engagement statistics powered by structured logging:
-   - **Event-driven logging**: All user interactions logged with standardized schema
-   - **Behavioral patterns**: Navigation flows, feature adoption, engagement sequences
-   - **Performance correlation**: User experience impact on learning outcomes
-4. **Advanced Anomaly Detection**: System highlights performance anomalies and issues:
-   - **Automated pattern recognition**: Unusual user behavior or system performance
-   - **Predictive alerts**: Early warning systems for potential issues
-   - **Context-aware notifications**: Intelligent alerting based on severity and impact
-5. **Deep Dive Investigation**: Game Master investigates specific metrics or user segments:
-   - **Multi-dimensional analysis**: Cross-referencing user behavior with system performance
-   - **Cohort analysis**: Comparing different user groups and time periods
-   - **Root cause analysis**: Drilling down from symptoms to underlying issues
-6. **Enhanced Analytics Engine**: System provides detailed drill-down analytics:
-   - **Interactive visualizations**: Real-time charts, graphs, and heatmaps
-   - **Custom query capabilities**: Flexible data exploration and filtering
-   - **Correlation analysis**: Relationship discovery between different metrics
-7. **Trend Analysis**: Game Master identifies trends and potential improvements:
-   - **Predictive modeling**: Forecasting user behavior and system needs
-   - **Performance benchmarking**: Comparing against historical data and targets
-   - **Optimization recommendations**: AI-driven suggestions for improvements
-8. **Comprehensive Reporting**: System generates reports for stakeholder communication:
-   - **Automated report generation**: Scheduled reports with customizable content
-   - **Stakeholder-specific views**: Role-appropriate data presentation
-   - **Export capabilities**: Multiple formats (PDF, CSV, Excel, API access)
-9. **Intelligent Alert Configuration**: Game Master configures alerts for critical metrics:
-   - **Smart thresholds**: Adaptive alerting based on historical patterns
-   - **Escalation procedures**: Automated notification hierarchies
-   - **Alert fatigue prevention**: Intelligent filtering and prioritization
-10. **Continuous Monitoring**: System monitors and alerts on configured thresholds:
-    - **24/7 automated monitoring**: Continuous system health surveillance
-    - **Proactive intervention**: Automated responses to common issues
-    - **Performance optimization**: Real-time system tuning and resource allocation
+1. **API Management**: System provides comprehensive API access:
+   - **Authentication**: Secure API key management and OAuth implementation
+   - **Rate Limiting**: Prevent abuse while ensuring fair access
+   - **Documentation**: Comprehensive API documentation with examples
+   - **Versioning**: Maintain backward compatibility while enabling evolution
+2. **Third-party Integrations**: System connects with external services:
+   - **Learning Management Systems**: Integration with institutional LMS platforms
+   - **Authentication Providers**: SSO integration with institutional identity systems
+   - **Content Repositories**: Access to external educational content libraries
+   - **Analytics Platforms**: Data sharing with institutional analytics systems
+3. **Webhook Management**: System provides real-time event notifications:
+   - **Event Configuration**: Setup webhooks for specific platform events
+   - **Delivery Management**: Reliable webhook delivery with retry mechanisms
+   - **Security**: Secure webhook verification and payload encryption
+   - **Monitoring**: Track webhook performance and delivery success
+4. **Data Synchronization**: System maintains data consistency across integrations:
+   - **User Data Sync**: Synchronize user profiles and enrollment information
+   - **Progress Sync**: Share learning progress with external systems
+   - **Content Sync**: Maintain consistency of shared educational content
+   - **Conflict Resolution**: Handle data conflicts between systems
+5. **Integration Monitoring**: System tracks integration health and performance:
+   - **Connection Status**: Monitor all active integrations for availability
+   - **Data Flow Monitoring**: Track data exchange success and failures
+   - **Performance Metrics**: Measure integration response times and throughput
+   - **Error Handling**: Comprehensive error logging and alerting
 
 **Extensions:**
-- 4a. Critical issues detected: System sends immediate alerts with context and recommended actions
-- 6a. Data insufficient for analysis: System suggests longer monitoring period and additional data collection
-- 8a. Report generation fails: System offers manual export options and alternative data sources
-- 9a. Alert configuration conflicts: System provides validation and optimization suggestions
-- 10a. Monitoring system failure: System implements redundant monitoring and failover procedures
+- 1a. API authentication fails: System provides alternative authentication methods
+- 2a. Third-party service unavailable: System implements graceful degradation
+- 3a. Webhook delivery fails: System implements retry and fallback mechanisms
+- 4a. Data synchronization conflicts: System provides manual resolution tools
 
 **Business Rules:**
-- **Privacy Compliance**: All analytics respect user privacy and data protection regulations (GDPR, FERPA)
-- **Structured Logging**: All system events follow standardized logging schema for consistency and analysis
-- **Performance Monitoring**: Continuous and automated monitoring with intelligent alerting
-- **Data Governance**: Critical issues trigger immediate notification protocols with audit trails
-- **Ethical Analytics**: Analytics data is used for platform improvement and user support, not surveillance
-- **Real-time Processing**: System supports real-time analytics and immediate response capabilities
-- **Scalable Architecture**: Monitoring system scales with platform growth and user base expansion
+- All integrations must maintain platform security and privacy standards
+- API access should be documented and supported appropriately
+- Integration failures should not compromise core platform functionality
+- Data sharing must comply with privacy regulations and user consent
 
 ---
 
 ## **Technical Architecture Considerations**
 
-Based on these use cases, the architecture team should consider:
+Based on these simplified use cases, the architecture team should consider:
 
 ### **Core System Components:**
 - **Authentication & Authorization Service** (Clerk integration)
 - **User Management System** (profiles, roles, permissions)
-- **AI Processing Engine** (document analysis, quest generation, predictive analytics)
-- **Gamification Engine** (XP, skill trees, quest management)
-- **Content Management System** (Arsenal, materials, marketplace)
-- **Real-time Communication System** (notifications, meetings, PvP)
-- **Analytics & Monitoring Platform** (user behavior, system performance)
+- **AI Processing Engine** (document analysis, quest generation)
+- **Gamification Engine** (XP, skill trees, achievements)
+- **Content Management System** (Arsenal, materials)
+- **Real-time Communication System** (notifications, messaging)
+- **Analytics & Monitoring Platform** (learning analytics, system performance)
 
 ### **Data Architecture:**
 - **User Data Store** (profiles, progress, preferences)
-- **Content Repository** (documents, notes, materials)
-- **Analytics Data Warehouse** (engagement metrics, performance data)
+- **Content Repository** (documents, quests, skill trees)
+- **Analytics Data Warehouse** (learning metrics, performance data)
 - **Real-time Event Store** (notifications, live interactions)
 
 ### **Integration Points:**
-- **Browser Extension APIs** (content extraction, web integration)
-- **Unity Game Engine** (Boss Fights, interactive elements)
-- **External Authentication** (Clerk, social logins)
-- **Payment Processing** (marketplace transactions)
+- **Browser Extension APIs** (content capture, web integration)
+- **External Authentication** (Clerk, institutional SSO)
+- **Learning Management Systems** (grade passback, enrollment sync)
 - **Email/SMS Services** (notifications, communications)
+- **Analytics Platforms** (institutional reporting)
 
 ### **Scalability Requirements:**
 - Support for concurrent users during peak study periods
 - Efficient handling of large document uploads and AI processing
-- Real-time features for PvP and collaborative sessions
-- Marketplace transaction processing
+- Real-time features for notifications and progress tracking
 - Analytics data processing and reporting
+- Web-first architecture with mobile responsiveness
 
-This use case documentation provides the detailed behavioral specifications needed for architectural design, ensuring all functional requirements are properly addressed in the technical implementation.
+### **Security and Privacy:**
+- End-to-end encryption for sensitive educational data
+- GDPR and FERPA compliance for international and US educational markets
+- Role-based access control for different user types
+- Secure API management for third-party integrations
+
+This simplified use case documentation provides the behavioral specifications needed for the web-first MVP architecture, focusing on core learning experiences and essential educator tools while removing complex social features and Unity integration requirements.

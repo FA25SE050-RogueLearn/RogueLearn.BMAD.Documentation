@@ -46,58 +46,41 @@
 
 36. **FR36 (Guild Master):** Any user (Student or Verified Lecturer) can create a "Guild."
 37. **FR37 (Player):** Players (Students) in a Guild must be able to use Guild Master-uploaded materials to adjust or supplement their personal quest lines.
-38. **FR38 (Guild Master):** A Guild Master must have a dashboard to view aggregated, anonymized progress for all Players in their course ("Guild").
-39. **FR39 (Guild Master):** The dashboard must highlight topics or 'boss fights' where a significant percentage of the class is struggling.
-40. **FR40 (Guild Master):** A Guild Master must be able to upload reference materials and use an AI assistant to generate draft 'side quests'.
-41. **FR41 (Guild Master):** A Guild Master must be able to review, edit, and assign these AI-generated quests to their entire course.
-42. **FR42 (Guild Master):** A Guild Master must be able to design and publish custom skill tree overlays for their course, which players can view alongside their personal tree to compare progress and priorities.
-43. **FR43 (Guild Master):** A Guild Master must be able to create custom "Boss Fights", specifying the required knowledge nodes, a challenge description, optional rewards, and deadlines.
-44. **FR44 (Guild Master):** A Guild Master must be able to assign "Lore Fragments" to individual course topics. These fragments are short narrative descriptions that thematically connect academic concepts to the game world.
-45. **FR45 (Guild Master):** Guild Masters can merge course modules or knowledge nodes to generate "hybrid quests" or composite topics using a "Curriculum Alchemy" tool.
-46. **FR46 (Guild Master):** A Guild Master can define and activate "Guild Buffs", which grant temporary stat boosts or rewards for students if collective achievements are met (e.g., 90% quiz completion).
-47. **FR47 (Game Master):** A Game Master (System Admin) must have access to a non-academic back-end interface to monitor application health.
-48. **FR48 (Game Master):** A Game Master must be able to trigger "Global Events", such as bonus XP days, randomized mini-boss challenges, or knowledge-based invasions that affect all players or Guilds.
-49. **FR49 (Game Master):** A Game Master must be able to schedule and configure "Event Scripts" — timed platform-wide challenges or coordinated PvP events with specific participation conditions.
-50. **FR50 (Game Master):** A Game Master must be able to moderate "PvP Disputes" and manage community-reported abuse, including banning or muting users, flagging inappropriate content, or rolling back unfair scores.
-51. **FR51 (Game Master):** A Game Master must have access to a comprehensive analytics dashboard to monitor system health and user engagement.
-52. **FR52 (Game Master):** The analytics dashboard must track the popularity of quests, marketplace items, and other features.
-53. **FR53 (Game Master):** The analytics dashboard must provide user cohort analysis, viewing data on class/route choices, completion rates, and other user segments.
-54. **FR54 (Game Master):** The analytics dashboard must monitor key performance indicators for the overall system.
-55. **FR55 (Game Master):** The Game Master must be able to publish "Seasonal Lore Updates" that expand the world map, unlock new skill paths, introduce new factions or threats, and set the stage for the upcoming semester.
 
-### **Functional - Phase 4: Living Ecosystem & Social**
-*Focus: Enhance the platform with advanced AI, social, and competitive features.*
+### **Enhanced User Roles & Verification**
 
-56. **FR56 (Player):** Players must be able to create and join "Study Parties" — temporary groups for collaborative learning sessions with shared whiteboards, voice chat, and synchronized quest progress.
-57. **FR57 (Player):** Players must be able to participate in "Knowledge Duels" — real-time, competitive quizzes or problem-solving challenges against other players, with XP and cosmetic rewards.
-58. **FR58 (Player):** Players must be able to engage in "Peer Teaching" sessions where they can create and share mini-lessons or tutorials, earning "Mentor XP" and unlocking teaching-related achievements.
-59. **FR59 (Player):** Players must be able to access a "Global Leaderboard" that ranks players by various metrics (XP, quest completion, peer teaching contributions, etc.) with privacy controls.
-60. **FR60 (Player):** Players must be able to participate in "Seasonal Events" — limited-time challenges or themed learning experiences that offer exclusive rewards and foster community engagement.
-61. **FR61 (Player):** Players must be able to join "Learning Circles" — persistent, topic-focused communities where players can discuss concepts, share resources, and collaborate on projects.
-62. **FR62 (AI):** The system's AI must be able to proactively scan a Player's 'Arsenal' and suggest the creation of 'spells' (study aids).
-63. **FR63 (AI):** The system must provide a feature to ingest audio/video recordings of online classes and generate text summaries.
-64. **FR64 (Guild Master):** A Guild Master must be able to create and manage competitive Events within their Guild, such as quizzes or coding challenges.
-65. **FR65 (System):** The system must include a personal achievements/badges system.
-66. **FR66 (Player):** PvP events can be based on coding challenges related to the user's quest line (e.g., system design, CSS battles, algorithm battles, design patterns).
+18. **FR18 (Verified Lecturer):** The system must provide a verification process for Guild Masters to become "Verified Lecturers" through academic credential validation, enabling enhanced guild creation privileges and credibility indicators.
+19. **FR19 (Enhanced Document Upload):** During character creation or profile management, users must be able to upload academic credentials including transcripts, certifications, and teaching qualifications, with secure storage and verification workflows.
+20. **FR20 (Simplified Guild Creation):** Verified Lecturers must be able to create guilds with streamlined processes, basic document sharing capabilities, and simple member management tools focused on educational content delivery.
 
-### **Functional - Phase 5: Marketplace & Economy**
-*Focus: Introduce a user-driven economy for sharing and monetizing knowledge.*
+## **Phase 3: Simplified Educator Toolkit**
 
-67. **FR67 (Player):** The system must include a "Marketplace" where users can upload and share high-quality study materials.
-68. **FR68 (Player):** The Marketplace must include a rating and review system for shared content.
-69. **FR69 (System):** The marketplace must use an in-game currency that players can acquire through various in-app activities like daily tasks and boss events.
-70. **FR70 (Player):** Players must be able to trade items (e.g., notes, documents) with other players using the in-game currency. The platform will also support transactions with real money, and sellers can determine the value of their products or negotiate prices.
-71. **FR71 (AI):** The system's AI must be able to review, rate, and elevate user-generated notes or study materials to the shared "Eternal Codex," making them publicly searchable and globally accessible.
-72. **FR72 (AI):** The system's AI must be able to curate "Knowledge Packs" (bundles of notes and resources) for specific themes, subjects, or exams, and publish them in the Marketplace.
-73. **FR73 (AI):** The system's AI must be able to tag materials with "meta-skills" (e.g., critical thinking, synthesis, memorization) to better inform AI search and Arsenal suggestions.
+21. **FR21 (Guild Master):** A Guild Master must have a basic dashboard to view aggregated, anonymized progress for all Players in their course ("Guild").
+22. **FR22 (Guild Master):** The dashboard must highlight topics or 'boss fights' where a significant percentage of the class is struggling.
+23. **FR23 (Guild Master):** A Guild Master must be able to upload basic reference materials and share them with guild members.
+24. **FR24 (Guild Master):** A Guild Master must be able to create simple announcements and communications for their guild.
+
+*Note: Advanced educator features (complex analytics, AI-generated quests, skill tree overlays, curriculum alchemy tools, guild buffs, and advanced game master capabilities) have been moved to post-MVP based on mentor feedback to focus on core student experience validation.*
+
+### **Phase 4: Future Expansion (Post-MVP)**
+
+*Note: Phase 4 and Phase 5 features have been moved to post-MVP based on mentor feedback to focus on core value proposition validation.*
+
+**Planned Future Features:**
+- Advanced social learning and competition systems
+- AI-powered proactive assistance and recommendations
+- Marketplace and creator economy features
+- Enterprise integrations and advanced analytics
+
+*These features will be considered for future development phases after successful MVP validation.*
 
 ### **Cross-Cutting Requirements (All Phases)**
 *Focus: Core system capabilities that support all phases.*
 
-74. **FR74 (System):** The system must implement basic in-app notifications for quest updates and system announcements.
-75. **FR75 (System):** The system must implement structured logging for debugging and basic performance monitoring.
-76. **FR76 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
-77. **FR77 (System):** The platform must support scalable content delivery with optimized asset loading.
+25. **FR25 (System):** The system must implement basic in-app notifications for quest updates and system announcements.
+26. **FR26 (System):** The system must implement structured logging for debugging and basic performance monitoring.
+27. **FR27 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
+28. **FR28 (System):** The platform must support scalable content delivery with optimized asset loading.
 
 
 

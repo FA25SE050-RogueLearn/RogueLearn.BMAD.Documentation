@@ -8,22 +8,29 @@
 - **Documentation Repo:** Centralized documentation repository (`roguelearn-docs`)
 - **Extension Repo:** Separate repository for browser extension (`roguelearn-extension`)
 
-#### **Service Architecture**
+#### **Service Architecture (Simplified for MVP)**
 - **Frontend:** Next.js 14+ with App Router, TypeScript, Tailwind CSS
-- **Game Engine:** Unity 2022.3 LTS with WebGL build target for boss fight mechanics
 - **Backend:** .NET 8 Web API with Clean Architecture pattern
 - **Database:** PostgreSQL 15+ with Entity Framework Core
 - **Cache:** Redis for session management and API response caching
-- **File Storage:** Azure Blob Storage or AWS S3 for document uploads
-- **AI Services:** OpenAI GPT-4 API with fallback to Azure OpenAI
+- **File Storage:** Local file system for MVP (Azure Blob Storage for production)
+- **AI Services:** OpenAI GPT-4 API (simplified quest generation only)
 
-#### **Technology Stack Constraints**
+**Removed from MVP (Post-MVP Features):**
+- Unity Game Engine (boss fight mechanics moved to post-MVP)
+- Complex skill tree visualization (basic tree structure only)
+- Advanced AI processing (proactive assistance, predictive analytics)
+
+#### **Technology Stack Constraints (MVP Focused)**
 - **Node.js:** Version 18+ (LTS) for frontend development
 - **.NET:** Version 8.0+ for backend services
-- **Unity:** Version 2022.3 LTS for game development with WebGL support
-- **Database:** PostgreSQL 15+ (required for advanced JSON operations)
-- **Browser Support:** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+ (WebGL 2.0 required)
-- **Mobile:** Responsive design targeting iOS 14+ and Android 10+ with WebGL compatibility
+- **Database:** PostgreSQL 15+ (required for JSON operations and user data)
+- **Browser Support:** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+ (standard web technologies)
+- **Mobile:** Responsive design targeting iOS 14+ and Android 10+
+
+**Removed from MVP:**
+- Unity Engine requirements (no WebGL dependencies)
+- Advanced browser compatibility requirements for game features
 
 ### **Technical Decision Framework**
 
@@ -38,20 +45,19 @@ All significant technical decisions will be evaluated against the following crit
 ### **Implementation Considerations**
 
 #### **Development Patterns & Standards**
-- **Frontend Architecture:**
+- **Frontend Architecture (Simplified for MVP):**
   - Component-based architecture with React Server Components
-  - Unity WebGL integration with JavaScript bridge for game communication
   - Custom hooks for state management and API calls
   - Atomic design methodology for component organization
   - Strict TypeScript configuration with no implicit any
   - ESLint + Prettier for code formatting and quality
+  - Basic gamification UI components (progress bars, badges, simple animations)
+  - Responsive design for cross-device compatibility
 
-- **Unity Game Architecture:**
-  - 2D boss fight mechanics with educational quiz integration
-  - WebGL build optimization for browser performance
-  - JavaScript-Unity communication via Unity WebGL API
-  - Game state synchronization with backend APIs
-  - Responsive UI design for various screen sizes
+**Removed from MVP:**
+- Unity WebGL integration and game communication
+- Complex 2D boss fight mechanics
+- Advanced game state synchronization
 
 - **Backend Architecture:**
   - Clean Architecture with CQRS pattern
@@ -147,21 +153,21 @@ All significant technical decisions will be evaluated against the following crit
   - Cross-region backup replication
   - Monthly backup restoration testing
 
-### **High-Risk Areas & Mitigation**
+### **High-Risk Areas & Mitigation (MVP Focused)**
 
-#### **AI-driven Data Processing**
-- **Risk:** Complex document parsing and quest generation accuracy
+#### **Simplified AI-driven Quest Generation**
+- **Risk:** Basic document parsing and quest generation accuracy
 - **Technical Constraints:**
   - OpenAI API rate limits: 3,500 requests/minute for GPT-4
   - Token limits: 8,192 tokens per request (input + output)
   - Cost considerations: ~$0.03 per 1K tokens for GPT-4
 - **Mitigation Strategy:**
-  - Implement document preprocessing pipeline with OCR fallback
-  - Create structured prompt templates with few-shot examples
+  - Simple document text extraction (no OCR for MVP)
+  - Basic prompt templates for quest generation
   - Implement response validation and retry logic
   - Cache processed results to minimize API calls
-  - Implement fallback to GPT-3.5-turbo for cost optimization
-  - Use streaming responses for better user experience
+  - Use GPT-3.5-turbo as primary model for cost optimization
+  - Simple loading states instead of streaming responses
 
 #### **Browser Extension Security**
 - **Risk:** Security vulnerabilities and cross-site scripting attacks
@@ -177,18 +183,21 @@ All significant technical decisions will be evaluated against the following crit
   - Regular security audits and penetration testing
   - Minimal permission requests (activeTab, storage only)
 
-#### **Dynamic Skill Tree Visualization**
-- **Risk:** Performance issues with large knowledge graphs
+#### **Basic Skill Tree Display**
+- **Risk:** Simple performance issues with skill tree rendering
 - **Technical Constraints:**
-  - Browser rendering limits: ~1000 nodes for smooth interaction
-  - Memory constraints on mobile devices
-  - Real-time updates without full re-renders
+  - Browser rendering limits for basic tree structures
+  - Mobile device compatibility
 - **Mitigation Strategy:**
-  - Implement virtualization for large graphs (only render visible nodes)
-  - Use WebGL-based rendering (Three.js or similar)
-  - Implement progressive loading with lazy evaluation
-  - Cache graph layouts and use incremental updates
-  - Provide simplified view options for mobile devices
+  - Use simple HTML/CSS tree structure with basic animations
+  - Implement responsive design for mobile devices
+  - Cache skill tree data to minimize API calls
+  - Use progressive enhancement for visual effects
+
+**Moved to Post-MVP:**
+- Complex dynamic visualization with large knowledge graphs
+- WebGL-based rendering and advanced interactions
+- Real-time collaborative skill tree updates
 
 #### **Scalability & Performance**
 - **Risk:** System performance degradation under load
@@ -231,10 +240,9 @@ All significant technical decisions will be evaluated against the following crit
 
 ### **Development Environment Setup**
 
-#### **Required Tools & Versions**
+#### **Required Tools & Versions (MVP Simplified)**
 - **Node.js:** 18.17.0+ (use nvm for version management)
 - **.NET SDK:** 8.0.100+
-- **Unity:** 2022.3 LTS with WebGL build support
 - **Docker:** 24.0+ with Docker Compose
 - **PostgreSQL:** 15.3+ (or Docker container)
 - **Redis:** 7.0+ (or Docker container)
@@ -242,12 +250,40 @@ All significant technical decisions will be evaluated against the following crit
 
 #### **IDE Configuration**
 - **VS Code Extensions:** ESLint, Prettier, C# Dev Kit, Docker
-- **Unity Editor:** 2022.3 LTS with WebGL build module installed
 - **JetBrains Rider:** Recommended for .NET development
 - **Database Tools:** pgAdmin 4 or DBeaver for PostgreSQL management
+
+**Removed from MVP:**
+- Unity Editor and WebGL build requirements
+- Game development tools and extensions
 
 #### **Local Development Constraints**
 - **Port Allocation:** Frontend (3000), Backend (5000), Database (5432), Redis (6379)
 - **Environment Variables:** Use .env.local for sensitive data
 - **Hot Reload:** Enabled for both frontend and backend development
 - **HTTPS:** Required for browser extension testing
+
+### **MVP Technical Scope Summary**
+
+#### **Included in MVP**
+- Next.js frontend with basic gamification UI
+- .NET 8 backend with clean architecture
+- PostgreSQL database with Entity Framework
+- Redis caching for sessions and API responses
+- OpenAI GPT-3.5-turbo for basic quest generation
+- Browser extension with basic content scraping
+- Simple skill tree display with HTML/CSS
+- Basic user authentication and authorization
+- File upload with local storage
+
+#### **Moved to Post-MVP (60% of Original Features)**
+- Unity game engine and WebGL boss fights
+- Complex skill tree visualization with WebGL
+- Advanced AI features (proactive assistance, predictive analytics)
+- Complex educator analytics and reporting tools
+- Advanced social features and guild competitions
+- Marketplace and creator economy features
+- Advanced performance optimizations
+- Multi-region deployment and scaling
+
+**Rationale:** This simplified technical stack focuses on validating the core gamified learning hypothesis while maintaining development velocity and reducing complexity. Advanced features can be incrementally added based on user feedback and market validation.
