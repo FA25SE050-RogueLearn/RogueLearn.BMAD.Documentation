@@ -83,7 +83,7 @@ graph TD
             AuthService[.NET Auth Service]
             QuestService[.NET Quests Service]
             SocialService[.NET Social Service]
-            CodeBattleService[.NET Code Battle Service]
+            CodeBattleService[Go Code Battle Service]
             AIProxyService[.NET AI Proxy Service]
         end
     end
@@ -124,11 +124,11 @@ graph TD
 
 The following patterns will be foundational to our implementation. Adhering to them will ensure consistency, quality, and maintainability.
 
-*   **- Microservices Architecture:** The backend will be composed of small, independent services. *Rationale:* This allows for independent development, deployment, and scaling of different parts of the application (e.g., social features can be updated without affecting the core quest system).
-*   **- API Gateway:** The frontend will communicate with the backend through a single entry point. *Rationale:* This simplifies the frontend code, centralizes cross-cutting concerns like authentication and rate limiting, and hides the complexity of the microservices from the client.
-*   **- Clean Architecture (.NET):** Each microservice will be structured with a clear separation between domain logic, application logic, and infrastructure concerns. *Rationale:* This produces highly testable, maintainable, and loosely-coupled services that are independent of external frameworks or databases.
-*   **- Component-Based UI (Next.js):** The frontend will be built as a collection of reusable, self-contained components. *Rationale:* This is the standard for modern frontend development and promotes reusability, maintainability, and faster development cycles.
-*   **- Repository Pattern (.NET):** Data access within each microservice will be abstracted behind a repository interface. *Rationale:* This decouples our business logic from the specific data access implementation (Entity Framework Core), making the code easier to test and allowing for future changes to the data layer.
+*   **Microservices Architecture:** The backend will be composed of small, independent services. *Rationale:* This allows for independent development, deployment, and scaling of different parts of the application (e.g., social features can be updated without affecting the core quest system).
+*   **API Gateway:** The frontend will communicate with the backend through a single entry point. *Rationale:* This simplifies the frontend code, centralizes cross-cutting concerns like authentication and rate limiting, and hides the complexity of the microservices from the client.
+*   **Clean Architecture (.NET):** Each microservice will be structured with a clear separation between domain logic, application logic, and infrastructure concerns. *Rationale:* This produces highly testable, maintainable, and loosely-coupled services that are independent of external frameworks or databases.
+*   **Component-Based UI (Next.js):** The frontend will be built as a collection of reusable, self-contained components. *Rationale:* This is the standard for modern frontend development and promotes reusability, maintainability, and faster development cycles.
+*   **Repository Pattern (.NET):** Data access within each microservice will be abstracted behind a repository interface. *Rationale:* This decouples our business logic from the specific data access implementation (Entity Framework Core), making the code easier to test and allowing for future changes to the data layer.
 
 ## **Tech Stack**
 
@@ -176,7 +176,7 @@ This section defines the core data models and entities that will be shared betwe
 - `profileImageUrl`: `string` - URL for the user's avatar.
 
 #### **TypeScript Interface**
-` ``typescript
+```typescript
 // In @roguelearn/shared-types
 
 export interface UserProfile {
@@ -192,8 +192,7 @@ export interface UserProfile {
   onboardingCompleted: boolean;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
-}
-` ``
+}```
 
 **Relationships:**
 - A `User` has one `UserProfile`.
@@ -213,7 +212,7 @@ export interface UserProfile {
 - `schemaVersion`: `string` - The version of the JSON schema used in `structuredContent` (e.g., "1.0").
 
 #### **TypeScript Interface**
-` ``typescript
+```typescript
 // In @roguelearn/shared-types
 
 export type SyllabusProcessingStatus = 'Pending' | 'Processing' | 'Completed' | 'Failed';
@@ -238,7 +237,7 @@ export interface Syllabus {
   schemaVersion: string; // e.g., "1.0", "1.1"
   // ... other metadata
 }
-` ``
+```
 
 **Relationships:**
 - A `Course` belongs to one `UserProfile`.
@@ -259,8 +258,7 @@ export interface Syllabus {
 - `dueDate`: `string` - Optional ISO 8601 timestamp.
 - `experiencePoints`: `number` - XP awarded upon completion.
 
-#### **TypeScript Interface**
-` ``typescript
+#### **TypeScript Interface**```typescript
 // In @roguelearn/shared-types
 
 export type QuestType = 'Learning' | 'Assignment' | 'Exam' | 'BossFight';
@@ -288,7 +286,7 @@ export interface QuestLine {
     quests: Quest[]; // Can be a separate fetch
     createdAt: string; // ISO 8601 timestamp
 }
-` ``
+```
 
 **Relationships:**
 - A `QuestLine` is generated from one `Course`.
@@ -308,7 +306,7 @@ export interface QuestLine {
 - `positionX`, `positionY`: `number` - Coordinates for rendering the node in the mind map visualization.
 
 #### **TypeScript Interface**
-` ``typescript
+```typescript
 // In @roguelearn/shared-types
 
 export interface Skill {
@@ -332,7 +330,7 @@ export interface SkillTree {
     skills: Skill[]; // Can be a separate fetch
     createdAt: string; // ISO 8601 timestamp
 }
-` ``
+```
 
 **Relationships:**
 - A `SkillTree` is generated from one `Course`.
@@ -351,7 +349,7 @@ export interface SkillTree {
 - `courseId`, `questId`, `skillId`: `string | null` - Optional foreign keys to link the note to other entities.
 
 #### **TypeScript Interface**
-` ``typescript
+```typescript
 // In @roguelearn/shared-types
 
 export interface Note {
@@ -367,7 +365,7 @@ export interface Note {
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
 }
-` ``
+```
 
 **Relationships:**
 - A `Note` belongs to one `UserProfile`.
@@ -385,7 +383,7 @@ export interface Note {
 - `partyLeaderId`: `string` - The `userId` of the creator.
 
 #### **TypeScript Interface**
-` ``typescript
+```typescript
 // In @roguelearn/shared-types
 
 export type PartyJoinType = 'Invite Only' | 'Open';
@@ -405,7 +403,7 @@ export interface Party {
     members: PartyMember[]; // Can be a separate fetch
     createdAt: string; // ISO 8601 timestamp
 }
-` ``
+```
 
 **Relationships:**
 - A `Party` has one `Party Leader` (`UserProfile`).
@@ -424,7 +422,7 @@ export interface Party {
 - `isVerified`: `boolean` - Indicates if the Guild Master has the "Verified Lecturer" status.
 
 #### **TypeScript Interface**
-` ``typescript
+```typescript
 // In @roguelearn/shared-types
 
 export interface GuildMember {
@@ -441,7 +439,7 @@ export interface Guild {
     memberCount: number;
     createdAt: string; // ISO 8601 timestamp
 }
-` ``
+```
 
 **Relationships:**
 - A `Guild` has one `Guild Master` (`UserProfile`).
@@ -460,7 +458,7 @@ export interface Guild {
 - `startDate`, `endDate`: `string` - ISO 8601 timestamps for the event duration.
 
 #### **TypeScript Interface**
-` ``typescript
+```typescript
 // In @roguelearn/shared-types
 
 export type EventType = 'Quiz' | 'CodeBattle';
@@ -485,7 +483,7 @@ export interface CodeBattle {
     testCases: { input: string; expectedOutput: string; }[];
     // ... other specific details
 }
-` ``
+```
 
 **Relationships:**
 - An `Event` belongs to one `Guild`.
@@ -498,7 +496,7 @@ This section defines the RESTful API for the RogueLearn platform using the OpenA
 
 ### **REST API Specification**
 
-` ``yaml
+```yaml
 openapi: 3.0.0
 info:
   title: RogueLearn API
@@ -683,8 +681,7 @@ paths:
           description: Syllabus accepted for processing.
         '400':
           description: Bad request (e.g., invalid file type).
-
-` ``
+```
 
 ## **Components**
 
@@ -736,7 +733,7 @@ Based on our architectural patterns and the defined data models, the RogueLearn 
 
 This diagram shows how the components interact, with the API Gateway acting as the central mediator for external requests.
 
-` ``mermaid
+```mermaid
 graph TD
     subgraph "Clients"
         WebApp("Next.js Web App")
@@ -783,7 +780,7 @@ graph TD
     CodeBattle --> DB
 
     AIProxy --> Gemini
-` ``
+```
 
 ## **External APIs**
 
@@ -818,7 +815,7 @@ This section illustrates key system workflows using Mermaid sequence diagrams. T
 
 ### **Workflow 1: New User Onboarding & First QuestLine Generation**
 
-` ``mermaid
+```mermaid
 sequenceDiagram
     participant User
     participant Frontend (Vercel)
@@ -869,13 +866,13 @@ sequenceDiagram
     APIGateway-->>Frontend: 202 Accepted
     Note left of Frontend: Frontend can now poll for status<br/>or receive a real-time update<br/>to show the new QuestLine.
     User->>Frontend: Sees personalized QuestLine and SkillTree
-` ``
+```
 
 ## **Database Schema**
 
 This section provides the SQL DDL for creating the tables in our PostgreSQL database. This schema is derived from our conceptual data models and is designed to be managed via Entity Framework Core migrations in our .NET services.
 
-` ``sql
+```sql
 -- ========= User Management (Managed by Auth Service) =========
 
 CREATE TABLE "UserProfiles" (
@@ -972,8 +969,7 @@ CREATE INDEX idx_questlines_course_id ON "QuestLines"("CourseId");
 CREATE INDEX idx_quests_questline_id ON "Quests"("QuestLineId");
 CREATE INDEX idx_skilltrees_course_id ON "SkillTrees"("CourseId");
 CREATE INDEX idx_skills_skilltree_id ON "Skills"("SkillTreeId");
-
-` ``
+```
 
 ## **Frontend Architecture**
 
@@ -984,7 +980,7 @@ This section defines the specific architectural patterns and standards for the `
 #### **Component Organization**
 We will follow a feature-based folder structure inside `src/components/`. Core, reusable components will live in a `ui/` subfolder (aligned with Shadcn/UI), while feature-specific components will be grouped by the feature they belong to.
 
-` ``plaintext
+```plaintext
 roguelearn-web/
 └── src/
     ├── app/                # Next.js App Router
@@ -1002,12 +998,12 @@ roguelearn-web/
     │       └── UserProfileButton.tsx
     ├── lib/                # Utility functions, API clients
     └── hooks/              # Custom React hooks
-` ``
+```
 
 #### **Component Template**
 All new components should follow this basic structure for consistency.
 
-` ``typescript
+```typescript
 // Example: src/components/features/quests/QuestItem.tsx
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1032,7 +1028,7 @@ const QuestItem: React.FC<QuestItemProps> = ({ quest }) => {
 };
 
 export default QuestItem;
-` ``
+```
 
 ### **State Management Architecture**
 
@@ -1050,7 +1046,7 @@ export default QuestItem;
 *   **API Client:** A type-safe API client will be created using `axios`. A single instance will be configured with interceptors to automatically attach the JWT Bearer token from Clerk to all outgoing requests.
 *   **Service Example:**
 
-` ``typescript
+```typescript
 // src/lib/api-client.ts
 import axios from 'axios';
 import { clerk } from './clerk'; // Your Clerk initialization
@@ -1068,7 +1064,7 @@ apiClient.interceptors.request.use(async (config) => {
 });
 
 export default apiClient;
-` ``
+```
 
 ## **Backend Architecture**
 
@@ -1084,7 +1080,7 @@ This section defines the architecture for all .NET microservices.
 *   **Data Access:** **Entity Framework Core (EF Core)** will be used as the Object-Relational Mapper (ORM).
 *   **Data Access Layer:** The **Repository Pattern** will be used to abstract all data access logic, ensuring the Application layer is ignorant of the persistence mechanism.
 
-` ``csharp
+```csharp
 // Example: IQuestRepository.cs
 public interface IQuestRepository
 {
@@ -1093,7 +1089,7 @@ public interface IQuestRepository
     Task AddAsync(Quest quest);
     // ... other methods
 }
-` ``
+```
 
 ### **Authentication and Authorization**
 
@@ -1103,4 +1099,3 @@ public interface IQuestRepository
 ## **Unified Project Structure**
 
 As defined, we will use a **Multi-Repo Strategy**. Each component in the architecture diagram will have its own Git repository. The `@roguelearn/shared-types` package will be managed in its own repository and published to a private NPM registry (like GitHub Packages) to be consumed by the frontend and backend projects that need it.
-
