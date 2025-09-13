@@ -79,8 +79,8 @@ graph TD
     end
 
     subgraph "Backend Layer (Azure)"
-        APIGateway[API Gateway (REST)]
-        RealtimeHub[Real-time Hub (WebSockets)]
+        APIGateway[API Gateway REST]
+        RealtimeHub[Real-time Hub WebSockets]
         
         subgraph "Microservices"
             AuthService[.NET Auth Service]
@@ -100,7 +100,7 @@ graph TD
     BrowserExtension --> APIGateway
 
     Frontend --> APIGateway
-    Frontend -- WebSockets --> RealtimeHub
+    Frontend -.-> RealtimeHub
     
     APIGateway --> AuthService
     APIGateway --> QuestService
