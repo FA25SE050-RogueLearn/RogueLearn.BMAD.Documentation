@@ -219,7 +219,8 @@ export interface UserProfile {
 - `processingStatus`: `string` - Enum (`Pending`, `Processing`, `Completed`, `Failed`).
 - `schemaVersion`: `string` - The version of the JSON schema used in `structuredContent` (e.g., "1.0").
 
-#### **TypeScript Interface**```typescript
+#### **TypeScript Interface**
+```typescript
 // In @roguelearn/shared-types
 
 export type SyllabusProcessingStatus = 'Pending' | 'Processing' | 'Completed' | 'Failed';
@@ -695,11 +696,16 @@ paths:
     post:
       summary: Challenge a User to a Duel
       tags: [Duels]
-      security: [{ BearerAuth: [] }]
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
-            schema: { type: object, properties: { opponentId: { type: string } } }
+            schema:
+              type: object
+              properties:
+                opponentId:
+                  type: string
       responses:
         '202':
           description: Challenge sent.
@@ -709,11 +715,18 @@ paths:
     post:
       summary: Analyze content from browser extension
       tags: [Extension]
-      security: [{ BearerAuth: [] }]
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
-            schema: { type: object, properties: { content: { type: string }, url: { type: string } } }
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                url:
+                  type: string
       responses:
         '200':
           description: Analysis results.
@@ -1079,6 +1092,7 @@ CREATE TABLE "CodeBattles" (
 );
 
 CREATE INDEX idx_events_guild_id ON "Events"("GuildId");
+
 ```
 
 ## **Frontend Architecture**
