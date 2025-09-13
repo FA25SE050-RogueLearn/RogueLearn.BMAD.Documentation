@@ -17,18 +17,20 @@ This approach provides maximum flexibility, clear separation of concerns, and al
 
 ### **Change Log**
 
-| Date | Version | Description | Author |
-| :--- | :--- | :--- | :--- |
-| Sep 11, 2025 | 1.3 | Corrected Introduction to include Go as a backend technology. | Winston, Architect |
-| Sep 11, 2025 | 1.2 | Replaced TanStack Router with native Next.js App Router per user feedback. | Winston, Architect |
-| Sep 11, 2025 | 1.1 | Noted TanStack Router as the selected routing library. | Winston, Architect |
-| Sep 11, 2025 | 1.0 | Initial document creation and multi-repo decision. | Winston, Architect |
+| Date          | Version | Description                                                                    | Author             |
+| :------------ | :------ | :----------------------------------------------------------------------------- | :----------------- |
+| Sep 12, 2025  | 1.5     | Removed Marketplace feature per user request to focus on core learning experience. | Winston, Architect |
+| Sep 12, 2025  | 1.4     | Aligned architecture with expanded PRD. Added Marketplace, Duels, and Real-Time features. | Winston, Architect |
+| Sep 11, 2025  | 1.3     | Corrected Introduction to include Go as a backend technology.                  | Winston, Architect |
+| Sep 11, 2025  | 1.2     | Replaced TanStack Router with native Next.js App Router per user feedback.     | Winston, Architect |
+| Sep 11, 2025  | 1.1     | Noted TanStack Router as the selected routing library.                         | Winston, Architect |
+| Sep 11, 2025  | 1.0     | Initial document creation and multi-repo decision.                             | Winston, Architect |
 
 ## **High Level Architecture**
 
 ### **Technical Summary**
 
-RogueLearn will be implemented as a cloud-native, multi-repository application featuring a decoupled frontend and a microservices-based backend. The frontend will be a server-rendered Next.js application hosted on Vercel, providing a highly interactive and performant user experience. The backend will consist of independent microservices built with **.NET 8** and **Go**, containerized and deployed on Azure Container Apps, communicating via a centralized API Gateway. This includes a specialized service for automatically scoring code battle submissions. This architecture ensures clear separation of concerns, enables independent scaling and deployment of services, and aligns with modern best practices for building robust, maintainable web applications. Data will be persisted in a Supabase PostgreSQL database, with user authentication managed by the external service, Clerk.
+RogueLearn will be implemented as a cloud-native, multi-repository application featuring a decoupled frontend and a microservices-based backend. The frontend will be a server-rendered Next.js application hosted on Vercel. The backend will consist of independent microservices built with **.NET 8** and **Go**, deployed on Azure Container Apps, communicating via a centralized API Gateway for RESTful requests and a real-time layer for interactive features. This architecture supports core learning features, social collaboration, and competitive "Knowledge Duels," including a specialized service for scoring code submissions. Data will be persisted in a Supabase PostgreSQL database, with user authentication managed by Clerk.
 
 ### **Platform and Infrastructure Choice**
 
@@ -51,14 +53,14 @@ As established, we will use a **Multi-Repo Strategy** to support our microservic
 
 *   **`roguelearn-web`**: The Next.js frontend application.
 *   **`roguelearn-auth-service`**: .NET microservice for user identity, profiles, and Clerk integration.
-*   **`roguelearn-quests-service`**: .NET microservice for managing syllabi, quests, skill trees, and game logic.
-*   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, and Events.
-*   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code against predefined test cases for Events.
+*   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game logic.
+*   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
+*   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code.
 *   **`roguelearn-shared-types`**: A private NPM package for shared TypeScript interfaces between frontend and backend services.
 
 ### **High Level Architecture Diagram**
 
-This diagram illustrates the primary components and data flow of the RogueLearn platform, including the Code Battle Service.
+This diagram illustrates the primary components and data flow of the RogueLearn platform.
 
 ```mermaid
 graph TD
@@ -77,7 +79,8 @@ graph TD
     end
 
     subgraph "Backend Layer (Azure)"
-        APIGateway[API Gateway]
+        APIGateway[API Gateway (REST)]
+        RealtimeHub[Real-time Hub (WebSockets)]
         
         subgraph "Microservices"
             AuthService[.NET Auth Service]
@@ -97,12 +100,15 @@ graph TD
     BrowserExtension --> APIGateway
 
     Frontend --> APIGateway
+    Frontend -- WebSockets --> RealtimeHub
     
     APIGateway --> AuthService
     APIGateway --> QuestService
     APIGateway --> SocialService
     APIGateway --> CodeBattleService
     APIGateway --> AIProxyService
+    
+    RealtimeHub --> SocialService
 
     AuthService --> Clerk
     AuthService --> Database
@@ -125,7 +131,7 @@ graph TD
 The following patterns will be foundational to our implementation. Adhering to them will ensure consistency, quality, and maintainability.
 
 *   **Microservices Architecture:** The backend will be composed of small, independent services. *Rationale:* This allows for independent development, deployment, and scaling of different parts of the application (e.g., social features can be updated without affecting the core quest system).
-*   **API Gateway:** The frontend will communicate with the backend through a single entry point. *Rationale:* This simplifies the frontend code, centralizes cross-cutting concerns like authentication and rate limiting, and hides the complexity of the microservices from the client.
+*   **API Gateway:** The frontend will communicate with the backend through a single entry point for synchronous requests. *Rationale:* This simplifies the frontend code, centralizes cross-cutting concerns like authentication and rate limiting, and hides the complexity of the microservices from the client.
 *   **Clean Architecture (.NET):** Each microservice will be structured with a clear separation between domain logic, application logic, and infrastructure concerns. *Rationale:* This produces highly testable, maintainable, and loosely-coupled services that are independent of external frameworks or databases.
 *   **Component-Based UI (Next.js):** The frontend will be built as a collection of reusable, self-contained components. *Rationale:* This is the standard for modern frontend development and promotes reusability, maintainability, and faster development cycles.
 *   **Repository Pattern (.NET):** Data access within each microservice will be abstracted behind a repository interface. *Rationale:* This decouples our business logic from the specific data access implementation (Entity Framework Core), making the code easier to test and allowing for future changes to the data layer.
@@ -136,26 +142,27 @@ This table is the single source of truth for all technologies, frameworks, and l
 
 ### **Technology Stack Table**
 
-| Category | Technology | Version | Purpose | Rationale |
-| :--- | :--- | :--- | :--- | :--- |
-| **Frontend Language** | TypeScript | `5.4.x` | Primary language for frontend development | Ensures type safety, scalability, and improved developer experience in a large application. |
-| **Frontend Framework** | Next.js | `14.2.x` | Web framework for the user-facing application | Provides a robust foundation with server-side rendering (SSR), static site generation (SSG), and a powerful App Router. |
-| **UI Component Library** | Shadcn/UI | `latest` | A collection of re-usable components | Not a typical component library, but a set of scripts to install best-in-class components directly into our codebase, offering maximum control and customizability. |
-| **Frontend Routing**| **Next.js App Router** | `14.2.x` | Native file-system based routing for Next.js | The built-in, officially supported router. It's deeply integrated with Next.js features like Server Components, Layouts, and data fetching. |
-| **State Management** | React Query / Zustand | `5.x` / `4.x` | For server state caching and global client state | React Query is the standard for managing server state (API data). Zustand provides a minimal, boilerplate-free solution for any necessary global client state. |
-| **Styling** | Tailwind CSS | `3.4.x` | Utility-first CSS framework | Enables rapid development of custom designs without writing custom CSS. Works perfectly with Next.js and Shadcn/UI. |
-| **Backend Language** | C# / **Go** | `12` / `1.22.x` | Primary languages for backend microservices | C# with .NET is the primary choice for core services. Go is used for the high-performance, specialized Code Battle Scorer service. |
-| **Backend Framework**| .NET | `8.0` | Framework for building core backend microservices | The latest Long-Term Support (LTS) version of .NET, offering high performance, cross-platform support, and a rich ecosystem. |
-| **API Style** | RESTful API | `v1` | Standard for communication between services | A well-understood, stateless, and scalable approach for our APIs. The API Gateway will expose a unified REST API. |
-| **Database** | PostgreSQL | `15.x` | Primary relational database | A powerful, open-source object-relational database system known for its reliability, feature robustness, and performance. Provided by Supabase. |
-| **Authentication** | Clerk | `latest SDK` | Managed user authentication service | Offloads the complexity of secure authentication, session management, and user profiles, allowing us to focus on core features. |
-| **File Storage** | Supabase Storage | `latest SDK` | For storing user-uploaded documents (syllabi, etc.) | Provides a simple, S3-compatible object storage solution with fine-grained access controls that integrates directly with our database. |
-| **Frontend Testing** | Jest & React Testing Library | `latest` | For unit and component testing of the frontend | The industry standard for testing React applications, focusing on user behavior rather than implementation details. |
-| **Backend Testing** | xUnit & Moq | `latest` | For unit and integration testing of .NET services | xUnit is the standard, modern testing framework for .NET. Moq is a popular and powerful mocking library. |
-| **E2E Testing** | Playwright | `1.4x.x` | For end-to-end testing of the entire application | A modern and reliable E2E testing framework from Microsoft that allows us to test user flows across the full stack. |
-| **CI/CD** | GitHub Actions | `latest` | For automating our build, test, and deployment pipelines | Tightly integrated with our source code repositories, providing a powerful and configurable automation platform. |
-| **Containerization**| Docker | `latest` | For packaging services for deployment | Ensures consistency between development and production environments. Essential for running microservices on Azure Container Apps. |
-| **AI Service** | Gemini API | `latest` | For syllabus parsing and other AI-driven features | Google's powerful large language model, which will be accessed securely via our backend proxy service. |
+| Category            | Technology                  | Version   | Purpose                                           | Rationale                                                                                                                                                    |
+| :------------------ | :-------------------------- | :-------- | :------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend Language** | TypeScript                | `5.4.x`   | Primary language for frontend development         | Ensures type safety, scalability, and improved developer experience in a large application.                                                                  |
+| **Frontend Framework**  | Next.js                   | `14.2.x`  | Web framework for the user-facing application     | Provides a robust foundation with server-side rendering (SSR), static site generation (SSG), and a powerful App Router.                                     |
+| **UI Component Library** | Shadcn/UI                 | `latest`  | A collection of re-usable components              | Not a typical component library, but a set of scripts to install best-in-class components directly into our codebase, offering maximum control and customizability. |
+| **Frontend Routing**| **Next.js App Router**      | `14.2.x`  | Native file-system based routing for Next.js      | The built-in, officially supported router. It's deeply integrated with Next.js features like Server Components, Layouts, and data fetching.                    |
+| **State Management**  | React Query / Zustand       | `5.x` / `4.x` | For server state caching and global client state  | React Query is the standard for managing server state (API data). Zustand provides a minimal, boilerplate-free solution for any necessary global client state.   |
+| **Styling**         | Tailwind CSS                | `3.4.x`   | Utility-first CSS framework                     | Enables rapid development of custom designs without writing custom CSS. Works perfectly with Next.js and Shadcn/UI.                                        |
+| **Backend Language**  | C# / **Go**               | `12` / `1.22.x` | Primary languages for backend microservices     | C# with .NET is the primary choice for core services. Go is used for the high-performance, specialized Code Battle Scorer service.                             |
+| **Backend Framework**| .NET                        | `8.0`     | Framework for building core backend microservices | The latest Long-Term Support (LTS) version of .NET, offering high performance, cross-platform support, and a rich ecosystem.                                   |
+| **API Style**       | RESTful API                 | `v1`      | Standard for communication between services       | A well-understood, stateless, and scalable approach for our APIs. The API Gateway will expose a unified REST API.                                            |
+| **Real-time Comms** | SignalR                     | `8.0`     | For real-time features like duels and notifications | A library for .NET that simplifies adding real-time web functionality. It handles connection management and supports WebSockets with fallbacks.                  |
+| **Database**        | PostgreSQL                  | `15.x`    | Primary relational database                       | A powerful, open-source object-relational database system known for its reliability, feature robustness, and performance. Provided by Supabase.                 |
+| **Authentication**  | Clerk                       | `latest SDK` | Managed user authentication service               | Offloads the complexity of secure authentication, session management, and user profiles, allowing us to focus on core features.                                |
+| **File Storage**    | Supabase Storage            | `latest SDK` | For storing user-uploaded documents (syllabi, etc.) | Provides a simple, S3-compatible object storage solution with fine-grained access controls that integrates directly with our database.                           |
+| **Frontend Testing**  | Jest & React Testing Library | `latest`  | For unit and component testing of the frontend    | The industry standard for testing React applications, focusing on user behavior rather than implementation details.                                            |
+| **Backend Testing** | xUnit & Moq                 | `latest`  | For unit and integration testing of .NET services | xUnit is the standard, modern testing framework for .NET. Moq is a popular and powerful mocking library.                                                      |
+| **E2E Testing**     | Playwright                  | `1.4x.x`  | For end-to-end testing of the entire application  | A modern and reliable E2E testing framework from Microsoft that allows us to test user flows across the full stack.                                            |
+| **CI/CD**           | GitHub Actions              | `latest`  | For automating our build, test, and deployment pipelines | Tightly integrated with our source code repositories, providing a powerful and configurable automation platform.                                               |
+| **Containerization**| Docker                      | `latest`  | For packaging services for deployment             | Ensures consistency between development and production environments. Essential for running microservices on Azure Container Apps.                               |
+| **AI Service**      | Gemini API                  | `latest`  | For syllabus parsing and other AI-driven features | Google's powerful large language model, which will be accessed securely via our backend proxy service.                                                         |
 
 ## **Data Models**
 
@@ -192,7 +199,8 @@ export interface UserProfile {
   onboardingCompleted: boolean;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
-}```
+}
+```
 
 **Relationships:**
 - A `User` has one `UserProfile`.
@@ -211,8 +219,7 @@ export interface UserProfile {
 - `processingStatus`: `string` - Enum (`Pending`, `Processing`, `Completed`, `Failed`).
 - `schemaVersion`: `string` - The version of the JSON schema used in `structuredContent` (e.g., "1.0").
 
-#### **TypeScript Interface**
-```typescript
+#### **TypeScript Interface**```typescript
 // In @roguelearn/shared-types
 
 export type SyllabusProcessingStatus = 'Pending' | 'Processing' | 'Completed' | 'Failed';
@@ -258,7 +265,8 @@ export interface Syllabus {
 - `dueDate`: `string` - Optional ISO 8601 timestamp.
 - `experiencePoints`: `number` - XP awarded upon completion.
 
-#### **TypeScript Interface**```typescript
+#### **TypeScript Interface**
+```typescript
 // In @roguelearn/shared-types
 
 export type QuestType = 'Learning' | 'Assignment' | 'Exam' | 'BossFight';
@@ -446,22 +454,22 @@ export interface Guild {
 - A `Guild` has many `Members` (`UserProfile`), managed through a `GuildMembership` join table.
 - A `Guild` is the host for many `Events`.
 
-### **Event & CodeBattle**
+### **Event & CodeBattle & Duel**
 
-**Purpose:** An `Event` is a competition hosted by a `Guild`, created by the Guild Master or an Admin. This can be a quiz, a coding challenge, etc. The `CodeBattle` is a specific type of event that uses the Go-based microservice for automated scoring.
+**Purpose:** An `Event` is a competition hosted by a `Guild`. `CodeBattle` and `Duel` are specific event types. A `Duel` is a real-time, 1v1 knowledge challenge.
 
 **Key Attributes:**
 - `eventId`: `string` - Unique identifier for the event.
-- `guildId`: `string` - The `Guild` that is hosting the event.
-- `title`: `string` - The name of the event.
-- `eventType`: `string` - Enum (`Quiz`, `CodeBattle`).
-- `startDate`, `endDate`: `string` - ISO 8601 timestamps for the event duration.
+- `guildId`: `string` - The `Guild` hosting the event.
+- `title`: `string` - Name of the event.
+- `eventType`: `string` - Enum (`Quiz`, `CodeBattle`, `Tournament`, `Duel`).
+- `startDate`, `endDate`: `string` - ISO 8601 timestamps.
 
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
 
-export type EventType = 'Quiz' | 'CodeBattle';
+export type EventType = 'Quiz' | 'CodeBattle' | 'Tournament' | 'Duel';
 
 export interface Event {
     id: string;
@@ -471,24 +479,24 @@ export interface Event {
     eventType: EventType;
     startDate: string; // ISO 8601 timestamp
     endDate: string; // ISO 8601 timestamp
-    // Potentially a link to the specific event details (like code battle problems)
     detailsUrl?: string;
     createdAt: string; // ISO 8601 timestamp
 }
 
-// Example specific to a CodeBattle
-export interface CodeBattle {
-    eventId: string; // Foreign key to Event
-    problemStatement: string;
-    testCases: { input: string; expectedOutput: string; }[];
-    // ... other specific details
+export interface Duel {
+    id: string;
+    eventId: string; // Optional foreign key to an Event
+    challengerId: string; // UserProfile ID
+    opponentId: string; // UserProfile ID
+    status: 'Pending' | 'Active' | 'Completed';
+    winnerId: string | null;
+    questions: { question: string; answer: string; }[];
 }
 ```
 
 **Relationships:**
 - An `Event` belongs to one `Guild`.
-- An `Event` can have many participants (`UserProfile`).
-- If an `Event` has an `eventType` of `CodeBattle`, it will have an associated `CodeBattle` record with detailed problem information.
+- A `Duel` involves two `UserProfiles`.
 
 ## **API Specification**
 
@@ -681,6 +689,34 @@ paths:
           description: Syllabus accepted for processing.
         '400':
           description: Bad request (e.g., invalid file type).
+
+  # 4. Endpoints for Duels (Social Service)
+  /duels/challenge:
+    post:
+      summary: Challenge a User to a Duel
+      tags: [Duels]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { opponentId: { type: string } } }
+      responses:
+        '202':
+          description: Challenge sent.
+
+  # 5. Endpoints for Browser Extension (AI Proxy Service)
+  /extension/analyze:
+    post:
+      summary: Analyze content from browser extension
+      tags: [Extension]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { content: { type: string }, url: { type: string } } }
+      responses:
+        '200':
+          description: Analysis results.
 ```
 
 ## **Components**
@@ -689,49 +725,49 @@ Based on our architectural patterns and the defined data models, the RogueLearn 
 
 ### **Frontend Application (`roguelearn-web`)**
 
-*   **Responsibility:** To provide the entire user-facing experience. This includes rendering the user interface, managing client-side state, handling user interactions, and communicating with the backend via the API Gateway.
-*   **Key Interfaces:** The web-based Graphical User Interface (GUI).
-*   **Dependencies:** API Gateway, Clerk (for frontend authentication flows).
-*   **Technology Stack:** Next.js, TypeScript, React, Next.js App Router, Tailwind CSS, Shadcn/UI.
+*   **Responsibility:** To provide the entire user-facing experience. This includes rendering the UI, managing client-side state, handling user interactions, and communicating with the backend via the API Gateway and the Real-time Hub.
+*   **Key Interfaces:** The web-based GUI.
+*   **Dependencies:** API Gateway, Real-time Hub, Clerk.
+*   **Technology Stack:** Next.js, TypeScript, React, Tailwind CSS, Shadcn/UI.
 
 ### **Auth Service (`roguelearn-auth-service`)**
 
-*   **Responsibility:** Manages all aspects of user identity. This includes user profile creation and management, handling post-registration webhooks from Clerk, and issuing JWTs that other services can validate.
-*   **Key Interfaces:** Exposes REST endpoints for profile management (e.g., `GET /profiles/me`, `PUT /profiles/me`).
-*   **Dependencies:** Supabase Database (for `UserProfile` data), Clerk (for core identity data).
-*   **Technology Stack:** .NET 8, C#, Clean Architecture, Entity Framework Core.
+*   **Responsibility:** Manages all aspects of user identity. This includes user profile creation and management, handling webhooks from Clerk, and issuing JWTs.
+*   **Key Interfaces:** REST endpoints for profile management (e.g., `GET /profiles/me`).
+*   **Dependencies:** Supabase Database, Clerk.
+*   **Technology Stack:** .NET 8, C#, Clean Architecture.
 
 ### **Quests Service (`roguelearn-quests-service`)**
 
-*   **Responsibility:** Owns the core single-player learning loop. It manages Courses, Syllabi, QuestLines, Quests, and SkillTrees. It also orchestrates the AI processing of uploaded documents.
-*   **Key Interfaces:** Exposes REST endpoints for all course and quest-related activities (e.g., `GET /courses`, `POST /quests/{id}/complete`).
-*   **Dependencies:** Supabase Database, Supabase File Storage, AI Proxy Service (to initiate syllabus processing).
-*   **Technology Stack:** .NET 8, C#, Clean Architecture, Entity Framework Core.
+*   **Responsibility:** Owns the core single-player learning loop. It manages Courses, Syllabi, QuestLines, Quests, and SkillTrees.
+*   **Key Interfaces:** REST endpoints for all course and quest-related activities (e.g., `GET /courses`).
+*   **Dependencies:** Supabase Database, Supabase File Storage, AI Proxy Service.
+*   **Technology Stack:** .NET 8, C#, Clean Architecture.
 
 ### **Social Service (`roguelearn-social-service`)**
 
-*   **Responsibility:** Manages all multi-user and community features. This includes the creation and management of Parties and Guilds, membership handling, and the Events system.
-*   **Key Interfaces:** Exposes REST endpoints for social activities (e.g., `POST /guilds`, `GET /parties/{id}/members`, `POST /events`).
+*   **Responsibility:** Manages all multi-user and community features. This includes Parties, Guilds, Events, and the real-time logic for Knowledge Duels.
+*   **Key Interfaces:** REST endpoints for social activities and a SignalR hub for real-time communication.
 *   **Dependencies:** Supabase Database.
-*   **Technology Stack:** .NET 8, C#, Clean Architecture, Entity Framework Core.
+*   **Technology Stack:** .NET 8, C#, SignalR.
 
 ### **AI Proxy Service (`roguelearn-ai-proxy-service`)**
 
-*   **Responsibility:** To act as a secure, centralized gateway for all communications with external AI providers like the Gemini API. It manages API keys, handles specific prompt engineering, and can provide a caching layer. **This service is not exposed to the public internet**; it is only called by other internal backend services.
-*   **Key Interfaces:** An internal gRPC or REST API for other services to call (e.g., `ProcessSyllabus(file)`).
+*   **Responsibility:** To act as a secure, centralized gateway for all communications with the Gemini API. It manages API keys, handles prompt engineering for syllabus processing and advanced extension analysis. This service is **internal only**.
+*   **Key Interfaces:** An internal API for other services to call.
 *   **Dependencies:** Gemini API.
 *   **Technology Stack:** .NET 8, C#.
 
 ### **Code Battle Service (`roguelearn-code-battle-service`)**
 
-*   **Responsibility:** To compile, execute, and score user-submitted code in a secure, sandboxed environment. It manages a queue of submissions and runs them against predefined test cases for CodeBattle events.
-*   **Key Interfaces:** Exposes REST endpoints for submitting code and retrieving results (e.g., `POST /battles/{id}/submit`).
-*   **Dependencies:** Supabase Database (to get event problems and store submission results).
-*   **Technology Stack:** Go, Docker (for sandboxing execution).
+*   **Responsibility:** To compile, execute, and score user-submitted code in a secure, sandboxed environment for CodeBattle events.
+*   **Key Interfaces:** REST endpoints for submitting code and retrieving results.
+*   **Dependencies:** Supabase Database.
+*   **Technology Stack:** Go, Docker.
 
 ### **Component Interaction Diagram**
 
-This diagram shows how the components interact, with the API Gateway acting as the central mediator for external requests.
+This diagram shows how the components interact, with the API Gateway and Real-time Hub as the central mediators.
 
 ```mermaid
 graph TD
@@ -739,16 +775,17 @@ graph TD
         WebApp("Next.js Web App")
     end
 
-    subgraph "API Gateway (Azure)"
-        Gateway["API Gateway"]
+    subgraph "Entry Layer (Azure)"
+        Gateway["API Gateway (REST)"]
+        Realtime["Real-time Hub (SignalR)"]
     end
 
     subgraph "Backend Microservices (Azure Container Apps)"
-        Auth["Auth Service (.NET)"]
-        Quests["Quests Service (.NET)"]
-        Social["Social Service (.NET)"]
+        Auth["Auth Service"]
+        Quests["Quests Service"]
+        Social["Social Service"]
         CodeBattle["Code Battle Service (Go)"]
-        AIProxy["AI Proxy Service (.NET)<br/><em>Internal Only</em>"]
+        AIProxy["AI Proxy Service<br/><em>Internal Only</em>"]
     end
 
     subgraph "External Dependencies"
@@ -761,12 +798,15 @@ graph TD
         Store["File Storage"]
     end
 
-    WebApp --> Gateway
+    WebApp -- HTTP --> Gateway
+    WebApp -- WebSocket --> Realtime
     
     Gateway --> Auth
     Gateway --> Quests
     Gateway --> Social
     Gateway --> CodeBattle
+
+    Realtime --> Social
 
     Auth --> Clerk
     Auth --> DB
@@ -788,30 +828,19 @@ This section details the third-party APIs that the RogueLearn backend services w
 
 ### **Clerk API**
 
-*   **Purpose:** To manage user identities, sign-in/sign-up flows, and user sessions. Our `Auth Service` will be the primary consumer of this API, syncing user data and validating sessions.
+*   **Purpose:** To manage user identities, sign-in/sign-up flows, and user sessions. Our `Auth Service` will be the primary consumer of this API.
 *   **Documentation:** [https://clerk.com/docs](https://clerk.com/docs)
-*   **Base URL(s):** `https://api.clerk.com/v1/`
-*   **Authentication:** Secret Key (API Key) provided in the HTTP `Authorization` header. This key will be securely stored in Azure Key Vault and accessed by the `Auth Service`.
-*   **Key Endpoints Used:**
-    *   `GET /users/{userId}` - To fetch detailed user profile data after they have signed in.
-    *   `POST /users` - Used via Clerk's webhooks to receive a notification when a new user is created.
-    *   `PATCH /users/{userId}` - To update user metadata if necessary.
-*   **Integration Notes:** We will primarily rely on Clerk's backend SDK for .NET to simplify interactions. The most critical integration will be handling webhooks from Clerk to create corresponding `UserProfile` records in our own database.
+*   **Integration Notes:** We will primarily rely on Clerk's backend SDK for .NET. The most critical integration will be handling webhooks from Clerk to create corresponding `UserProfile` records in our own database.
 
 ### **Gemini API**
 
-*   **Purpose:** To provide the Large Language Model (LLM) capabilities for parsing syllabi, generating quest lines, and other AI-driven features. This API will **only** be called by our internal `AI Proxy Service`.
+*   **Purpose:** To provide the Large Language Model (LLM) capabilities for parsing syllabi and other AI-driven features. This API will **only** be called by our internal `AI Proxy Service`.
 *   **Documentation:** [https://ai.google.dev/docs](https://ai.google.dev/docs)
-*   **Base URL(s):** `https://generativelanguage.googleapis.com/`
-*   **Authentication:** API Key sent in the `x-goog-api-key` header. This key is highly sensitive and will be stored securely in Azure Key Vault, accessible only by the `AI Proxy Service`.
-*   **Rate Limits:** We must be mindful of the model's rate limits (e.g., requests per minute). The `AI Proxy Service` will be responsible for implementing a queue and rate-limiting logic to stay within these constraints.
-*   **Key Endpoints Used:**
-    *   `POST /v1beta/models/gemini-pro:generateContent` - The primary endpoint for sending prompts and receiving generated content.
-*   **Integration Notes:** The `AI Proxy Service` will be responsible for all prompt engineering. It will construct the detailed prompts required for syllabus analysis and other tasks, then parse the JSON responses from the Gemini API. This isolates the complexity of interacting with the LLM from the rest of our backend services.
+*   **Integration Notes:** The `AI Proxy Service` will be responsible for all prompt engineering. It will construct the detailed prompts required for syllabus analysis and other tasks, then parse the JSON responses from the Gemini API.
 
 ## **Core Workflows**
 
-This section illustrates key system workflows using Mermaid sequence diagrams. These diagrams show the interactions between components over time to achieve a specific user goal.
+This section illustrates key system workflows using Mermaid sequence diagrams.
 
 ### **Workflow 1: New User Onboarding & First QuestLine Generation**
 
@@ -969,6 +998,87 @@ CREATE INDEX idx_questlines_course_id ON "QuestLines"("CourseId");
 CREATE INDEX idx_quests_questline_id ON "Quests"("QuestLineId");
 CREATE INDEX idx_skilltrees_course_id ON "SkillTrees"("CourseId");
 CREATE INDEX idx_skills_skilltree_id ON "Skills"("SkillTreeId");
+
+-- ========= Arsenal (Notes) Management (Managed by Quests Service) =========
+
+CREATE TABLE "Notes" (
+    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "Title" text NOT NULL,
+    "Content" jsonb,
+    "CourseId" uuid REFERENCES "Courses"("Id") ON DELETE SET NULL,
+    "QuestId" uuid REFERENCES "Quests"("Id") ON DELETE SET NULL,
+    "SkillId" uuid REFERENCES "Skills"("Id") ON DELETE SET NULL,
+    "Tags" text[],
+    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_notes_user_profile_id ON "Notes"("UserProfileId");
+
+-- ========= Social Features (Managed by Social Service) =========
+
+CREATE TYPE "PartyJoinType" AS ENUM ('Invite Only', 'Open');
+
+CREATE TABLE "Parties" (
+    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "Name" text NOT NULL,
+    "Description" text,
+    "JoinType" "PartyJoinType" NOT NULL DEFAULT 'Invite Only',
+    "LeaderId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+);
+
+CREATE TABLE "PartyMemberships" (
+    "PartyId" uuid NOT NULL REFERENCES "Parties"("Id") ON DELETE CASCADE,
+    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "JoinedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    PRIMARY KEY ("PartyId", "UserProfileId")
+);
+
+CREATE INDEX idx_parties_leader_id ON "Parties"("LeaderId");
+
+CREATE TABLE "Guilds" (
+    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "Name" text NOT NULL,
+    "Description" text,
+    "MasterId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "IsVerified" boolean NOT NULL DEFAULT false,
+    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+);
+
+CREATE TABLE "GuildMemberships" (
+    "GuildId" uuid NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE,
+    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "JoinedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    PRIMARY KEY ("GuildId", "UserProfileId")
+);
+
+CREATE INDEX idx_guilds_master_id ON "Guilds"("MasterId");
+
+CREATE TYPE "EventType" AS ENUM ('Quiz', 'CodeBattle', 'Tournament', 'Duel');
+
+CREATE TABLE "Events" (
+    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "GuildId" uuid NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE,
+    "Title" text NOT NULL,
+    "Description" text,
+    "Type" "EventType" NOT NULL,
+    "StartDate" timestamp with time zone,
+    "EndDate" timestamp with time zone,
+    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+);
+
+CREATE TABLE "CodeBattles" (
+    "EventId" uuid PRIMARY KEY REFERENCES "Events"("Id") ON DELETE CASCADE,
+    "ProblemStatement" text NOT NULL,
+    "TestCases" jsonb -- Array of { "input": "...", "expectedOutput": "..." }
+);
+
+CREATE INDEX idx_events_guild_id ON "Events"("GuildId");
 ```
 
 ## **Frontend Architecture**
