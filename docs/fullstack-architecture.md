@@ -1092,7 +1092,6 @@ CREATE TABLE "CodeBattles" (
 );
 
 CREATE INDEX idx_events_guild_id ON "Events"("GuildId");
-
 ```
 
 ## **Frontend Architecture**
