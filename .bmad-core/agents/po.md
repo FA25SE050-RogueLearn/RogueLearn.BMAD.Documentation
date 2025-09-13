@@ -68,6 +68,8 @@ dependencies:
     - shard-doc.md
     - correct-course.md
     - validate-next-story.md
+    - brownfield-create-epic.md
+    - brownfield-create-story.md
   templates:
     - story-tmpl.yaml
   checklists:
