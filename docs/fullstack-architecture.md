@@ -11,7 +11,8 @@ This unified approach combines what would traditionally be separate backend and 
 The project will be built **from scratch** following a **multi-repo, microservices architecture**. No overarching starter template will be used, allowing for a custom structure tailored to the project's specific needs.
 
 *   **Frontend**: A standalone Next.js 14+ application using Tailwind CSS and Shadcn/UI.
-*   **Backend**: A series of independent microservices, each in its own repository. The core services will be built with **.NET 8**, and the specialized, high-performance code grading service will be built with **Go**.
+*   **Game Client**: A standalone Unity 2022.3 LTS project for interactive "Boss Fights".
+*   **Backend**: A series of independent microservices built with **.NET 8** and **Go**.
 
 This approach provides maximum flexibility, clear separation of concerns, and allows us to use the best language for each service's specific task.
 
@@ -19,6 +20,7 @@ This approach provides maximum flexibility, clear separation of concerns, and al
 
 | Date          | Version | Description                                                                    | Author             |
 | :------------ | :------ | :----------------------------------------------------------------------------- | :----------------- |
+| Sep 12, 2025  | 1.6     | Integrated Unity WebGL feature for "Boss Fights" across the architecture.        | Winston, Architect |
 | Sep 12, 2025  | 1.5     | Removed Marketplace feature per user request to focus on core learning experience. | Winston, Architect |
 | Sep 12, 2025  | 1.4     | Aligned architecture with expanded PRD. Added Marketplace, Duels, and Real-Time features. | Winston, Architect |
 | Sep 11, 2025  | 1.3     | Corrected Introduction to include Go as a backend technology.                  | Winston, Architect |
@@ -30,7 +32,7 @@ This approach provides maximum flexibility, clear separation of concerns, and al
 
 ### **Technical Summary**
 
-RogueLearn will be implemented as a cloud-native, multi-repository application featuring a decoupled frontend and a microservices-based backend. The frontend will be a server-rendered Next.js application hosted on Vercel. The backend will consist of independent microservices built with **.NET 8** and **Go**, deployed on Azure Container Apps, communicating via a centralized API Gateway for RESTful requests and a real-time layer for interactive features. This architecture supports core learning features, social collaboration, and competitive "Knowledge Duels," including a specialized service for scoring code submissions. Data will be persisted in a Supabase PostgreSQL database, with user authentication managed by Clerk.
+RogueLearn will be implemented as a cloud-native, multi-repository application. It features a decoupled frontend built with Next.js, interactive "Boss Fights" built with **Unity WebGL**, and a microservices-based backend using **.NET 8** and **Go**. The system is deployed on Vercel and Azure Container Apps. Communication is handled by a RESTful API Gateway and a real-time SignalR hub for interactive features. The architecture supports AI-powered quest generation, social collaboration, competitive Duels, and code-grading battles. Data is persisted in a Supabase PostgreSQL database, with authentication managed by Clerk.
 
 ### **Platform and Infrastructure Choice**
 
@@ -38,29 +40,30 @@ To best support our technology stack and scalability goals, I recommend the foll
 
 *   **Platform:** A hybrid-cloud approach leveraging best-in-class services.
     *   **Frontend Hosting:** **Vercel**. It is purpose-built for Next.js, providing seamless deployments, global CDN, and serverless functions out-of-the-box.
-    *   **Backend Hosting:** **Azure Container Apps**. This is a serverless container platform that is ideal for running our .NET and Go microservices. It handles scaling, networking, and ingress automatically, allowing us to focus on code.
-    *   **Database:** **Supabase**. Provides a managed PostgreSQL instance with excellent real-time capabilities, file storage, and a straightforward API, which aligns perfectly with the PRD requirements.
+    *   **Backend Hosting:** **Azure Container Apps**. This is a serverless container platform that is ideal for running our .NET and Go microservices.
+    *   **Database & Storage:** **Supabase**. Provides a managed PostgreSQL instance, real-time capabilities, and file storage which will be used for both user documents and hosting Unity game assets.
 *   **Key Services:**
     *   **Vercel:** Next.js Hosting, Edge Network (CDN)
     *   **Azure:** Container Apps, API Management (for the API Gateway)
-    *   **Supabase:** PostgreSQL Database, Storage
+    *   **Supabase:** PostgreSQL Database, Storage (for documents and game assets)
     *   **Clerk:** External Authentication Service
     *   **Internal AI Proxy Service:** A dedicated backend service to securely manage communication with the Gemini API.
 
 ### **Repository Structure**
 
-As established, we will use a **Multi-Repo Strategy** to support our microservices architecture. This provides the best separation of concerns and allows for independent development lifecycles. The initial repository structure will be:
+As established, we will use a **Multi-Repo Strategy**. This provides the best separation of concerns and allows for independent development lifecycles. The initial repository structure will be:
 
 *   **`roguelearn-web`**: The Next.js frontend application.
+*   **`roguelearn-unity-games`**: The Unity project containing the "Boss Fight" game client.
 *   **`roguelearn-auth-service`**: .NET microservice for user identity, profiles, and Clerk integration.
-*   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game logic.
+*   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game session logic.
 *   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
 *   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code.
-*   **`roguelearn-shared-types`**: A private NPM package for shared TypeScript interfaces between frontend and backend services.
+*   **`roguelearn-shared-types`**: A private NPM package for shared TypeScript interfaces.
 
 ### **High Level Architecture Diagram**
 
-This diagram illustrates the primary components and data flow of the RogueLearn platform.
+This diagram illustrates the primary components and data flow of the RogueLearn platform, now including the Unity game client.
 
 ```mermaid
 graph TD
@@ -71,6 +74,7 @@ graph TD
 
     subgraph "Presentation Layer (Vercel)"
         Frontend[Next.js Web App]
+        Frontend -- embeds --> UnityClient[Unity Game Client]
     end
 
     subgraph "External Services"
@@ -79,8 +83,8 @@ graph TD
     end
 
     subgraph "Backend Layer (Azure)"
-        APIGateway[API Gateway REST]
-        RealtimeHub[Real-time Hub WebSockets]
+        APIGateway[API Gateway (REST)]
+        RealtimeHub[Real-time Hub (WebSockets)]
         
         subgraph "Microservices"
             AuthService[.NET Auth Service]
@@ -91,16 +95,19 @@ graph TD
         end
     end
 
-    subgraph "Data Layer (Supabase)"
+    subgraph "Data & Asset Layer (Supabase)"
         Database[PostgreSQL Database]
-        FileStorage[File Storage]
+        FileStorage[File Storage for Docs]
+        GameAssetHosting[Game Asset Hosting]
     end
 
     User --> Frontend
     BrowserExtension --> APIGateway
 
     Frontend --> APIGateway
-    Frontend -.-> RealtimeHub
+    Frontend -- WebSockets --> RealtimeHub
+    UnityClient -- loads from --> GameAssetHosting
+    UnityClient -- API calls --> APIGateway
     
     APIGateway --> AuthService
     APIGateway --> QuestService
@@ -128,45 +135,45 @@ graph TD
 
 ### **Architectural and Design Patterns**
 
-The following patterns will be foundational to our implementation. Adhering to them will ensure consistency, quality, and maintainability.
-
-*   **Microservices Architecture:** The backend will be composed of small, independent services. *Rationale:* This allows for independent development, deployment, and scaling of different parts of the application (e.g., social features can be updated without affecting the core quest system).
-*   **API Gateway:** The frontend will communicate with the backend through a single entry point for synchronous requests. *Rationale:* This simplifies the frontend code, centralizes cross-cutting concerns like authentication and rate limiting, and hides the complexity of the microservices from the client.
-*   **Clean Architecture (.NET):** Each microservice will be structured with a clear separation between domain logic, application logic, and infrastructure concerns. *Rationale:* This produces highly testable, maintainable, and loosely-coupled services that are independent of external frameworks or databases.
-*   **Component-Based UI (Next.js):** The frontend will be built as a collection of reusable, self-contained components. *Rationale:* This is the standard for modern frontend development and promotes reusability, maintainability, and faster development cycles.
-*   **Repository Pattern (.NET):** Data access within each microservice will be abstracted behind a repository interface. *Rationale:* This decouples our business logic from the specific data access implementation (Entity Framework Core), making the code easier to test and allowing for future changes to the data layer.
+*   **Microservices Architecture:** The backend will be composed of small, independent services. *Rationale:* This allows for independent development, deployment, and scaling.
+*   **API Gateway:** A single entry point for synchronous requests. *Rationale:* Simplifies the client, centralizes cross-cutting concerns like auth and rate limiting.
+*   **Clean Architecture (.NET):** Each microservice will separate domain logic, application logic, and infrastructure. *Rationale:* Produces highly testable and maintainable services.
+*   **Component-Based UI (Next.js):** The frontend will be built as a collection of reusable components. *Rationale:* Promotes reusability and faster development.
+*   **Repository Pattern (.NET):** Data access within each microservice will be abstracted. *Rationale:* Decouples business logic from data access implementation.
 
 ## **Tech Stack**
 
-This table is the single source of truth for all technologies, frameworks, and libraries to be used in the RogueLearn project. All development must adhere to these specific choices and versions.
+This table is the single source of truth for all technologies, frameworks, and libraries to be used in the RogueLearn project.
 
 ### **Technology Stack Table**
 
-| Category            | Technology                  | Version   | Purpose                                           | Rationale                                                                                                                                                    |
-| :------------------ | :-------------------------- | :-------- | :------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Frontend Language** | TypeScript                | `5.4.x`   | Primary language for frontend development         | Ensures type safety, scalability, and improved developer experience in a large application.                                                                  |
-| **Frontend Framework**  | Next.js                   | `14.2.x`  | Web framework for the user-facing application     | Provides a robust foundation with server-side rendering (SSR), static site generation (SSG), and a powerful App Router.                                     |
-| **UI Component Library** | Shadcn/UI                 | `latest`  | A collection of re-usable components              | Not a typical component library, but a set of scripts to install best-in-class components directly into our codebase, offering maximum control and customizability. |
-| **Frontend Routing**| **Next.js App Router**      | `14.2.x`  | Native file-system based routing for Next.js      | The built-in, officially supported router. It's deeply integrated with Next.js features like Server Components, Layouts, and data fetching.                    |
-| **State Management**  | React Query / Zustand       | `5.x` / `4.x` | For server state caching and global client state  | React Query is the standard for managing server state (API data). Zustand provides a minimal, boilerplate-free solution for any necessary global client state.   |
-| **Styling**         | Tailwind CSS                | `3.4.x`   | Utility-first CSS framework                     | Enables rapid development of custom designs without writing custom CSS. Works perfectly with Next.js and Shadcn/UI.                                        |
-| **Backend Language**  | C# / **Go**               | `12` / `1.22.x` | Primary languages for backend microservices     | C# with .NET is the primary choice for core services. Go is used for the high-performance, specialized Code Battle Scorer service.                             |
-| **Backend Framework**| .NET                        | `8.0`     | Framework for building core backend microservices | The latest Long-Term Support (LTS) version of .NET, offering high performance, cross-platform support, and a rich ecosystem.                                   |
-| **API Style**       | RESTful API                 | `v1`      | Standard for communication between services       | A well-understood, stateless, and scalable approach for our APIs. The API Gateway will expose a unified REST API.                                            |
-| **Real-time Comms** | SignalR                     | `8.0`     | For real-time features like duels and notifications | A library for .NET that simplifies adding real-time web functionality. It handles connection management and supports WebSockets with fallbacks.                  |
-| **Database**        | PostgreSQL                  | `15.x`    | Primary relational database                       | A powerful, open-source object-relational database system known for its reliability, feature robustness, and performance. Provided by Supabase.                 |
-| **Authentication**  | Clerk                       | `latest SDK` | Managed user authentication service               | Offloads the complexity of secure authentication, session management, and user profiles, allowing us to focus on core features.                                |
-| **File Storage**    | Supabase Storage            | `latest SDK` | For storing user-uploaded documents (syllabi, etc.) | Provides a simple, S3-compatible object storage solution with fine-grained access controls that integrates directly with our database.                           |
-| **Frontend Testing**  | Jest & React Testing Library | `latest`  | For unit and component testing of the frontend    | The industry standard for testing React applications, focusing on user behavior rather than implementation details.                                            |
-| **Backend Testing** | xUnit & Moq                 | `latest`  | For unit and integration testing of .NET services | xUnit is the standard, modern testing framework for .NET. Moq is a popular and powerful mocking library.                                                      |
-| **E2E Testing**     | Playwright                  | `1.4x.x`  | For end-to-end testing of the entire application  | A modern and reliable E2E testing framework from Microsoft that allows us to test user flows across the full stack.                                            |
-| **CI/CD**           | GitHub Actions              | `latest`  | For automating our build, test, and deployment pipelines | Tightly integrated with our source code repositories, providing a powerful and configurable automation platform.                                               |
-| **Containerization**| Docker                      | `latest`  | For packaging services for deployment             | Ensures consistency between development and production environments. Essential for running microservices on Azure Container Apps.                               |
-| **AI Service**      | Gemini API                  | `latest`  | For syllabus parsing and other AI-driven features | Google's powerful large language model, which will be accessed securely via our backend proxy service.                                                         |
+| Category               | Technology                  | Version       | Purpose                                           | Rationale                                                                                                                                                    |
+| :--------------------- | :-------------------------- | :------------ | :------------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend Language**    | TypeScript                | `5.4.x`       | Primary language for frontend development         | Ensures type safety and scalability.                                                                                                                         |
+| **Frontend Framework**   | Next.js                   | `14.2.x`      | Web framework for the user-facing application     | Provides a robust foundation with SSR, SSG, and a powerful App Router.                                                                                       |
+| **Game Engine**          | Unity                     | `2022.3 LTS`  | For interactive "Boss Fight" challenges           | Industry-standard game engine with a robust WebGL build target for web integration.                                                                        |
+| **UI Component Library** | Shadcn/UI                 | `latest`      | A collection of re-usable components              | Offers maximum control and customizability by installing components directly into the codebase.                                                                |
+| **Frontend Routing**     | **Next.js App Router**      | `14.2.x`      | Native file-system based routing for Next.js      | The built-in, officially supported router for Next.js.                                                                                                       |
+| **State Management**     | React Query / Zustand       | `5.x` / `4.x` | Server state caching and global client state      | Efficient and modern state management solution for React applications.                                                                                     |
+| **Styling**              | Tailwind CSS                | `3.4.x`       | Utility-first CSS framework                     | Enables rapid development of custom designs.                                                                                                                 |
+| **Backend Language**     | C# / **Go**               | `12` / `1.22.x` | Primary languages for backend microservices     | C# for core services; Go for the high-performance Code Battle service.                                                                                       |
+| **Backend Framework**    | .NET                        | `8.0`         | Framework for building core backend microservices | The latest LTS version of .NET, offering high performance and a rich ecosystem.                                                                              |
+| **API Style**            | RESTful API                 | `v1`          | Standard for communication between services       | A well-understood, stateless, and scalable approach for our APIs.                                                                                            |
+| **Real-time Comms**      | SignalR                     | `8.0`         | For real-time features like duels and notifications | Simplifies adding real-time web functionality in a .NET ecosystem.                                                                                         |
+| **Database**             | PostgreSQL                  | `15.x`        | Primary relational database                       | Powerful, reliable open-source database provided by Supabase.                                                                                                |
+| **Authentication**       | Clerk                       | `latest SDK`  | Managed user authentication service               | Offloads the complexity of secure authentication and user management.                                                                                      |
+| **File Storage**         | Supabase Storage            | `latest SDK`  | Storing user-uploaded documents (syllabi)         | Simple, S3-compatible object storage that integrates directly with our database.                                                                             |
+| **Game Asset Hosting**   | Supabase Storage            | `latest SDK`  | To host and serve Unity WebGL builds              | Leverages the same storage solution and its CDN capabilities for fast game loading.                                                                        |
+| **Frontend Testing**     | Jest & React Testing Library | `latest`      | For unit and component testing of the frontend    | The industry standard for testing React applications.                                                                                                        |
+| **Backend Testing**      | xUnit & Moq                 | `latest`      | For unit and integration testing of .NET services | The standard, modern testing framework for .NET.                                                                                                             |
+| **E2E Testing**          | Playwright                  | `1.4x.x`      | For end-to-end testing of the entire application  | A modern and reliable E2E testing framework from Microsoft.                                                                                                  |
+| **CI/CD**                | GitHub Actions              | `latest`      | For automating build, test, and deployment        | Tightly integrated with our source code repositories.                                                                                                        |
+| **Containerization**     | Docker                      | `latest`      | For packaging services for deployment             | Ensures consistency between development and production environments.                                                                                       |
+| **AI Service**           | Gemini API                  | `latest`      | For syllabus parsing and other AI-driven features | Google's powerful LLM, accessed securely via our backend proxy.                                                                                              |
 
 ## **Data Models**
 
-This section defines the core data models and entities that will be shared between the frontend and backend services. These conceptual models are derived from the detailed specifications in `docs/prd/data-requirements.md`.
+This section defines the core data models and entities for the platform.
 
 ### **User / UserProfile**
 
@@ -185,7 +192,6 @@ This section defines the core data models and entities that will be shared betwe
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
-
 export interface UserProfile {
   id: string; // Our internal profile ID
   userId: string; // Clerk's user ID
@@ -202,11 +208,6 @@ export interface UserProfile {
 }
 ```
 
-**Relationships:**
-- A `User` has one `UserProfile`.
-- A `UserProfile` belongs to one `Class` and one `Route`.
-- A `UserProfile` is associated with multiple `Courses`, `QuestLines`, and `SkillTrees`.
-
 ### **Course & Syllabus**
 
 **Purpose:** Represents an academic course a user is taking. The `Course` is the high-level container, while the `Syllabus` holds the specific, AI-processed content from the user's uploaded document.
@@ -222,7 +223,6 @@ export interface UserProfile {
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
-
 export type SyllabusProcessingStatus = 'Pending' | 'Processing' | 'Completed' | 'Failed';
 
 export interface Course {
@@ -230,8 +230,6 @@ export interface Course {
   userId: string;
   name: string;
   courseCode: string | null;
-  // The full syllabus data is large and likely not needed on every request
-  // We'll have a separate endpoint to fetch it.
   processingStatus: SyllabusProcessingStatus;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
@@ -243,14 +241,8 @@ export interface Syllabus {
   rawContent: string; // or reference to file
   structuredContent: Record<string, any>; // The AI-parsed JSON
   schemaVersion: string; // e.g., "1.0", "1.1"
-  // ... other metadata
 }
 ```
-
-**Relationships:**
-- A `Course` belongs to one `UserProfile`.
-- A `Course` has one `Syllabus`.
-- A `Course` is the source for one or more `QuestLines` and `SkillTrees`.
 
 ### **QuestLine & Quest**
 
@@ -269,7 +261,6 @@ export interface Syllabus {
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
-
 export type QuestType = 'Learning' | 'Assignment' | 'Exam' | 'BossFight';
 export type ProgressStatus = 'Not Started' | 'In Progress' | 'Completed';
 
@@ -297,11 +288,6 @@ export interface QuestLine {
 }
 ```
 
-**Relationships:**
-- A `QuestLine` is generated from one `Course`.
-- A `QuestLine` contains many `Quests`.
-- A `Quest` can have prerequisites of other `Quests`.
-
 ### **SkillTree & Skill**
 
 **Purpose:** The `SkillTree` is the visual representation of a user's knowledge for a given course. It contains individual `Skills` as nodes, showing how concepts are interconnected and tracking the user's mastery level.
@@ -314,10 +300,8 @@ export interface QuestLine {
 - `prerequisites`: `string[]` - An array of `skillId`s required to unlock this skill.
 - `positionX`, `positionY`: `number` - Coordinates for rendering the node in the mind map visualization.
 
-#### **TypeScript Interface**
-```typescript
+#### **TypeScript Interface**```typescript
 // In @roguelearn/shared-types
-
 export interface Skill {
   id: string;
   skillTreeId: string;
@@ -341,11 +325,6 @@ export interface SkillTree {
 }
 ```
 
-**Relationships:**
-- A `SkillTree` is generated from one `Course`.
-- A `SkillTree` contains many `Skills`.
-- A `Skill` can have many prerequisite `Skills`.
-
 ### **Note (Arsenal Item)**
 
 **Purpose:** Represents a single piece of user-generated knowledge stored in their "Arsenal." These notes are the primary study materials created by the user and can be linked to various other entities.
@@ -360,13 +339,11 @@ export interface SkillTree {
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
-
 export interface Note {
   id: string;
   userId: string;
   title: string;
   content: Record<string, any>; // Represents the rich text JSON
-  // Optional associations
   courseId?: string;
   questId?: string;
   skillId?: string;
@@ -375,10 +352,6 @@ export interface Note {
   updatedAt: string; // ISO 8601 timestamp
 }
 ```
-
-**Relationships:**
-- A `Note` belongs to one `UserProfile`.
-- A `Note` can be optionally linked to one `Course`, one `Quest`, and/or one `Skill`.
 
 ### **Party & PartyMembership**
 
@@ -391,16 +364,13 @@ export interface Note {
 - `joinType`: `string` - Enum (`Invite Only`, `Open`).
 - `partyLeaderId`: `string` - The `userId` of the creator.
 
-#### **TypeScript Interface**
-```typescript
+#### **TypeScript Interface**```typescript
 // In @roguelearn/shared-types
-
 export type PartyJoinType = 'Invite Only' | 'Open';
 
 export interface PartyMember {
     userId: string;
     username: string;
-    // ... other relevant public user data
 }
 
 export interface Party {
@@ -413,11 +383,6 @@ export interface Party {
     createdAt: string; // ISO 8601 timestamp
 }
 ```
-
-**Relationships:**
-- A `Party` has one `Party Leader` (`UserProfile`).
-- A `Party` has many `Members` (`UserProfile`), managed through a `PartyMembership` join table.
-- A `Party` has a shared resource space (`Party Stash`).
 
 ### **Guild & GuildMembership**
 
@@ -433,11 +398,9 @@ export interface Party {
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
-
 export interface GuildMember {
     userId: string;
     username: string;
-    // ... other relevant public user data
 }
 export interface Guild {
     id: string;
@@ -449,11 +412,6 @@ export interface Guild {
     createdAt: string; // ISO 8601 timestamp
 }
 ```
-
-**Relationships:**
-- A `Guild` has one `Guild Master` (`UserProfile`).
-- A `Guild` has many `Members` (`UserProfile`), managed through a `GuildMembership` join table.
-- A `Guild` is the host for many `Events`.
 
 ### **Event & CodeBattle & Duel**
 
@@ -469,7 +427,6 @@ export interface Guild {
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
-
 export type EventType = 'Quiz' | 'CodeBattle' | 'Tournament' | 'Duel';
 
 export interface Event {
@@ -486,22 +443,50 @@ export interface Event {
 
 export interface Duel {
     id: string;
-    eventId: string; // Optional foreign key to an Event
-    challengerId: string; // UserProfile ID
-    opponentId: string; // UserProfile ID
+    eventId: string | null;
+    challengerId: string;
+    opponentId: string;
     status: 'Pending' | 'Active' | 'Completed';
     winnerId: string | null;
     questions: { question: string; answer: string; }[];
 }
 ```
 
-**Relationships:**
-- An `Event` belongs to one `Guild`.
-- A `Duel` involves two `UserProfiles`.
+### **GameSession**
+
+**Purpose:** Tracks the state of an individual user's attempt at a "Boss Fight" or other interactive game event.
+
+**Key Attributes:**
+- `sessionId`: `string` - Unique identifier for the session.
+- `userId`: `string` - The user playing the game.
+- `questId`: `string` - The "Boss Fight" quest this session is for.
+- `status`: `string` - Enum (`InProgress`, `Completed`, `Abandoned`).
+- `score`: `number` - The final score achieved.
+- `progressData`: `jsonb` - Flexible JSON field to store game-specific state (e.g., health, items).
+- `startedAt`: `string` - ISO 8601 timestamp when the session began.
+- `completedAt`: `string | null` - ISO 8601 timestamp when the session ended.
+
+#### **TypeScript Interface**
+```typescript
+// In @roguelearn/shared-types
+
+export type GameSessionStatus = 'InProgress' | 'Completed' | 'Abandoned';
+
+export interface GameSession {
+  id: string;
+  userId: string;
+  questId: string; // The "Boss Fight" quest
+  status: GameSessionStatus;
+  score: number;
+  progressData: Record<string, any>; // Game-specific state
+  startedAt: string;
+  completedAt: string | null;
+}
+```
 
 ## **API Specification**
 
-This section defines the RESTful API for the RogueLearn platform using the OpenAPI 3.0 standard. All communication between the frontend and the API Gateway will adhere to this contract.
+This section defines the RESTful API for the RogueLearn platform using the OpenAPI 3.0 standard.
 
 ### **REST API Specification**
 
@@ -514,10 +499,7 @@ info:
 servers:
   - url: https://api.roguelearn.com/v1
     description: Production Server
-  - url: https://staging-api.roguelearn.com/v1
-    description: Staging Server
 
-# 1. Define Security Scheme for JWT from Clerk
 security:
   - BearerAuth: []
 
@@ -530,77 +512,48 @@ components:
       description: "JWT token obtained from Clerk after login."
 
   schemas:
-    # Based on our shared TypeScript interfaces
     UserProfile:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        userId:
-          type: string
-        username:
-          type: string
-        email:
-          type: string
-        classId:
-          type: string
-          format: uuid
-        routeId:
-          type: string
-          format: uuid
-          nullable: true
-        level:
-          type: integer
-        experiencePoints:
-          type: integer
-        profileImageUrl:
-          type: string
-          nullable: true
-        onboardingCompleted:
-          type: boolean
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-          
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        username: { type: string }
+        email: { type: string }
+        classId: { type: string, format: uuid }
+        routeId: { type: string, format: uuid, nullable: true }
+        level: { type: integer }
+        experiencePoints: { type: integer }
+        profileImageUrl: { type: string, nullable: true }
+        onboardingCompleted: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
     Course:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        userId:
-          type: string
-        name:
-          type: string
-        courseCode:
-          type: string
-          nullable: true
-        processingStatus:
-          type: string
-          enum: [Pending, Processing, Completed, Failed]
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-          
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        name: { type: string }
+        courseCode: { type: string, nullable: true }
+        processingStatus: { type: string, enum: [Pending, Processing, Completed, Failed] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    GameSession:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        questId: { type: string, format: uuid }
+        status: { type: string, enum: [InProgress, Completed, Abandoned] }
+        score: { type: integer }
+        startedAt: { type: string, format: date-time }
+        completedAt: { type: string, format: date-time, nullable: true }
     Error:
       type: object
       properties:
-        code:
-          type: string
-        message:
-          type: string
-        details:
-          type: object
+        code: { type: string }
+        message: { type: string }
 
 paths:
-  # 2. Endpoints for User Profile Management (Auth Service)
+  # User Profile Endpoints
   /profiles/me:
     get:
       summary: Get Current User's Profile
@@ -614,10 +567,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserProfile'
-        '401':
-          description: Unauthorized.
           
-  # 3. Endpoints for Course Management (Quests Service)
+  # Course Management Endpoints
   /courses:
     get:
       summary: Get All Courses for Current User
@@ -633,34 +584,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Course'
-        '401':
-          description: Unauthorized.
-
-    post:
-      summary: Create a New Course
-      tags: [Courses]
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                courseCode:
-                  type: string
-      responses:
-        '201':
-          description: Course created successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-        '400':
-          description: Bad request (e.g., validation error).
 
   /courses/{courseId}/syllabus:
     post:
@@ -672,9 +595,7 @@ paths:
         - name: courseId
           in: path
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       requestBody:
         required: true
         content:
@@ -688,10 +609,8 @@ paths:
       responses:
         '202':
           description: Syllabus accepted for processing.
-        '400':
-          description: Bad request (e.g., invalid file type).
-
-  # 4. Endpoints for Duels (Social Service)
+  
+  # Duel Endpoints
   /duels/challenge:
     post:
       summary: Challenge a User to a Duel
@@ -710,7 +629,7 @@ paths:
         '202':
           description: Challenge sent.
 
-  # 5. Endpoints for Browser Extension (AI Proxy Service)
+  # Browser Extension Endpoints
   /extension/analyze:
     post:
       summary: Analyze content from browser extension
@@ -730,62 +649,105 @@ paths:
       responses:
         '200':
           description: Analysis results.
+
+  # Game Session Endpoints (for Unity Client)
+  /game/sessions:
+    post:
+      summary: Start a new game session (e.g., a Boss Fight)
+      tags: [Game]
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                questId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Game session created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSession'
+
+  /game/sessions/{sessionId}/complete:
+    post:
+      summary: Complete a game session and submit results
+      tags: [Game]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                score:
+                  type: integer
+                progressData:
+                  type: object
+      responses:
+        '200':
+          description: Session results submitted successfully.
 ```
 
 ## **Components**
 
-Based on our architectural patterns and the defined data models, the RogueLearn platform will be composed of the following major logical components. Each backend service is a distinct, independently deployable microservice.
+This section details the major logical components of the platform.
 
 ### **Frontend Application (`roguelearn-web`)**
 
-*   **Responsibility:** To provide the entire user-facing experience. This includes rendering the UI, managing client-side state, handling user interactions, and communicating with the backend via the API Gateway and the Real-time Hub.
-*   **Key Interfaces:** The web-based GUI.
-*   **Dependencies:** API Gateway, Real-time Hub, Clerk.
-*   **Technology Stack:** Next.js, TypeScript, React, Tailwind CSS, Shadcn/UI.
+*   **Responsibility:** Provides the entire user-facing experience, including embedding the Unity Game Client.
+*   **Technology Stack:** Next.js, TypeScript, React, Tailwind CSS.
+
+### **Unity Game Client (`roguelearn-unity-games`)**
+
+*   **Responsibility:** Renders and manages the interactive "Boss Fight" experiences.
+*   **Key Interfaces:** Communicates with the backend via the API Gateway to start sessions and submit results.
+*   **Technology Stack:** Unity 2022.3 LTS, C#, WebGL.
 
 ### **Auth Service (`roguelearn-auth-service`)**
 
-*   **Responsibility:** Manages all aspects of user identity. This includes user profile creation and management, handling webhooks from Clerk, and issuing JWTs.
-*   **Key Interfaces:** REST endpoints for profile management (e.g., `GET /profiles/me`).
-*   **Dependencies:** Supabase Database, Clerk.
-*   **Technology Stack:** .NET 8, C#, Clean Architecture.
+*   **Responsibility:** Manages user identity, profiles, and Clerk integration.
+*   **Technology Stack:** .NET 8, C#.
 
 ### **Quests Service (`roguelearn-quests-service`)**
 
-*   **Responsibility:** Owns the core single-player learning loop. It manages Courses, Syllabi, QuestLines, Quests, and SkillTrees.
-*   **Key Interfaces:** REST endpoints for all course and quest-related activities (e.g., `GET /courses`).
-*   **Dependencies:** Supabase Database, Supabase File Storage, AI Proxy Service.
-*   **Technology Stack:** .NET 8, C#, Clean Architecture.
+*   **Responsibility:** Owns the core learning loop, including Courses, Quests, SkillTrees, and **Game Sessions**.
+*   **Technology Stack:** .NET 8, C#.
 
 ### **Social Service (`roguelearn-social-service`)**
 
-*   **Responsibility:** Manages all multi-user and community features. This includes Parties, Guilds, Events, and the real-time logic for Knowledge Duels.
-*   **Key Interfaces:** REST endpoints for social activities and a SignalR hub for real-time communication.
-*   **Dependencies:** Supabase Database.
+*   **Responsibility:** Manages all multi-user features like Parties, Guilds, Events, and real-time Duels.
 *   **Technology Stack:** .NET 8, C#, SignalR.
 
 ### **AI Proxy Service (`roguelearn-ai-proxy-service`)**
 
-*   **Responsibility:** To act as a secure, centralized gateway for all communications with the Gemini API. It manages API keys, handles prompt engineering for syllabus processing and advanced extension analysis. This service is **internal only**.
-*   **Key Interfaces:** An internal API for other services to call.
-*   **Dependencies:** Gemini API.
+*   **Responsibility:** Acts as a secure, internal gateway for all communications with the Gemini API.
 *   **Technology Stack:** .NET 8, C#.
 
 ### **Code Battle Service (`roguelearn-code-battle-service`)**
 
-*   **Responsibility:** To compile, execute, and score user-submitted code in a secure, sandboxed environment for CodeBattle events.
-*   **Key Interfaces:** REST endpoints for submitting code and retrieving results.
-*   **Dependencies:** Supabase Database.
+*   **Responsibility:** Compiles and scores user-submitted code in a secure sandbox.
 *   **Technology Stack:** Go, Docker.
 
 ### **Component Interaction Diagram**
 
-This diagram shows how the components interact, with the API Gateway and Real-time Hub as the central mediators.
+This diagram shows how the components interact.
 
 ```mermaid
 graph TD
     subgraph "Clients"
-        WebApp("Next.js Web App")
+        WebApp("Next.js Web App") -- embeds --> Unity("Unity Game Client")
     end
 
     subgraph "Entry Layer (Azure)"
@@ -806,13 +768,16 @@ graph TD
         Gemini["Gemini API"]
     end
 
-    subgraph "Data Persistence (Supabase)"
+    subgraph "Data & Asset Persistence (Supabase)"
         DB["PostgreSQL DB"]
         Store["File Storage"]
+        GameAssets["Game Asset Hosting (CDN)"]
     end
 
     WebApp -- HTTP --> Gateway
     WebApp -- WebSocket --> Realtime
+    Unity -- HTTP --> Gateway
+    Unity -- loads assets from --> GameAssets
     
     Gateway --> Auth
     Gateway --> Quests
@@ -837,23 +802,10 @@ graph TD
 
 ## **External APIs**
 
-This section details the third-party APIs that the RogueLearn backend services will integrate with.
-
-### **Clerk API**
-
-*   **Purpose:** To manage user identities, sign-in/sign-up flows, and user sessions. Our `Auth Service` will be the primary consumer of this API.
-*   **Documentation:** [https://clerk.com/docs](https://clerk.com/docs)
-*   **Integration Notes:** We will primarily rely on Clerk's backend SDK for .NET. The most critical integration will be handling webhooks from Clerk to create corresponding `UserProfile` records in our own database.
-
-### **Gemini API**
-
-*   **Purpose:** To provide the Large Language Model (LLM) capabilities for parsing syllabi and other AI-driven features. This API will **only** be called by our internal `AI Proxy Service`.
-*   **Documentation:** [https://ai.google.dev/docs](https://ai.google.dev/docs)
-*   **Integration Notes:** The `AI Proxy Service` will be responsible for all prompt engineering. It will construct the detailed prompts required for syllabus analysis and other tasks, then parse the JSON responses from the Gemini API.
+*   **Clerk API:** For user identity management.
+*   **Gemini API:** For LLM capabilities, used only by the internal `AI Proxy Service`.
 
 ## **Core Workflows**
-
-This section illustrates key system workflows using Mermaid sequence diagrams.
 
 ### **Workflow 1: New User Onboarding & First QuestLine Generation**
 
@@ -912,7 +864,7 @@ sequenceDiagram
 
 ## **Database Schema**
 
-This section provides the SQL DDL for creating the tables in our PostgreSQL database. This schema is derived from our conceptual data models and is designed to be managed via Entity Framework Core migrations in our .NET services.
+This section provides the SQL DDL for the PostgreSQL database.
 
 ```sql
 -- ========= User Management (Managed by Auth Service) =========
@@ -951,7 +903,7 @@ CREATE TABLE "Syllabi" (
     "FileUrl" text NOT NULL, -- Link to file in Supabase Storage
     "ProcessingStatus" "SyllabusStatus" NOT NULL DEFAULT 'Pending',
     "StructuredContent" jsonb, -- The AI-parsed JSON output
-    "SchemaVersion" text NOT NULL DEFAULT '1.0', -- Version of the StructuredContent schema
+    "SchemaVersion" text NOT NULL DEFAULT '1.0',
     "UploadedAt" timestamp with time zone NOT NULL DEFAULT now()
 );
 
@@ -1004,13 +956,21 @@ CREATE TABLE "Skills" (
     "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
 );
 
--- ========= Indexes for Performance =========
-CREATE INDEX idx_courses_user_profile_id ON "Courses"("UserProfileId");
-CREATE INDEX idx_syllabi_course_id ON "Syllabi"("CourseId");
-CREATE INDEX idx_questlines_course_id ON "QuestLines"("CourseId");
-CREATE INDEX idx_quests_questline_id ON "Quests"("QuestLineId");
-CREATE INDEX idx_skilltrees_course_id ON "SkillTrees"("CourseId");
-CREATE INDEX idx_skills_skilltree_id ON "Skills"("SkillTreeId");
+-- ========= Game Session Management (Managed by Quests Service) =========
+
+CREATE TYPE "GameSessionStatus" AS ENUM ('InProgress', 'Completed', 'Abandoned');
+
+CREATE TABLE "GameSessions" (
+    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "QuestId" uuid NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE,
+    "Status" "GameSessionStatus" NOT NULL DEFAULT 'InProgress',
+    "Score" integer NOT NULL DEFAULT 0,
+    "ProgressData" jsonb, -- To store game-specific state
+    "StartedAt" timestamp with time zone NOT NULL DEFAULT now(),
+    "CompletedAt" timestamp with time zone,
+    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+);
 
 -- ========= Arsenal (Notes) Management (Managed by Quests Service) =========
 
@@ -1026,8 +986,6 @@ CREATE TABLE "Notes" (
     "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
     "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
 );
-
-CREATE INDEX idx_notes_user_profile_id ON "Notes"("UserProfileId");
 
 -- ========= Social Features (Managed by Social Service) =========
 
@@ -1050,8 +1008,6 @@ CREATE TABLE "PartyMemberships" (
     PRIMARY KEY ("PartyId", "UserProfileId")
 );
 
-CREATE INDEX idx_parties_leader_id ON "Parties"("LeaderId");
-
 CREATE TABLE "Guilds" (
     "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     "Name" text NOT NULL,
@@ -1068,8 +1024,6 @@ CREATE TABLE "GuildMemberships" (
     "JoinedAt" timestamp with time zone NOT NULL DEFAULT now(),
     PRIMARY KEY ("GuildId", "UserProfileId")
 );
-
-CREATE INDEX idx_guilds_master_id ON "Guilds"("MasterId");
 
 CREATE TYPE "EventType" AS ENUM ('Quiz', 'CodeBattle', 'Tournament', 'Duel');
 
@@ -1088,49 +1042,52 @@ CREATE TABLE "Events" (
 CREATE TABLE "CodeBattles" (
     "EventId" uuid PRIMARY KEY REFERENCES "Events"("Id") ON DELETE CASCADE,
     "ProblemStatement" text NOT NULL,
-    "TestCases" jsonb -- Array of { "input": "...", "expectedOutput": "..." }
+    "TestCases" jsonb
 );
 
+-- ========= Indexes for Performance =========
+CREATE INDEX idx_courses_user_profile_id ON "Courses"("UserProfileId");
+CREATE INDEX idx_syllabi_course_id ON "Syllabi"("CourseId");
+CREATE INDEX idx_questlines_course_id ON "QuestLines"("CourseId");
+CREATE INDEX idx_quests_questline_id ON "Quests"("QuestLineId");
+CREATE INDEX idx_skilltrees_course_id ON "SkillTrees"("CourseId");
+CREATE INDEX idx_skills_skilltree_id ON "Skills"("SkillTreeId");
+CREATE INDEX idx_gamesessions_user_profile_id ON "GameSessions"("UserProfileId");
+CREATE INDEX idx_gamesessions_quest_id ON "GameSessions"("QuestId");
+CREATE INDEX idx_notes_user_profile_id ON "Notes"("UserProfileId");
+CREATE INDEX idx_parties_leader_id ON "Parties"("LeaderId");
+CREATE INDEX idx_guilds_master_id ON "Guilds"("MasterId");
 CREATE INDEX idx_events_guild_id ON "Events"("GuildId");
 ```
 
 ## **Frontend Architecture**
 
-This section defines the specific architectural patterns and standards for the `roguelearn-web` Next.js application. All frontend development must adhere to these guidelines.
-
 ### **Component Architecture**
-
-#### **Component Organization**
-We will follow a feature-based folder structure inside `src/components/`. Core, reusable components will live in a `ui/` subfolder (aligned with Shadcn/UI), while feature-specific components will be grouped by the feature they belong to.
 
 ```plaintext
 roguelearn-web/
 └── src/
-    ├── app/                # Next.js App Router
+    ├── app/
     ├── components/
-    │   ├── ui/             # Shadcn UI components (e.g., button.tsx, card.tsx)
-    │   ├── icons/          # Custom icon components
-    │   ├── layout/         # Global layout components (Navbar, Sidebar)
+    │   ├── ui/
+    │   ├── icons/
+    │   ├── layout/
     │   ├── features/
-    │   │   ├── quests/     # Components related to the Quest Line
-    │   │   │   ├── QuestList.tsx
-    │   │   │   └── QuestItem.tsx
-    │   │   └── skill-tree/ # Components for the Skill Tree
-    │   │       └── SkillTreeGraph.tsx
-    │   └── auth/           # Components for authentication
-    │       └── UserProfileButton.tsx
-    ├── lib/                # Utility functions, API clients
-    └── hooks/              # Custom React hooks
+    │   │   ├── quests/
+    │   │   ├── skill-tree/
+    │   │   └── boss-fight/
+    │   │       └── UnityGameEmbed.tsx
+    │   └── auth/
+    ├── lib/
+    └── hooks/
 ```
 
 #### **Component Template**
-All new components should follow this basic structure for consistency.
-
 ```typescript
 // Example: src/components/features/quests/QuestItem.tsx
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Quest } from '@roguelearn/shared-types'; // Assumes shared types package
+import { Quest } from '@roguelearn/shared-types';
 
 interface QuestItemProps {
   quest: Quest;
@@ -1144,7 +1101,6 @@ const QuestItem: React.FC<QuestItemProps> = ({ quest }) => {
       </CardHeader>
       <CardContent>
         <p>{quest.description}</p>
-        {/* Additional details */}
       </CardContent>
     </Card>
   );
@@ -1155,24 +1111,61 @@ export default QuestItem;
 
 ### **State Management Architecture**
 
-*   **Server State:** **React Query** (`@tanstack/react-query`) will be the default for all data fetching, caching, and server-side state management. It handles loading states, errors, retries, and caching out-of-the-box.
-*   **Client State:** **Zustand** will be used for any necessary global client-side state that is not tied to the server, such as UI theme, notification toasts, or complex form state.
+*   **Server State:** **React Query** (`@tanstack/react-query`) will be the default for all data fetching and caching.
+*   **Client State:** **Zustand** will be used for any necessary global client-side state.
 
 ### **Routing Architecture**
 
-*   **Library:** **Next.js App Router** will be used for all routing. This is the native, file-system based router provided by Next.js.
-*   **Route Definitions:** Routes are defined by creating folders and `page.tsx` files within the `src/app/` directory. Dynamic routes will use bracket syntax (e.g., `src/app/quests/[questId]/page.tsx`).
-*   **Protected Routes:** A **middleware** file (`src/middleware.ts`) will be used to protect routes. This middleware will integrate with the Clerk SDK to check the user's authentication state on incoming requests and redirect unauthenticated users to the `/sign-in` page.
+*   **Library:** **Next.js App Router** will be used for all routing.
+*   **Protected Routes:** A `src/middleware.ts` file will be used to protect routes, integrating with the Clerk SDK.
+
+### **Unity WebGL Integration**
+
+*   **Strategy:** The Unity game builds will be hosted on Supabase Storage. The Next.js application will embed the game within a dedicated React component.
+*   **Communication:** A JavaScript bridge will be used. The React component will send initialization data (like a JWT) to the Unity instance. The Unity game will use `Application.ExternalCall` to send messages back to the React component (e.g., to report the final score), which then calls the backend API.
+
+```typescript
+// src/components/features/boss-fight/UnityGameEmbed.tsx
+import React, { useEffect } from 'react';
+import { Unity, useUnityContext } from 'react-unity-webgl';
+
+interface UnityGameEmbedProps {
+  gameBuildUrl: string;
+  onGameComplete: (score: number) => void;
+}
+
+const UnityGameEmbed: React.FC<UnityGameEmbedProps> = ({ gameBuildUrl, onGameComplete }) => {
+  const { unityProvider, addEventListener, removeEventListener } = useUnityContext({
+    loaderUrl: `${gameBuildUrl}/Build.loader.js`,
+    dataUrl: `${gameBuildUrl}/Build.data`,
+    frameworkUrl: `${gameBuildUrl}/Build.framework.js`,
+    codeUrl: `${gameBuildUrl}/Build.wasm`,
+  });
+
+  useEffect(() => {
+    const handleGameOver = (score: number) => {
+      onGameComplete(score);
+    };
+    addEventListener('GameOver', handleGameOver);
+    return () => {
+      removeEventListener('GameOver', handleGameOver);
+    };
+  }, [addEventListener, removeEventListener, onGameComplete]);
+
+  return <Unity unityProvider={unityProvider} style={{ width: '100%', height: '100%' }} />;
+};
+
+export default UnityGameEmbed;
+```
 
 ### **Frontend Services Layer**
 
-*   **API Client:** A type-safe API client will be created using `axios`. A single instance will be configured with interceptors to automatically attach the JWT Bearer token from Clerk to all outgoing requests.
-*   **Service Example:**
+*   **API Client:** An `axios` instance will be configured with interceptors to automatically attach the JWT Bearer token from Clerk to all outgoing requests.
 
 ```typescript
 // src/lib/api-client.ts
 import axios from 'axios';
-import { clerk } from './clerk'; // Your Clerk initialization
+import { clerk } from './clerk';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -1191,17 +1184,15 @@ export default apiClient;
 
 ## **Backend Architecture**
 
-This section defines the architecture for all .NET microservices.
-
 ### **Service Architecture**
 
-*   **Pattern:** **Clean Architecture** will be strictly followed. Each service will have distinct layers for Domain, Application, and Infrastructure.
-*   **Function Organization:** For services deployed to Azure Container Apps, the entry point will be a standard ASP.NET Core Web API project.
+*   **Pattern:** **Clean Architecture** will be strictly followed in all .NET services.
+*   **Function Organization:** Services will be deployed as standard ASP.NET Core Web API projects to Azure Container Apps.
 
 ### **Database Architecture**
 
-*   **Data Access:** **Entity Framework Core (EF Core)** will be used as the Object-Relational Mapper (ORM).
-*   **Data Access Layer:** The **Repository Pattern** will be used to abstract all data access logic, ensuring the Application layer is ignorant of the persistence mechanism.
+*   **Data Access:** **Entity Framework Core (EF Core)** will be used as the ORM.
+*   **Data Access Layer:** The **Repository Pattern** will be used to abstract all data access logic.
 
 ```csharp
 // Example: IQuestRepository.cs
@@ -1216,8 +1207,8 @@ public interface IQuestRepository
 
 ### **Authentication and Authorization**
 
-*   **Authentication:** The API Gateway will be the primary validator of JWTs issued by Clerk. It will pass user identity information in a request header to the downstream microservices.
-*   **Authorization:** Each microservice will implement its own authorization logic using .NET's built-in `[Authorize]` attributes and custom policies to check user roles or claims.
+*   **Authentication:** The API Gateway will validate JWTs issued by Clerk.
+*   **Authorization:** Each microservice will implement its own authorization logic using .NET's `[Authorize]` attributes and custom policies.
 
 ## **Unified Project Structure**
 
