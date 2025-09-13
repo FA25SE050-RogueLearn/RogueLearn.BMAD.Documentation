@@ -74,7 +74,8 @@ graph TD
 
     subgraph "Presentation Layer (Vercel)"
         Frontend[Next.js Web App]
-        Frontend -- embeds --> UnityClient[Unity Game Client]
+        UnityClient[Unity Game Client]
+        Frontend --> UnityClient
     end
 
     subgraph "External Services"
@@ -83,8 +84,8 @@ graph TD
     end
 
     subgraph "Backend Layer (Azure)"
-        APIGateway[API Gateway (REST)]
-        RealtimeHub[Real-time Hub (WebSockets)]
+        APIGateway[API Gateway REST]
+        RealtimeHub[Real-time Hub WebSockets]
         
         subgraph "Microservices"
             AuthService[.NET Auth Service]
@@ -105,9 +106,9 @@ graph TD
     BrowserExtension --> APIGateway
 
     Frontend --> APIGateway
-    Frontend -- WebSockets --> RealtimeHub
-    UnityClient -- loads from --> GameAssetHosting
-    UnityClient -- API calls --> APIGateway
+    Frontend -.-> RealtimeHub
+    UnityClient --> GameAssetHosting
+    UnityClient --> APIGateway
     
     APIGateway --> AuthService
     APIGateway --> QuestService
