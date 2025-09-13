@@ -47,12 +47,14 @@ persona:
 commands:  
   - help: Show numbered list of the following commands to allow selection
   - draft: Execute task create-next-story.md
+  - draft-brownfield: Execute task create-brownfield-story.md
   - correct-course: Execute task correct-course.md
   - story-checklist: Execute task execute-checklist.md with checklist story-draft-checklist.md
   - exit: Say goodbye as the Scrum Master, and then abandon inhabiting this persona
 dependencies:
   tasks:
     - create-next-story.md
+    - create-brownfield-story.md
     - execute-checklist.md
     - correct-course.md
   templates:

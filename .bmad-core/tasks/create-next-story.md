@@ -17,19 +17,19 @@ To identify the next logical story based on project progress and epic definition
 #### 1.1 Locate Epic Files and Review Existing Stories
 
 - Based on `prdSharded` from config, locate epic files (sharded location/pattern or monolithic PRD sections)
-- If `devStoryLocation` has story files, load the highest `{epicNum}.{storyNum}.story.md` file
+- If `devStoryLocation` has story files, find the story file with the highest epic and story number by matching the pattern `{epicNum}.{storyNum}.*.md`.
 - **If highest story exists:**
-  - Verify status is 'Done'. If not, alert user: "ALERT: Found incomplete story! File: {lastEpicNum}.{lastStoryNum}.story.md Status: [current status] You should fix this story first, but would you like to accept risk & override to create the next story in draft?"
-  - If proceeding, select next sequential story in the current epic
-  - If epic is complete, prompt user: "Epic {epicNum} Complete: All stories in Epic {epicNum} have been completed. Would you like to: 1) Begin Epic {epicNum + 1} with story 1 2) Select a specific story to work on 3) Cancel story creation"
-  - **CRITICAL**: NEVER automatically skip to another epic. User MUST explicitly instruct which story to create.
-- **If no story files exist:** The next story is ALWAYS 1.1 (first story of first epic)
+  - Verify its status is 'Done'. If not, alert the user with the exact filename found: "ALERT: Found incomplete story! File: {filename} Status: [current status] You should fix this story first, but would you like to accept risk & override to create the next story in draft?"
+  - If proceeding, select the next sequential story in the current epic.
+  - If the current epic is complete, prompt the user: "Epic {epicNum} Complete: All stories in Epic {epicNum} have been completed. Would you like to: 1) Begin Epic {epicNum + 1} with story 1 2) Select a specific story to work on 3) Cancel story creation"
+  - **CRITICAL**: NEVER automatically skip to another epic. The user MUST explicitly instruct which story to create.
+- **If no story files exist:** The next story is ALWAYS 1.1 (first story of first epic).
 - Announce the identified story to the user: "Identified next story for preparation: {epicNum}.{storyNum} - {Story Title}"
 
 ### 2. Gather Story Requirements and Previous Story Context
 
 - Extract story requirements from the identified epic file
-- If previous story exists, review Dev Agent Record sections for:
+- If a previous story exists, review its Dev Agent Record sections for:
   - Completion Notes and Debug Log References
   - Implementation deviations and technical decisions
   - Challenges encountered and lessons learned
@@ -75,7 +75,7 @@ ALWAYS cite source documents: `[Source: architecture/{filename}.md#{section}]`
 
 ### 5. Populate Story Template with Full Context
 
-- Create new story file: `{devStoryLocation}/{epicNum}.{storyNum}.story.md` using Story Template
+- Create a new story file using the Story Template. The template itself will determine the final filename (e.g., `{devStoryLocation}/{epicNum}.{storyNum}.{story_title_short}.md`).
 - Fill in basic story information: Title, Status (Draft), Story statement, Acceptance Criteria from Epic
 - **`Dev Notes` section (CRITICAL):**
   - CRITICAL: This section MUST contain ONLY information extracted from architecture documents. NEVER invent or assume technical details.
