@@ -34,7 +34,7 @@ A Verified Lecturer who creates and manages a guild, providing:
 A numeric representation of a user's overall progress and experience on the platform. Levels increase as users accumulate XP through learning activities.
 
 ### **Quest**
-A learning task or objective generated from academic documents (syllabi, schedules, assignments). Quests can be:
+A learning task or objective generated from academic documents (syllabus, schedules, assignments). Quests can be:
 - **Learning Quests**: Knowledge acquisition tasks
 - **Assignment Quests**: Academic assignments and projects
 - **Exam Quests**: Test preparation and assessment activities
@@ -80,7 +80,7 @@ The overall framework for user advancement, including:
 
 ## Social Learning Features
 
-### **Party** (Future Feature)
+### **Party**
 Small groups of students who can collaborate on learning activities, share progress, and support each other's academic goals.
 
 ### **Verified Lecturer**
