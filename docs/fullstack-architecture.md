@@ -301,7 +301,9 @@ export interface QuestLine {
 - `prerequisites`: `string[]` - An array of `skillId`s required to unlock this skill.
 - `positionX`, `positionY`: `number` - Coordinates for rendering the node in the mind map visualization.
 
-#### **TypeScript Interface**```typescript
+#### **TypeScript Interface**
+
+```
 // In @roguelearn/shared-types
 export interface Skill {
   id: string;
@@ -317,13 +319,15 @@ export interface Skill {
 }
 
 export interface SkillTree {
-    id: string;
-    userId: string;
-    courseId: string;
-    name: string;
-    skills: Skill[]; // Can be a separate fetch
-    createdAt: string; // ISO 8601 timestamp
+  id: string;
+  userId: string;
+  courseId: string;
+  name: string;
+  skills: Skill[]; // Can be a separate fetch
+  createdAt: string; // ISO 8601 timestamp
 }
+```
+
 ```
 
 ### **Note (Arsenal Item)**
