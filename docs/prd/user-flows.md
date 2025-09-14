@@ -50,6 +50,7 @@ graph TD
         L -- Scanned by --> AI2[Proactive AI Companion];
         AI2 --> Y[Suggests Study Aids];
     end
+```
 
 ## Guild Master (Lecturer or Player) Flow
 
