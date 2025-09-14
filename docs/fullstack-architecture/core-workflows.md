@@ -6,7 +6,7 @@
 sequenceDiagram
     participant User
     participant Frontend (Vercel)
-    participant Clerk (External)
+    participant SupabaseAuth (External)
     participant APIGateway (Azure)
     participant AuthService
     participant QuestsService
@@ -14,20 +14,18 @@ sequenceDiagram
     participant Gemini (External)
     participant Database (Supabase)
 
-    %% Step 1: User Registration via Clerk's Hosted UI %%
+    %% Step 1: User Registration via Supabase SDK %%
     User->>Frontend: Clicks 'Sign Up'
-    Frontend->>Clerk: Redirects to Clerk Hosted Sign-Up Page
-    User->>Clerk: Enters credentials (email, password)
-    Clerk-->>User: Completes sign-up & sets auth token
+    Frontend->>SupabaseAuth: Calls Supabase signUp() with credentials
+    SupabaseAuth-->>User: Completes sign-up & sets auth token in browser
     
-    %% Step 2: Clerk Webhook notifies our backend of the new user %%
-    Clerk->>APIGateway: POST /webhooks/clerk (user.created event)
-    APIGateway->>AuthService: Forwards webhook
-    AuthService->>Database: CREATE UserProfile record with Clerk ID
+    %% Step 2: Supabase Trigger notifies our backend of the new user %%
+    Note over SupabaseAuth, Database: Supabase creates a new record in auth.users table
+    Database->>AuthService: PostgreSQL Trigger on new user INSERT fires, calling AuthService endpoint
+    AuthService->>Database: CREATE UserProfile record with Supabase User UUID
     Database-->>AuthService: Confirms creation
-    AuthService-->>APIGateway: 200 OK
-    APIGateway-->>Clerk: 200 OK
-
+    AuthService-->>Database: 200 OK
+    
     %% Step 3: User is back on our app and uploads syllabus %%
     User->>Frontend: Uploads syllabus.pdf for a new Course
     Frontend->>APIGateway: POST /courses/{id}/syllabus (with JWT & file)

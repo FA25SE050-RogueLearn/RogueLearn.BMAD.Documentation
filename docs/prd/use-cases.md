@@ -46,7 +46,7 @@ The use cases are organized into three main phases:
 **Trigger:** User visits RogueLearn platform for the first time
 
 **Main Success Scenario:**
-1. **Account Creation**: User creates account using email/password or social login (Clerk integration)
+1. **Account Creation**: User creates account using email/password or social login (Supabase integration)
 2. **Profile Setup**: User completes basic profile information (name, academic level, interests)
 3. **Platform Introduction**: System presents interactive tutorial explaining core concepts:
    - Document-to-quest transformation process
@@ -879,7 +879,7 @@ The use cases are organized into three main phases:
 Based on these simplified use cases, the architecture team should consider:
 
 ### **Core System Components:**
-- **Authentication & Authorization Service** (Clerk integration)
+- **Authentication & Authorization Service** (Supabase Authentication integration)
 - **User Management System** (profiles, roles, permissions)
 - **AI Processing Engine** (document analysis, quest generation)
 - **Gamification Engine** (XP, skill trees, achievements)
@@ -895,7 +895,7 @@ Based on these simplified use cases, the architecture team should consider:
 
 ### **Integration Points:**
 - **Browser Extension APIs** (content capture, web integration)
-- **External Authentication** (Clerk, institutional SSO)
+- **External Authentication** (Supabase, institutional SSO)
 - **Learning Management Systems** (grade passback, enrollment sync)
 - **Email/SMS Services** (notifications, communications)
 - **Analytics Platforms** (institutional reporting)

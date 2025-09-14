@@ -55,7 +55,7 @@ export default QuestItem;
 ### **Routing Architecture**
 
 *   **Library:** **Next.js App Router** will be used for all routing.
-*   **Protected Routes:** A `src/middleware.ts` file will be used to protect routes, integrating with the Clerk SDK.
+*   **Protected Routes:** A `src/middleware.ts` file will be used to protect routes, integrating with the **Supabase Auth Helpers SDK**.
 
 ### **Unity WebGL Integration**
 
@@ -98,21 +98,23 @@ export default UnityGameEmbed;
 
 ### **Frontend Services Layer**
 
-*   **API Client:** An `axios` instance will be configured with interceptors to automatically attach the JWT Bearer token from Clerk to all outgoing requests.
+*   **API Client:** An `axios` instance will be configured with interceptors to automatically attach the JWT Bearer token from **Supabase** to all outgoing requests.
 
 ```typescript
 // src/lib/api-client.ts
 import axios from 'axios';
-import { clerk } from './clerk';
+import { createClient } from '@/utils/supabase/client';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 apiClient.interceptors.request.use(async (config) => {
-  const token = await clerk.session?.getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`;
   }
   return config;
 });

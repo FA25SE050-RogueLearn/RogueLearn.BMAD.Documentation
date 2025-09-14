@@ -8,9 +8,11 @@ This document visualizes the primary interaction flows for each user role within
 graph TD
     subgraph "Phase 1: Onboarding & Core Loop"
         A[Start] --> B{New User?};
-        B -- Yes --> C[Create Account & Character Creation];
+        B -- Yes --> C[Create Account via In-App Form];
         B -- No --> F[View Dashboard / Character Sheet];
-        C --> D[Select Class & Route];
+        C --> C1[Supabase Auth SDK handles registration];
+        C1 --> C2[DB Trigger syncs new user to create profile];
+        C2 --> D[Select Class & Route];
         D --> E[Upload Academic Documents];
         E --> E1[Upload GPA & Transcripts];
         E --> E2[Upload Timetable & Exam Schedule];
@@ -215,7 +217,7 @@ graph TD
         G --> H[Manage Notification Settings];
         G --> I[Configure Quest Generation Parameters];
         G --> J[Monitor AI Processing Performance];
-        G --> K[Manage User Authentication - Clerk];
+        G --> K[Manage User Authentication - Supabase];
         G --> L[Database & Storage Management - Supabase];
     end
 

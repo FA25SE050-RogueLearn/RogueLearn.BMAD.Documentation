@@ -2,7 +2,7 @@
 
 ### **Technical Summary**
 
-RogueLearn will be implemented as a cloud-native, multi-repository application. It features a decoupled frontend built with Next.js, interactive "Boss Fights" built with **Unity WebGL**, and a microservices-based backend using **.NET 8** and **Go**. The system is deployed on Vercel and Azure Container Apps. Communication is handled by a RESTful API Gateway and a real-time SignalR hub for interactive features. The architecture supports AI-powered quest generation, social collaboration, competitive Duels, and code-grading battles. Data is persisted in a Supabase PostgreSQL database, with authentication managed by Clerk.
+RogueLearn will be implemented as a cloud-native, multi-repository application. It features a decoupled frontend built with Next.js, interactive "Boss Fights" built with **Unity WebGL**, and a microservices-based backend using **.NET 8** and **Go**. The system is deployed on Vercel and Azure Container Apps. Communication is handled by a RESTful API Gateway and a real-time SignalR hub for interactive features. The architecture supports AI-powered quest generation, social collaboration, competitive Duels, and code-grading battles. Data, storage, and authentication are consolidated and managed within a **Supabase** project.
 
 ### **Platform and Infrastructure Choice**
 
@@ -11,12 +11,11 @@ To best support our technology stack and scalability goals, I recommend the foll
 *   **Platform:** A hybrid-cloud approach leveraging best-in-class services.
     *   **Frontend Hosting:** **Vercel**. It is purpose-built for Next.js, providing seamless deployments, global CDN, and serverless functions out-of-the-box.
     *   **Backend Hosting:** **Azure Container Apps**. This is a serverless container platform that is ideal for running our .NET and Go microservices.
-    *   **Database & Storage:** **Supabase**. Provides a managed PostgreSQL instance, real-time capabilities, and file storage which will be used for both user documents and hosting Unity game assets.
+    *   **Database, Storage & Auth:** **Supabase**. Provides a managed PostgreSQL instance, user authentication, real-time capabilities, and file storage which will be used for both user documents and hosting Unity game assets.
 *   **Key Services:**
     *   **Vercel:** Next.js Hosting, Edge Network (CDN)
     *   **Azure:** Container Apps, API Management (for the API Gateway)
-    *   **Supabase:** PostgreSQL Database, Storage (for documents and game assets)
-    *   **Clerk:** External Authentication Service
+    *   **Supabase:** PostgreSQL Database, Storage (for documents and game assets), **Authentication**
     *   **Internal AI Proxy Service:** A dedicated backend service to securely manage communication with the Gemini API.
 
 ### **Repository Structure**
@@ -25,7 +24,7 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 
 *   **`roguelearn-web`**: The Next.js frontend application.
 *   **`roguelearn-unity-games`**: The Unity project containing the "Boss Fight" game client.
-*   **`roguelearn-auth-service`**: .NET microservice for user identity, profiles, and Clerk integration.
+*   **`roguelearn-auth-service`**: .NET microservice for user identity and profile synchronization with Supabase Auth.
 *   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game session logic.
 *   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
 *   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code.
@@ -33,7 +32,7 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 
 ### **High Level Architecture Diagram**
 
-This diagram illustrates the primary components and data flow of the RogueLearn platform, now including the Unity game client.
+This diagram illustrates the primary components and data flow of the RogueLearn platform, now reflecting the use of Supabase Authentication.
 
 ```mermaid
 graph TD
@@ -49,7 +48,6 @@ graph TD
     end
 
     subgraph "External Services"
-        Clerk[Clerk Authentication]
         Gemini[Gemini API]
     end
 
@@ -70,13 +68,17 @@ graph TD
         Database[PostgreSQL Database]
         FileStorage[File Storage for Docs]
         GameAssetHosting[Game Asset Hosting]
+        SupabaseAuth[Supabase GoTrue Auth]
     end
 
     User --> Frontend
+
     BrowserExtension --> APIGateway
 
+    Frontend -- Auth via SDK --> SupabaseAuth
     Frontend --> APIGateway
     Frontend -.-> RealtimeHub
+
     UnityClient --> GameAssetHosting
     UnityClient --> APIGateway
     
@@ -88,8 +90,7 @@ graph TD
     
     RealtimeHub --> SocialService
 
-    AuthService --> Clerk
-    AuthService --> Database
+    AuthService -- Sync Trigger --> Database
 
     QuestService --> Database
     QuestService --> FileStorage
@@ -102,6 +103,7 @@ graph TD
     AIProxyService --> Database
 
     Database <--> FileStorage
+    SupabaseAuth <--> Database
 ```
 
 ### **Architectural and Design Patterns**
@@ -111,4 +113,5 @@ graph TD
 *   **Clean Architecture (.NET):** Each microservice will separate domain logic, application logic, and infrastructure. *Rationale:* Produces highly testable and maintainable services.
 *   **Component-Based UI (Next.js):** The frontend will be built as a collection of reusable components. *Rationale:* Promotes reusability and faster development.
 *   **Repository Pattern (.NET):** Data access within each microservice will be abstracted. *Rationale:* Decouples business logic from data access implementation.
+*   **Database Triggers:** A PostgreSQL trigger will be used to sync new users from Supabase's `auth.users` table to our application's `UserProfiles` table. *Rationale:* Provides a reliable, event-driven way to create user profiles without webhooks.
 

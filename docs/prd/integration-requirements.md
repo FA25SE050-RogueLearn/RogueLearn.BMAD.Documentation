@@ -33,23 +33,19 @@ This document outlines the comprehensive integration requirements for RogueLearn
 
 ### Authentication & Identity Management
 
-**Clerk Integration**
-- **Service**: Clerk Authentication Platform
-- **Purpose**: User authentication, session management, and identity verification
+**Supabase Authentication Integration**
+- **Service**: Supabase Authentication (GoTrue)
+- **Purpose**: User authentication, session management, and identity verification.
 - **Integration Points**:
-  - Frontend: React components and hooks for auth flows
-  - Backend: JWT token validation and user session management
-  - Browser Extension: Secure token storage and API authentication
-- **API Endpoints**:
-  - `/api/auth/register` - User registration with Clerk
-  - `/api/auth/login` - User login and token generation
-  - `/api/auth/refresh` - Token refresh mechanism
-  - `/api/auth/profile` - User profile management
+  - **Frontend**: Utilizes the `@supabase/auth-helpers-nextjs` SDK for all authentication flows (sign-up, sign-in, sign-out, session management).
+  - **Backend**:
+    - **API Gateway**: Validates JWTs issued by Supabase on all protected routes.
+    - **Auth Service**: Does not directly handle sign-up/sign-in. It is responsible for creating an application-specific `UserProfile` record.
+  - **Database**: A PostgreSQL trigger on the `auth.users` table will invoke the Auth Service to create a `UserProfile` record upon a new user registration, ensuring data synchronization.
 - **Security Requirements**:
-  - JWT Implementation: RS256 algorithm
-  - Token Lifecycle: 24-hour access tokens, 7-day refresh tokens
-  - Multi-factor authentication support
-  - Social login integration (Google, GitHub, Discord)
+  - **JWT Implementation**: Uses standard RS256 algorithm as provided by Supabase.
+  - **Token Lifecycle**: Managed by Supabase SDKs with secure, short-lived access tokens and long-lived refresh tokens stored securely in cookies.
+  - **Social Logins**: Configuration will be managed within the Supabase dashboard (Google, GitHub, etc.).
 
 ### Database & Storage Integration
 
@@ -250,7 +246,7 @@ This document outlines the comprehensive integration requirements for RogueLearn
 ### Authentication & Authorization
 
 **Security Framework**
-- **Identity Provider**: Clerk with custom claims and roles
+- **Identity Provider**: Supabase auth with custom claims and roles
 - **Authorization**: Role-based access control (RBAC)
 - **API Security**: OAuth 2.0 with PKCE for public clients
 - **Session Management**: Secure cookie handling and CSRF protection
@@ -322,7 +318,7 @@ This document outlines the comprehensive integration requirements for RogueLearn
 ### Integration Test Scenarios
 
 **Critical Integration Points**
-1. **Authentication Flow**: Clerk → Backend → Frontend token validation
+1. **Authentication Flow**: Supabase Authentication → Backend → Frontend token validation
 2. **Content Processing**: Web capture → AI analysis → Skill mapping
 3. **Real-Time Updates**: User action → RabbitMQ → SignalR → Client update
 4. **Payment Processing**: Stripe webhook → Backend → User notification
