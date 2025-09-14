@@ -41,16 +41,31 @@ components:
         onboardingCompleted: { type: boolean }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
-    Course:
+    Syllabus:
       type: object
       properties:
         id: { type: string, format: uuid }
-        userId: { type: string }
-        name: { type: string }
-        courseCode: { type: string, nullable: true }
+        curriculumId: { type: string, format: uuid }
+        courseCode: { type: string }
+        courseTitle: { type: string }
+        description: { type: string, nullable: true }
+        credits: { type: integer, nullable: true }
+    UserSyllabusEnrollment:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        userProfileId: { type: string, format: uuid }
+        syllabusId: { type: string, format: uuid }
+        enrollmentDate: { type: string, format: date-time }
+    UserUploadedSyllabus:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        enrollmentId: { type: string, format: uuid }
+        fileUrl: { type: string }
         processingStatus: { type: string, enum: [Pending, Processing, Completed, Failed] }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: string, format: date-time }
+        structuredContent: { type: object, nullable: true }
+        uploadedAt: { type: string, format: date-time }
     GameSession:
       type: object
       properties:
@@ -82,31 +97,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserProfile'
           
-  # Course Management Endpoints
-  /courses:
+  # Academic Management Endpoints
+  /enrollments:
     get:
-      summary: Get All Courses for Current User
-      tags: [Courses]
+      summary: Get All Enrollments for Current User
+      tags: [Academic]
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: A list of the user's courses.
+          description: A list of the user's syllabus enrollments.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Course'
+                  $ref: '#/components/schemas/UserSyllabusEnrollment'
 
-  /courses/{courseId}/syllabus:
+  /enrollments/{enrollmentId}/upload-syllabus:
     post:
-      summary: Upload a Syllabus for a Course
-      tags: [Courses]
+      summary: Upload a Syllabus Document for an Enrollment
+      tags: [Academic]
       security:
         - BearerAuth: []
       parameters:
-        - name: courseId
+        - name: enrollmentId
           in: path
           required: true
           schema: { type: string, format: uuid }
@@ -123,6 +138,10 @@ paths:
       responses:
         '202':
           description: Syllabus accepted for processing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUploadedSyllabus'
   
   # Duel Endpoints
   /duels/challenge:
@@ -213,4 +232,4 @@ paths:
         '200':
           description: Session results submitted successfully.
 ```
-
+

@@ -3,196 +3,324 @@
 This section provides the SQL DDL for the PostgreSQL database.
 
 ```sql
--- ========= User Management (Managed by Auth Service) =========
+-- RogueLearn Database Schema for PostgreSQL 
+-- FINAL VERSION: Integrated with Supabase Auth and combines all refined concepts. 
 
-CREATE TABLE "UserProfiles" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserId" uuid NOT NULL UNIQUE, -- Corresponds to the UUID from Supabase auth.users table
-    "Username" text NOT NULL,
-    "Email" text NOT NULL,
-    "ClassId" uuid, -- FK to a future "Classes" table
-    "RouteId" uuid, -- FK to a future "Routes" table
-    "Level" integer NOT NULL DEFAULT 1,
-    "ExperiencePoints" integer NOT NULL DEFAULT 0,
-    "ProfileImageUrl" text,
-    "OnboardingCompleted" boolean NOT NULL DEFAULT false,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
+-- Enable UUID generation if not already enabled 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; 
 
--- ========= Course & Syllabus Management (Managed by Quests Service) =========
+-- ------------------------------------------ 
+-- SECTION 1: ENUM TYPE DEFINITIONS 
+-- ------------------------------------------ 
+CREATE TYPE "QuestStatus" AS ENUM ('Not Started', 'In Progress', 'Completed'); 
+CREATE TYPE "QuestType" AS ENUM ('Main', 'Side', 'Daily', 'Assignment', 'Exam', 'BossFight'); 
+CREATE TYPE "SyllabusProcessingStatus" AS ENUM ('Pending', 'Processing', 'Completed', 'Failed'); 
+CREATE TYPE "GameSessionStatus" AS ENUM ('InProgress', 'Completed', 'Abandoned'); 
+CREATE TYPE "PartyJoinType" AS ENUM ('Invite Only', 'Open'); 
+CREATE TYPE "EventType" AS ENUM ('Quiz', 'CodeBattle', 'Tournament', 'Duel'); 
+CREATE TYPE "CodeSubmissionStatus" AS ENUM ('Pending', 'Accepted', 'WrongAnswer', 'TimeLimitExceeded', 'CompilationError'); 
+CREATE TYPE "VerificationStatus" AS ENUM ('Pending', 'Approved', 'Rejected', 'MoreInfoRequired'); 
 
-CREATE TABLE "Courses" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "Name" text NOT NULL,
-    "CourseCode" text,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
 
-CREATE TYPE "SyllabusStatus" AS ENUM ('Pending', 'Processing', 'Completed', 'Failed');
+-- ------------------------------------------ 
+-- SECTION 2: USER & PROFILE CORE 
+-- ------------------------------------------ 
 
-CREATE TABLE "Syllabi" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "CourseId" uuid NOT NULL REFERENCES "Courses"("Id") ON DELETE CASCADE,
-    "FileUrl" text NOT NULL, -- Link to file in Supabase Storage
-    "ProcessingStatus" "SyllabusStatus" NOT NULL DEFAULT 'Pending',
-    "StructuredContent" jsonb, -- The AI-parsed JSON output
-    "SchemaVersion" text NOT NULL DEFAULT '1.0',
-    "UploadedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
+-- This table holds public user data and is linked 1-to-1 with Supabase's auth.users table. 
+-- The Id column MUST be the same UUID as the user's ID in auth.users. 
+CREATE TABLE "UserProfiles" ( 
+    "Id" UUID PRIMARY KEY NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE, 
+    "Username" TEXT UNIQUE NOT NULL, 
+    "Email" TEXT UNIQUE NOT NULL, 
+    "ClassId" UUID, -- FK to Classes table 
+    "CurriculumId" UUID, -- FK to Curriculums table 
+    "Level" INTEGER NOT NULL DEFAULT 1, 
+    "ExperiencePoints" INTEGER NOT NULL DEFAULT 0, 
+    "Stats" JSONB, 
+    "OnboardingCompleted" BOOLEAN NOT NULL DEFAULT false, 
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(), 
+    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
 
--- ========= Quest Management (Managed by Quests Service) =========
+-- Defines system roles for RBAC 
+CREATE TABLE "Roles" ( 
+    "Id" SERIAL PRIMARY KEY, 
+    "RoleName" TEXT UNIQUE NOT NULL 
+); 
 
-CREATE TABLE "QuestLines" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "CourseId" uuid NOT NULL REFERENCES "Courses"("Id") ON DELETE CASCADE,
-    "Title" text NOT NULL,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
+-- Assigns roles to users 
+CREATE TABLE "UserRoles" ( 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "RoleId" INT NOT NULL REFERENCES "Roles"("Id") ON DELETE RESTRICT, 
+    PRIMARY KEY ("UserProfileId", "RoleId") 
+); 
 
-CREATE TYPE "QuestType" AS ENUM ('Learning', 'Assignment', 'Exam', 'BossFight');
-CREATE TYPE "ProgressStatus" AS ENUM ('Not Started', 'In Progress', 'Completed');
+-- Tracks requests for lecturer verification 
+CREATE TABLE "LecturerVerificationRequests" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "Status" "VerificationStatus" NOT NULL DEFAULT 'Pending', 
+    "SubmittedAt" TIMESTAMPTZ NOT NULL DEFAULT now(), 
+    "ReviewedAt" TIMESTAMPTZ, 
+    "ReviewerNotes" TEXT 
+); 
 
-CREATE TABLE "Quests" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "QuestLineId" uuid NOT NULL REFERENCES "QuestLines"("Id") ON DELETE CASCADE,
-    "Title" text NOT NULL,
-    "Description" text,
-    "Type" "QuestType" NOT NULL,
-    "Status" "ProgressStatus" NOT NULL DEFAULT 'Not Started',
-    "DueDate" timestamp with time zone,
-    "ExperiencePoints" integer NOT NULL DEFAULT 10,
-    "Prerequisites" uuid[], -- Array of Quest IDs
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
 
--- ========= Skill Tree Management (Managed by Quests Service) =========
+-- ------------------------------------------ 
+-- SECTION 3: ACADEMIC & CONTENT MANAGEMENT 
+-- ------------------------------------------ 
 
-CREATE TABLE "SkillTrees" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "CourseId" uuid NOT NULL REFERENCES "Courses"("Id") ON DELETE CASCADE,
-    "Name" text NOT NULL,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
+CREATE TABLE "Classes" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "Name" TEXT UNIQUE NOT NULL, 
+    "Description" TEXT 
+); 
 
-CREATE TABLE "Skills" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "SkillTreeId" uuid NOT NULL REFERENCES "SkillTrees"("Id") ON DELETE CASCADE,
-    "Name" text NOT NULL,
-    "Description" text,
-    "Level" integer NOT NULL DEFAULT 0,
-    "MaxLevel" integer NOT NULL DEFAULT 10,
-    "Prerequisites" uuid[], -- Array of Skill IDs
-    "PositionX" integer,
-    "PositionY" integer,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
+CREATE TABLE "Curriculums" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "Name" TEXT UNIQUE NOT NULL, 
+    "Description" TEXT 
+); 
 
--- ========= Game Session Management (Managed by Quests Service) =========
+CREATE TABLE "Syllabuses" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "CurriculumId" UUID NOT NULL REFERENCES "Curriculums"("Id") ON DELETE CASCADE, 
+    "CourseCode" TEXT NOT NULL, 
+    "CourseTitle" TEXT NOT NULL, 
+    "Description" TEXT, 
+    "Credits" INT 
+); 
 
-CREATE TYPE "GameSessionStatus" AS ENUM ('InProgress', 'Completed', 'Abandoned');
+-- Junction table to track which users are enrolled in which syllabuses 
+CREATE TABLE "UserSyllabusEnrollments" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "SyllabusId" UUID NOT NULL REFERENCES "Syllabuses"("Id") ON DELETE CASCADE, 
+    "EnrollmentDate" TIMESTAMPTZ NOT NULL DEFAULT now(), 
+    UNIQUE ("UserProfileId", "SyllabusId") 
+); 
 
-CREATE TABLE "GameSessions" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "QuestId" uuid NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE,
-    "Status" "GameSessionStatus" NOT NULL DEFAULT 'InProgress',
-    "Score" integer NOT NULL DEFAULT 0,
-    "ProgressData" jsonb, -- To store game-specific state
-    "StartedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "CompletedAt" timestamp with time zone,
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
+-- Tracks the processing of a user's uploaded syllabus file for a specific enrollment 
+CREATE TABLE "UserUploadedSyllabuses" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "EnrollmentId" UUID NOT NULL REFERENCES "UserSyllabusEnrollments"("Id") ON DELETE CASCADE, 
+    "FileUrl" TEXT NOT NULL, -- Link to file in Supabase Storage 
+    "ProcessingStatus" "SyllabusProcessingStatus" NOT NULL DEFAULT 'Pending', 
+    "StructuredContent" JSONB, 
+    "UploadedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
 
--- ========= Arsenal (Notes) Management (Managed by Quests Service) =========
+CREATE TABLE "Notes" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "Title" TEXT NOT NULL, 
+    "Content" JSONB, 
+    "SyllabusId" UUID REFERENCES "Syllabuses"("Id") ON DELETE SET NULL, 
+    "QuestId" UUID, -- Forward reference 
+    "SkillId" UUID, -- Forward reference 
+    "Tags" TEXT[], 
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(), 
+    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
 
-CREATE TABLE "Notes" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "Title" text NOT NULL,
-    "Content" jsonb,
-    "CourseId" uuid REFERENCES "Courses"("Id") ON DELETE SET NULL,
-    "QuestId" uuid REFERENCES "Quests"("Id") ON DELETE SET NULL,
-    "SkillId" uuid REFERENCES "Skills"("Id") ON DELETE SET NULL,
-    "Tags" text[],
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
 
--- ========= Social Features (Managed by Social Service) =========
+-- ------------------------------------------ 
+-- SECTION 4: QUEST & SKILL MANAGEMENT 
+-- ------------------------------------------ 
 
-CREATE TYPE "PartyJoinType" AS ENUM ('Invite Only', 'Open');
+CREATE TABLE "QuestLines" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "SyllabusId" UUID NOT NULL REFERENCES "Syllabuses"("Id") ON DELETE CASCADE, 
+    "Title" TEXT NOT NULL, 
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
 
-CREATE TABLE "Parties" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "Name" text NOT NULL,
-    "Description" text,
-    "JoinType" "PartyJoinType" NOT NULL DEFAULT 'Invite Only',
-    "LeaderId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
+CREATE TABLE "Quests" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "QuestLineId" UUID NOT NULL REFERENCES "QuestLines"("Id") ON DELETE CASCADE, 
+    "Title" TEXT NOT NULL, 
+    "Description" TEXT, 
+    "Type" "QuestType" NOT NULL, 
+    "Status" "QuestStatus" NOT NULL DEFAULT 'Not Started', 
+    "DueDate" TIMESTAMPTZ, 
+    "ExperiencePoints" INTEGER NOT NULL DEFAULT 10, 
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(), 
+    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
 
-CREATE TABLE "PartyMemberships" (
-    "PartyId" uuid NOT NULL REFERENCES "Parties"("Id") ON DELETE CASCADE,
-    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "JoinedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    PRIMARY KEY ("PartyId", "UserProfileId")
-);
+CREATE TABLE "QuestPrerequisites" ( 
+    "QuestId" UUID NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE, 
+    "PrerequisiteQuestId" UUID NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE, 
+    PRIMARY KEY ("QuestId", "PrerequisiteQuestId") 
+); 
 
-CREATE TABLE "Guilds" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "Name" text NOT NULL,
-    "Description" text,
-    "MasterId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "IsVerified" boolean NOT NULL DEFAULT false,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
+CREATE TABLE "SkillTrees" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "CurriculumId" UUID NOT NULL REFERENCES "Curriculums"("Id") ON DELETE CASCADE, 
+    "Name" TEXT NOT NULL, 
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
 
-CREATE TABLE "GuildMemberships" (
-    "GuildId" uuid NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE,
-    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "JoinedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    PRIMARY KEY ("GuildId", "UserProfileId")
-);
+CREATE TABLE "Skills" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "SkillTreeId" UUID NOT NULL REFERENCES "SkillTrees"("Id") ON DELETE CASCADE, 
+    "Name" TEXT NOT NULL, 
+    "Description" TEXT, 
+    "MaxLevel" INTEGER NOT NULL DEFAULT 10, 
+    "PositionX" INTEGER, 
+    "PositionY" INTEGER, 
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
 
-CREATE TYPE "EventType" AS ENUM ('Quiz', 'CodeBattle', 'Tournament', 'Duel');
+CREATE TABLE "UserSkills" ( 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "SkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE, 
+    "Level" INTEGER NOT NULL DEFAULT 0, 
+    PRIMARY KEY ("UserProfileId", "SkillId") 
+); 
 
-CREATE TABLE "Events" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "GuildId" uuid NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE,
-    "Title" text NOT NULL,
-    "Description" text,
-    "Type" "EventType" NOT NULL,
-    "StartDate" timestamp with time zone,
-    "EndDate" timestamp with time zone,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
-);
+CREATE TABLE "SkillDependencies" ( 
+    "SkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE, 
+    "PrerequisiteSkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE, 
+    PRIMARY KEY ("SkillId", "PrerequisiteSkillId") 
+); 
 
-CREATE TABLE "CodeBattles" (
-    "EventId" uuid PRIMARY KEY REFERENCES "Events"("Id") ON DELETE CASCADE,
-    "ProblemStatement" text NOT NULL,
-    "TestCases" jsonb
-);
+-- Add forward-referenced foreign keys for Notes 
+ALTER TABLE "Notes" ADD CONSTRAINT fk_notes_quest FOREIGN KEY ("QuestId") REFERENCES "Quests"("Id") ON DELETE SET NULL; 
+ALTER TABLE "Notes" ADD CONSTRAINT fk_notes_skill FOREIGN KEY ("SkillId") REFERENCES "Skills"("Id") ON DELETE SET NULL; 
 
--- ========= Indexes for Performance =========
-CREATE INDEX idx_courses_user_profile_id ON "Courses"("UserProfileId");
-CREATE INDEX idx_syllabi_course_id ON "Syllabi"("CourseId");
-CREATE INDEX idx_questlines_course_id ON "QuestLines"("CourseId");
-CREATE INDEX idx_quests_questline_id ON "Quests"("QuestLineId");
-CREATE INDEX idx_skilltrees_course_id ON "SkillTrees"("CourseId");
-CREATE INDEX idx_skills_skilltree_id ON "Skills"("SkillTreeId");
-CREATE INDEX idx_gamesessions_user_profile_id ON "GameSessions"("UserProfileId");
-CREATE INDEX idx_gamesessions_quest_id ON "GameSessions"("QuestId");
-CREATE INDEX idx_notes_user_profile_id ON "Notes"("UserProfileId");
-CREATE INDEX idx_parties_leader_id ON "Parties"("LeaderId");
-CREATE INDEX idx_guilds_master_id ON "Guilds"("MasterId");
-CREATE INDEX idx_events_guild_id ON "Events"("GuildId");
+
+-- ------------------------------------------ 
+-- SECTION 5: GAME SESSION & NOTIFICATIONS 
+-- ------------------------------------------ 
+
+CREATE TABLE "GameSessions" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "QuestId" UUID NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE, 
+    "Status" "GameSessionStatus" NOT NULL DEFAULT 'InProgress', 
+    "Score" INTEGER NOT NULL DEFAULT 0, 
+    "ProgressData" JSONB, 
+    "StartedAt" TIMESTAMPTZ NOT NULL DEFAULT now(), 
+    "CompletedAt" TIMESTAMPTZ 
+); 
+
+CREATE TABLE "Notifications" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "Message" TEXT NOT NULL, 
+    "IsRead" BOOLEAN NOT NULL DEFAULT false, 
+    "Link" TEXT, 
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
+
+
+-- ------------------------------------------ 
+-- SECTION 6: SOCIAL & COMMUNITY 
+-- ------------------------------------------ 
+
+CREATE TABLE "Parties" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "Name" TEXT NOT NULL, 
+    "Description" TEXT, 
+    "JoinType" "PartyJoinType" NOT NULL DEFAULT 'Invite Only', 
+    "LeaderId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
+
+CREATE TABLE "PartyMemberships" ( 
+    "PartyId" UUID NOT NULL REFERENCES "Parties"("Id") ON DELETE CASCADE, 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "JoinedAt" TIMESTAMPTZ NOT NULL DEFAULT now(), 
+    PRIMARY KEY ("PartyId", "UserProfileId") 
+); 
+
+CREATE TABLE "Guilds" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "Name" TEXT NOT NULL, 
+    "Description" TEXT, 
+    "MasterId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "IsVerified" BOOLEAN NOT NULL DEFAULT false, 
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
+
+CREATE TABLE "GuildMemberships" ( 
+    "GuildId" UUID NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE, 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "JoinedAt" TIMESTAMPTZ NOT NULL DEFAULT now(), 
+    PRIMARY KEY ("GuildId", "UserProfileId") 
+); 
+
+
+-- ------------------------------------------ 
+-- SECTION 7: EVENTS & COMPETITION 
+-- ------------------------------------------ 
+
+CREATE TABLE "Events" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "GuildId" UUID REFERENCES "Guilds"("Id") ON DELETE CASCADE, 
+    "Title" TEXT NOT NULL, 
+    "Description" TEXT, 
+    "Type" "EventType" NOT NULL, 
+    "StartDate" TIMESTAMPTZ, 
+    "EndDate" TIMESTAMPTZ 
+); 
+
+CREATE TABLE "CodeProblems" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "Title" TEXT NOT NULL, 
+    "ProblemStatement" TEXT NOT NULL, 
+    "TestCases" JSONB NOT NULL 
+); 
+
+CREATE TABLE "EventCodeProblems" ( 
+    "EventId" UUID NOT NULL REFERENCES "Events"("Id") ON DELETE CASCADE, 
+    "ProblemId" UUID NOT NULL REFERENCES "CodeProblems"("Id") ON DELETE CASCADE, 
+    PRIMARY KEY ("EventId", "ProblemId") 
+); 
+
+CREATE TABLE "CodeSubmissions" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "EventId" UUID NOT NULL REFERENCES "Events"("Id") ON DELETE CASCADE, 
+    "ProblemId" UUID NOT NULL REFERENCES "CodeProblems"("Id") ON DELETE CASCADE, 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "GuildId" UUID NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE, 
+    "Code" TEXT NOT NULL, 
+    "Language" TEXT NOT NULL, 
+    "Status" "CodeSubmissionStatus" NOT NULL, 
+    "SubmittedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
+); 
+
+CREATE TABLE "LeaderboardEntries" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "EventId" UUID REFERENCES "Events"("Id") ON DELETE CASCADE, 
+    "Rank" INT NOT NULL, 
+    "Score" BIGINT NOT NULL, 
+    "SnapshotDate" DATE NOT NULL 
+); 
+
+CREATE TABLE "GuildLeaderboardEntries" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "GuildId" UUID NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE, 
+    "EventId" UUID REFERENCES "Events"("Id") ON DELETE CASCADE, 
+    "Rank" INT NOT NULL, 
+    "TotalScore" BIGINT NOT NULL, 
+    "SnapshotDate" DATE NOT NULL 
+); 
+
+-- ------------------------------------------ 
+-- SECTION 8: INDEXES FOR PERFORMANCE 
+-- ------------------------------------------ 
+CREATE INDEX "idx_userprofiles_email" ON "UserProfiles"("Email"); 
+CREATE INDEX "idx_enrollments_user_id" ON "UserSyllabusEnrollments"("UserProfileId"); 
+CREATE INDEX "idx_enrollments_syllabus_id" ON "UserSyllabusEnrollments"("SyllabusId"); 
+CREATE INDEX "idx_notes_user_id" ON "Notes"("UserProfileId"); 
+CREATE INDEX "idx_quests_questline_id" ON "Quests"("QuestLineId"); 
+CREATE INDEX "idx_skills_skilltree_id" ON "Skills"("SkillTreeId"); 
+CREATE INDEX "idx_userskills_user_id" ON "UserSkills"("UserProfileId"); 
+CREATE INDEX "idx_gamesessions_user_id" ON "GameSessions"("UserProfileId"); 
+CREATE INDEX "idx_guildmemberships_user_id" ON "GuildMemberships"("UserProfileId"); 
+CREATE INDEX "idx_codesubmissions_user_event" ON "CodeSubmissions"("UserProfileId", "EventId");
 ```
-
+

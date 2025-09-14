@@ -2,316 +2,405 @@
 
 This section defines the core data models and entities for the platform.
 
-### **User / UserProfile**
+## **Enum Types**
 
-**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, while the `UserProfile` stores application-specific data.
+```typescript
+// Core enum types matching PostgreSQL schema
+export type QuestStatus = 'Not Started' | 'In Progress' | 'Completed';
+export type QuestType = 'Main' | 'Side' | 'Daily' | 'Assignment' | 'Exam' | 'BossFight';
+export type SyllabusProcessingStatus = 'Pending' | 'Processing' | 'Completed' | 'Failed';
+export type GameSessionStatus = 'InProgress' | 'Completed' | 'Abandoned';
+export type PartyJoinType = 'Invite Only' | 'Open';
+export type EventType = 'Quiz' | 'CodeBattle' | 'Tournament' | 'Duel';
+export type CodeSubmissionStatus = 'Pending' | 'Accepted' | 'WrongAnswer' | 'TimeLimitExceeded' | 'CompilationError';
+export type VerificationStatus = 'Pending' | 'Approved' | 'Rejected' | 'MoreInfoRequired';
+```
+
+## **User & Profile Core**
+
+### **UserProfile**
+
+**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, with the `Id` directly referencing `auth.users.id`.
 
 **Key Attributes:**
-- `userId`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table.
+- `id`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table.
 - `username`: `string` - The user's public name.
 - `email`: `string` - The user's email address.
-- `classId`: `string` - Foreign key to the selected career goal (Class).
-- `routeId`: `string` - Foreign key to the selected academic path (Route).
+- `classId`: `string` - Foreign key to the selected class.
+- `curriculumId`: `string` - Foreign key to the selected curriculum.
 - `level`: `number` - The character's current level.
 - `experiencePoints`: `number` - The character's current XP.
-- `profileImageUrl`: `string` - URL for the user's avatar.
+- `stats`: `object` - Game-specific statistics stored as JSONB.
 
 #### **TypeScript Interface**
 ```typescript
-// In @roguelearn/shared-types
 export interface UserProfile {
-  id: string; // Our internal profile ID
-  userId: string; // Corresponds to the id in Supabase's auth.users table
+  id: string; // Direct reference to auth.users.id
   username: string;
   email: string;
-  classId: string;
-  routeId: string | null;
+  classId?: string;
+  curriculumId?: string;
   level: number;
   experiencePoints: number;
-  profileImageUrl: string | null;
+  stats?: Record<string, any>;
   onboardingCompleted: boolean;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
 }
 ```
 
-<!-- ... (The rest of the Data Models section remains unchanged) ... -->
+### **Role & UserRole**
 
-### **Course & Syllabus**
-
-**Purpose:** Represents an academic course a user is taking. The `Course` is the high-level container, while the `Syllabus` holds the specific, AI-processed content from the user's uploaded document.
-
-**Key Attributes:**
-- `courseId`: `string` - Unique identifier for the course.
-- `userId`: `string` - The owner of the course.
-- `name`: `string` - The name of the course (e.g., "Introduction to Algorithms").
-- `syllabusContent`: `jsonb` - The structured JSON content extracted by the AI from the uploaded syllabus file.
-- `processingStatus`: `string` - Enum (`Pending`, `Processing`, `Completed`, `Failed`).
-- `schemaVersion`: `string` - The version of the JSON schema used in `structuredContent` (e.g., "1.0").
+**Purpose:** Implements Role-Based Access Control (RBAC) for the platform.
 
 #### **TypeScript Interface**
 ```typescript
-// In @roguelearn/shared-types
-export type SyllabusProcessingStatus = 'Pending' | 'Processing' | 'Completed' | 'Failed';
-
-export interface Course {
-  id: string;
-  userId: string;
-  name: string;
-  courseCode: string | null;
-  processingStatus: SyllabusProcessingStatus;
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
+export interface Role {
+  id: number;
+  roleName: string;
 }
 
+export interface UserRole {
+  userProfileId: string;
+  roleId: number;
+}
+```
+
+### **LecturerVerificationRequest**
+
+**Purpose:** Tracks requests for lecturer verification status.
+
+#### **TypeScript Interface**
+```typescript
+export interface LecturerVerificationRequest {
+  id: string;
+  userProfileId: string;
+  status: VerificationStatus;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewerNotes?: string;
+}
+```
+
+## **Academic & Content Management**
+
+### **Class & Curriculum**
+
+**Purpose:** Represents academic organizational structures.
+
+#### **TypeScript Interface**
+```typescript
+export interface Class {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface Curriculum {
+  id: string;
+  name: string;
+  description?: string;
+}
+```
+
+### **Syllabus & Enrollment**
+
+**Purpose:** Represents course syllabuses and user enrollments.
+
+#### **TypeScript Interface**
+```typescript
 export interface Syllabus {
   id: string;
-  courseId: string;
-  rawContent: string; // or reference to file
-  structuredContent: Record<string, any>; // The AI-parsed JSON
-  schemaVersion: string; // e.g., "1.0", "1.1"
+  curriculumId: string;
+  courseCode: string;
+  courseTitle: string;
+  description?: string;
+  credits?: number;
 }
-```
 
-### **QuestLine & Quest**
-
-**Purpose:** The `QuestLine` represents the entire learning path for a specific course, generated by the AI. Each `QuestLine` is composed of individual `Quests`, which are the actionable learning tasks, assignments, or events a student needs to complete.
-
-**Key Attributes:**
-- `questLineId`: `string` - The unique identifier for the entire quest line.
-- `questId`: `string` - The unique identifier for a single quest.
-- `title`: `string` - The name of the quest (e.g., "Master Big O Notation").
-- `description`: `string` - Details of the task to be completed.
-- `questType`: `string` - Enum (`Learning`, `Assignment`, `Exam`, `BossFight`).
-- `progressStatus`: `string` - Enum (`Not Started`, `In Progress`, `Completed`).
-- `dueDate`: `string` - Optional ISO 8601 timestamp.
-- `experiencePoints`: `number` - XP awarded upon completion.
-
-#### **TypeScript Interface**
-```typescript
-// In @roguelearn/shared-types
-export type QuestType = 'Learning' | 'Assignment' | 'Exam' | 'BossFight';
-export type ProgressStatus = 'Not Started' | 'In Progress' | 'Completed';
-
-export interface Quest {
+export interface UserSyllabusEnrollment {
   id: string;
-  questLineId: string;
-  title: string;
-  description: string;
-  questType: QuestType;
-  status: ProgressStatus;
-  dueDate: string | null; // ISO 8601 timestamp
-  experiencePoints: number;
-  prerequisites: string[]; // Array of Quest IDs
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
+  userProfileId: string;
+  syllabusId: string;
+  enrollmentDate: string;
 }
 
-export interface QuestLine {
-    id: string;
-    userId: string;
-    courseId: string;
-    title: string;
-    quests: Quest[]; // Can be a separate fetch
-    createdAt: string; // ISO 8601 timestamp
-}
-```
-
-### **SkillTree & Skill**
-
-**Purpose:** The `SkillTree` is the visual representation of a user's knowledge for a given course. It contains individual `Skills` as nodes, showing how concepts are interconnected and tracking the user's mastery level.
-
-**Key Attributes:**
-- `skillTreeId`: `string` - The unique identifier for the entire skill tree.
-- `skillId`: `string` - The unique identifier for a single skill node.
-- `name`: `string` - The name of the skill (e.g., "Data Structures").
-- `level`: `number` - The user's current proficiency level in that skill.
-- `prerequisites`: `string[]` - An array of `skillId`s required to unlock this skill.
-- `positionX`, `positionY`: `number` - Coordinates for rendering the node in the mind map visualization.
-
-#### **TypeScript Interface**
-```typescript
-// In @roguelearn/shared-types
-export interface Skill {
+export interface UserUploadedSyllabus {
   id: string;
-  skillTreeId: string;
-  name: string;
-  description: string;
-  level: number;
-  maxLevel: number;
-  prerequisites: string[]; // Array of Skill IDs
-  position: { x: number; y: number };
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
-}
-
-export interface SkillTree {
-    id: string;
-    userId: string;
-    courseId: string;
-    name: string;
-    skills: Skill[]; // Can be a separate fetch
-    createdAt: string; // ISO 8601 timestamp
+  enrollmentId: string;
+  fileUrl: string;
+  processingStatus: SyllabusProcessingStatus;
+  structuredContent?: Record<string, any>;
+  uploadedAt: string;
 }
 ```
 
 ### **Note (Arsenal Item)**
 
-**Purpose:** Represents a single piece of user-generated knowledge stored in their "Arsenal." These notes are the primary study materials created by the user and can be linked to various other entities.
-
-**Key Attributes:**
-- `noteId`: `string` - Unique identifier for the note.
-- `userId`: `string` - The owner of the note.
-- `title`: `string` - The title of the note.
-- `content`: `jsonb` - Rich text content (e.g., TipTap/ProseMirror JSON format).
-- `courseId`, `questId`, `skillId`: `string | null` - Optional foreign keys to link the note to other entities.
+**Purpose:** Represents user-generated knowledge stored in their "Arsenal."
 
 #### **TypeScript Interface**
 ```typescript
-// In @roguelearn/shared-types
 export interface Note {
   id: string;
-  userId: string;
+  userProfileId: string;
   title: string;
-  content: Record<string, any>; // Represents the rich text JSON
-  courseId?: string;
+  content?: Record<string, any>; // Rich text JSON
+  syllabusId?: string;
   questId?: string;
   skillId?: string;
-  tags: string[];
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 ```
 
-### **Party & PartyMembership**
+## **Quest & Skill Management**
 
-**Purpose:** A `Party` is a small, private study group created by a user (the Party Leader). It's designed for focused collaboration among a few members.
+### **QuestLine & Quest**
 
-**Key Attributes:**
-- `partyId`: `string` - Unique identifier for the party.
-- `name`: `string` - The name of the study group.
-- `description`: `string` - A brief description of the party's goals.
-- `joinType`: `string` - Enum (`Invite Only`, `Open`).
-- `partyLeaderId`: `string` - The `userId` of the creator.
+**Purpose:** The `QuestLine` represents the entire learning path for a specific syllabus. Each `QuestLine` contains individual `Quests`.
 
 #### **TypeScript Interface**
 ```typescript
-// In @roguelearn/shared-types
-export type PartyJoinType = 'Invite Only' | 'Open';
-
-export interface PartyMember {
-    userId: string;
-    username: string;
+export interface QuestLine {
+  id: string;
+  syllabusId: string;
+  title: string;
+  createdAt: string;
 }
 
+export interface Quest {
+  id: string;
+  questLineId: string;
+  title: string;
+  description?: string;
+  type: QuestType;
+  status: QuestStatus;
+  dueDate?: string;
+  experiencePoints: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QuestPrerequisite {
+  questId: string;
+  prerequisiteQuestId: string;
+}
+```
+
+### **SkillTree & Skill**
+
+**Purpose:** Visual representation of knowledge mastery for a curriculum.
+
+#### **TypeScript Interface**
+```typescript
+export interface SkillTree {
+  id: string;
+  curriculumId: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface Skill {
+  id: string;
+  skillTreeId: string;
+  name: string;
+  description?: string;
+  maxLevel: number;
+  positionX?: number;
+  positionY?: number;
+  createdAt: string;
+}
+
+export interface UserSkill {
+  userProfileId: string;
+  skillId: string;
+  level: number;
+}
+
+export interface SkillDependency {
+  skillId: string;
+  prerequisiteSkillId: string;
+}
+```
+
+## **Game Session & Notifications**
+
+### **GameSession**
+
+**Purpose:** Tracks individual user attempts at interactive game events.
+
+#### **TypeScript Interface**
+```typescript
+export interface GameSession {
+  id: string;
+  userProfileId: string;
+  questId: string;
+  status: GameSessionStatus;
+  score: number;
+  progressData?: Record<string, any>;
+  startedAt: string;
+  completedAt?: string;
+}
+```
+
+### **Notification**
+
+**Purpose:** User notification system.
+
+#### **TypeScript Interface**
+```typescript
+export interface Notification {
+  id: string;
+  userProfileId: string;
+  message: string;
+  isRead: boolean;
+  link?: string;
+  createdAt: string;
+}
+```
+
+## **Social & Community**
+
+### **Party & PartyMembership**
+
+**Purpose:** Small, private study groups for focused collaboration.
+
+#### **TypeScript Interface**
+```typescript
 export interface Party {
-    id: string;
-    name: string;
-    description: string;
-    joinType: PartyJoinType;
-    leaderId: string;
-    members: PartyMember[]; // Can be a separate fetch
-    createdAt: string; // ISO 8601 timestamp
+  id: string;
+  name: string;
+  description?: string;
+  joinType: PartyJoinType;
+  leaderId: string;
+  createdAt: string;
+}
+
+export interface PartyMembership {
+  partyId: string;
+  userProfileId: string;
+  joinedAt: string;
 }
 ```
 
 ### **Guild & GuildMembership**
 
-**Purpose:** A `Guild` is a larger, community-focused group, similar to a subreddit or Facebook Group, created by a Guild Master. It's a hub for knowledge sharing, discussions, and hosting competitive `Events`.
-
-**Key Attributes:**
-- `guildId`: `string` - Unique identifier for the guild.
-- `name`: `string` - The name of the community.
-- `description`: `string` - Description of the guild's topic or purpose.
-- `guildMasterId`: `string` - The `userId` of the creator.
-- `isVerified`: `boolean` - Indicates if the Guild Master has the "Verified Lecturer" status.
+**Purpose:** Larger community-focused groups for knowledge sharing and competitions.
 
 #### **TypeScript Interface**
 ```typescript
-// In @roguelearn/shared-types
-export interface GuildMember {
-    userId: string;
-    username: string;
-}
 export interface Guild {
-    id: string;
-    name: string;
-    description: string;
-    masterId: string;
-    isVerified: boolean;
-    memberCount: number;
-    createdAt: string; // ISO 8601 timestamp
-}
-```
-
-### **Event & CodeBattle & Duel**
-
-**Purpose:** An `Event` is a competition hosted by a `Guild`. `CodeBattle` and `Duel` are specific event types. A `Duel` is a real-time, 1v1 knowledge challenge.
-
-**Key Attributes:**
-- `eventId`: `string` - Unique identifier for the event.
-- `guildId`: `string` - The `Guild` hosting the event.
-- `title`: `string` - Name of the event.
-- `eventType`: `string` - Enum (`Quiz`, `CodeBattle`, `Tournament`, `Duel`).
-- `startDate`, `endDate`: `string` - ISO 8601 timestamps.
-
-#### **TypeScript Interface**
-```typescript
-// In @roguelearn/shared-types
-export type EventType = 'Quiz' | 'CodeBattle' | 'Tournament' | 'Duel';
-
-export interface Event {
-    id: string;
-    guildId: string;
-    title: string;
-    description: string;
-    eventType: EventType;
-    startDate: string; // ISO 8601 timestamp
-    endDate: string; // ISO 8601 timestamp
-    detailsUrl?: string;
-    createdAt: string; // ISO 8601 timestamp
-}
-
-export interface Duel {
-    id: string;
-    eventId: string | null;
-    challengerId: string;
-    opponentId: string;
-    status: 'Pending' | 'Active' | 'Completed';
-    winnerId: string | null;
-    questions: { question: string; answer: string; }[];
-}
-```
-
-### **GameSession**
-
-**Purpose:** Tracks the state of an individual user's attempt at a "Boss Fight" or other interactive game event.
-
-**Key Attributes:**
-- `sessionId`: `string` - Unique identifier for the session.
-- `userId`: `string` - The user playing the game.
-- `questId`: `string` - The "Boss Fight" quest this session is for.
-- `status`: `string` - Enum (`InProgress`, `Completed`, `Abandoned`).
-- `score`: `number` - The final score achieved.
-- `progressData`: `jsonb` - Flexible JSON field to store game-specific state (e.g., health, items).
-- `startedAt`: `string` - ISO 8601 timestamp when the session began.
-- `completedAt`: `string | null` - ISO 8601 timestamp when the session ended.
-
-#### **TypeScript Interface**
-```typescript
-// In @roguelearn/shared-types
-
-export type GameSessionStatus = 'InProgress' | 'Completed' | 'Abandoned';
-
-export interface GameSession {
   id: string;
-  userId: string;
-  questId: string; // The "Boss Fight" quest
-  status: GameSessionStatus;
-  score: number;
-  progressData: Record<string, any>; // Game-specific state
-  startedAt: string;
-  completedAt: string | null;
+  name: string;
+  description?: string;
+  masterId: string;
+  isVerified: boolean;
+  createdAt: string;
+}
+
+export interface GuildMembership {
+  guildId: string;
+  userProfileId: string;
+  joinedAt: string;
 }
 ```
-
+
+## **Events & Competition**
+
+### **Event & Competition System**
+
+**Purpose:** Competitive events hosted by guilds.
+
+#### **TypeScript Interface**
+```typescript
+export interface Event {
+  id: string;
+  guildId?: string;
+  title: string;
+  description?: string;
+  type: EventType;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface CodeProblem {
+  id: string;
+  title: string;
+  problemStatement: string;
+  testCases: Record<string, any>;
+}
+
+export interface EventCodeProblem {
+  eventId: string;
+  problemId: string;
+}
+
+export interface CodeSubmission {
+  id: string;
+  eventId: string;
+  problemId: string;
+  userProfileId: string;
+  guildId: string;
+  code: string;
+  language: string;
+  status: CodeSubmissionStatus;
+  submittedAt: string;
+}
+
+export interface LeaderboardEntry {
+  id: string;
+  userProfileId: string;
+  eventId?: string;
+  rank: number;
+  score: number;
+  snapshotDate: string;
+}
+
+export interface GuildLeaderboardEntry {
+  id: string;
+  guildId: string;
+  eventId?: string;
+  rank: number;
+  totalScore: number;
+  snapshotDate: string;
+}
+```
+
+## **Composite Types for API Responses**
+
+```typescript
+// Extended types for API responses with joined data
+export interface UserProfileWithDetails extends UserProfile {
+  class?: Class;
+  curriculum?: Curriculum;
+  roles?: Role[];
+}
+
+export interface QuestWithPrerequisites extends Quest {
+  prerequisites?: Quest[];
+}
+
+export interface SkillWithDependencies extends Skill {
+  dependencies?: Skill[];
+  userLevel?: number;
+}
+
+export interface PartyWithMembers extends Party {
+  members?: UserProfile[];
+  memberCount: number;
+}
+
+export interface GuildWithMembers extends Guild {
+  members?: UserProfile[];
+  memberCount: number;
+}
+
+export interface EventWithDetails extends Event {
+  guild?: Guild;
+  problems?: CodeProblem[];
+  submissions?: CodeSubmission[];
+}
+```
+

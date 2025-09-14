@@ -1,5 +1,21 @@
 # **RogueLearn Fullstack Architecture Document**
 
+## Table of Contents
+
+- [RogueLearn Fullstack Architecture Document](#roguelearn-fullstack-architecture-document)
+  - [Introduction](#introduction)
+  - [High Level Architecture](#high-level-architecture)
+  - [Tech Stack](#tech-stack)
+  - [Data Models](#data-models)
+  - [API Specification](#api-specification)
+  - [Components](#components)
+  - [External APIs](#external-apis)
+  - [Core Workflows](#core-workflows)
+  - [Database Schema](#database-schema)
+  - [Frontend Architecture](#frontend-architecture)
+  - [Backend Architecture](#backend-architecture)
+  - [Unified Project Structure](#unified-project-structure)
+
 ## **Introduction**
 
 This document outlines the complete fullstack architecture for RogueLearn, including backend systems, frontend implementation, and their integration. It serves as the single source of truth for AI-driven development, ensuring consistency across the entire technology stack.
@@ -178,133 +194,179 @@ This table is the single source of truth for all technologies, frameworks, and l
 
 ## **Data Models**
 
-This section defines the core data models and entities for the platform.
+This section defines the core data models and entities for the platform, aligned with the PostgreSQL database schema.
 
-### **User / UserProfile**
+### **User & Profile Core**
 
-**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, while the `UserProfile` stores application-specific data.
+#### **UserProfile**
+
+**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, with the `Id` directly referencing `auth.users.id`.
 
 **Key Attributes:**
-- `userId`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table.
+- `id`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table.
 - `username`: `string` - The user's public name.
 - `email`: `string` - The user's email address.
-- `classId`: `string` - Foreign key to the selected career goal (Class).
-- `routeId`: `string` - Foreign key to the selected academic path (Route).
+- `classId`: `string` - Foreign key to the selected class.
+- `curriculumId`: `string` - Foreign key to the selected curriculum.
 - `level`: `number` - The character's current level.
 - `experiencePoints`: `number` - The character's current XP.
-- `profileImageUrl`: `string` - URL for the user's avatar.
+- `stats`: `object` - Game-specific statistics stored as JSONB.
 
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
 export interface UserProfile {
-  id: string; // Our internal profile ID
-  userId: string; // Corresponds to the id in Supabase's auth.users table
+  id: string; // Direct reference to auth.users.id
   username: string;
   email: string;
-  classId: string;
-  routeId: string | null;
+  classId?: string;
+  curriculumId?: string;
   level: number;
   experiencePoints: number;
-  profileImageUrl: string | null;
+  stats?: Record<string, any>;
   onboardingCompleted: boolean;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
 }
 ```
 
-<!-- ... (The rest of the Data Models section remains unchanged) ... -->
+#### **Role & UserRole**
 
-### **Course & Syllabus**
+**Purpose:** Implements Role-Based Access Control (RBAC) for the platform.
 
-**Purpose:** Represents an academic course a user is taking. The `Course` is the high-level container, while the `Syllabus` holds the specific, AI-processed content from the user's uploaded document.
+#### **TypeScript Interface**
+```typescript
+export interface Role {
+  id: number;
+  roleName: string;
+}
+
+export interface UserRole {
+  userProfileId: string;
+  roleId: number;
+}
+```
+
+### **Academic & Content Management**
+
+#### **Class & Curriculum**
+
+**Purpose:** Represents academic organizational structures.
+
+#### **TypeScript Interface**
+```typescript
+export interface Class {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface Curriculum {
+  id: string;
+  name: string;
+  description?: string;
+}
+```
+
+#### **Syllabus & Enrollment**
+
+**Purpose:** Represents course syllabuses and user enrollments with AI processing capabilities.
 
 **Key Attributes:**
-- `courseId`: `string` - Unique identifier for the course.
-- `userId`: `string` - The owner of the course.
-- `name`: `string` - The name of the course (e.g., "Introduction to Algorithms").
-- `syllabusContent`: `jsonb` - The structured JSON content extracted by the AI from the uploaded syllabus file.
+- `syllabusId`: `string` - Unique identifier for the syllabus.
+- `curriculumId`: `string` - Foreign key to the curriculum.
+- `courseCode`: `string` - The course code (e.g., "CS101").
+- `courseTitle`: `string` - The full course title.
 - `processingStatus`: `string` - Enum (`Pending`, `Processing`, `Completed`, `Failed`).
-- `schemaVersion`: `string` - The version of the JSON schema used in `structuredContent` (e.g., "1.0").
 
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
 export type SyllabusProcessingStatus = 'Pending' | 'Processing' | 'Completed' | 'Failed';
 
-export interface Course {
-  id: string;
-  userId: string;
-  name: string;
-  courseCode: string | null;
-  processingStatus: SyllabusProcessingStatus;
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
-}
-
 export interface Syllabus {
   id: string;
-  courseId: string;
-  rawContent: string; // or reference to file
-  structuredContent: Record<string, any>; // The AI-parsed JSON
-  schemaVersion: string; // e.g., "1.0", "1.1"
+  curriculumId: string;
+  courseCode: string;
+  courseTitle: string;
+  description?: string;
+  credits?: number;
+}
+
+export interface UserSyllabusEnrollment {
+  id: string;
+  userProfileId: string;
+  syllabusId: string;
+  enrollmentDate: string;
+}
+
+export interface UserUploadedSyllabus {
+  id: string;
+  enrollmentId: string;
+  fileUrl: string;
+  processingStatus: SyllabusProcessingStatus;
+  structuredContent?: Record<string, any>;
+  uploadedAt: string;
 }
 ```
 
-### **QuestLine & Quest**
+### **Quest & Skill Management**
 
-**Purpose:** The `QuestLine` represents the entire learning path for a specific course, generated by the AI. Each `QuestLine` is composed of individual `Quests`, which are the actionable learning tasks, assignments, or events a student needs to complete.
+#### **QuestLine & Quest**
+
+**Purpose:** The `QuestLine` represents the entire learning path for a specific syllabus. Each `QuestLine` contains individual `Quests`.
 
 **Key Attributes:**
 - `questLineId`: `string` - The unique identifier for the entire quest line.
 - `questId`: `string` - The unique identifier for a single quest.
 - `title`: `string` - The name of the quest (e.g., "Master Big O Notation").
 - `description`: `string` - Details of the task to be completed.
-- `questType`: `string` - Enum (`Learning`, `Assignment`, `Exam`, `BossFight`).
-- `progressStatus`: `string` - Enum (`Not Started`, `In Progress`, `Completed`).
+- `type`: `string` - Enum (`Main`, `Side`, `Daily`, `Assignment`, `Exam`, `BossFight`).
+- `status`: `string` - Enum (`Not Started`, `In Progress`, `Completed`).
 - `dueDate`: `string` - Optional ISO 8601 timestamp.
 - `experiencePoints`: `number` - XP awarded upon completion.
 
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
-export type QuestType = 'Learning' | 'Assignment' | 'Exam' | 'BossFight';
-export type ProgressStatus = 'Not Started' | 'In Progress' | 'Completed';
+export type QuestType = 'Main' | 'Side' | 'Daily' | 'Assignment' | 'Exam' | 'BossFight';
+export type QuestStatus = 'Not Started' | 'In Progress' | 'Completed';
 
 export interface Quest {
   id: string;
   questLineId: string;
   title: string;
-  description: string;
-  questType: QuestType;
-  status: ProgressStatus;
-  dueDate: string | null; // ISO 8601 timestamp
+  description?: string;
+  type: QuestType;
+  status: QuestStatus;
+  dueDate?: string;
   experiencePoints: number;
-  prerequisites: string[]; // Array of Quest IDs
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface QuestLine {
-    id: string;
-    userId: string;
-    courseId: string;
-    title: string;
-    quests: Quest[]; // Can be a separate fetch
-    createdAt: string; // ISO 8601 timestamp
+  id: string;
+  syllabusId: string;
+  title: string;
+  createdAt: string;
+}
+
+export interface QuestPrerequisite {
+  questId: string;
+  prerequisiteQuestId: string;
 }
 ```
 
-### **SkillTree & Skill**
+#### **SkillTree & Skill**
 
-**Purpose:** The `SkillTree` is the visual representation of a user's knowledge for a given course. It contains individual `Skills` as nodes, showing how concepts are interconnected and tracking the user's mastery level.
+**Purpose:** Visual representation of knowledge mastery for a curriculum.
 
 **Key Attributes:**
 - `skillTreeId`: `string` - The unique identifier for the entire skill tree.
 - `skillId`: `string` - The unique identifier for a single skill node.
 - `name`: `string` - The name of the skill (e.g., "Data Structures").
-- `level`: `number` - The user's current proficiency level in that skill.
-- `prerequisites`: `string[]` - An array of `skillId`s required to unlock this skill.
+- `maxLevel`: `number` - The maximum level for this skill.
 - `positionX`, `positionY`: `number` - Coordinates for rendering the node in the mind map visualization.
 
 #### **TypeScript Interface**
@@ -314,54 +376,62 @@ export interface Skill {
   id: string;
   skillTreeId: string;
   name: string;
-  description: string;
-  level: number;
+  description?: string;
   maxLevel: number;
-  prerequisites: string[]; // Array of Skill IDs
-  position: { x: number; y: number };
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
+  positionX?: number;
+  positionY?: number;
+  createdAt: string;
 }
 
 export interface SkillTree {
-    id: string;
-    userId: string;
-    courseId: string;
-    name: string;
-    skills: Skill[]; // Can be a separate fetch
-    createdAt: string; // ISO 8601 timestamp
+  id: string;
+  curriculumId: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface UserSkill {
+  userProfileId: string;
+  skillId: string;
+  level: number;
+}
+
+export interface SkillDependency {
+  skillId: string;
+  prerequisiteSkillId: string;
 }
 ```
 
-### **Note (Arsenal Item)**
+#### **Note (Arsenal Item)**
 
 **Purpose:** Represents a single piece of user-generated knowledge stored in their "Arsenal." These notes are the primary study materials created by the user and can be linked to various other entities.
 
 **Key Attributes:**
 - `noteId`: `string` - Unique identifier for the note.
-- `userId`: `string` - The owner of the note.
+- `userProfileId`: `string` - The owner of the note.
 - `title`: `string` - The title of the note.
-- `content`: `jsonb` - Rich text content (e.g., TipTap/ProseMirror JSON format).
-- `courseId`, `questId`, `skillId`: `string | null` - Optional foreign keys to link the note to other entities.
+- `content`: `jsonb` - Rich text content stored as JSONB.
+- `syllabusId`, `questId`, `skillId`: `string | null` - Optional foreign keys to link the note to other entities.
+- `tags`: `string[]` - Array of tags for categorization.
 
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
 export interface Note {
   id: string;
-  userId: string;
+  userProfileId: string;
   title: string;
-  content: Record<string, any>; // Represents the rich text JSON
-  courseId?: string;
+  content?: Record<string, any>;
+  syllabusId?: string;
   questId?: string;
   skillId?: string;
-  tags: string[];
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 ```
 
-### **Party & PartyMembership**
+#### **Party & PartyMembership**
 
 **Purpose:** A `Party` is a small, private study group created by a user (the Party Leader). It's designed for focused collaboration among a few members.
 
@@ -370,30 +440,30 @@ export interface Note {
 - `name`: `string` - The name of the study group.
 - `description`: `string` - A brief description of the party's goals.
 - `joinType`: `string` - Enum (`Invite Only`, `Open`).
-- `partyLeaderId`: `string` - The `userId` of the creator.
+- `leaderId`: `string` - The `userProfileId` of the creator.
 
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
 export type PartyJoinType = 'Invite Only' | 'Open';
 
-export interface PartyMember {
-    userId: string;
-    username: string;
+export interface Party {
+  id: string;
+  name: string;
+  description?: string;
+  joinType: PartyJoinType;
+  leaderId: string;
+  createdAt: string;
 }
 
-export interface Party {
-    id: string;
-    name: string;
-    description: string;
-    joinType: PartyJoinType;
-    leaderId: string;
-    members: PartyMember[]; // Can be a separate fetch
-    createdAt: string; // ISO 8601 timestamp
+export interface PartyMembership {
+  partyId: string;
+  userProfileId: string;
+  joinedAt: string;
 }
 ```
 
-### **Guild & GuildMembership**
+#### **Guild & GuildMembership**
 
 **Purpose:** A `Guild` is a larger, community-focused group, similar to a subreddit or Facebook Group, created by a Guild Master. It's a hub for knowledge sharing, discussions, and hosting competitive `Events`.
 
@@ -401,95 +471,131 @@ export interface Party {
 - `guildId`: `string` - Unique identifier for the guild.
 - `name`: `string` - The name of the community.
 - `description`: `string` - Description of the guild's topic or purpose.
-- `guildMasterId`: `string` - The `userId` of the creator.
+- `masterId`: `string` - The `userProfileId` of the creator.
 - `isVerified`: `boolean` - Indicates if the Guild Master has the "Verified Lecturer" status.
 
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
-export interface GuildMember {
-    userId: string;
-    username: string;
-}
 export interface Guild {
-    id: string;
-    name: string;
-    description: string;
-    masterId: string;
-    isVerified: boolean;
-    memberCount: number;
-    createdAt: string; // ISO 8601 timestamp
+  id: string;
+  name: string;
+  description?: string;
+  masterId: string;
+  isVerified: boolean;
+  createdAt: string;
+}
+
+export interface GuildMembership {
+  guildId: string;
+  userProfileId: string;
+  joinedAt: string;
 }
 ```
 
-### **Event & CodeBattle & Duel**
+#### **Event & Competition System**
 
-**Purpose:** An `Event` is a competition hosted by a `Guild`. `CodeBattle` and `Duel` are specific event types. A `Duel` is a real-time, 1v1 knowledge challenge.
+**Purpose:** An `Event` is a competition hosted by a `Guild`. The system supports various event types including code battles with comprehensive submission tracking.
 
 **Key Attributes:**
 - `eventId`: `string` - Unique identifier for the event.
-- `guildId`: `string` - The `Guild` hosting the event.
+- `guildId`: `string` - The `Guild` hosting the event (optional for platform-wide events).
 - `title`: `string` - Name of the event.
-- `eventType`: `string` - Enum (`Quiz`, `CodeBattle`, `Tournament`, `Duel`).
+- `type`: `string` - Enum (`Quiz`, `CodeBattle`, `Tournament`, `Duel`).
 - `startDate`, `endDate`: `string` - ISO 8601 timestamps.
 
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
 export type EventType = 'Quiz' | 'CodeBattle' | 'Tournament' | 'Duel';
+export type CodeSubmissionStatus = 'Pending' | 'Accepted' | 'WrongAnswer' | 'TimeLimitExceeded' | 'CompilationError';
 
 export interface Event {
-    id: string;
-    guildId: string;
-    title: string;
-    description: string;
-    eventType: EventType;
-    startDate: string; // ISO 8601 timestamp
-    endDate: string; // ISO 8601 timestamp
-    detailsUrl?: string;
-    createdAt: string; // ISO 8601 timestamp
+  id: string;
+  guildId?: string;
+  title: string;
+  description?: string;
+  type: EventType;
+  startDate?: string;
+  endDate?: string;
 }
 
-export interface Duel {
-    id: string;
-    eventId: string | null;
-    challengerId: string;
-    opponentId: string;
-    status: 'Pending' | 'Active' | 'Completed';
-    winnerId: string | null;
-    questions: { question: string; answer: string; }[];
+export interface CodeProblem {
+  id: string;
+  title: string;
+  problemStatement: string;
+  testCases: Record<string, any>;
+}
+
+export interface CodeSubmission {
+  id: string;
+  eventId: string;
+  problemId: string;
+  userProfileId: string;
+  guildId: string;
+  code: string;
+  language: string;
+  status: CodeSubmissionStatus;
+  submittedAt: string;
+}
+
+export interface LeaderboardEntry {
+  id: string;
+  userProfileId: string;
+  eventId?: string;
+  rank: number;
+  score: number;
+  snapshotDate: string;
 }
 ```
 
-### **GameSession**
+#### **GameSession & Notifications**
 
-**Purpose:** Tracks the state of an individual user's attempt at a "Boss Fight" or other interactive game event.
+**Purpose:** Tracks the state of an individual user's attempt at a "Boss Fight" or other interactive game event, plus system notifications.
 
 **Key Attributes:**
 - `sessionId`: `string` - Unique identifier for the session.
-- `userId`: `string` - The user playing the game.
+- `userProfileId`: `string` - The user playing the game.
 - `questId`: `string` - The "Boss Fight" quest this session is for.
 - `status`: `string` - Enum (`InProgress`, `Completed`, `Abandoned`).
 - `score`: `number` - The final score achieved.
-- `progressData`: `jsonb` - Flexible JSON field to store game-specific state (e.g., health, items).
+- `progressData`: `jsonb` - Flexible JSON field to store game-specific state.
 - `startedAt`: `string` - ISO 8601 timestamp when the session began.
 - `completedAt`: `string | null` - ISO 8601 timestamp when the session ended.
 
 #### **TypeScript Interface**
 ```typescript
 // In @roguelearn/shared-types
-
 export type GameSessionStatus = 'InProgress' | 'Completed' | 'Abandoned';
+export type VerificationStatus = 'Pending' | 'Approved' | 'Rejected' | 'MoreInfoRequired';
 
 export interface GameSession {
   id: string;
-  userId: string;
-  questId: string; // The "Boss Fight" quest
+  userProfileId: string;
+  questId: string;
   status: GameSessionStatus;
   score: number;
-  progressData: Record<string, any>; // Game-specific state
+  progressData?: Record<string, any>;
   startedAt: string;
-  completedAt: string | null;
+  completedAt?: string;
+}
+
+export interface Notification {
+  id: string;
+  userProfileId: string;
+  message: string;
+  isRead: boolean;
+  link?: string;
+  createdAt: string;
+}
+
+export interface LecturerVerificationRequest {
+  id: string;
+  userProfileId: string;
+  status: VerificationStatus;
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewerNotes?: string;
 }
 ```
 
@@ -842,12 +948,12 @@ sequenceDiagram
     AuthService-->>Database: 200 OK
     
     %% Step 3: User is back on our app and uploads syllabus %%
-    User->>Frontend: Uploads syllabus.pdf for a new Course
-    Frontend->>APIGateway: POST /courses/{id}/syllabus (with JWT & file)
+    User->>Frontend: Uploads syllabus.pdf for an enrollment
+    Frontend->>APIGateway: POST /enrollments/{enrollmentId}/upload-syllabus (with JWT & file)
     APIGateway->>QuestsService: Forwards request
     
     %% Step 4: QuestsService orchestrates AI processing %%
-    QuestsService->>Database: Marks Syllabus as 'Processing'
+    QuestsService->>Database: Marks UserUploadedSyllabus as 'Processing'
     QuestsService->>AIProxyService: ProcessSyllabus(file_content)
     Note right of QuestsService: This is an internal, secure service-to-service call.
 
@@ -859,7 +965,7 @@ sequenceDiagram
     %% Step 6: QuestsService creates the gamified content %%
     QuestsService->>Database: CREATE QuestLine, Quests, SkillTree
     Database-->>QuestsService: Confirms creation
-    QuestsService->>Database: Updates Syllabus to 'Completed'
+    QuestsService->>Database: Updates UserUploadedSyllabus to 'Completed'
     
     %% Step 7: Frontend is notified of completion %%
     QuestsService-->>APIGateway: 202 Accepted (or success)
@@ -873,124 +979,270 @@ sequenceDiagram
 This section provides the SQL DDL for the PostgreSQL database.
 
 ```sql
+-- ========= Enums =========
+CREATE TYPE "SyllabusProcessingStatus" AS ENUM ('Pending', 'Processing', 'Completed', 'Failed');
+CREATE TYPE "QuestType" AS ENUM ('Main', 'Side', 'Daily', 'Assignment', 'Exam', 'BossFight');
+CREATE TYPE "QuestStatus" AS ENUM ('Not Started', 'In Progress', 'Completed');
+CREATE TYPE "GameSessionStatus" AS ENUM ('InProgress', 'Completed', 'Abandoned');
+CREATE TYPE "PartyJoinType" AS ENUM ('Invite Only', 'Open');
+CREATE TYPE "EventType" AS ENUM ('Quiz', 'CodeBattle', 'Tournament', 'Duel');
+
 -- ========= User Management (Managed by Auth Service) =========
 
 CREATE TABLE "UserProfiles" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserId" uuid NOT NULL UNIQUE, -- Corresponds to the UUID from Supabase auth.users table
-    "Username" text NOT NULL,
-    "Email" text NOT NULL,
-    "ClassId" uuid, -- FK to a future "Classes" table
-    "RouteId" uuid, -- FK to a future "Routes" table
-    "Level" integer NOT NULL DEFAULT 1,
-    "ExperiencePoints" integer NOT NULL DEFAULT 0,
-    "ProfileImageUrl" text,
-    "OnboardingCompleted" boolean NOT NULL DEFAULT false,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "UserId" UUID NOT NULL UNIQUE, -- Corresponds to the UUID from Supabase auth.users table
+    "Username" TEXT NOT NULL,
+    "Email" TEXT NOT NULL,
+    "ClassId" UUID, -- FK to "Classes" table
+    "CurriculumId" UUID, -- FK to "Curriculums" table
+    "Level" INTEGER NOT NULL DEFAULT 1,
+    "ExperiencePoints" INTEGER NOT NULL DEFAULT 0,
+    "Stats" JSONB,
+    "ProfileImageUrl" TEXT,
+    "OnboardingCompleted" BOOLEAN NOT NULL DEFAULT false,
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
+    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- ========= Course & Syllabus Management (Managed by Quests Service) =========
+-- ========= Social Features (Managed by Social Service) =========
 
-CREATE TABLE "Courses" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "Name" text NOT NULL,
-    "CourseCode" text,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+CREATE TABLE "Parties" (
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "Name" TEXT NOT NULL,
+    "Description" TEXT,
+    "JoinType" "PartyJoinType" NOT NULL DEFAULT 'Invite Only',
+    "MaxMembers" INTEGER NOT NULL DEFAULT 4,
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TYPE "SyllabusStatus" AS ENUM ('Pending', 'Processing', 'Completed', 'Failed');
+CREATE TABLE "PartyMemberships" (
+    "PartyId" UUID NOT NULL REFERENCES "Parties"("Id") ON DELETE CASCADE,
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "IsLeader" BOOLEAN NOT NULL DEFAULT false,
+    "JoinedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY ("PartyId", "UserProfileId")
+);
 
-CREATE TABLE "Syllabi" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "CourseId" uuid NOT NULL REFERENCES "Courses"("Id") ON DELETE CASCADE,
-    "FileUrl" text NOT NULL, -- Link to file in Supabase Storage
-    "ProcessingStatus" "SyllabusStatus" NOT NULL DEFAULT 'Pending',
-    "StructuredContent" jsonb, -- The AI-parsed JSON output
-    "SchemaVersion" text NOT NULL DEFAULT '1.0',
-    "UploadedAt" timestamp with time zone NOT NULL DEFAULT now()
+CREATE TABLE "Guilds" (
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "Name" TEXT UNIQUE NOT NULL,
+    "Description" TEXT,
+    "MaxMembers" INTEGER NOT NULL DEFAULT 50,
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE "GuildMemberships" (
+    "GuildId" UUID NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE,
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "IsLeader" BOOLEAN NOT NULL DEFAULT false,
+    "JoinedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY ("GuildId", "UserProfileId")
+);
+
+CREATE TABLE "Events" (
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "Title" TEXT NOT NULL,
+    "Description" TEXT,
+    "Type" "EventType" NOT NULL,
+    "StartTime" TIMESTAMPTZ NOT NULL,
+    "EndTime" TIMESTAMPTZ,
+    "MaxParticipants" INTEGER,
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE "CodeBattles" (
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "EventId" UUID REFERENCES "Events"("Id") ON DELETE SET NULL,
+    "Player1Id" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "Player2Id" UUID REFERENCES "UserProfiles"("Id") ON DELETE SET NULL,
+    "WinnerId" UUID REFERENCES "UserProfiles"("Id") ON DELETE SET NULL,
+    "ProblemStatement" TEXT NOT NULL,
+    "StartTime" TIMESTAMPTZ NOT NULL DEFAULT now(),
+    "EndTime" TIMESTAMPTZ,
+    "Status" TEXT NOT NULL DEFAULT 'Waiting',
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ========= Performance Indexes =========
+
+-- User Profile indexes
+CREATE INDEX "idx_userprofiles_userid" ON "UserProfiles"("UserId");
+CREATE INDEX "idx_userprofiles_classid" ON "UserProfiles"("ClassId");
+CREATE INDEX "idx_userprofiles_curriculumid" ON "UserProfiles"("CurriculumId");
+
+-- Academic Management indexes
+CREATE INDEX "idx_syllabuses_curriculumid" ON "Syllabuses"("CurriculumId");
+CREATE INDEX "idx_userenrollments_userprofileid" ON "UserSyllabusEnrollments"("UserProfileId");
+CREATE INDEX "idx_userenrollments_syllabusid" ON "UserSyllabusEnrollments"("SyllabusId");
+CREATE INDEX "idx_useruploadedsyllabuses_enrollmentid" ON "UserUploadedSyllabuses"("EnrollmentId");
+
+-- Quest Management indexes
+CREATE INDEX "idx_questlines_syllabusid" ON "QuestLines"("SyllabusId");
+CREATE INDEX "idx_quests_questlineid" ON "Quests"("QuestLineId");
+CREATE INDEX "idx_quests_status" ON "Quests"("Status");
+CREATE INDEX "idx_quests_type" ON "Quests"("Type");
+
+-- Skill Tree indexes
+CREATE INDEX "idx_skilltrees_curriculumid" ON "SkillTrees"("CurriculumId");
+CREATE INDEX "idx_skills_skilltreeid" ON "Skills"("SkillTreeId");
+CREATE INDEX "idx_userskills_userprofileid" ON "UserSkills"("UserProfileId");
+CREATE INDEX "idx_userskills_skillid" ON "UserSkills"("SkillId");
+
+-- Game Session indexes
+CREATE INDEX "idx_gamesessions_userprofileid" ON "GameSessions"("UserProfileId");
+CREATE INDEX "idx_gamesessions_questid" ON "GameSessions"("QuestId");
+CREATE INDEX "idx_gamesessions_status" ON "GameSessions"("Status");
+
+-- Notes indexes
+CREATE INDEX "idx_notes_userprofileid" ON "Notes"("UserProfileId");
+CREATE INDEX "idx_notes_syllabusid" ON "Notes"("SyllabusId");
+CREATE INDEX "idx_notes_questid" ON "Notes"("QuestId");
+CREATE INDEX "idx_notes_skillid" ON "Notes"("SkillId");
+
+-- Social Features indexes
+CREATE INDEX "idx_partymemberships_partyid" ON "PartyMemberships"("PartyId");
+CREATE INDEX "idx_partymemberships_userprofileid" ON "PartyMemberships"("UserProfileId");
+CREATE INDEX "idx_guildmemberships_guildid" ON "GuildMemberships"("GuildId");
+CREATE INDEX "idx_guildmemberships_userprofileid" ON "GuildMemberships"("UserProfileId");
+CREATE INDEX "idx_codebattles_player1id" ON "CodeBattles"("Player1Id");
+CREATE INDEX "idx_codebattles_player2id" ON "CodeBattles"("Player2Id");
+CREATE INDEX "idx_codebattles_eventid" ON "CodeBattles"("EventId");
+```
+
+-- ========= Role-Based Access Control =========
+
+CREATE TABLE "Roles" (
+    "Id" SERIAL PRIMARY KEY,
+    "RoleName" TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE "UserRoles" (
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "RoleId" INTEGER NOT NULL REFERENCES "Roles"("Id") ON DELETE CASCADE,
+    PRIMARY KEY ("UserProfileId", "RoleId")
+);
+
+-- ========= Academic & Content Management =========
+
+CREATE TABLE "Classes" (
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "Name" TEXT UNIQUE NOT NULL,
+    "Description" TEXT
+);
+
+CREATE TABLE "Curriculums" (
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "Name" TEXT UNIQUE NOT NULL,
+    "Description" TEXT
+);
+
+CREATE TABLE "Syllabuses" (
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "CurriculumId" UUID NOT NULL REFERENCES "Curriculums"("Id") ON DELETE CASCADE,
+    "CourseCode" TEXT NOT NULL,
+    "CourseTitle" TEXT NOT NULL,
+    "Description" TEXT,
+    "Credits" INTEGER
+); 
+
+-- Junction table to track which users are enrolled in which syllabuses 
+CREATE TABLE "UserSyllabusEnrollments" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE, 
+    "SyllabusId" UUID NOT NULL REFERENCES "Syllabuses"("Id") ON DELETE CASCADE, 
+    "EnrollmentDate" TIMESTAMPTZ NOT NULL DEFAULT now(), 
+    UNIQUE ("UserProfileId", "SyllabusId") 
+); 
+
+-- Tracks the processing of a user's uploaded syllabus file for a specific enrollment 
+CREATE TABLE "UserUploadedSyllabuses" ( 
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+    "EnrollmentId" UUID NOT NULL REFERENCES "UserSyllabusEnrollments"("Id") ON DELETE CASCADE, 
+    "FileUrl" TEXT NOT NULL, 
+    "ProcessingStatus" "SyllabusProcessingStatus" NOT NULL DEFAULT 'Pending', 
+    "StructuredContent" JSONB, 
+    "UploadedAt" TIMESTAMPTZ NOT NULL DEFAULT now() 
 );
 
 -- ========= Quest Management (Managed by Quests Service) =========
 
 CREATE TABLE "QuestLines" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "CourseId" uuid NOT NULL REFERENCES "Courses"("Id") ON DELETE CASCADE,
-    "Title" text NOT NULL,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now()
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "SyllabusId" UUID NOT NULL REFERENCES "Syllabuses"("Id") ON DELETE CASCADE,
+    "Title" TEXT NOT NULL,
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TYPE "QuestType" AS ENUM ('Learning', 'Assignment', 'Exam', 'BossFight');
-CREATE TYPE "ProgressStatus" AS ENUM ('Not Started', 'In Progress', 'Completed');
-
 CREATE TABLE "Quests" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "QuestLineId" uuid NOT NULL REFERENCES "QuestLines"("Id") ON DELETE CASCADE,
-    "Title" text NOT NULL,
-    "Description" text,
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "QuestLineId" UUID NOT NULL REFERENCES "QuestLines"("Id") ON DELETE CASCADE,
+    "Title" TEXT NOT NULL,
+    "Description" TEXT,
     "Type" "QuestType" NOT NULL,
-    "Status" "ProgressStatus" NOT NULL DEFAULT 'Not Started',
-    "DueDate" timestamp with time zone,
-    "ExperiencePoints" integer NOT NULL DEFAULT 10,
-    "Prerequisites" uuid[], -- Array of Quest IDs
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+    "Status" "QuestStatus" NOT NULL DEFAULT 'Not Started',
+    "DueDate" TIMESTAMPTZ,
+    "ExperiencePoints" INTEGER NOT NULL DEFAULT 10,
+    "Prerequisites" UUID[], -- Array of Quest IDs
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
+    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ========= Skill Tree Management (Managed by Quests Service) =========
 
 CREATE TABLE "SkillTrees" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "CourseId" uuid NOT NULL REFERENCES "Courses"("Id") ON DELETE CASCADE,
-    "Name" text NOT NULL,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now()
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "CurriculumId" UUID NOT NULL REFERENCES "Curriculums"("Id") ON DELETE CASCADE,
+    "Name" TEXT NOT NULL,
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE "Skills" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "SkillTreeId" uuid NOT NULL REFERENCES "SkillTrees"("Id") ON DELETE CASCADE,
-    "Name" text NOT NULL,
-    "Description" text,
-    "Level" integer NOT NULL DEFAULT 0,
-    "MaxLevel" integer NOT NULL DEFAULT 10,
-    "Prerequisites" uuid[], -- Array of Skill IDs
-    "PositionX" integer,
-    "PositionY" integer,
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "SkillTreeId" UUID NOT NULL REFERENCES "SkillTrees"("Id") ON DELETE CASCADE,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT,
+    "MaxLevel" INTEGER NOT NULL DEFAULT 10,
+    "Prerequisites" UUID[], -- Array of Skill IDs
+    "PositionX" INTEGER,
+    "PositionY" INTEGER,
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE "UserSkills" (
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "SkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE,
+    "Level" INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY ("UserProfileId", "SkillId")
 );
 
 -- ========= Game Session Management (Managed by Quests Service) =========
 
-CREATE TYPE "GameSessionStatus" AS ENUM ('InProgress', 'Completed', 'Abandoned');
-
 CREATE TABLE "GameSessions" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "QuestId" uuid NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE,
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "QuestId" UUID NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE,
     "Status" "GameSessionStatus" NOT NULL DEFAULT 'InProgress',
-    "Score" integer NOT NULL DEFAULT 0,
-    "ProgressData" jsonb, -- To store game-specific state
-    "StartedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "CompletedAt" timestamp with time zone,
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+    "Score" INTEGER NOT NULL DEFAULT 0,
+    "ProgressData" JSONB, -- To store game-specific state
+    "StartedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
+    "CompletedAt" TIMESTAMPTZ,
+    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ========= Arsenal (Notes) Management (Managed by Quests Service) =========
 
 CREATE TABLE "Notes" (
-    "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserProfileId" uuid NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
-    "Title" text NOT NULL,
-    "Content" jsonb,
-    "CourseId" uuid REFERENCES "Courses"("Id") ON DELETE SET NULL,
-    "QuestId" uuid REFERENCES "Quests"("Id") ON DELETE SET NULL,
-    "SkillId" uuid REFERENCES "Skills"("Id") ON DELETE SET NULL,
-    "Tags" text[],
-    "CreatedAt" timestamp with time zone NOT NULL DEFAULT now(),
-    "UpdatedAt" timestamp with time zone NOT NULL DEFAULT now()
+    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "Title" TEXT NOT NULL,
+    "Content" JSONB,
+    "SyllabusId" UUID REFERENCES "Syllabuses"("Id") ON DELETE SET NULL,
+    "QuestId" UUID REFERENCES "Quests"("Id") ON DELETE SET NULL,
+    "SkillId" UUID REFERENCES "Skills"("Id") ON DELETE SET NULL,
+    "Tags" TEXT[],
+    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
+    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ========= Social Features (Managed by Social Service) =========
@@ -1052,14 +1304,15 @@ CREATE TABLE "CodeBattles" (
 );
 
 -- ========= Indexes for Performance =========
-CREATE INDEX idx_courses_user_profile_id ON "Courses"("UserProfileId");
-CREATE INDEX idx_syllabi_course_id ON "Syllabi"("CourseId");
-CREATE INDEX idx_questlines_course_id ON "QuestLines"("CourseId");
-CREATE INDEX idx_quests_questline_id ON "Quests"("QuestLineId");
-CREATE INDEX idx_skilltrees_course_id ON "SkillTrees"("CourseId");
-CREATE INDEX idx_skills_skilltree_id ON "Skills"("SkillTreeId");
-CREATE INDEX idx_gamesessions_user_profile_id ON "GameSessions"("UserProfileId");
-CREATE INDEX idx_gamesessions_quest_id ON "GameSessions"("QuestId");
+CREATE INDEX "idx_userprofiles_email" ON "UserProfiles"("Email");
+CREATE INDEX "idx_enrollments_user_id" ON "UserSyllabusEnrollments"("UserProfileId");
+CREATE INDEX "idx_enrollments_syllabus_id" ON "UserSyllabusEnrollments"("SyllabusId");
+CREATE INDEX "idx_notes_user_id" ON "Notes"("UserProfileId");
+CREATE INDEX "idx_quests_questline_id" ON "Quests"("QuestLineId");
+CREATE INDEX "idx_skills_skilltree_id" ON "Skills"("SkillTreeId");
+CREATE INDEX "idx_userskills_user_id" ON "UserSkills"("UserProfileId");
+CREATE INDEX "idx_gamesessions_user_id" ON "GameSessions"("UserProfileId");
+CREATE INDEX "idx_guildmemberships_user_id" ON "GuildMemberships"("UserProfileId");
 CREATE INDEX idx_notes_user_profile_id ON "Notes"("UserProfileId");
 CREATE INDEX idx_parties_leader_id ON "Parties"("LeaderId");
 CREATE INDEX idx_guilds_master_id ON "Guilds"("MasterId");

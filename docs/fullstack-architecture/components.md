@@ -20,7 +20,7 @@ This section details the major logical components of the platform.
 
 ### **Quests Service (`roguelearn-quests-service`)**
 
-*   **Responsibility:** Owns the core learning loop, including Courses, Quests, SkillTrees, and **Game Sessions**.
+*   **Responsibility:** Owns the core learning loop, including Academic Management (Syllabuses, Enrollments), Quests, SkillTrees, and **Game Sessions**.
 *   **Technology Stack:** .NET 8, C#.
 
 ### **Social Service (`roguelearn-social-service`)**
@@ -97,4 +97,4 @@ graph TD
 
     AIProxy --> Gemini
 ```
-
+

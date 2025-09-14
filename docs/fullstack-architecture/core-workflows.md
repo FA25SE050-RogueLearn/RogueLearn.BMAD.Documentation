@@ -27,12 +27,12 @@ sequenceDiagram
     AuthService-->>Database: 200 OK
     
     %% Step 3: User is back on our app and uploads syllabus %%
-    User->>Frontend: Uploads syllabus.pdf for a new Course
-    Frontend->>APIGateway: POST /courses/{id}/syllabus (with JWT & file)
+    User->>Frontend: Uploads syllabus.pdf for an enrollment
+    Frontend->>APIGateway: POST /enrollments/{enrollmentId}/upload-syllabus (with JWT & file)
     APIGateway->>QuestsService: Forwards request
     
     %% Step 4: QuestsService orchestrates AI processing %%
-    QuestsService->>Database: Marks Syllabus as 'Processing'
+    QuestsService->>Database: Marks UserUploadedSyllabus as 'Processing'
     QuestsService->>AIProxyService: ProcessSyllabus(file_content)
     Note right of QuestsService: This is an internal, secure service-to-service call.
 
@@ -44,7 +44,7 @@ sequenceDiagram
     %% Step 6: QuestsService creates the gamified content %%
     QuestsService->>Database: CREATE QuestLine, Quests, SkillTree
     Database-->>QuestsService: Confirms creation
-    QuestsService->>Database: Updates Syllabus to 'Completed'
+    QuestsService->>Database: Updates UserUploadedSyllabus to 'Completed'
     
     %% Step 7: Frontend is notified of completion %%
     QuestsService-->>APIGateway: 202 Accepted (or success)
@@ -52,4 +52,4 @@ sequenceDiagram
     Note left of Frontend: Frontend can now poll for status<br/>or receive a real-time update<br/>to show the new QuestLine.
     User->>Frontend: Sees personalized QuestLine and SkillTree
 ```
-
+
