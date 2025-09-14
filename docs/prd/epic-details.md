@@ -22,16 +22,17 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Basic monitoring and logging infrastructure is configured
 
 #### **Story: Authentication Service Integration**
-**As a** Developer, **I want** to integrate Clerk authentication service with proper error handling, **so that** users can securely access the platform.
+**As a** Developer, **I want** to integrate Supabase Authentication with proper error handling, **so that** users can securely access the platform.
 
 *   **Acceptance Criteria:**
-    *   Clerk SDK is properly configured in both frontend and backend
-    *   JWT token validation middleware is implemented on backend API routes
-    *   Authentication state management is implemented in frontend (React Context/Redux)
-    *   Session persistence and refresh token handling is configured
-    *   Rate limiting is implemented for authentication endpoints (5 attempts per minute)
-    *   Proper error messages are displayed for authentication failures
-
+    *   The Supabase Auth Helpers SDK (`@supabase/auth-helpers-nextjs`) is properly configured in the Next.js frontend.
+    *   Backend API routes are protected by middleware that validates JWTs issued by Supabase.
+    *   Authentication state (e.g., session, user) is managed effectively in the frontend using Supabase's provided hooks or context providers.
+    *   Session persistence and token refresh are handled automatically by the Supabase SDK.
+    *   Supabase's built-in rate limiting for authentication endpoints is enabled and configured.
+    *   Proper error messages are displayed to the user for authentication failures (e.g., invalid credentials, email already in use).
+    *   A PostgreSQL trigger is created in the Supabase database to synchronize new users from `auth.users` to the public `UserProfiles` table.
+    
 #### **Story: User Registration Flow**
 **As a** prospective student, **I want** to create an account with email verification, **so that** I can access the RogueLearn platform securely.
 

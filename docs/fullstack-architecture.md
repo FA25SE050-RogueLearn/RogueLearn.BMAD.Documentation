@@ -20,6 +20,7 @@ This approach provides maximum flexibility, clear separation of concerns, and al
 
 | Date          | Version | Description                                                                    | Author             |
 | :------------ | :------ | :----------------------------------------------------------------------------- | :----------------- |
+| Sep 13, 2025  | 1.7     | Replaced Clerk with Supabase Authentication across the entire architecture.      | Winston, Architect |
 | Sep 12, 2025  | 1.6     | Integrated Unity WebGL feature for "Boss Fights" across the architecture.        | Winston, Architect |
 | Sep 12, 2025  | 1.5     | Removed Marketplace feature per user request to focus on core learning experience. | Winston, Architect |
 | Sep 12, 2025  | 1.4     | Aligned architecture with expanded PRD. Added Marketplace, Duels, and Real-Time features. | Winston, Architect |
@@ -32,7 +33,7 @@ This approach provides maximum flexibility, clear separation of concerns, and al
 
 ### **Technical Summary**
 
-RogueLearn will be implemented as a cloud-native, multi-repository application. It features a decoupled frontend built with Next.js, interactive "Boss Fights" built with **Unity WebGL**, and a microservices-based backend using **.NET 8** and **Go**. The system is deployed on Vercel and Azure Container Apps. Communication is handled by a RESTful API Gateway and a real-time SignalR hub for interactive features. The architecture supports AI-powered quest generation, social collaboration, competitive Duels, and code-grading battles. Data is persisted in a Supabase PostgreSQL database, with authentication managed by Clerk.
+RogueLearn will be implemented as a cloud-native, multi-repository application. It features a decoupled frontend built with Next.js, interactive "Boss Fights" built with **Unity WebGL**, and a microservices-based backend using **.NET 8** and **Go**. The system is deployed on Vercel and Azure Container Apps. Communication is handled by a RESTful API Gateway and a real-time SignalR hub for interactive features. The architecture supports AI-powered quest generation, social collaboration, competitive Duels, and code-grading battles. Data, storage, and authentication are consolidated and managed within a **Supabase** project.
 
 ### **Platform and Infrastructure Choice**
 
@@ -41,12 +42,11 @@ To best support our technology stack and scalability goals, I recommend the foll
 *   **Platform:** A hybrid-cloud approach leveraging best-in-class services.
     *   **Frontend Hosting:** **Vercel**. It is purpose-built for Next.js, providing seamless deployments, global CDN, and serverless functions out-of-the-box.
     *   **Backend Hosting:** **Azure Container Apps**. This is a serverless container platform that is ideal for running our .NET and Go microservices.
-    *   **Database & Storage:** **Supabase**. Provides a managed PostgreSQL instance, real-time capabilities, and file storage which will be used for both user documents and hosting Unity game assets.
+    *   **Database, Storage & Auth:** **Supabase**. Provides a managed PostgreSQL instance, user authentication, real-time capabilities, and file storage which will be used for both user documents and hosting Unity game assets.
 *   **Key Services:**
     *   **Vercel:** Next.js Hosting, Edge Network (CDN)
     *   **Azure:** Container Apps, API Management (for the API Gateway)
-    *   **Supabase:** PostgreSQL Database, Storage (for documents and game assets)
-    *   **Clerk:** External Authentication Service
+    *   **Supabase:** PostgreSQL Database, Storage (for documents and game assets), **Authentication**
     *   **Internal AI Proxy Service:** A dedicated backend service to securely manage communication with the Gemini API.
 
 ### **Repository Structure**
@@ -55,7 +55,7 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 
 *   **`roguelearn-web`**: The Next.js frontend application.
 *   **`roguelearn-unity-games`**: The Unity project containing the "Boss Fight" game client.
-*   **`roguelearn-auth-service`**: .NET microservice for user identity, profiles, and Clerk integration.
+*   **`roguelearn-auth-service`**: .NET microservice for user identity and profile synchronization with Supabase Auth.
 *   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game session logic.
 *   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
 *   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code.
@@ -63,7 +63,7 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 
 ### **High Level Architecture Diagram**
 
-This diagram illustrates the primary components and data flow of the RogueLearn platform, now including the Unity game client.
+This diagram illustrates the primary components and data flow of the RogueLearn platform, now reflecting the use of Supabase Authentication.
 
 ```mermaid
 graph TD
@@ -79,7 +79,6 @@ graph TD
     end
 
     subgraph "External Services"
-        Clerk[Clerk Authentication]
         Gemini[Gemini API]
     end
 
@@ -100,13 +99,17 @@ graph TD
         Database[PostgreSQL Database]
         FileStorage[File Storage for Docs]
         GameAssetHosting[Game Asset Hosting]
+        SupabaseAuth[Supabase GoTrue Auth]
     end
 
     User --> Frontend
+
     BrowserExtension --> APIGateway
 
+    Frontend -- Auth via SDK --> SupabaseAuth
     Frontend --> APIGateway
     Frontend -.-> RealtimeHub
+
     UnityClient --> GameAssetHosting
     UnityClient --> APIGateway
     
@@ -118,8 +121,7 @@ graph TD
     
     RealtimeHub --> SocialService
 
-    AuthService --> Clerk
-    AuthService --> Database
+    AuthService -- Sync Trigger --> Database
 
     QuestService --> Database
     QuestService --> FileStorage
@@ -132,6 +134,7 @@ graph TD
     AIProxyService --> Database
 
     Database <--> FileStorage
+    SupabaseAuth <--> Database
 ```
 
 ### **Architectural and Design Patterns**
@@ -141,6 +144,7 @@ graph TD
 *   **Clean Architecture (.NET):** Each microservice will separate domain logic, application logic, and infrastructure. *Rationale:* Produces highly testable and maintainable services.
 *   **Component-Based UI (Next.js):** The frontend will be built as a collection of reusable components. *Rationale:* Promotes reusability and faster development.
 *   **Repository Pattern (.NET):** Data access within each microservice will be abstracted. *Rationale:* Decouples business logic from data access implementation.
+*   **Database Triggers:** A PostgreSQL trigger will be used to sync new users from Supabase's `auth.users` table to our application's `UserProfiles` table. *Rationale:* Provides a reliable, event-driven way to create user profiles without webhooks.
 
 ## **Tech Stack**
 
@@ -162,7 +166,7 @@ This table is the single source of truth for all technologies, frameworks, and l
 | **API Style**            | RESTful API                 | `v1`          | Standard for communication between services       | A well-understood, stateless, and scalable approach for our APIs.                                                                                            |
 | **Real-time Comms**      | SignalR                     | `8.0`         | For real-time features like duels and notifications | Simplifies adding real-time web functionality in a .NET ecosystem.                                                                                         |
 | **Database**             | PostgreSQL                  | `15.x`        | Primary relational database                       | Powerful, reliable open-source database provided by Supabase.                                                                                                |
-| **Authentication**       | Clerk                       | `latest SDK`  | Managed user authentication service               | Offloads the complexity of secure authentication and user management.                                                                                      |
+| **Authentication**       | **Supabase Auth**           | `latest SDK`  | Managed user authentication service               | Consolidates our stack by leveraging the auth service built into our database provider, simplifying architecture.                                           |
 | **File Storage**         | Supabase Storage            | `latest SDK`  | Storing user-uploaded documents (syllabi)         | Simple, S3-compatible object storage that integrates directly with our database.                                                                             |
 | **Game Asset Hosting**   | Supabase Storage            | `latest SDK`  | To host and serve Unity WebGL builds              | Leverages the same storage solution and its CDN capabilities for fast game loading.                                                                        |
 | **Frontend Testing**     | Jest & React Testing Library | `latest`      | For unit and component testing of the frontend    | The industry standard for testing React applications.                                                                                                        |
@@ -178,10 +182,10 @@ This section defines the core data models and entities for the platform.
 
 ### **User / UserProfile**
 
-**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core `User` identity is managed by Clerk, while the `UserProfile` stores application-specific data related to their academic and gamified journey.
+**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, while the `UserProfile` stores application-specific data.
 
 **Key Attributes:**
-- `userId`: `string` - The unique identifier, typically from Clerk.
+- `userId`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table.
 - `username`: `string` - The user's public name.
 - `email`: `string` - The user's email address.
 - `classId`: `string` - Foreign key to the selected career goal (Class).
@@ -195,7 +199,7 @@ This section defines the core data models and entities for the platform.
 // In @roguelearn/shared-types
 export interface UserProfile {
   id: string; // Our internal profile ID
-  userId: string; // Clerk's user ID
+  userId: string; // Corresponds to the id in Supabase's auth.users table
   username: string;
   email: string;
   classId: string;
@@ -208,6 +212,8 @@ export interface UserProfile {
   updatedAt: string; // ISO 8601 timestamp
 }
 ```
+
+<!-- ... (The rest of the Data Models section remains unchanged) ... -->
 
 ### **Course & Syllabus**
 
@@ -302,8 +308,7 @@ export interface QuestLine {
 - `positionX`, `positionY`: `number` - Coordinates for rendering the node in the mind map visualization.
 
 #### **TypeScript Interface**
-
-```
+```typescript
 // In @roguelearn/shared-types
 export interface Skill {
   id: string;
@@ -319,15 +324,13 @@ export interface Skill {
 }
 
 export interface SkillTree {
-  id: string;
-  userId: string;
-  courseId: string;
-  name: string;
-  skills: Skill[]; // Can be a separate fetch
-  createdAt: string; // ISO 8601 timestamp
+    id: string;
+    userId: string;
+    courseId: string;
+    name: string;
+    skills: Skill[]; // Can be a separate fetch
+    createdAt: string; // ISO 8601 timestamp
 }
-```
-
 ```
 
 ### **Note (Arsenal Item)**
@@ -369,7 +372,8 @@ export interface Note {
 - `joinType`: `string` - Enum (`Invite Only`, `Open`).
 - `partyLeaderId`: `string` - The `userId` of the creator.
 
-#### **TypeScript Interface**```typescript
+#### **TypeScript Interface**
+```typescript
 // In @roguelearn/shared-types
 export type PartyJoinType = 'Invite Only' | 'Open';
 
@@ -514,7 +518,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: "JWT token obtained from Clerk after login."
+      description: "JWT token obtained from Supabase after login."
 
   schemas:
     UserProfile:
@@ -722,7 +726,7 @@ This section details the major logical components of the platform.
 
 ### **Auth Service (`roguelearn-auth-service`)**
 
-*   **Responsibility:** Manages user identity, profiles, and Clerk integration.
+*   **Responsibility:** Manages user profile synchronization. It is triggered by new sign-ups in Supabase Auth to create a corresponding application profile in the `UserProfiles` table.
 *   **Technology Stack:** .NET 8, C#.
 
 ### **Quests Service (`roguelearn-quests-service`)**
@@ -769,7 +773,6 @@ graph TD
     end
 
     subgraph "External Dependencies"
-        Clerk["Clerk Auth"]
         Gemini["Gemini API"]
     end
 
@@ -777,8 +780,10 @@ graph TD
         DB["PostgreSQL DB"]
         Store["File Storage"]
         GameAssets["Game Asset Hosting (CDN)"]
+        SupabaseAuth[Supabase GoTrue Auth]
     end
 
+    WebApp -- Auth via SDK --> SupabaseAuth
     WebApp -- HTTP --> Gateway
     WebApp -- WebSocket --> Realtime
     Unity -- HTTP --> Gateway
@@ -791,8 +796,7 @@ graph TD
 
     Realtime --> Social
 
-    Auth --> Clerk
-    Auth --> DB
+    Auth -- Triggered by --> DB
     
     Quests --> AIProxy
     Quests --> DB
@@ -807,7 +811,6 @@ graph TD
 
 ## **External APIs**
 
-*   **Clerk API:** For user identity management.
 *   **Gemini API:** For LLM capabilities, used only by the internal `AI Proxy Service`.
 
 ## **Core Workflows**
@@ -818,7 +821,7 @@ graph TD
 sequenceDiagram
     participant User
     participant Frontend (Vercel)
-    participant Clerk (External)
+    participant SupabaseAuth (External)
     participant APIGateway (Azure)
     participant AuthService
     participant QuestsService
@@ -826,20 +829,18 @@ sequenceDiagram
     participant Gemini (External)
     participant Database (Supabase)
 
-    %% Step 1: User Registration via Clerk's Hosted UI %%
+    %% Step 1: User Registration via Supabase SDK %%
     User->>Frontend: Clicks 'Sign Up'
-    Frontend->>Clerk: Redirects to Clerk Hosted Sign-Up Page
-    User->>Clerk: Enters credentials (email, password)
-    Clerk-->>User: Completes sign-up & sets auth token
+    Frontend->>SupabaseAuth: Calls Supabase signUp() with credentials
+    SupabaseAuth-->>User: Completes sign-up & sets auth token in browser
     
-    %% Step 2: Clerk Webhook notifies our backend of the new user %%
-    Clerk->>APIGateway: POST /webhooks/clerk (user.created event)
-    APIGateway->>AuthService: Forwards webhook
-    AuthService->>Database: CREATE UserProfile record with Clerk ID
+    %% Step 2: Supabase Trigger notifies our backend of the new user %%
+    Note over SupabaseAuth, Database: Supabase creates a new record in auth.users table
+    Database->>AuthService: PostgreSQL Trigger on new user INSERT fires, calling AuthService endpoint
+    AuthService->>Database: CREATE UserProfile record with Supabase User UUID
     Database-->>AuthService: Confirms creation
-    AuthService-->>APIGateway: 200 OK
-    APIGateway-->>Clerk: 200 OK
-
+    AuthService-->>Database: 200 OK
+    
     %% Step 3: User is back on our app and uploads syllabus %%
     User->>Frontend: Uploads syllabus.pdf for a new Course
     Frontend->>APIGateway: POST /courses/{id}/syllabus (with JWT & file)
@@ -876,7 +877,7 @@ This section provides the SQL DDL for the PostgreSQL database.
 
 CREATE TABLE "UserProfiles" (
     "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserId" text NOT NULL UNIQUE, -- Clerk User ID
+    "UserId" uuid NOT NULL UNIQUE, -- Corresponds to the UUID from Supabase auth.users table
     "Username" text NOT NULL,
     "Email" text NOT NULL,
     "ClassId" uuid, -- FK to a future "Classes" table
@@ -1122,7 +1123,7 @@ export default QuestItem;
 ### **Routing Architecture**
 
 *   **Library:** **Next.js App Router** will be used for all routing.
-*   **Protected Routes:** A `src/middleware.ts` file will be used to protect routes, integrating with the Clerk SDK.
+*   **Protected Routes:** A `src/middleware.ts` file will be used to protect routes, integrating with the **Supabase Auth Helpers SDK**.
 
 ### **Unity WebGL Integration**
 
@@ -1165,21 +1166,23 @@ export default UnityGameEmbed;
 
 ### **Frontend Services Layer**
 
-*   **API Client:** An `axios` instance will be configured with interceptors to automatically attach the JWT Bearer token from Clerk to all outgoing requests.
+*   **API Client:** An `axios` instance will be configured with interceptors to automatically attach the JWT Bearer token from **Supabase** to all outgoing requests.
 
 ```typescript
 // src/lib/api-client.ts
 import axios from 'axios';
-import { clerk } from './clerk';
+import { createClient } from '@/utils/supabase/client';
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 apiClient.interceptors.request.use(async (config) => {
-  const token = await clerk.session?.getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`;
   }
   return config;
 });
@@ -1212,7 +1215,7 @@ public interface IQuestRepository
 
 ### **Authentication and Authorization**
 
-*   **Authentication:** The API Gateway will validate JWTs issued by Clerk.
+*   **Authentication:** The API Gateway will validate JWTs issued by **Supabase**.
 *   **Authorization:** Each microservice will implement its own authorization logic using .NET's `[Authorize]` attributes and custom policies.
 
 ## **Unified Project Structure**

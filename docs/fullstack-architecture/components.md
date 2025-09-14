@@ -15,7 +15,7 @@ This section details the major logical components of the platform.
 
 ### **Auth Service (`roguelearn-auth-service`)**
 
-*   **Responsibility:** Manages user identity, profiles, and Clerk integration.
+*   **Responsibility:** Manages user profile synchronization. It is triggered by new sign-ups in Supabase Auth to create a corresponding application profile in the `UserProfiles` table.
 *   **Technology Stack:** .NET 8, C#.
 
 ### **Quests Service (`roguelearn-quests-service`)**
@@ -62,7 +62,6 @@ graph TD
     end
 
     subgraph "External Dependencies"
-        Clerk["Clerk Auth"]
         Gemini["Gemini API"]
     end
 
@@ -70,8 +69,10 @@ graph TD
         DB["PostgreSQL DB"]
         Store["File Storage"]
         GameAssets["Game Asset Hosting (CDN)"]
+        SupabaseAuth[Supabase GoTrue Auth]
     end
 
+    WebApp -- Auth via SDK --> SupabaseAuth
     WebApp -- HTTP --> Gateway
     WebApp -- WebSocket --> Realtime
     Unity -- HTTP --> Gateway
@@ -84,8 +85,7 @@ graph TD
 
     Realtime --> Social
 
-    Auth --> Clerk
-    Auth --> DB
+    Auth -- Triggered by --> DB
     
     Quests --> AIProxy
     Quests --> DB

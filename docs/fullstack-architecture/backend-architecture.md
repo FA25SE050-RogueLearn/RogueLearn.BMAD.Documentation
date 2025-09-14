@@ -23,6 +23,6 @@ public interface IQuestRepository
 
 ### **Authentication and Authorization**
 
-*   **Authentication:** The API Gateway will validate JWTs issued by Clerk.
+*   **Authentication:** The API Gateway will validate JWTs issued by **Supabase**.
 *   **Authorization:** Each microservice will implement its own authorization logic using .NET's `[Authorize]` attributes and custom policies.
 

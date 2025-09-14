@@ -18,6 +18,7 @@ This approach provides maximum flexibility, clear separation of concerns, and al
 
 | Date          | Version | Description                                                                    | Author             |
 | :------------ | :------ | :----------------------------------------------------------------------------- | :----------------- |
+| Sep 13, 2025  | 1.7     | Replaced Clerk with Supabase Authentication across the entire architecture.      | Winston, Architect |
 | Sep 12, 2025  | 1.6     | Integrated Unity WebGL feature for "Boss Fights" across the architecture.        | Winston, Architect |
 | Sep 12, 2025  | 1.5     | Removed Marketplace feature per user request to focus on core learning experience. | Winston, Architect |
 | Sep 12, 2025  | 1.4     | Aligned architecture with expanded PRD. Added Marketplace, Duels, and Real-Time features. | Winston, Architect |

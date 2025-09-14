@@ -4,10 +4,10 @@ This section defines the core data models and entities for the platform.
 
 ### **User / UserProfile**
 
-**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core `User` identity is managed by Clerk, while the `UserProfile` stores application-specific data related to their academic and gamified journey.
+**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, while the `UserProfile` stores application-specific data.
 
 **Key Attributes:**
-- `userId`: `string` - The unique identifier, typically from Clerk.
+- `userId`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table.
 - `username`: `string` - The user's public name.
 - `email`: `string` - The user's email address.
 - `classId`: `string` - Foreign key to the selected career goal (Class).
@@ -21,7 +21,7 @@ This section defines the core data models and entities for the platform.
 // In @roguelearn/shared-types
 export interface UserProfile {
   id: string; // Our internal profile ID
-  userId: string; // Clerk's user ID
+  userId: string; // Corresponds to the id in Supabase's auth.users table
   username: string;
   email: string;
   classId: string;
@@ -34,6 +34,8 @@ export interface UserProfile {
   updatedAt: string; // ISO 8601 timestamp
 }
 ```
+
+<!-- ... (The rest of the Data Models section remains unchanged) ... -->
 
 ### **Course & Syllabus**
 
@@ -128,8 +130,7 @@ export interface QuestLine {
 - `positionX`, `positionY`: `number` - Coordinates for rendering the node in the mind map visualization.
 
 #### **TypeScript Interface**
-
-```
+```typescript
 // In @roguelearn/shared-types
 export interface Skill {
   id: string;
@@ -145,15 +146,13 @@ export interface Skill {
 }
 
 export interface SkillTree {
-  id: string;
-  userId: string;
-  courseId: string;
-  name: string;
-  skills: Skill[]; // Can be a separate fetch
-  createdAt: string; // ISO 8601 timestamp
+    id: string;
+    userId: string;
+    courseId: string;
+    name: string;
+    skills: Skill[]; // Can be a separate fetch
+    createdAt: string; // ISO 8601 timestamp
 }
-```
-
 ```
 
 ### **Note (Arsenal Item)**
@@ -195,7 +194,8 @@ export interface Note {
 - `joinType`: `string` - Enum (`Invite Only`, `Open`).
 - `partyLeaderId`: `string` - The `userId` of the creator.
 
-#### **TypeScript Interface**```typescript
+#### **TypeScript Interface**
+```typescript
 // In @roguelearn/shared-types
 export type PartyJoinType = 'Invite Only' | 'Open';
 

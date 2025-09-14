@@ -106,7 +106,7 @@ To validate the RogueLearn MVP, we will use a combination of qualitative and qua
 ### Non-Functional Requirements (All Phases)
 
 1.  **NFR1 (Responsiveness):** The application must be a responsive web application, providing an optimal viewing and interaction experience across a range of devices (desktops, tablets, and mobile phones). All functionality must be accessible and usable on screen widths from 320px to 1920px.
-2.  **NFR2 (Authentication):** The system must use Clerk for user authentication, ensuring secure and reliable user management.
+2.  **NFR2 (Authentication):** The system must use **Supabase Authentication** for user authentication, ensuring a secure and reliable user management system integrated with the primary data platform.
 3.  **NFR3 (Backend Technology):** The system must use .NET 8 and Golang for all backend services, leveraging its performance and security features.
 4.  **NFR4 (Services Communication):** System's services must use RabbitMQ to communicate.
 5.  **NFR5 (Frontend Technology):** The system must use Next.js (version 14 or later) for the frontend application to enable server-side rendering and a fast user experience.

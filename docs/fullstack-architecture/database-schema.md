@@ -7,7 +7,7 @@ This section provides the SQL DDL for the PostgreSQL database.
 
 CREATE TABLE "UserProfiles" (
     "Id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    "UserId" text NOT NULL UNIQUE, -- Clerk User ID
+    "UserId" uuid NOT NULL UNIQUE, -- Corresponds to the UUID from Supabase auth.users table
     "Username" text NOT NULL,
     "Email" text NOT NULL,
     "ClassId" uuid, -- FK to a future "Classes" table
