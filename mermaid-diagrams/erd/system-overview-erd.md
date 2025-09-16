@@ -3,6 +3,10 @@
 ## Entity Relationship Diagram
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 erDiagram
     %% Authentication & User Management
     AuthUsers ||--|| UserProfile : authenticates

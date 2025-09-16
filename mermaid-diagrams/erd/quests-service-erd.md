@@ -3,6 +3,10 @@
 ## Entity Relationship Diagram
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 erDiagram
     Curriculum ||--o{ Syllabus : includes
     Curriculum ||--o{ QuestLine : generates

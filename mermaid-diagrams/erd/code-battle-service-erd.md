@@ -3,6 +3,10 @@
 ## Entity Relationship Diagram
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 erDiagram
     Event ||--o{ EventCodeProblem : includes
     CodeProblem ||--o{ EventCodeProblem : featured_in

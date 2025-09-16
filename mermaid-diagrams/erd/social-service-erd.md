@@ -3,6 +3,10 @@
 ## Entity Relationship Diagram
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 erDiagram
     UserProfile ||--o{ Party : leads
     Party ||--o{ PartyMembership : has
