@@ -4,17 +4,16 @@
 
 ```mermaid
 erDiagram
-    UserProfile ||--o{ Party : "leads"
-    Party ||--o{ PartyMembership : "has"
-    UserProfile ||--o{ PartyMembership : "joins"
-    UserProfile ||--o{ Guild : "masters"
-    Guild ||--o{ GuildMembership : "has"
-    UserProfile ||--o{ GuildMembership : "joins"
-    Guild ||--o{ Event : "hosts"
-    UserProfile ||--o{ LeaderboardEntry : "competes_in"
-    Event ||--o{ LeaderboardEntry : "tracks"
-    Guild ||--o{ GuildLeaderboardEntry : "competes_in"
-    Event ||--o{ GuildLeaderboardEntry : "tracks"
+    UserProfile ||--o{ Party : leads
+    Party ||--o{ PartyMembership : has
+    UserProfile ||--o{ PartyMembership : joins
+    UserProfile ||--|| Guild : masters
+    UserProfile ||--|| Guild : joins
+    Guild ||--o{ Event : hosts
+    UserProfile ||--o{ LeaderboardEntry : competes_in
+    Event ||--o{ LeaderboardEntry : tracks
+    Guild ||--o{ GuildLeaderboardEntry : competes_in
+    Event ||--o{ GuildLeaderboardEntry : tracks
 ```
 
 ## Key Features

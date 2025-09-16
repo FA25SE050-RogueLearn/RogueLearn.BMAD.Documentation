@@ -4,16 +4,18 @@
 
 ```mermaid
 erDiagram
-    Event ||--o{ EventCodeProblem : "includes"
-    CodeProblem ||--o{ EventCodeProblem : "featured_in"
-    CodeProblem ||--o{ TestCase : "tested_by"
-    Event ||--o{ Room : "hosts"
-    Room ||--o{ RoomPlayer : "contains"
-    UserProfile ||--o{ RoomPlayer : "participates_as"
-    UserProfile ||--o{ Submission : "submits"
-    Event ||--o{ Submission : "receives"
-    CodeProblem ||--o{ Submission : "solves"
-    Language ||--o{ Submission : "written_in"
+    Event ||--o{ EventCodeProblem : includes
+    CodeProblem ||--o{ EventCodeProblem : featured_in
+    CodeProblem ||--o{ TestCase : tested_by
+    Language ||--o{ CodeProblem : supports
+    Language ||--o{ TestCase : executes_in
+    Event ||--o{ Room : hosts
+    Room ||--o{ RoomPlayer : contains
+    UserProfile ||--o{ RoomPlayer : participates_as
+    UserProfile ||--o{ Submission : submits
+    Event ||--o{ Submission : receives
+    CodeProblem ||--o{ Submission : solves
+    Language ||--o{ Submission : written_in
 ```
 
 ## Key Features

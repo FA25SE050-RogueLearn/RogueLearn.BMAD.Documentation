@@ -5,44 +5,44 @@
 ```mermaid
 erDiagram
     %% Authentication & User Management
-    auth_user ||--|| UserProfile : "authenticates"
+    AuthUsers ||--|| UserProfile : authenticates
     
     %% Academic Structure
-    Class ||--o{ UserProfile : "contains"
-    Curriculum ||--o{ UserProfile : "guides"
-    Curriculum ||--o{ Syllabus : "includes"
-    Curriculum ||--o{ SkillTree : "develops"
+    "Class" ||--o{ UserProfile : contains
+    Curriculum ||--o{ UserProfile : guides
+    Curriculum ||--o{ Syllabus : includes
+    Curriculum ||--o{ SkillTree : develops
     
     %% Learning Journey
-    UserProfile ||--o{ UserSyllabusEnrollment : "enrolls_in"
-    Syllabus ||--o{ UserSyllabusEnrollment : "enrolled_by"
-    Syllabus ||--o{ QuestLine : "organizes"
-    QuestLine ||--o{ Quest : "contains"
-    SkillTree ||--o{ Skill : "branches_into"
+    UserProfile ||--o{ UserSyllabusEnrollment : enrolls_in
+    Syllabus ||--o{ UserSyllabusEnrollment : enrolled_by
+    Syllabus ||--o{ QuestLine : organizes
+    QuestLine ||--o{ Quest : contains
+    SkillTree ||--o{ Skill : branches_into
     
     %% Game Mechanics
-    UserProfile ||--o{ GameSession : "plays"
-    Quest ||--o{ GameSession : "engaged_in"
+    UserProfile ||--o{ GameSession : plays
+    Quest ||--o{ GameSession : engaged_in
     
     %% Social Dynamics
-    UserProfile ||--o{ Party : "leads"
-    UserProfile ||--o{ Guild : "masters"
-    Guild ||--o{ Event : "hosts"
+    UserProfile ||--o{ Party : leads
+    UserProfile ||--o{ Guild : masters
+    Guild ||--o{ Event : hosts
     
-    %% Competition & Performance
-    UserProfile ||--o{ LeaderboardEntry : "ranks_in"
-    Event ||--o{ LeaderboardEntry : "scored_in"
-    Event ||--o{ Room : "creates"
-    Event ||--o{ Submission : "receives"
+    %% Competitive Elements
+    UserProfile ||--o{ LeaderboardEntry : ranks_in
+    Event ||--o{ LeaderboardEntry : scored_in
+    Event ||--o{ Room : creates
+    Event ||--o{ Submission : receives
     
-    %% Collaboration
-    Party ||--o{ Meeting : "conducts"
-    UserProfile ||--o{ Meeting : "creates"
+    %% Meeting & Collaboration
+    Party ||--o{ Meeting : conducts
+    UserProfile ||--o{ Meeting : creates
     
-    %% Code Battle System
-    CodeProblem ||--o{ Submission : "solved_by"
-    Language ||--o{ Submission : "written_in"
-    UserProfile ||--o{ Submission : "submits"
+    %% Code Battle Integration
+    CodeProblem ||--o{ Submission : solved_by
+    Language ||--o{ Submission : written_in
+    UserProfile ||--o{ Submission : submits
 ```
 
 ## System Architecture Overview

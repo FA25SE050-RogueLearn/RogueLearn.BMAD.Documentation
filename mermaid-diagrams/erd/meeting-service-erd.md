@@ -4,12 +4,12 @@
 
 ```mermaid
 erDiagram
-    Meeting ||--o{ MeetingParticipant : "has"
-    Meeting ||--o{ MeetingNote : "contains"
-    Meeting ||--o{ MeetingAgenda : "scheduled_for"
-    Party ||--o{ Meeting : "hosts"
-    UserProfile ||--o{ MeetingParticipant : "participates_as"
-    UserProfile ||--o{ MeetingNote : "creates"
+    Meeting ||--|| MeetingAgenda : has
+    Meeting ||--|| MeetingNote : contains
+    Party ||--o{ Meeting : hosts
+    UserProfile ||--o{ MeetingParticipant : participates_as
+    Meeting ||--o{ MeetingParticipant : has
+    MeetingParticipant ||--o{ MeetingAgenda : accesses
 ```
 
 ## Key Features

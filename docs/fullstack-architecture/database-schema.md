@@ -125,6 +125,7 @@ CREATE TABLE "Notes" (
 
 CREATE TABLE "QuestLines" (
     "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "CurriculumId" UUID NOT NULL REFERENCES "Curriculums"("Id") ON DELETE CASCADE,
     "SyllabusId" UUID NOT NULL REFERENCES "Syllabuses"("Id") ON DELETE CASCADE,
     "Title" TEXT NOT NULL,
     "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -133,6 +134,7 @@ CREATE TABLE "QuestLines" (
 CREATE TABLE "Quests" (
     "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "QuestLineId" UUID NOT NULL REFERENCES "QuestLines"("Id") ON DELETE CASCADE,
+    "SyllabusId" UUID NOT NULL REFERENCES "Syllabuses"("Id") ON DELETE CASCADE,
     "Title" TEXT NOT NULL,
     "Description" TEXT,
     "Type" "QuestType" NOT NULL,
@@ -172,6 +174,18 @@ CREATE TABLE "UserSkills" (
     "SkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE,
     "Level" INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY ("UserProfileId", "SkillId")
+);
+
+CREATE TABLE "UserSkillTrees" (
+    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "SkillTreeId" UUID NOT NULL REFERENCES "SkillTrees"("Id") ON DELETE CASCADE,
+    PRIMARY KEY ("UserProfileId", "SkillTreeId")
+);
+
+CREATE TABLE "QuestSkills" (
+    "QuestId" UUID NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE,
+    "SkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE,
+    PRIMARY KEY ("QuestId", "SkillId")
 );
 
 CREATE TABLE "SkillDependencies" (
@@ -240,7 +254,7 @@ CREATE TABLE "Guilds" (
 
 CREATE TABLE "GuildMemberships" (
     "GuildId" UUID NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE,
-    "UserProfileId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
+    "UserProfileId" UUID NOT NULL UNIQUE REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
     "JoinedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
     PRIMARY KEY ("GuildId", "UserProfileId")
 );
@@ -266,7 +280,7 @@ CREATE TABLE "MeetingParticipants" (
 
 CREATE TABLE "MeetingAgenda" (
     "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "MeetingId" UUID NOT NULL REFERENCES "Meetings"("Id") ON DELETE CASCADE,
+    "MeetingId" UUID NOT NULL UNIQUE REFERENCES "Meetings"("Id") ON DELETE CASCADE,
     "Topic" TEXT NOT NULL,
     "Description" TEXT,
     "PresenterId" UUID REFERENCES "UserProfiles"("Id") ON DELETE SET NULL,
@@ -276,12 +290,19 @@ CREATE TABLE "MeetingAgenda" (
 
 CREATE TABLE "MeetingNotes" (
     "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "MeetingId" UUID NOT NULL REFERENCES "Meetings"("Id") ON DELETE CASCADE,
+    "MeetingId" UUID NOT NULL UNIQUE REFERENCES "Meetings"("Id") ON DELETE CASCADE,
     "AgendaId" UUID REFERENCES "MeetingAgenda"("Id") ON DELETE SET NULL,
-    "CreatorId" UUID NOT NULL REFERENCES "UserProfiles"("Id") ON DELETE CASCADE,
     "Content" JSONB NOT NULL,
     "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
     "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE "MeetingParticipantAgendaAccess" (
+    "ParticipantId" UUID NOT NULL,
+    "MeetingId" UUID NOT NULL,
+    "AgendaId" UUID NOT NULL REFERENCES "MeetingAgenda"("Id") ON DELETE CASCADE,
+    PRIMARY KEY ("ParticipantId", "MeetingId", "AgendaId"),
+    FOREIGN KEY ("ParticipantId", "MeetingId") REFERENCES "MeetingParticipants"("UserProfileId", "MeetingId") ON DELETE CASCADE
 );
 
 
@@ -304,7 +325,8 @@ CREATE TABLE "Events" (
 CREATE TABLE "CodeProblems" (
     "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "Title" TEXT NOT NULL,
-    "ProblemStatement" TEXT NOT NULL
+    "ProblemStatement" TEXT NOT NULL,
+    "LanguageId" UUID NOT NULL REFERENCES "Languages"("Id") ON DELETE RESTRICT
 );
 
 CREATE TABLE "EventCodeProblems" (
@@ -365,6 +387,7 @@ CREATE TABLE "RoomPlayers" (
 CREATE TABLE "TestCases" (
     "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "CodeProblemId" UUID NOT NULL REFERENCES "CodeProblems"("Id") ON DELETE CASCADE,
+    "LanguageId" UUID NOT NULL REFERENCES "Languages"("Id") ON DELETE RESTRICT,
     "Input" TEXT NOT NULL,
     "ExpectedOutput" TEXT NOT NULL,
     "TimeConstraint" DOUBLE PRECISION,

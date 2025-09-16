@@ -4,17 +4,17 @@
 
 ```mermaid
 erDiagram
-    auth_users ||--|| UserProfile : "authenticates"
-    UserProfile ||--o{ UserRole : "has"
-    Role ||--o{ UserRole : "assigned_to"
-    UserProfile ||--o{ LecturerVerificationRequest : "submits"
-    Class ||--o{ UserProfile : "contains"
-    Curriculum ||--o{ UserProfile : "follows"
-    Curriculum ||--o{ Syllabus : "includes"
-    UserProfile ||--o{ UserSyllabusEnrollment : "enrolls_in"
-    Syllabus ||--o{ UserSyllabusEnrollment : "enrolled_by"
-    UserProfile ||--o{ UserSkill : "develops"
-    UserProfile ||--o{ Notification : "receives"
+    AuthUsers ||--|| UserProfile : authenticates
+    UserProfile ||--o{ UserRole : has
+    Role ||--o{ UserRole : assigned_to
+    UserProfile ||--o{ LecturerVerificationRequest : submits
+    "Class" ||--o{ UserProfile : contains
+    Curriculum ||--o{ UserProfile : follows
+    Curriculum ||--o{ Syllabus : includes
+    UserProfile ||--o{ UserSyllabusEnrollment : enrolls_in
+    Syllabus ||--o{ UserSyllabusEnrollment : enrolled_by
+    UserProfile ||--o{ UserSkill : develops
+    UserProfile ||--o{ Notification : receives
 ```
 
 ## Key Features

@@ -4,22 +4,25 @@
 
 ```mermaid
 erDiagram
-    Curriculum ||--o{ Syllabus : "includes"
-    UserSyllabusEnrollment ||--o{ UserUploadedSyllabus : "uploads"
-    Syllabus ||--o{ QuestLine : "generates"
-    QuestLine ||--o{ Quest : "contains"
-    Quest ||--o{ QuestPrerequisite : "requires"
-    Quest ||--o{ QuestPrerequisite : "prerequisite_for"
-    Curriculum ||--o{ SkillTree : "defines"
-    SkillTree ||--o{ Skill : "contains"
-    Skill ||--o{ SkillDependency : "depends_on"
-    Skill ||--o{ SkillDependency : "prerequisite_for"
-    UserProfile ||--o{ GameSession : "plays"
-    Quest ||--o{ GameSession : "played_in"
-    UserProfile ||--o{ Note : "creates"
-    Syllabus ||--o{ Note : "annotates"
-    Quest ||--o{ Note : "documents"
-    Skill ||--o{ Note : "explains"
+    Curriculum ||--o{ Syllabus : includes
+    Curriculum ||--o{ QuestLine : generates
+    UserSyllabusEnrollment ||--o{ UserUploadedSyllabus : uploads
+    QuestLine ||--o{ Quest : contains
+    Syllabus ||--o{ Quest : generates
+    Quest ||--o{ QuestPrerequisite : requires
+    Quest ||--o{ QuestPrerequisite : prerequisite_for
+    Curriculum ||--o{ SkillTree : defines
+    UserProfile ||--|| SkillTree : has
+    SkillTree ||--o{ Skill : contains
+    Skill ||--o{ SkillDependency : depends_on
+    Skill ||--o{ SkillDependency : prerequisite_for
+    Quest ||--o{ Skill : develops
+    UserProfile ||--o{ GameSession : plays
+    Quest ||--o{ GameSession : played_in
+    UserProfile ||--o{ Note : creates
+    Syllabus ||--o{ Note : annotates
+    Quest ||--o{ Note : documents
+    Skill ||--o{ Note : explains
 ```
 
 ## Key Features
