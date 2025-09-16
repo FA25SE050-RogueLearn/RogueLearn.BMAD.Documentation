@@ -74,7 +74,7 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 *   **`roguelearn-user-service`**: .NET microservice for user profiles, preferences, and user-related operations (authentication handled by Supabase Auth).
 *   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game session logic.
 *   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
-*   **`roguelearn-meeting-service`**: .NET microservice for party meetings, scheduling, and meeting-related features.
+*   **`roguelearn-meeting-service`**: **Go** microservice for party meetings, scheduling, and meeting-related features.
 *   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code with ChromaDB for vector storage.
 *   **`roguelearn-buildingblocks`**: Shared common libraries and utilities used across backend microservices.
 *   **`roguelearn-shared-types`**: A private NPM package for shared TypeScript interfaces.
@@ -105,7 +105,7 @@ graph TD
         RealtimeHub[Real-time Hub WebSockets]
         
         subgraph "Microservices"
-            AuthService[.NET Auth Service]
+            UserService[.NET User Service]
             QuestService[.NET Quests Service]
             SocialService[.NET Social Service]
             CodeBattleService[Go Code Battle Service]
@@ -131,7 +131,7 @@ graph TD
     UnityClient --> GameAssetHosting
     UnityClient --> APIGateway
     
-    APIGateway --> AuthService
+    APIGateway --> UserService
     APIGateway --> QuestService
     APIGateway --> SocialService
     APIGateway --> CodeBattleService
@@ -139,7 +139,7 @@ graph TD
     
     RealtimeHub --> SocialService
 
-    AuthService -- Sync Trigger --> Database
+    UserService -- Sync Trigger --> Database
 
     QuestService --> Database
     QuestService --> FileStorage
@@ -850,7 +850,7 @@ This section details the major logical components of the platform.
 ### **Meeting Service (`roguelearn-meeting-service`)**
 
 *   **Responsibility:** Manages party meetings, scheduling, meeting agendas, and meeting-related real-time features.
-*   **Technology Stack:** .NET 8, C#, SignalR.
+*   **Technology Stack:** Go, WebSocket support.
 
 ### **AI Proxy Service (`roguelearn-ai-proxy-service`)**
 
@@ -878,7 +878,7 @@ graph TD
     end
 
     subgraph "Backend Microservices (Azure Container Apps)"
-        Auth["Auth Service"]
+        User["User Service"]
         Quests["Quests Service"]
         Social["Social Service"]
         CodeBattle["Code Battle Service (Go)"]
@@ -902,14 +902,14 @@ graph TD
     Unity -- HTTP --> Gateway
     Unity -- loads assets from --> GameAssets
     
-    Gateway --> Auth
+    Gateway --> User
     Gateway --> Quests
     Gateway --> Social
     Gateway --> CodeBattle
 
     Realtime --> Social
 
-    Auth -- Triggered by --> DB
+    User -- Triggered by --> DB
     
     Quests --> AIProxy
     Quests --> DB
@@ -994,7 +994,7 @@ CREATE TYPE "GameSessionStatus" AS ENUM ('InProgress', 'Completed', 'Abandoned')
 CREATE TYPE "PartyJoinType" AS ENUM ('Invite Only', 'Open');
 CREATE TYPE "EventType" AS ENUM ('Quiz', 'CodeBattle', 'Tournament', 'Duel');
 
--- ========= User Management (Managed by Auth Service) =========
+-- ========= User Management (Managed by User Service) =========
 
 CREATE TABLE "UserProfiles" (
     "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -40,8 +40,8 @@ This document outlines the comprehensive integration requirements for RogueLearn
   - **Frontend**: Utilizes the `@supabase/auth-helpers-nextjs` SDK for all authentication flows (sign-up, sign-in, sign-out, session management).
   - **Backend**:
     - **API Gateway**: Validates JWTs issued by Supabase on all protected routes.
-    - **Auth Service**: Does not directly handle sign-up/sign-in. It is responsible for creating an application-specific `UserProfile` record.
-  - **Database**: A PostgreSQL trigger on the `auth.users` table will invoke the Auth Service to create a `UserProfile` record upon a new user registration, ensuring data synchronization.
+    - **User Service**: Does not directly handle sign-up/sign-in. It is responsible for creating an application-specific `UserProfile` record.
+- **Database**: A PostgreSQL trigger on the `auth.users` table will invoke the User Service to create a `UserProfile` record upon a new user registration, ensuring data synchronization.
 - **Security Requirements**:
   - **JWT Implementation**: Uses standard RS256 algorithm as provided by Supabase.
   - **Token Lifecycle**: Managed by Supabase SDKs with secure, short-lived access tokens and long-lived refresh tokens stored securely in cookies.
