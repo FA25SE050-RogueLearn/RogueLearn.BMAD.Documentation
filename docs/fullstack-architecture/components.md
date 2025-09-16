@@ -30,8 +30,13 @@ This section details the major logical components of the platform.
 
 ### **Meeting Service (`roguelearn-meeting-service`)**
 
-*   **Responsibility:** Manages party meetings, scheduling, meeting agendas, and meeting-related real-time features.
-*   **Technology Stack:** .NET 8, C#, SignalR.
+*   **Responsibility:** Manages party meetings, scheduling, collaboration features, and real-time meeting interactions. Handles meeting agendas, participant management, note-taking, and meeting status tracking.
+*   **Key Features:**
+    *   Meeting scheduling and lifecycle management
+    *   Real-time participant collaboration
+    *   Meeting agenda and note management
+    *   Integration with party system for seamless collaboration
+*   **Technology Stack:** Go, WebSocket support for real-time features.
 
 ### **AI Proxy Service (`roguelearn-ai-proxy-service`)**
 
@@ -40,8 +45,14 @@ This section details the major logical components of the platform.
 
 ### **Code Battle Service (`roguelearn-code-battle-service`)**
 
-*   **Responsibility:** Compiles and scores user-submitted code in a secure sandbox. Manages code embeddings and similarity matching for advanced code analysis.
-*   **Technology Stack:** Go, Docker, ChromaDB.
+*   **Responsibility:** Manages competitive programming features including code compilation, execution, and scoring in secure sandboxed environments. Handles real-time code battle rooms, language support, and submission evaluation.
+*   **Key Features:**
+    *   Secure code compilation and execution
+    *   Real-time battle room management
+    *   Multi-language support and evaluation
+    *   Performance metrics and scoring algorithms
+    *   Integration with events system for competitions
+*   **Technology Stack:** Go, Docker (for sandboxing), WebSocket support for real-time features.
 
 ### **Component Interaction Diagram**
 
@@ -59,9 +70,10 @@ graph TD
     end
 
     subgraph "Backend Microservices (Azure Container Apps)"
-        Auth["Auth Service"]
+        User["User Service"]
         Quests["Quests Service"]
         Social["Social Service"]
+        Meeting["Meeting Service (Go)"]
         CodeBattle["Code Battle Service (Go)"]
         AIProxy["AI Proxy Service<br/><em>Internal Only</em>"]
     end
@@ -83,20 +95,24 @@ graph TD
     Unity -- HTTP --> Gateway
     Unity -- loads assets from --> GameAssets
     
-    Gateway --> Auth
+    Gateway --> User
     Gateway --> Quests
     Gateway --> Social
+    Gateway --> Meeting
     Gateway --> CodeBattle
 
     Realtime --> Social
+    Realtime --> Meeting
 
-    Auth -- Triggered by --> DB
+    User -- Sync Trigger --> DB
     
     Quests --> AIProxy
     Quests --> DB
     Quests --> Store
     
     Social --> DB
+    
+    Meeting --> DB
     
     CodeBattle --> DB
 

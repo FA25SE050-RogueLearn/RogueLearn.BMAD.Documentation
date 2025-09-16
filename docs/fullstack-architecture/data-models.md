@@ -12,8 +12,10 @@ export type SyllabusProcessingStatus = 'Pending' | 'Processing' | 'Completed' | 
 export type GameSessionStatus = 'InProgress' | 'Completed' | 'Abandoned';
 export type PartyJoinType = 'Invite Only' | 'Open';
 export type EventType = 'Quiz' | 'CodeBattle' | 'Tournament' | 'Duel';
-export type CodeSubmissionStatus = 'Pending' | 'Accepted' | 'WrongAnswer' | 'TimeLimitExceeded' | 'CompilationError';
+export type SubmissionStatus = 'In Queue' | 'Processing' | 'Accepted' | 'Wrong Answer' | 'Time Limit Exceeded' | 'Compilation Error' | 'Runtime Error (Generic)' | 'Internal Error' | 'Execution Server Error';
 export type VerificationStatus = 'Pending' | 'Approved' | 'Rejected' | 'MoreInfoRequired';
+export type MeetingStatus = 'Scheduled' | 'InProgress' | 'Completed' | 'Cancelled';
+export type ParticipantStatus = 'Invited' | 'Accepted' | 'Declined' | 'Attended';
 ```
 
 ## **User & Profile Core**
@@ -307,6 +309,53 @@ export interface GuildMembership {
 }
 ```
 
+## **Meetings & Collaboration**
+
+### **Meeting System**
+
+**Purpose:** Manages party meetings, scheduling, agendas, and collaborative features.
+
+#### **TypeScript Interface**
+```typescript
+export interface Meeting {
+  id: string;
+  partyId: string;
+  creatorId: string;
+  title: string;
+  description?: string;
+  scheduledStartTime: string;
+  scheduledEndTime?: string;
+  status: MeetingStatus;
+  createdAt: string;
+}
+
+export interface MeetingParticipant {
+  meetingId: string;
+  userProfileId: string;
+  status: ParticipantStatus;
+}
+
+export interface MeetingAgenda {
+  id: string;
+  meetingId: string;
+  topic: string;
+  description?: string;
+  presenterId?: string;
+  sequence: number;
+  durationMinutes?: number;
+}
+
+export interface MeetingNote {
+  id: string;
+  meetingId: string;
+  agendaId?: string;
+  creatorId: string;
+  content: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
 ## **Events & Competition**
 
 ### **Event & Competition System**
@@ -329,7 +378,6 @@ export interface CodeProblem {
   id: string;
   title: string;
   problemStatement: string;
-  testCases: Record<string, any>;
 }
 
 export interface EventCodeProblem {
@@ -337,16 +385,90 @@ export interface EventCodeProblem {
   problemId: string;
 }
 
-export interface CodeSubmission {
+export interface Language {
+  id: string;
+  name: string;
+  compileCmd?: string;
+  runCmd: string;
+  timeoutSeconds?: number;
+}
+
+export interface Room {
   id: string;
   eventId: string;
-  problemId: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+}
+
+export interface RoomPlayer {
+  roomId: string;
   userProfileId: string;
-  guildId: string;
-  code: string;
-  language: string;
-  status: CodeSubmissionStatus;
-  submittedAt: string;
+  score: number;
+  place?: number;
+  state?: string;
+  disconnectedAt?: string;
+}
+
+export interface TestCase {
+  id: string;
+  codeProblemId: string;
+  input: string;
+  expectedOutput: string;
+  timeConstraint?: number;
+  spaceConstraint?: number;
+}
+
+export interface Submission {
+  id: string;
+  userProfileId: string;
+  eventId: string;
+  codeProblemId: string;
+  languageId: string;
+  sourceCode: string;
+  status: SubmissionStatus;
+  
+  // Execution Results
+  stdOut?: string;
+  stdErr?: string;
+  compileOutput?: string;
+  exitCode?: number;
+  exitSignal?: number;
+  message?: string;
+  
+  // Performance Metrics
+  time?: number;
+  memory?: number;
+  wallTime?: number;
+  
+  // Judge Tracking & Configuration
+  token?: string;
+  callbackUrl?: string;
+  numberOfRuns?: number;
+  compilerOptions?: string;
+  commandLineArguments?: string;
+  redirectStdErrToStdOut?: boolean;
+  additionalFiles?: ArrayBuffer;
+  enableNetwork?: boolean;
+  
+  // Judge Resource Limits
+  cpuTimeLimit?: number;
+  cpuExtraTime?: number;
+  wallTimeLimit?: number;
+  memoryLimit?: number;
+  stackLimit?: number;
+  maxProcessesAndOrThreads?: number;
+  enablePerProcessAndThreadTimeLimit?: boolean;
+  enablePerProcessAndThreadMemoryLimit?: boolean;
+  maxFileSize?: number;
+  
+  // Timestamps & Host Info
+  queuedAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+  updatedAt: string;
+  queueHost?: string;
+  executionHost?: string;
 }
 
 export interface LeaderboardEntry {
@@ -400,7 +522,28 @@ export interface GuildWithMembers extends Guild {
 export interface EventWithDetails extends Event {
   guild?: Guild;
   problems?: CodeProblem[];
-  submissions?: CodeSubmission[];
+  submissions?: Submission[];
+}
+
+export interface MeetingWithDetails extends Meeting {
+  party?: Party;
+  creator?: UserProfile;
+  participants?: (MeetingParticipant & { user?: UserProfile })[];
+  agenda?: MeetingAgenda[];
+  notes?: MeetingNote[];
+}
+
+export interface RoomWithDetails extends Room {
+  event?: Event;
+  players?: (RoomPlayer & { user?: UserProfile })[];
+}
+
+export interface SubmissionWithDetails extends Submission {
+  user?: UserProfile;
+  event?: Event;
+  problem?: CodeProblem;
+  language?: Language;
+  testCases?: TestCase[];
 }
 ```
 

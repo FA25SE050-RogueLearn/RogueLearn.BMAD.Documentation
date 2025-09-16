@@ -27,7 +27,7 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 *   **`roguelearn-user-service`**: .NET microservice for user profiles, preferences, and user-related operations (authentication handled by Supabase Auth).
 *   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game session logic.
 *   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
-*   **`roguelearn-meeting-service`**: .NET microservice for party meetings, scheduling, and meeting-related features.
+*   **`roguelearn-meeting-service`**: Go microservice for party meetings, scheduling, and meeting-related features.
 *   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code with ChromaDB for vector storage.
 *   **`roguelearn-buildingblocks`**: Shared common libraries and utilities used across backend microservices.
 *   **`roguelearn-shared-types`**: A private NPM package for shared TypeScript interfaces.
@@ -61,7 +61,7 @@ graph TD
             UserService[.NET User Service]
             QuestService[.NET Quests Service]
             SocialService[.NET Social Service]
-            MeetingService[.NET Meeting Service]
+            MeetingService[Go Meeting Service]
             CodeBattleService[Go Code Battle Service]
             AIProxyService[.NET AI Proxy Service]
         end
