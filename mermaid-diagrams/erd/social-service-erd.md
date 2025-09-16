@@ -13,7 +13,7 @@ erDiagram
     UserProfile ||--o{ PartyMembership : joins
     UserProfile ||--|| Guild : masters
     UserProfile ||--|| Guild : joins
-    Guild ||--o{ Event : hosts
+    Guild ||--o{ Event : joins
     UserProfile ||--o{ LeaderboardEntry : competes_in
     Event ||--o{ LeaderboardEntry : tracks
     Guild ||--o{ GuildLeaderboardEntry : competes_in

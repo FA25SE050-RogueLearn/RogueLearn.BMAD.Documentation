@@ -13,15 +13,16 @@ erDiagram
     
     %% Academic Structure
     "Class" ||--o{ UserProfile : contains
-    Curriculum ||--o{ UserProfile : guides
+    UserProfile }o--|| Curriculum : follows
     Curriculum ||--o{ Syllabus : includes
     Curriculum ||--o{ SkillTree : develops
     
     %% Learning Journey
     UserProfile ||--o{ UserSyllabusEnrollment : enrolls_in
     Syllabus ||--o{ UserSyllabusEnrollment : enrolled_by
-    Syllabus ||--o{ QuestLine : organizes
+    Curriculum ||--o{ QuestLine : generates
     QuestLine ||--o{ Quest : contains
+    Syllabus ||--o{ Quest : generates
     SkillTree ||--o{ Skill : branches_into
     
     %% Game Mechanics
@@ -30,14 +31,15 @@ erDiagram
     
     %% Social Dynamics
     UserProfile ||--o{ Party : leads
-    UserProfile ||--o{ Guild : masters
-    Guild ||--o{ Event : hosts
+    UserProfile ||--o| Guild : masters
+    Guild ||--o{ Event : joins
     
     %% Competitive Elements
     UserProfile ||--o{ LeaderboardEntry : ranks_in
     Event ||--o{ LeaderboardEntry : scored_in
     Event ||--o{ Room : creates
-    Event ||--o{ Submission : receives
+    Event ||--o{ EventCodeProblem : includes
+    CodeProblem ||--o{ EventCodeProblem : featured_in
     
     %% Meeting & Collaboration
     Party ||--o{ Meeting : conducts
@@ -46,7 +48,6 @@ erDiagram
     %% Code Battle Integration
     CodeProblem ||--o{ Submission : solved_by
     Language ||--o{ Submission : written_in
-    UserProfile ||--o{ Submission : submits
 ```
 
 ## System Architecture Overview
