@@ -71,10 +71,12 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 
 *   **`roguelearn-web`**: The Next.js frontend application.
 *   **`roguelearn-unity-games`**: The Unity project containing the "Boss Fight" game client.
-*   **`roguelearn-auth-service`**: .NET microservice for user identity and profile synchronization with Supabase Auth.
+*   **`roguelearn-user-service`**: .NET microservice for user profiles, preferences, and user-related operations (authentication handled by Supabase Auth).
 *   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game session logic.
 *   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
-*   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code.
+*   **`roguelearn-meeting-service`**: .NET microservice for party meetings, scheduling, and meeting-related features.
+*   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code with ChromaDB for vector storage.
+*   **`roguelearn-buildingblocks`**: Shared common libraries and utilities used across backend microservices.
 *   **`roguelearn-shared-types`**: A private NPM package for shared TypeScript interfaces.
 
 ### **High Level Architecture Diagram**
@@ -830,9 +832,9 @@ This section details the major logical components of the platform.
 *   **Key Interfaces:** Communicates with the backend via the API Gateway to start sessions and submit results.
 *   **Technology Stack:** Unity 2022.3 LTS, C#, WebGL.
 
-### **Auth Service (`roguelearn-auth-service`)**
+### **User Service (`roguelearn-user-service`)**
 
-*   **Responsibility:** Manages user profile synchronization. It is triggered by new sign-ups in Supabase Auth to create a corresponding application profile in the `UserProfiles` table.
+*   **Responsibility:** Manages user profiles, preferences, and user-related operations. Handles profile synchronization with Supabase Auth and manages user data across the platform.
 *   **Technology Stack:** .NET 8, C#.
 
 ### **Quests Service (`roguelearn-quests-service`)**
@@ -845,6 +847,11 @@ This section details the major logical components of the platform.
 *   **Responsibility:** Manages all multi-user features like Parties, Guilds, Events, and real-time Duels.
 *   **Technology Stack:** .NET 8, C#, SignalR.
 
+### **Meeting Service (`roguelearn-meeting-service`)**
+
+*   **Responsibility:** Manages party meetings, scheduling, meeting agendas, and meeting-related real-time features.
+*   **Technology Stack:** .NET 8, C#, SignalR.
+
 ### **AI Proxy Service (`roguelearn-ai-proxy-service`)**
 
 *   **Responsibility:** Acts as a secure, internal gateway for all communications with the Gemini API.
@@ -852,8 +859,8 @@ This section details the major logical components of the platform.
 
 ### **Code Battle Service (`roguelearn-code-battle-service`)**
 
-*   **Responsibility:** Compiles and scores user-submitted code in a secure sandbox.
-*   **Technology Stack:** Go, Docker.
+*   **Responsibility:** Compiles and scores user-submitted code in a secure sandbox. Manages code embeddings and similarity matching for advanced code analysis.
+*   **Technology Stack:** Go, Docker, ChromaDB.
 
 ### **Component Interaction Diagram**
 

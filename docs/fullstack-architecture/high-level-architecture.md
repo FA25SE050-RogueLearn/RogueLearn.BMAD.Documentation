@@ -24,10 +24,12 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 
 *   **`roguelearn-web`**: The Next.js frontend application.
 *   **`roguelearn-unity-games`**: The Unity project containing the "Boss Fight" game client.
-*   **`roguelearn-auth-service`**: .NET microservice for user identity and profile synchronization with Supabase Auth.
+*   **`roguelearn-user-service`**: .NET microservice for user profiles, preferences, and user-related operations (authentication handled by Supabase Auth).
 *   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game session logic.
 *   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
-*   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code.
+*   **`roguelearn-meeting-service`**: .NET microservice for party meetings, scheduling, and meeting-related features.
+*   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code with ChromaDB for vector storage.
+*   **`roguelearn-buildingblocks`**: Shared common libraries and utilities used across backend microservices.
 *   **`roguelearn-shared-types`**: A private NPM package for shared TypeScript interfaces.
 
 ### **High Level Architecture Diagram**
@@ -56,9 +58,10 @@ graph TD
         RealtimeHub[Real-time Hub WebSockets]
         
         subgraph "Microservices"
-            AuthService[.NET Auth Service]
+            UserService[.NET User Service]
             QuestService[.NET Quests Service]
             SocialService[.NET Social Service]
+            MeetingService[.NET Meeting Service]
             CodeBattleService[Go Code Battle Service]
             AIProxyService[.NET AI Proxy Service]
         end
@@ -82,15 +85,17 @@ graph TD
     UnityClient --> GameAssetHosting
     UnityClient --> APIGateway
     
-    APIGateway --> AuthService
+    APIGateway --> UserService
     APIGateway --> QuestService
     APIGateway --> SocialService
+    APIGateway --> MeetingService
     APIGateway --> CodeBattleService
     APIGateway --> AIProxyService
     
     RealtimeHub --> SocialService
+    RealtimeHub --> MeetingService
 
-    AuthService -- Sync Trigger --> Database
+    UserService -- Sync Trigger --> Database
 
     QuestService --> Database
     QuestService --> FileStorage
@@ -114,4 +119,4 @@ graph TD
 *   **Component-Based UI (Next.js):** The frontend will be built as a collection of reusable components. *Rationale:* Promotes reusability and faster development.
 *   **Repository Pattern (.NET):** Data access within each microservice will be abstracted. *Rationale:* Decouples business logic from data access implementation.
 *   **Database Triggers:** A PostgreSQL trigger will be used to sync new users from Supabase's `auth.users` table to our application's `UserProfiles` table. *Rationale:* Provides a reliable, event-driven way to create user profiles without webhooks.
-
+

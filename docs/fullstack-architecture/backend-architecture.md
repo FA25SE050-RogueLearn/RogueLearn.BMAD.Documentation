@@ -5,6 +5,19 @@
 *   **Pattern:** **Clean Architecture** will be strictly followed in all .NET services.
 *   **Function Organization:** Services will be deployed as standard ASP.NET Core Web API projects to Azure Container Apps.
 
+### **Shared Libraries and Common Code**
+
+*   **Repository:** **`roguelearn-buildingblocks`** - A shared repository containing common libraries, utilities, and code used across all backend microservices.
+*   **Purpose:** Promotes code reuse, consistency, and maintainability across services.
+*   **Contents:**
+    *   Common domain models and DTOs
+    *   Shared authentication and authorization utilities
+    *   Database connection and configuration helpers
+    *   Logging and monitoring abstractions
+    *   Common validation attributes and extensions
+    *   Shared exception handling middleware
+    *   API response standardization utilities
+
 ### **Database Architecture**
 
 *   **Data Access:** **Entity Framework Core (EF Core)** will be used as the ORM.
@@ -25,4 +38,4 @@ public interface IQuestRepository
 
 *   **Authentication:** The API Gateway will validate JWTs issued by **Supabase**.
 *   **Authorization:** Each microservice will implement its own authorization logic using .NET's `[Authorize]` attributes and custom policies.
-
+
