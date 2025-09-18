@@ -3,10 +3,6 @@
 ## Entity Relationship Diagram
 
 ```mermaid
----
-config:
-  layout: elk
----
 erDiagram
     Event ||--o{ EventCodeProblem : includes
     CodeProblem ||--o{ EventCodeProblem : featured_in
@@ -15,8 +11,7 @@ erDiagram
     Language ||--o{ TestCase : executes_in
     Event ||--o{ Room : hosts
     Room ||--o{ RoomPlayer : contains
-    UserProfile ||--o{ RoomPlayer : participates_as
-    UserProfile ||--o{ Submission : submits
+    Room ||--o{ Submission : submits
     Event ||--o{ Submission : receives
     CodeProblem ||--o{ Submission : solves
     Language ||--o{ Submission : written_in
