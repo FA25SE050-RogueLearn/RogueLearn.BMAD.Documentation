@@ -5,64 +5,79 @@ This document outlines which database tables and collections are used by each mi
 ## **PostgreSQL Tables by Service**
 
 ### **User Service** (`roguelearn-user-service`)
-**Purpose**: Manages user profiles, preferences, and user-related operations (authentication handled by Supabase Auth)
+**Purpose**: Manages user profiles, authentication, academic structure, achievements, and user progress tracking
 
 **PostgreSQL Tables**:
-- `UserProfiles` - Core user profile data linked to Supabase auth.users
+- `UserProfiles` - Core user profile data linked to Supabase auth.users (AuthUserId as primary key)
 - `Roles` - System roles for RBAC
 - `UserRoles` - User role assignments
 - `LecturerVerificationRequests` - Lecturer verification workflow
 - `Classes` - Academic class definitions
-- `Curriculums` - Curriculum definitions
-- `UserSyllabusEnrollments` - User enrollment in syllabuses
-- `UserSkills` - User skill progression tracking
-- `Notifications` - User notifications
+- `CurriculumPrograms` - Abstract program definitions (e.g., "B.S. in Software Engineering")
+- `CurriculumVersions` - Versioned curriculum snapshots (e.g., "K18A", "K18B") with effective year tracking
+- `Subjects` - Master list of all subjects with codes and credits
+- `CurriculumStructure` - Junction table defining curriculum-subject relationships with term sequencing
+- `SyllabusVersions` - Versioned syllabi for each subject
+- `StudentEnrollments` - Links students to specific curriculum versions with enrollment tracking
+- `StudentTermSubjects` - Comprehensive academic term tracking with status (Enrolled, Completed, Failed, Withdrawn)
+- `UserSkills` - User skill progression tracking with experience points
+- `UserQuestProgress` - Summary of user progress on quests for quick reference and cross-service sync
+- `Achievements` - Central catalog of all possible achievements with type categorization
+- `UserAchievements` - Links users to earned achievements with context and timestamps
+- `Notifications` - User notification system with type-based categorization
 
 ### **Quests Service** (`roguelearn-quests-service`)
-**Purpose**: Manages syllabi, quests, skill trees, and game session logic
+**Purpose**: Manages quest lines, quests, skill trees, game sessions, and learning content with comprehensive progress tracking
 
 **PostgreSQL Tables**:
-- `Syllabuses` - Course syllabi information
-- `UserUploadedSyllabuses` - User-uploaded syllabus files and processing status
-- `QuestLines` - Quest line containers
-- `Quests` - Individual quest definitions
-- `QuestPrerequisites` - Quest dependency relationships
-- `SkillTrees` - Skill tree structures
-- `Skills` - Individual skill definitions
-- `SkillDependencies` - Skill prerequisite relationships
-- `GameSessions` - Game session tracking and progress
-- `Notes` - User notes linked to quests and skills
+- `QuestLines` - Organized sequences of learning objectives for entire academic journeys with curriculum integration
+- `QuestChapters` - Time-boxed containers representing weeks or major milestones (e.g., "Week 5", "Midterm Prep")
+- `Quests` - Individual learning tasks within chapters with rewards, metadata, and flexible quest types
+- `QuestDependencies` - Quest prerequisite relationships enabling complex learning paths
+- `SkillTrees` - Skill tree structures and hierarchies for different domains
+- `Skills` - Individual skill definitions with experience requirements and level progression
+- `SkillDependencies` - Skill prerequisite relationships for progressive mastery
+- `QuestSkills` - Links quests to skill development with experience point rewards
+- `GameSessions` - Comprehensive game session tracking with user engagement analytics
+- `SessionEvents` - Detailed interaction logging for learning analytics and adaptive content
+- `Notes` - User-generated content linked to quests and skills for collaborative knowledge sharing
 
 ### **Social Service** (`roguelearn-social-service`)
-**Purpose**: Manages parties, guilds, events, and real-time features like duels
+**Purpose**: Manages parties, guilds, events, leaderboards, and collaborative knowledge sharing
 
 **PostgreSQL Tables**:
-- `Parties` - Party/group definitions
-- `PartyMemberships` - Party membership tracking
-- `Guilds` - Guild definitions and verification
-- `GuildMemberships` - Guild membership tracking
-- `Events` - Event definitions (excluding meetings)
-- `LeaderboardEntries` - Individual user leaderboards
-- `GuildLeaderboardEntries` - Guild-based leaderboards
+- `Parties` - Party/group definitions with configurable join types
+- `PartyMemberships` - Party membership tracking with join timestamps
+- `PartyStashItems` - Shared note repository for party collaboration
+- `Guilds` - Guild definitions with verification status
+- `GuildMemberships` - Guild membership tracking (unique per user)
+- `Events` - Event definitions for competitions and activities
+- `LeaderboardEntries` - Individual user rankings per event
+- `GuildLeaderboardEntries` - Guild-based competitive rankings
 
 ### **Meeting Service** (`roguelearn-meeting-service`)
-**Purpose**: Manages party meetings, scheduling, and meeting-related features
+**Purpose**: Manages multi-context meetings, scheduling, participant tracking, and comprehensive meeting analytics
 
 **PostgreSQL Tables**:
-- `Meetings` - Meeting definitions and scheduling (to be added)
-- `MeetingParticipants` - Meeting attendance tracking (to be added)
-- `MeetingAgendas` - Meeting agenda items (to be added)
-- `MeetingNotes` - Meeting notes and minutes (to be added)
-
-*Note: Meeting-specific tables need to be added to the database schema*
+- `Meetings` - Meeting definitions supporting both party and guild contexts with flexible scheduling
+- `MeetingParticipants` - Meeting invitation and attendance tracking with status management
+- `MeetingAgenda` - Structured meeting agenda items with sequencing and time allocation
+- `MeetingNotes` - Collaborative note-taking during meetings with participant attribution
+- `MeetingParticipantActivity` - Detailed participant activity tracking (check-in/out, device info, connection quality)
+- `MeetingParticipantEngagement` - Real-time engagement tracking (speaking time, screen sharing, chat participation)
+- `MeetingParticipantStats` - Aggregated participant performance and engagement metrics for analytics
 
 ### **Code Battle Service** (`roguelearn-code-battle-service`)
-**Purpose**: Compiles, runs, and scores user-submitted code
+**Purpose**: Manages code problems, real-time battles, compilation, execution, and competitive programming
 
 **PostgreSQL Tables**:
-- `CodeProblems` - Code challenge problem definitions
-- `EventCodeProblems` - Association between events and code problems
-- `CodeSubmissions` - User code submissions and results
+- `Languages` - Supported programming languages with execution configurations
+- `CodeProblems` - Code challenge problem definitions with statements
+- `EventCodeProblems` - Association between events and available problems
+- `TestCases` - Input/output test cases with performance constraints
+- `Rooms` - Battle rooms within events for competitive coding
+- `RoomPlayers` - Player participation with scoring and state tracking
+- `Submissions` - Comprehensive submission tracking with detailed execution results and judge integration
 
 **ChromaDB Collections**:
 - `code_embeddings` - Vector embeddings of code submissions for similarity analysis

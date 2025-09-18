@@ -6,46 +6,49 @@ This section defines the core data models and entities for the platform.
 
 ```typescript
 // Core enum types matching PostgreSQL schema
-export type QuestStatus = 'Not Started' | 'In Progress' | 'Completed';
-export type QuestType = 'Main' | 'Side' | 'Daily' | 'Assignment' | 'Exam' | 'BossFight';
-export type SyllabusProcessingStatus = 'Pending' | 'Processing' | 'Completed' | 'Failed';
+export type UserRole = 'Student' | 'Lecturer' | 'Admin';
+export type QuestStatus = 'NotStarted' | 'InProgress' | 'Completed' | 'Failed';
+export type QuestType = 'Theory' | 'Practice' | 'Project' | 'Assessment';
+export type SkillLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
+export type AchievementType = 'Quest' | 'Skill' | 'Social' | 'Special';
+export type NotificationType = 'Quest' | 'Achievement' | 'Social' | 'System';
+export type PartyRole = 'Leader' | 'Member';
+export type MeetingStatus = 'Scheduled' | 'InProgress' | 'Completed' | 'Cancelled';
+export type EventType = 'Competition' | 'Workshop' | 'Seminar' | 'Social';
+export type EventStatus = 'Upcoming' | 'Ongoing' | 'Completed' | 'Cancelled';
+export type SubmissionStatus = 'Pending' | 'Running' | 'Accepted' | 'WrongAnswer' | 'TimeLimitExceeded' | 'RuntimeError' | 'CompileError';
+export type StudentTermSubjectStatus = 'Enrolled' | 'Completed' | 'Failed' | 'Withdrawn';
+export type VerificationStatus = 'Pending' | 'Approved' | 'Rejected' | 'MoreInfoRequired';
+export type ParticipantStatus = 'Invited' | 'Accepted' | 'Declined' | 'Attended';
 export type GameSessionStatus = 'InProgress' | 'Completed' | 'Abandoned';
 export type PartyJoinType = 'Invite Only' | 'Open';
-export type EventType = 'Quiz' | 'CodeBattle' | 'Tournament' | 'Duel';
-export type SubmissionStatus = 'In Queue' | 'Processing' | 'Accepted' | 'Wrong Answer' | 'Time Limit Exceeded' | 'Compilation Error' | 'Runtime Error (Generic)' | 'Internal Error' | 'Execution Server Error';
-export type VerificationStatus = 'Pending' | 'Approved' | 'Rejected' | 'MoreInfoRequired';
-export type MeetingStatus = 'Scheduled' | 'InProgress' | 'Completed' | 'Cancelled';
-export type ParticipantStatus = 'Invited' | 'Accepted' | 'Declined' | 'Attended';
 ```
 
 ## **User & Profile Core**
 
 ### **UserProfile**
 
-**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, with the `Id` directly referencing `auth.users.id`.
+**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, with the `AuthUserId` directly referencing `auth.users.id` as the primary key.
 
 **Key Attributes:**
-- `id`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table.
-- `username`: `string` - The user's public name.
-- `email`: `string` - The user's email address.
+- `authUserId`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table (Primary Key).
+- `username`: `string` - The user's unique public name.
+- `email`: `string` - The user's unique email address.
+- `firstName`: `string` - The user's first name.
+- `lastName`: `string` - The user's last name.
 - `classId`: `string` - Foreign key to the selected class.
-- `curriculumId`: `string` - Foreign key to the selected curriculum.
-- `level`: `number` - The character's current level.
-- `experiencePoints`: `number` - The character's current XP.
-- `stats`: `object` - Game-specific statistics stored as JSONB.
+- `createdAt`: `string` - Account creation timestamp.
+- `updatedAt`: `string` - Last profile update timestamp.
 
 #### **TypeScript Interface**
 ```typescript
 export interface UserProfile {
-  id: string; // Direct reference to auth.users.id
+  authUserId: string; // Primary key - Direct reference to auth.users.id
   username: string;
   email: string;
+  firstName: string;
+  lastName: string;
   classId?: string;
-  curriculumId?: string;
-  level: number;
-  experiencePoints: number;
-  stats?: Record<string, any>;
-  onboardingCompleted: boolean;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
 }
@@ -63,8 +66,8 @@ export interface Role {
 }
 
 export interface UserRole {
-  userProfileId: string;
-  roleId: number;
+  authUserId: string; // References UserProfiles.AuthUserId
+  roleId: number; // References Roles.Id
 }
 ```
 
@@ -76,7 +79,7 @@ export interface UserRole {
 ```typescript
 export interface LecturerVerificationRequest {
   id: string;
-  userProfileId: string;
+  authUserId: string; // References UserProfiles.AuthUserId
   status: VerificationStatus;
   submittedAt: string;
   reviewedAt?: string;
@@ -88,7 +91,7 @@ export interface LecturerVerificationRequest {
 
 ### **Class & Curriculum**
 
-**Purpose:** Represents academic organizational structures.
+**Purpose:** Represents academic organizational structures with enhanced curriculum versioning.
 
 #### **TypeScript Interface**
 ```typescript
@@ -98,106 +101,267 @@ export interface Class {
   description?: string;
 }
 
-export interface Curriculum {
+export interface CurriculumProgram {
   id: string;
-  name: string;
-  description?: string;
+  programName: string;
+  programCode: string; // Unique identifier like "BSE" for Bachelor of Software Engineering
+}
+
+export interface CurriculumVersion {
+  id: string;
+  programId: string; // References CurriculumPrograms.Id
+  versionTag: string; // "K18A", "K18B", "2024-2025 Catalog"
+  effectiveYear: number;
+  isPublished: boolean; // Is it visible to new students?
+}
+
+export interface Subject {
+  id: string;
+  subjectCode: string; // "CS464"
+  title: string; // "Introduction to Machine Learning"
+  credits: number;
+}
+
+export interface CurriculumStructure {
+  id: string;
+  curriculumVersionId: string; // References CurriculumVersions.Id
+  subjectId: string; // References Subjects.Id
+  termNumber: number; // Which academic term (1, 2, 3, etc.)
+  isRequired: boolean; // Required vs elective
+}
+
+export interface SyllabusVersion {
+  id: string;
+  subjectId: string; // References Subjects.Id
+  versionTag: string; // "2024-Spring", "v1.2"
+  content?: Record<string, any>; // Structured syllabus content as JSONB
+  effectiveDate: string;
+  isActive: boolean;
 }
 ```
 
-### **Syllabus & Enrollment**
+### **Student Enrollment & Progress Tracking**
 
-**Purpose:** Represents course syllabuses and user enrollments.
+**Purpose:** Comprehensive tracking of student academic journey with enhanced curriculum support.
 
 #### **TypeScript Interface**
 ```typescript
-export interface Syllabus {
+export interface StudentEnrollment {
   id: string;
-  curriculumId: string;
-  courseCode: string;
-  courseTitle: string;
-  description?: string;
-  credits?: number;
-}
-
-export interface UserSyllabusEnrollment {
-  id: string;
-  userProfileId: string;
-  syllabusId: string;
+  authUserId: string; // References UserProfiles.AuthUserId
+  curriculumVersionId: string; // References CurriculumVersions.Id
   enrollmentDate: string;
+  expectedGraduationDate?: string;
+  isActive: boolean;
 }
 
-export interface UserUploadedSyllabus {
+export interface StudentTermSubject {
   id: string;
-  enrollmentId: string;
-  fileUrl: string;
-  processingStatus: SyllabusProcessingStatus;
-  structuredContent?: Record<string, any>;
-  uploadedAt: string;
+  enrollmentId: string; // References StudentEnrollments.Id
+  subjectId: string; // References Subjects.Id
+  academicTerm: string; // "2024-Spring", "2024-Fall"
+  status: StudentTermSubjectStatus; // 'Enrolled', 'Completed', 'Failed', 'Withdrawn'
+  grade?: string; // Final grade if completed
+  enrollmentDate: string;
+  completionDate?: string;
 }
 ```
 
-### **Note (Arsenal Item)**
+### **User Skills & Progress**
 
-**Purpose:** Represents user-generated knowledge stored in their "Arsenal."
+**Purpose:** Tracks user skill development and quest progress for gamification.
 
 #### **TypeScript Interface**
 ```typescript
-export interface Note {
+export interface UserSkill {
   id: string;
-  userProfileId: string;
+  authUserId: string; // References UserProfiles.AuthUserId
+  skillId: string; // References Skills.Id (from Quests Service)
+  experiencePoints: number;
+  level: number;
+  lastUpdated: string;
+}
+
+export interface UserQuestProgress {
+  id: string;
+  authUserId: string; // References UserProfiles.AuthUserId
+  questId: string; // References Quests.Id (from Quests Service)
+  status: QuestStatus;
+  progressPercentage: number;
+  startedAt?: string;
+  completedAt?: string;
+  lastUpdated: string;
+}
+```
+
+### **Achievement System**
+
+**Purpose:** Comprehensive achievement tracking with type categorization.
+
+#### **TypeScript Interface**
+```typescript
+export interface Achievement {
+  id: string;
   title: string;
-  content?: Record<string, any>; // Rich text JSON
-  syllabusId?: string;
-  questId?: string;
-  skillId?: string;
-  tags?: string[];
+  description: string;
+  type: AchievementType; // 'Quest', 'Skill', 'Social', 'Special'
+  criteria?: Record<string, any>; // Achievement unlock criteria as JSONB
+  rewardExperiencePoints: number;
+  iconUrl?: string;
+  isActive: boolean;
   createdAt: string;
-  updatedAt: string;
+}
+
+export interface UserAchievement {
+  id: string;
+  authUserId: string; // References UserProfiles.AuthUserId
+  achievementId: string; // References Achievements.Id
+  unlockedAt: string;
+  context?: Record<string, any>; // Additional context about how it was earned
+}
+```
+
+### **Notification System**
+
+**Purpose:** User notification system with type-based categorization.
+
+#### **TypeScript Interface**
+```typescript
+export interface Notification {
+  id: string;
+  authUserId: string; // References UserProfiles.AuthUserId
+  type: NotificationType; // 'Quest', 'Achievement', 'Social', 'System'
+  title: string;
+  message: string;
+  data?: Record<string, any>; // Additional notification data as JSONB
+  isRead: boolean;
+  createdAt: string;
 }
 ```
 
 ## **Quest & Skill Management**
 
-### **QuestLine & Quest**
+### **QuestLine & Quest System**
 
-**Purpose:** The `QuestLine` represents the entire learning path for a specific syllabus. Each `QuestLine` contains individual `Quests`.
+**Purpose:** Enhanced quest system with chapters and comprehensive dependency management.
 
 #### **TypeScript Interface**
 ```typescript
 export interface QuestLine {
   id: string;
-  syllabusId: string;
+  curriculumVersionId?: string; // Optional link to curriculum for academic quests
   title: string;
+  description?: string;
+  createdAt: string;
+}
+
+export interface QuestChapter {
+  id: string;
+  questLineId: string; // References QuestLines.Id
+  title: string; // "Week 5", "Midterm Prep"
+  description?: string;
+  sequence: number; // Order within the quest line
   createdAt: string;
 }
 
 export interface Quest {
   id: string;
-  questLineId: string;
+  questChapterId: string; // References QuestChapters.Id
   title: string;
   description?: string;
-  type: QuestType;
-  status: QuestStatus;
-  dueDate?: string;
+  type: QuestType; // 'Theory', 'Practice', 'Project', 'Assessment'
   experiencePoints: number;
+  metadata?: Record<string, any>; // Flexible quest data as JSONB
   createdAt: string;
   updatedAt: string;
 }
 
-export interface QuestPrerequisite {
-  questId: string;
-  prerequisiteQuestId: string;
+export interface QuestDependency {
+  questId: string; // References Quests.Id
+  prerequisiteQuestId: string; // References Quests.Id
 }
 ```
 
-### **SkillTree & Skill**
+### **SkillTree & Skill System**
 
-**Purpose:** Visual representation of knowledge mastery for a curriculum.
+**Purpose:** Comprehensive skill development system with hierarchical dependencies.
 
 #### **TypeScript Interface**
 ```typescript
 export interface SkillTree {
+  id: string;
+  name: string;
+  description?: string;
+  curriculumVersionId?: string; // Optional link to curriculum
+  createdAt: string;
+}
+
+export interface Skill {
+  id: string;
+  skillTreeId: string; // References SkillTrees.Id
+  name: string;
+  description?: string;
+  experienceRequired: number; // XP needed to unlock this skill
+  level: SkillLevel; // 'Beginner', 'Intermediate', 'Advanced', 'Expert'
+  createdAt: string;
+}
+
+export interface SkillDependency {
+  skillId: string; // References Skills.Id
+  prerequisiteSkillId: string; // References Skills.Id
+}
+
+export interface QuestSkill {
+  questId: string; // References Quests.Id
+  skillId: string; // References Skills.Id
+  experiencePoints: number; // XP awarded for this skill when quest is completed
+}
+```
+
+### **Game Sessions & Analytics**
+
+**Purpose:** Comprehensive user engagement tracking and learning analytics.
+
+#### **TypeScript Interface**
+```typescript
+export interface GameSession {
+  id: string;
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  questId?: string; // References Quests.Id
+  startTime: string;
+  endTime?: string;
+  status: GameSessionStatus; // 'InProgress', 'Completed', 'Abandoned'
+  metadata?: Record<string, any>; // Session-specific data as JSONB
+}
+
+export interface SessionEvent {
+  id: string;
+  sessionId: string; // References GameSessions.Id
+  eventType: string; // 'quest_start', 'skill_unlock', 'achievement_earned', etc.
+  eventData?: Record<string, any>; // Event-specific data as JSONB
+  timestamp: string;
+}
+```
+
+### **Notes & Knowledge Management**
+
+**Purpose:** User-generated content linked to learning objectives.
+
+#### **TypeScript Interface**
+```typescript
+export interface Note {
+  id: string;
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  title: string;
+  content?: Record<string, any>; // Rich text content as JSONB
+  questId?: string; // References Quests.Id
+  skillId?: string; // References Skills.Id
+  tags?: string[];
+  isPublic: boolean; // Can be shared with party/guild
+  createdAt: string;
+  updatedAt: string;
+}
+```
   id: string;
   curriculumId: string;
   name: string;
@@ -267,7 +431,7 @@ export interface Notification {
 
 ### **Party & PartyMembership**
 
-**Purpose:** Small, private study groups for focused collaboration.
+**Purpose:** Small, private study groups for focused collaboration with role-based management.
 
 #### **TypeScript Interface**
 ```typescript
@@ -275,14 +439,16 @@ export interface Party {
   id: string;
   name: string;
   description?: string;
-  joinType: PartyJoinType;
-  leaderId: string;
+  leaderId: string; // References UserProfiles.AuthUserId (cross-service)
+  maxMembers?: number;
+  isPrivate: boolean;
   createdAt: string;
 }
 
 export interface PartyMembership {
-  partyId: string;
-  userProfileId: string;
+  partyId: string; // References Parties.Id
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  role: PartyRole; // 'Leader', 'Member'
   joinedAt: string;
 }
 ```
@@ -297,14 +463,14 @@ export interface Guild {
   id: string;
   name: string;
   description?: string;
-  masterId: string;
+  masterId: string; // References UserProfiles.AuthUserId (cross-service)
   isVerified: boolean;
   createdAt: string;
 }
 
 export interface GuildMembership {
-  guildId: string;
-  userProfileId: string;
+  guildId: string; // References Guilds.Id
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
   joinedAt: string;
 }
 ```
@@ -313,27 +479,82 @@ export interface GuildMembership {
 
 ### **Meeting System**
 
-**Purpose:** Manages party meetings, scheduling, agendas, and collaborative features.
+**Purpose:** Comprehensive meeting management with analytics, engagement tracking, and multi-context support.
 
 #### **TypeScript Interface**
 ```typescript
 export interface Meeting {
   id: string;
-  partyId: string;
-  creatorId: string;
+  partyId?: string; // References Parties.Id (optional for non-party meetings)
+  creatorId: string; // References UserProfiles.AuthUserId (cross-service)
   title: string;
   description?: string;
   scheduledStartTime: string;
   scheduledEndTime?: string;
-  status: MeetingStatus;
+  actualStartTime?: string;
+  actualEndTime?: string;
+  status: EventStatus; // 'Scheduled', 'InProgress', 'Completed', 'Cancelled'
+  meetingUrl?: string;
   createdAt: string;
 }
 
 export interface MeetingParticipant {
-  meetingId: string;
-  userProfileId: string;
-  status: ParticipantStatus;
+  meetingId: string; // References Meetings.Id
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  status: ParticipantStatus; // 'Invited', 'Accepted', 'Declined', 'Attended'
+  joinedAt?: string;
+  leftAt?: string;
 }
+
+export interface MeetingAgenda {
+  id: string;
+  meetingId: string; // References Meetings.Id
+  title: string;
+  description?: string;
+  estimatedDuration?: number; // Minutes
+  actualDuration?: number; // Minutes
+  sequence: number; // Order in the agenda
+  createdAt: string;
+}
+
+export interface MeetingNote {
+  id: string;
+  meetingId: string; // References Meetings.Id
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  content: Record<string, any>; // Rich text content as JSONB
+  timestamp: string; // When the note was taken during the meeting
+  createdAt: string;
+}
+
+export interface MeetingParticipantActivity {
+  id: string;
+  meetingId: string; // References Meetings.Id
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  activityType: string; // 'join', 'leave', 'mute', 'unmute', 'camera_on', 'camera_off'
+  connectionQuality?: number; // 1-5 scale
+  timestamp: string;
+}
+
+export interface MeetingParticipantEngagement {
+  id: string;
+  meetingId: string; // References Meetings.Id
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  speakingTime: number; // Total speaking time in seconds
+  chatMessages: number; // Number of chat messages sent
+  reactionsGiven: number; // Number of reactions/emojis used
+  pollsParticipated: number; // Number of polls participated in
+}
+
+export interface MeetingParticipantStats {
+  id: string;
+  meetingId: string; // References Meetings.Id
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  attentionScore?: number; // AI-calculated attention score (1-100)
+  participationScore?: number; // Overall participation score (1-100)
+  contributionRating?: number; // Peer or self-rating (1-5)
+  createdAt: string;
+}
+```
 
 export interface MeetingAgenda {
   id: string;
@@ -358,75 +579,103 @@ export interface MeetingNote {
 
 ## **Events & Competition**
 
-### **Event & Competition System**
+### **Event Management**
 
-**Purpose:** Competitive events hosted by guilds.
+**Purpose:** Comprehensive event system supporting various competition types and formats.
 
 #### **TypeScript Interface**
 ```typescript
 export interface Event {
   id: string;
-  guildId?: string;
   title: string;
   description?: string;
-  type: EventType;
-  startDate?: string;
-  endDate?: string;
+  type: EventType; // 'Competition', 'Workshop', 'Assessment', 'Social'
+  status: EventStatus; // 'Scheduled', 'InProgress', 'Completed', 'Cancelled'
+  startTime: string;
+  endTime?: string;
+  maxParticipants?: number;
+  registrationDeadline?: string;
+  createdAt: string;
 }
 
+export interface EventParticipant {
+  eventId: string; // References Events.Id
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  registeredAt: string;
+  participatedAt?: string;
+  finalScore?: number;
+  finalRank?: number;
+}
+```
+
+### **Code Battle System**
+
+**Purpose:** Programming competition infrastructure with comprehensive judging and analytics.
+
+#### **TypeScript Interface**
+```typescript
 export interface CodeProblem {
   id: string;
   title: string;
   problemStatement: string;
+  difficulty?: string;
+  timeLimit?: number; // Seconds
+  memoryLimit?: number; // MB
+  createdAt: string;
 }
 
 export interface EventCodeProblem {
-  eventId: string;
-  problemId: string;
+  eventId: string; // References Events.Id
+  problemId: string; // References CodeProblems.Id
+  sequence?: number; // Order in the event
 }
 
 export interface Language {
   id: string;
-  name: string;
+  name: string; // 'Python', 'Java', 'C++', etc.
   compileCmd?: string;
   runCmd: string;
   timeoutSeconds?: number;
+  isActive: boolean;
 }
 
 export interface Room {
   id: string;
-  eventId: string;
+  eventId: string; // References Events.Id
   name: string;
   description?: string;
+  maxPlayers?: number;
   createdAt: string;
 }
 
 export interface RoomPlayer {
-  roomId: string;
-  userProfileId: string;
+  roomId: string; // References Rooms.Id
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
   score: number;
   place?: number;
-  state?: string;
+  state?: string; // 'Active', 'Disconnected', 'Finished'
+  joinedAt: string;
   disconnectedAt?: string;
 }
 
 export interface TestCase {
   id: string;
-  codeProblemId: string;
+  codeProblemId: string; // References CodeProblems.Id
   input: string;
   expectedOutput: string;
-  timeConstraint?: number;
-  spaceConstraint?: number;
+  timeConstraint?: number; // Milliseconds
+  spaceConstraint?: number; // MB
+  isHidden: boolean; // Whether visible to participants
 }
 
 export interface Submission {
   id: string;
-  userProfileId: string;
-  eventId: string;
-  codeProblemId: string;
-  languageId: string;
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  eventId: string; // References Events.Id
+  codeProblemId: string; // References CodeProblems.Id
+  languageId: string; // References Languages.Id
   sourceCode: string;
-  status: SubmissionStatus;
+  status: SubmissionStatus; // 'Pending', 'Running', 'Accepted', 'WrongAnswer', 'TimeLimitExceeded', etc.
   
   // Execution Results
   stdOut?: string;
@@ -437,11 +686,11 @@ export interface Submission {
   message?: string;
   
   // Performance Metrics
-  time?: number;
-  memory?: number;
-  wallTime?: number;
+  time?: number; // Execution time in milliseconds
+  memory?: number; // Memory usage in KB
+  wallTime?: number; // Wall clock time in milliseconds
   
-  // Judge Tracking & Configuration
+  // Judge Configuration
   token?: string;
   callbackUrl?: string;
   numberOfRuns?: number;
@@ -451,7 +700,7 @@ export interface Submission {
   additionalFiles?: ArrayBuffer;
   enableNetwork?: boolean;
   
-  // Judge Resource Limits
+  // Resource Limits
   cpuTimeLimit?: number;
   cpuExtraTime?: number;
   wallTimeLimit?: number;
@@ -470,23 +719,33 @@ export interface Submission {
   queueHost?: string;
   executionHost?: string;
 }
+```
 
+### **Leaderboard System**
+
+**Purpose:** Ranking and achievement tracking for individuals and guilds.
+
+#### **TypeScript Interface**
+```typescript
 export interface LeaderboardEntry {
   id: string;
-  userProfileId: string;
-  eventId?: string;
+  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  eventId?: string; // References Events.Id (optional for global leaderboards)
   rank: number;
   score: number;
   snapshotDate: string;
+  createdAt: string;
 }
 
 export interface GuildLeaderboardEntry {
   id: string;
-  guildId: string;
-  eventId?: string;
+  guildId: string; // References Guilds.Id
+  eventId?: string; // References Events.Id (optional for global leaderboards)
   rank: number;
   totalScore: number;
+  memberCount: number;
   snapshotDate: string;
+  createdAt: string;
 }
 ```
 
