@@ -6,20 +6,20 @@ This document provides a comprehensive architectural overview of the RogueLearn 
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [High Level Architecture](#high-level-architecture)
-- [Tech Stack](#tech-stack)
+- [Introduction](./introduction.md)
+- [High Level Architecture](./high-level-architecture.md)
+- [Tech Stack](./tech-stack.md)
 - [Database Architecture](#database-architecture)
   - [Database Schema](./database-schema.md) - Complete PostgreSQL and ChromaDB schema definitions
   - [Database Per Service](./database-per-service.md) - Service-specific data organization and cross-service patterns
 - [Data Models](#data-models)
   - [Data Models](./data-models.md) - TypeScript interfaces and data structures
-- [API Specification](#api-specification)
+- [API Specification](./api-specification.md)
 - [System Components](#system-components)
   - [Components](./components.md) - Reusable UI and system components
 - [External Integrations](#external-integrations)
   - [External APIs](./external-apis.md) - Third-party service integrations
-- [Core Workflows](#core-workflows)
+- [Core Workflows](./core-workflows.md)
 - [Architecture Layers](#architecture-layers)
   - [Frontend Architecture](./frontend-architecture.md) - Client-side architecture and patterns
   - [Backend Architecture](./backend-architecture.md) - Server-side microservices architecture
