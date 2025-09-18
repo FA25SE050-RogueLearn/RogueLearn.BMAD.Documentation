@@ -13,13 +13,15 @@
 - **Backend:** .NET 8 Web API with Clean Architecture pattern
 - **Database:** PostgreSQL 15+ with Entity Framework Core
 - **Cache:** Redis for session management and API response caching
-- **File Storage:** Local file system for MVP (Azure Blob Storage for production)
-- **AI Services:** OpenAI GPT-4 API (simplified quest generation only)
+- **File Storage:** Local file system for MVP (Supabase Storage for production)
+- **AI Services:** Gemini API via internal AI Proxy service (simplified quest generation only)
 
-**Unity Integration for Boss Fights:**
-- Unity WebGL for interactive boss fight experiences
-- Seamless browser integration with web-native UI
-- Unity-to-web communication for progress tracking
+**Unity Game Client & Multiplayer:**
+- Unity 2022 LTS; Netcode for GameObjects (NGO)
+- Primary client: WebGL; optional Windows/macOS desktop for debugging
+- Multiplayer P2: Unity Lobby + Relay (WSS) join-code flow; client-hosted sessions
+- Optional P3: Dedicated headless server (Linux); switchable transport (Relay or direct WSS/WebSocket transport)
+- Unity-to-web communication for progress/state UI and telemetry
 
 #### **Technology Stack Constraints (MVP Focused)**
 - **Node.js:** Version 18+ (LTS) for frontend development
@@ -28,9 +30,11 @@
 - **Browser Support:** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+ (standard web technologies)
 - **Mobile:** Responsive design targeting iOS 14+ and Android 10+
 
-**Removed from MVP:**
-- Unity Engine requirements (no WebGL dependencies)
-- Advanced browser compatibility requirements for game features
+**Included in MVP:**
+- Unity Engine requirements (WebGL client build target)
+- Unity single-player core loop integration (Boss Fights) for MVP
+- UGS services (Authentication, Lobby, Relay) introduced in Phase 2; ensure WebGL WSS compatibility
+- Browser compatibility for WebGL build and WSS
 
 ### **Technical Decision Framework**
 
@@ -54,10 +58,10 @@ All significant technical decisions will be evaluated against the following crit
   - Basic gamification UI components (progress bars, badges, simple animations)
   - Responsive design for cross-device compatibility
 
-**Removed from MVP:**
-- Unity WebGL integration and game communication
-- Complex 2D boss fight mechanics
-- Advanced game state synchronization
+**Included for MVP:**
+- Unity WebGL integration (single-player core loop); NGO networking introduced in Phase 2 (ServerRpc/ClientRpc, NetworkVariables)
+- Simple 2D boss fight mechanics and core game loop
+- Basic game state synchronization (30 Hz sim; 15–20 Hz network send; client interpolation)
 
 - **Backend Architecture:**
   - Clean Architecture with CQRS pattern
@@ -113,6 +117,14 @@ All significant technical decisions will be evaluated against the following crit
   - Connection pooling and async/await patterns
   - API response compression
 
+#### **Game Networking & Project Structure **
+- Assembly definitions: Core (game logic), Client (presentation), Net (NGO & messages)
+- Scenes: Bootstrap, Main Menu (mode selector), SinglePlayer, MultiplayerClient, DedicatedServerBootstrap
+- RPC Audit: Convert authoritative actions to ServerRpc; broadcast via ClientRpc; NetworkVariables for small, high-read fields
+- Tick/Rate: 30 Hz simulation; 15–20 Hz network send; client interpolation and simple reconciliation
+- Join Flow: UGS Auth (anonymous) → Lobby create/join → Relay allocate/join → NGO start client/host
+- Error Handling: Surface join errors (codes), retry with backoff
+
 #### **Deployment Strategy**
 - **CI/CD Pipeline (GitHub Actions):**
   - Automated testing on pull requests
@@ -123,11 +135,13 @@ All significant technical decisions will be evaluated against the following crit
 
 - **Infrastructure:**
   - **Frontend:** Vercel with custom domain
-- **Unity WebGL:** Static hosting with CORS configuration for game assets
+  - **Unity WebGL:** Static hosting with CORS configuration for game assets
   - **Backend:** Docker containers on Azure Container Apps or AWS Fargate
   - **Database:** Managed PostgreSQL (Azure Database or AWS RDS)
   - **Cache:** Managed Redis (Azure Cache or AWS ElastiCache)
   - **Monitoring:** Application Insights or CloudWatch
+  - **UGS (Phase 2):** Unity Authentication (anonymous), Lobby, Relay configured for WSS
+  - **Dedicated Server (Phase 3):** Linux headless build, Dockerized, reverse proxy (Caddy) providing TLS and WSS upgrades; health endpoint
 
 - **Environment Configuration:**
   - **Development:** Local development with Docker Compose
@@ -158,15 +172,14 @@ All significant technical decisions will be evaluated against the following crit
 #### **Simplified AI-driven Quest Generation**
 - **Risk:** Basic document parsing and quest generation accuracy
 - **Technical Constraints:**
-  - OpenAI API rate limits: 3,500 requests/minute for GPT-4
-  - Token limits: 8,192 tokens per request (input + output)
-  - Cost considerations: ~$0.03 per 1K tokens for GPT-4
-- **Mitigation Strategy:**
+- **Gemini API quotas and rate limits** as provided by the platform
+- **Model token/context limits** per selected Gemini model
+- **Cost considerations** managed with quota monitoring and caching strategies
   - Simple document text extraction (no OCR for MVP)
   - Basic prompt templates for quest generation
   - Implement response validation and retry logic
   - Cache processed results to minimize API calls
-  - Use GPT-3.5-turbo as primary model for cost optimization
+  - Use a cost-efficient Gemini model variant via the AI Proxy for cost optimization
   - Simple loading states instead of streaming responses
 
 #### **Browser Extension Security**
@@ -253,9 +266,6 @@ All significant technical decisions will be evaluated against the following crit
 - **JetBrains Rider:** Recommended for .NET development
 - **Database Tools:** pgAdmin 4 or DBeaver for PostgreSQL management
 
-**Removed from MVP:**
-- Unity Editor and WebGL build requirements
-- Game development tools and extensions
 
 #### **Local Development Constraints**
 - **Port Allocation:** Frontend (3000), Backend (5000), Database (5432), Redis (6379)
@@ -270,7 +280,7 @@ All significant technical decisions will be evaluated against the following crit
 - .NET 8 backend with clean architecture
 - PostgreSQL database with Entity Framework
 - Redis caching for sessions and API responses
-- OpenAI GPT-3.5-turbo for basic quest generation
+- Gemini API (via AI Proxy) for basic quest generation
 - Browser extension with basic content scraping
 - Simple skill tree display with HTML/CSS
 - Basic user authentication and authorization

@@ -167,7 +167,7 @@ This document specifies the operational requirements for the RogueLearn platform
   4. Rate limit failed authentication attempts (5 attempts per 15 minutes)
 
 #### **AI Service Integration Failures**
-- **Scenario**: OpenAI API timeout, rate limiting, or service unavailability
+- **Scenario**: Gemini API (via AI Proxy) timeout, rate limiting, or service unavailability
 - **Error Response**: HTTP 503 with estimated retry time
 - **Recovery Procedure**:
   1. Implement exponential backoff retry strategy (1s, 2s, 4s, 8s)

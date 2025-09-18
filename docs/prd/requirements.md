@@ -16,7 +16,7 @@
 13. **FR13 (System):** The skill tree visualization must show relationships between skills and highlight missing skills needed to reach the user's goal.
 14. **FR14 (User):** The user's personal study notes ("Arsenal") must be a rich text editor with Notion-like functionalities, allowing for flexible content creation and organization.
 15. **FR15 (System):** The skill tree must be able to display links to relevant notes within the user's "Arsenal" for each skill node, with visual indicators showing which Arsenal items contribute to each skill's development.
-16. **FR16 (System):** The system must generate gamified mock exams ("Boss Fights") as Unity-based interactive experiences with multiple choice questions, visual feedback, and engaging animations based on upcoming tests input by the player.
+16. **FR16 (System):** The system must generate gamified mock exams ("Boss Fights") as Unity-based interactive experiences (WebGL) with multiple choice questions, visual feedback, and engaging animations based on upcoming tests input by the player.
 17. **FR17 (System):** Each Boss Fight question must have an assigned difficulty level, with higher difficulty questions awarding more points and triggering more challenging visual boss mechanics.
 18. **FR18 (System):** The total Boss Fight score must be calculated based on correctly answered questions, weighted by their difficulty levels, with real-time score updates and visual progress indicators in the Unity game interface.
 19. **FR19 (System):** The system must feature leaderboards that display player rankings, both within specific "Classes", for PvP events, and overall.
@@ -108,7 +108,7 @@ To validate the RogueLearn MVP, we will use a combination of qualitative and qua
 1.  **NFR1 (Responsiveness):** The application must be a responsive web application, providing an optimal viewing and interaction experience across a range of devices (desktops, tablets, and mobile phones). All functionality must be accessible and usable on screen widths from 320px to 1920px.
 2.  **NFR2 (Authentication):** The system must use **Supabase Authentication** for user authentication, ensuring a secure and reliable user management system integrated with the primary data platform.
 3.  **NFR3 (Backend Technology):** The system must use .NET 8 and Golang for all backend services, leveraging its performance and security features.
-4.  **NFR4 (Services Communication):** System's services must use RabbitMQ to communicate.
+4.  **NFR4 (Services Communication):** Services communicate via RESTful HTTP for inter-service calls, with real-time updates delivered through SignalR; no centralized message broker is used in the MVP.
 5.  **NFR5 (Frontend Technology):** The system must use Next.js (version 14 or later) for the frontend application to enable server-side rendering and a fast user experience.
 6.  **NFR6 (Data Storage):** The system must use Supabase for database and file storage, configured for scalability and reliability.
 7.  **NFR7 (Unity Integration):** Boss Fight interactive experiences must be implemented using Unity WebGL to ensure rich interactive gameplay while maintaining browser compatibility.

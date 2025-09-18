@@ -81,6 +81,22 @@ This document outlines the comprehensive integration requirements for RogueLearn
 
 ## AI & Machine Learning Integrations
 
+### Gemini API Integration (via Internal AI Proxy)
+
+**Primary AI Service**
+- **Service**: Gemini API via Internal AI Proxy Service
+- **Purpose**: Content analysis, quest generation, and personalized learning
+- **Integration Points**:
+  - Content analysis for skill mapping
+  - Adaptive quest generation based on user progress
+  - Personalized learning path recommendations
+  - Natural language processing for user inputs
+- **API Specifications**:
+  - Rate Limiting: Follow Gemini quota limits; enforce per-service budgets in AI Proxy
+  - Response Time: Target <2 seconds for content analysis
+  - Fallback Strategy: Degraded local heuristics for basic functionality
+  - Cost Management: Token/compute usage monitoring and optimization through AI Proxy
+
 ### OpenAI GPT-4 Integration
 
 **Primary AI Service**
@@ -127,14 +143,13 @@ This document outlines the comprehensive integration requirements for RogueLearn
 
 ### Communication & Messaging
 
-**RabbitMQ Message Broker**
-- **Purpose**: Inter-service communication and event processing
+**Real-time and Eventing (MVP)**
+- **Purpose**: Real-time updates and lightweight event processing without a centralized broker in MVP
 - **Integration Patterns**:
-  - Event-driven architecture for loose coupling
-  - Asynchronous task processing
-  - Real-time notification delivery
-  - Data synchronization across services
-- **Message Types**:
+  - RESTful service-to-service calls for synchronous operations
+  - SignalR hubs for real-time notifications and collaboration
+  - Database triggers for simple cross-service synchronization where applicable
+- **Event Types**:
   - User events (registration, progress updates)
   - Content events (uploads, analysis completion)
   - System events (deployments, health checks)
@@ -199,7 +214,7 @@ This document outlines the comprehensive integration requirements for RogueLearn
 
 **Internal API Specifications**
 - **Authentication**: Service-to-service JWT tokens
-- **Protocol**: HTTP/2 with gRPC for high-performance endpoints
+- **Protocol**: REST over HTTP (HTTP/1.1/2) for service-to-service calls (no gRPC in MVP)
 - **Discovery**: Service registry with health checks
 - **Circuit Breaker**: Fault tolerance with automatic failover
 
@@ -275,7 +290,7 @@ This document outlines the comprehensive integration requirements for RogueLearn
 - **Load Balancers**: Application-level load balancing with health checks
 - **Auto-Scaling**: CPU and memory-based scaling policies
 - **Database Scaling**: Read replicas and connection pooling
-- **Message Queue Scaling**: Cluster-based RabbitMQ deployment
+- **Message Queue Scaling**: [Deferred] No RabbitMQ in MVP; revisit when introducing centralized broker
 
 ## Testing & Quality Assurance Integration
 
@@ -320,7 +335,7 @@ This document outlines the comprehensive integration requirements for RogueLearn
 **Critical Integration Points**
 1. **Authentication Flow**: Supabase Authentication → Backend → Frontend token validation
 2. **Content Processing**: Web capture → AI analysis → Skill mapping
-3. **Real-Time Updates**: User action → RabbitMQ → SignalR → Client update
+3. **Real-Time Updates**: User action → Service emits SignalR event and/or DB trigger (Supabase Realtime) → Client update
 4. **Payment Processing**: Stripe webhook → Backend → User notification
 5. **Extension Sync**: Browser extension → API → Main application
 
@@ -348,7 +363,7 @@ This document outlines the comprehensive integration requirements for RogueLearn
 **System Resilience**
 - **Multi-Region Deployment**: Active-passive configuration with automatic failover
 - **Database Clustering**: Master-slave replication with read scaling
-- **Message Queue Clustering**: RabbitMQ cluster with mirrored queues
+- **SignalR Scale-out**: Redis backplane or Azure SignalR Service
 - **Static Asset Failover**: Backup static file servers with automatic switching
 
 ## Future Integration Considerations

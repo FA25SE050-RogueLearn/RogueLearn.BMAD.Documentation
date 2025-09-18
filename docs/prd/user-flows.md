@@ -78,7 +78,7 @@ graph TD
 
     subgraph "Notifications & AI Interaction"
         AI8 --> U[Dynamic Quest Line Updates];
-        U --> V[Receive Notifications];
+        U --> V[Monitor SignalR Hubs and Realtime Channels];
         V --> V1[Quest Changes];
         V --> V2[New Learning Path Suggestions];
         V --> V3[Email & Push Notifications];
@@ -234,7 +234,7 @@ graph TD
 
     subgraph "Integration & Technical Operations"
         B --> U{System Integrations};
-        U --> V[Monitor RabbitMQ Message Queues];
+        U --> V[Monitor SignalR Hubs and Realtime Channels];
         U --> W[Unity WebGL Performance Monitoring];
         U --> X[Browser Extension Analytics];
         U --> Y[Third-party API Health Checks];

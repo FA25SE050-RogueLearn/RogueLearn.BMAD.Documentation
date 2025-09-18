@@ -35,7 +35,7 @@
 | 5. Non-Functional Requirements | ✅ **PASS** | 100% | Detailed performance targets and scalability specifications |
 | 6. Epic & Story Structure | ✅ **PASS** | 100% | Well-structured breakdown supports development planning |
 | 7. Technical Guidance | ✅ **PASS** | 100% | Comprehensive stack: .NET 8, Next.js 14+, PostgreSQL 15+ |
-| 8. Cross-Functional Requirements | ✅ **PASS** | 100% | Complete Unity WebGL, OpenAI API, and browser extension specs |
+| 8. Cross-Functional Requirements | ✅ **PASS** | 100% | Complete Unity WebGL, Gemini API (via AI Proxy), and browser extension specs |
 | 9. Clarity & Communication | ✅ **PASS** | 100% | Excellent structure with mentor-driven simplification |
 
 **Legend:** PASS (85%+), PARTIAL (60-84%), FAIL (<60%)
@@ -152,9 +152,9 @@
 - ✅ **Backend:** .NET 8 Web API with Clean Architecture pattern
 - ✅ **Database:** PostgreSQL 15+ with Entity Framework Core
 - ✅ **Cache:** Redis for session management and API response caching
-- ✅ **AI Services:** OpenAI GPT-4 API integration
+- ✅ **AI Services:** Gemini API (via AI Proxy) integration
 - ✅ **Game Engine:** Unity WebGL for boss fight experiences
-- ✅ **File Storage:** Local filesystem for MVP, Azure Blob Storage for production
+- ✅ **File Storage:** Local filesystem for MVP, Supabase Storage for production
 
 **Architecture Patterns Specified:**
 - ✅ Multi-repository strategy with shared TypeScript interfaces
@@ -170,9 +170,9 @@
 
 **Critical Integrations for Architecture:**
 - ✅ **Unity WebGL:** Detailed integration patterns with JavaScript-Unity API bridge
-- ✅ **OpenAI API:** AI service integration for quest generation and content analysis
+- ✅ **Gemini API (via AI Proxy):** AI service integration for quest generation and content analysis
 - ✅ **Browser Extension:** Cross-platform data extraction and synchronization
-- ✅ **File Storage:** Local filesystem for MVP, Azure Blob Storage for production
+- ✅ **File Storage:** Local filesystem for MVP, Supabase Storage for production
 - ✅ **Email Services:** User communication and notification systems
 - ✅ **Authentication:** OAuth and JWT token management
 
@@ -234,9 +234,10 @@
 - **Scalability Architecture:** Auto-scaling patterns need thorough planning for 3x load
 - **Data Privacy Compliance:** GDPR and educational data protection requirements
 - **Cross-Platform Browser Extension:** Security and compatibility across different browsers
-- **AI Content Generation:** Managing OpenAI API costs and rate limiting
-
-## Recommended Next Steps for Architect
+- **AI Content Generation:** Managing Gemini API quotas and rate limiting
+- Confirm Gemini API integration via AI Proxy and rate limiting
+- Validate Supabase Auth integration and role-based authorization
+- Review SignalR scale-out strategy and Redis backplane/Azure SignalR options
 
 ### Immediate Actions (Week 1)
 1. **System Architecture Design**
@@ -246,7 +247,7 @@
 
 2. **Technology Validation**
    - Validate Unity WebGL integration approach with Next.js
-   - Confirm OpenAI API integration patterns and rate limiting
+   - Confirm Gemini API integration patterns and rate limiting
    - Assess browser extension development framework options
 
 3. **Infrastructure Planning**
@@ -261,7 +262,7 @@
    - User authentication and profile management system
 
 2. **AI Integration Architecture**
-   - OpenAI API integration patterns and error handling
+   - Gemini API (via AI Proxy) integration patterns and error handling
    - Document parsing and content analysis workflows
    - Quest generation and personalization algorithms
 
