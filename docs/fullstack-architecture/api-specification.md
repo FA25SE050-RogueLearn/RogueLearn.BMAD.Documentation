@@ -200,6 +200,7 @@ components:
             generatorVersion: { type: string, nullable: true }
             promptHash: { type: string, nullable: true }
             seed: { type: string, nullable: true }
+            approvedBy: { type: string, nullable: true }
         items:
           type: array
           items:
