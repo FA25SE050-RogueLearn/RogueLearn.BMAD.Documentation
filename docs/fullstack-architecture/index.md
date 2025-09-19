@@ -20,6 +20,7 @@ This document provides a comprehensive architectural overview of the RogueLearn 
 - [External Integrations](#external-integrations)
   - [External APIs](./external-apis.md) - Third-party service integrations
 - [Core Workflows](./core-workflows.md)
+- [Unity Architecture](./unity-architecture.md) - Game client runtime, multiplayer topology, UGS, dedicated server, CI/CD
 - [Architecture Layers](#architecture-layers)
   - [Frontend Architecture](./frontend-architecture.md) - Client-side architecture and patterns
   - [Backend Architecture](./backend-architecture.md) - Server-side microservices architecture

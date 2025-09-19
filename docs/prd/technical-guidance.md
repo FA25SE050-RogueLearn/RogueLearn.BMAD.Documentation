@@ -36,6 +36,20 @@
 - UGS services (Authentication, Lobby, Relay) introduced in Phase 2; ensure WebGL WSS compatibility
 - Browser compatibility for WebGL build and WSS
 
+#### Unity Game Client & Multiplayer — Phased Plan
+- Phase 1 (MVP): Single-player WebGL boss-fight loop
+  - Deliverables: Embedded Unity WebGL build, JS ↔ Unity bridge for session start/stop and results, basic analytics/telemetry, 2D boss mechanics, 30 Hz sim locally
+  - Constraints: No networking; focus on fast load and smooth web integration
+  - Exit criteria: Stable WebGL load in target browsers, results posted to backend, >95% successful session start rate, TTFMP within acceptable budget
+- Phase 2 (Networking via UGS): Client-hosted sessions with Lobby + Relay + NGO
+  - Deliverables: Anonymous Auth, Lobby create/join (join-code), Relay allocation/join (WSS), NGO gameplay with ServerRpc/ClientRpc and NetworkVariables for small, high-read fields; error handling + retry
+  - Capacity target: Small-group co-op; start with ≤12 players to validate stability on WebGL + Relay
+  - Exit criteria: Join flow reliability (>95%), stable 30 Hz sim with 15–20 Hz network send, acceptable jitter/packet loss handling, host migration plan documented
+- Phase 3 (Dedicated Headless Server): Authoritative Linux server for fairness and larger matches
+  - Deliverables: Headless build (Dockerized), TLS/WSS via reverse proxy, authoritative simulation + reconciliation, interest management, metrics/observability
+  - Capacity target: Up to 20 players (Guild vs Guild) with fairness and anti-exploit guarantees
+  - Exit criteria: Load test at 20 concurrent players per match with target tick stability, automated deploy + health checks, backfill/match-recovery flows
+
 ### **Technical Decision Framework**
 
 All significant technical decisions will be evaluated against the following criteria, in order of priority:

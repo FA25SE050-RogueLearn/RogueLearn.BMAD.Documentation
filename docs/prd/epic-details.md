@@ -198,6 +198,13 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Results are synchronized with backend for skill tree and leaderboard updates
     *   Achievement unlocks and badges are displayed for milestone completions
 
+#### **Boss Fight Networking by Phase (Unity)**
+- **Phase 1 (MVP):** Single-player WebGL; no networking; focus on fast load and reliable results posting to backend.
+- **Phase 2 (UGS Multiplayer):** Client-hosted sessions via Unity Lobby + Relay (WSS) using NGO (join-code flow); validate ≤12 players initially; host migration plan documented.
+- **Phase 3 (Dedicated Server):** Linux headless authoritative server (Dockerized) with WSS via reverse proxy; target up to 20 players; fairness and anti-exploit guarantees.
+
+Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Phased Plan.
+
 ---
 
 ## **Phase 2: Social & Extension MVP**

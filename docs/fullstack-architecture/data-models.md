@@ -806,3 +806,145 @@ export interface SubmissionWithDetails extends Submission {
 }
 ```
 
+
+## **CurriculumPack (AI-Generated Content Packs)**
+
+**Purpose:** Deliver vetted, versioned content generated from a subject/curriculum to the Unity client via backend APIs. Supports curated sets and procedural (seeded) generation with full auditability.
+
+#### **TypeScript Interfaces**
+```typescript
+export type CurriculumQuestionType = 'MCQ' | 'FreeText';
+
+export interface CurriculumOption {
+  id: string; // Option identifier (unique within question)
+  text: string;
+}
+
+export interface CurriculumQuestion {
+  id: string; // Unique within the pack
+  type: CurriculumQuestionType;
+  text: string;
+  options?: CurriculumOption[]; // Required for MCQ
+  correctAnswers?: string[]; // For MCQ: option ids; for Code/FreeText: rubric keys or expected tokens
+  explanation?: string;
+  difficulty?: 'Beginner' | 'Intermediate' | 'Advanced';
+  tags?: string[]; // e.g., ['loops', 'conditionals']
+  sequence?: number; // Rendering order
+  weight?: number; // Default 1
+  timeLimitSec?: number; // Optional per-item time limit
+  metadata?: Record<string, any>; // e.g., language for code, unit tests ref, asset refs
+}
+
+export type CurriculumSource = 'Set' | 'Seed';
+
+export interface CurriculumPackMeta {
+  packId: string; // UUID
+  subjectId?: string;
+  curriculumId?: string;
+  version: string; // SemVer, e.g., 1.0.0
+  aiModel?: string; // e.g., 'gpt-4o-mini'
+  generatorVersion?: string; // Content pipeline version
+  promptHash?: string; // Hash of prompt/template for reproducibility
+  seed?: string; // If procedural
+  approvedBy?: string; // Human approver (for assessments)
+  createdAt: string; // ISO timestamp
+  source: CurriculumSource; // 'Set' (curated) or 'Seed' (procedural)
+}
+
+export interface CurriculumPack {
+  meta: CurriculumPackMeta;
+  items: CurriculumQuestion[]; // Snapshot of served questions/items
+}
+```
+
+#### **JSON Schema (Draft 2020-12)**
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bmad.local/schemas/curriculum-pack.json",
+  "title": "CurriculumPack",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "packId": { "type": "string", "format": "uuid" },
+        "subjectId": { "type": ["string", "null"], "format": "uuid" },
+        "curriculumId": { "type": ["string", "null"], "format": "uuid" },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[A-Za-z0-9.-]+)?$"
+        },
+        "aiModel": { "type": ["string", "null"], "maxLength": 100 },
+        "generatorVersion": { "type": ["string", "null"], "maxLength": 50 },
+        "promptHash": { "type": ["string", "null"], "maxLength": 128 },
+        "seed": { "type": ["string", "null"], "maxLength": 64 },
+        "approvedBy": { "type": ["string", "null"], "maxLength": 100 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "source": { "type": "string", "enum": ["Set", "Seed"] }
+      },
+      "required": ["packId", "version", "createdAt", "source"]
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "type": { "type": "string", "enum": ["MCQ", "Code", "FreeText"] },
+          "text": { "type": "string", "minLength": 1, "maxLength": 4000 },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string", "minLength": 1, "maxLength": 64 },
+                "text": { "type": "string", "minLength": 1, "maxLength": 2000 }
+              },
+              "required": ["id", "text"]
+            },
+            "minItems": 2,
+            "maxItems": 10
+          },
+          "correctAnswers": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1,
+            "maxItems": 10
+          },
+          "explanation": { "type": ["string", "null"], "maxLength": 4000 },
+          "difficulty": { "type": ["string", "null"], "enum": ["Beginner", "Intermediate", "Advanced"] },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1, "maxLength": 50 },
+            "maxItems": 20
+          },
+          "sequence": { "type": ["integer", "null"], "minimum": 0, "maximum": 10000 },
+          "weight": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+          "timeLimitSec": { "type": ["integer", "null"], "minimum": 10, "maximum": 3600 },
+          "metadata": { "type": ["object", "null"] }
+        },
+        "required": ["id", "type", "text"],
+        "allOf": [
+          {
+            "if": { "properties": { "type": { "const": "MCQ" } }, "required": ["type"] },
+            "then": { "required": ["options", "correctAnswers"] }
+          }
+        ]
+      }
+    }
+  },
+  "required": ["meta", "items"]
+}
+```
+
+> Implementation note
+- Keep total payloads small (e.g., < 300 KB) for WebGL delivery; consider chunking or presigned URLs for large attachments.
+- Always snapshot items into the session (e.g., `SessionQuestions`) to ensure reproducibility and fair grading.
+

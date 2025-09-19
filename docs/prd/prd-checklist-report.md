@@ -213,6 +213,7 @@
 - **Browser Extension Architecture:** Cross-platform compatibility and security considerations
 - **Real-time Features:** WebSocket architecture for collaborative and social features
 - **File Upload Handling:** Large document processing and storage optimization
+- **Boss Fight Networking Plan:** Phased approach confirmed — P1 single-player WebGL; P2 client-hosted via UGS Lobby+Relay (NGO); P3 dedicated headless authoritative server. See PRD Technical Guidance → Unity Phased Plan.
 
 ## Technical Risk Assessment
 

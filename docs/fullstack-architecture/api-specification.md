@@ -182,6 +182,53 @@ components:
       properties:
         code: { type: string }
         message: { type: string }
+    
+    # Added: Curriculum Pack for AI-generated, vetted content delivery
+    CurriculumPack:
+      type: object
+      properties:
+        meta:
+          type: object
+          properties:
+            packId: { type: string, format: uuid }
+            version: { type: string }
+            source: { type: string, enum: [Set, Seed] }
+            createdAt: { type: string, format: date-time }
+            subjectId: { type: string, format: uuid, nullable: true }
+            curriculumId: { type: string, format: uuid, nullable: true }
+            aiModel: { type: string, nullable: true }
+            generatorVersion: { type: string, nullable: true }
+            promptHash: { type: string, nullable: true }
+            seed: { type: string, nullable: true }
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              type: { type: string, enum: [MCQ, FreeText] }
+              text: { type: string }
+              options:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string }
+                    text: { type: string }
+              correctAnswers:
+                type: array
+                items: { type: string }
+              explanation: { type: string, nullable: true }
+              difficulty: { type: string, enum: [Beginner, Intermediate, Advanced], nullable: true }
+              tags:
+                type: array
+                items: { type: string }
+              sequence: { type: integer, nullable: true }
+              weight: { type: number, nullable: true }
+              timeLimitSec: { type: integer, nullable: true }
+              metadata: { type: object, nullable: true }
+            required: [id, type, text]
+      required: [meta, items]
 
 paths:
   # User Profile Endpoints
@@ -764,6 +811,22 @@ paths:
                 questId:
                   type: string
                   format: uuid
+                # Optional: bind or generate a curriculum pack for this session
+                packId:
+                  type: string
+                  format: uuid
+                  nullable: true
+                subjectId:
+                  type: string
+                  format: uuid
+                  nullable: true
+                seed:
+                  type: string
+                  nullable: true
+                source:
+                  type: string
+                  enum: [Set, Seed]
+                  nullable: true
       responses:
         '201':
           description: Game session created.
@@ -796,5 +859,24 @@ paths:
       responses:
         '200':
           description: Session results submitted successfully.
-```
+
+  # Added: Fetch the Curriculum Pack snapshot for a session
+  /game/sessions/{sessionId}/pack:
+    get:
+      summary: Get the Curriculum Pack snapshot for a game session
+      tags: [Game]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: The curriculum pack bound to this session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurriculumPack'
 
