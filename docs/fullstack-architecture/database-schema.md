@@ -474,6 +474,15 @@ CREATE TABLE meeting_participant_stats (
 -- SECTION 8: EVENTS & COMPETITION (Modified)
 -- ------------------------------------------
 
+-- Languages table must come first as it's referenced by code_problems
+CREATE TABLE languages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL UNIQUE,
+    compile_cmd TEXT,
+    run_cmd TEXT NOT NULL,
+    timeout_seconds DOUBLE PRECISION
+);
+
 CREATE TABLE events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
@@ -531,14 +540,6 @@ CREATE TABLE guild_leaderboard_entries (
 -- ------------------------------------------
 -- SECTION 9: REAL-TIME CODE BATTLES & JUDGING (FULLY MERGED & DETAILED)
 -- ------------------------------------------
-
-CREATE TABLE languages (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL UNIQUE,
-    compile_cmd TEXT,
-    run_cmd TEXT NOT NULL,
-    timeout_seconds DOUBLE PRECISION
-);
 
 CREATE TABLE rooms (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
