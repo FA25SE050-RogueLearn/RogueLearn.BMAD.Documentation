@@ -5,6 +5,7 @@ This section provides the SQL DDL for the PostgreSQL database.
 ```sql
 -- RogueLearn Database Schema for PostgreSQL
 -- FINAL VERSION: Integrated with Supabase Auth and a robust, real-time Code Battle engine.
+-- CORRECTED: Fixed table creation order and constraint issues
 
 -- Enable UUID generation if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -29,7 +30,24 @@ CREATE TYPE participant_status AS ENUM ('Invited', 'Accepted', 'Declined', 'Atte
 
 
 -- ------------------------------------------
--- SECTION 2: USER & PROFILE CORE (No Changes)
+-- SECTION 1: FOUNDATION TABLES (No Dependencies)
+-- ------------------------------------------
+
+-- Create classes table first as it's referenced by user_profiles
+CREATE TABLE classes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT UNIQUE NOT NULL,
+    description TEXT
+);
+
+-- Create roles table early as it's referenced by user_roles
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    role_name TEXT UNIQUE NOT NULL
+);
+
+-- ------------------------------------------
+-- SECTION 2: USER & PROFILE CORE
 -- ------------------------------------------
 
 CREATE TABLE user_profiles (
@@ -38,14 +56,9 @@ CREATE TABLE user_profiles (
     email TEXT UNIQUE NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    class_id UUID, -- FK to classes table
+    class_id UUID REFERENCES classes(id) ON DELETE SET NULL, -- Fixed FK reference
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE roles (
-    id SERIAL PRIMARY KEY,
-    role_name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE user_roles (
@@ -67,12 +80,6 @@ CREATE TABLE lecturer_verification_requests (
 -- ------------------------------------------
 -- SECTION 3: ACADEMIC & CONTENT MANAGEMENT (Updated with Enhanced Curriculum Structure)
 -- ------------------------------------------
-
-CREATE TABLE classes (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT UNIQUE NOT NULL,
-    description TEXT
-);
 
 -- ------------------------------------------
 -- CURRICULUM MANAGEMENT SYSTEM
@@ -150,22 +157,6 @@ CREATE TABLE notes (
     skill_id UUID,
     tags TEXT[],
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- This table stores shared notes in party stash, duplicating user notes for party collaboration
-CREATE TABLE party_stash_items (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
-    original_note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
-    shared_by_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    content JSONB NOT NULL,
-    syllabus_version_id UUID REFERENCES syllabus_versions(id) ON DELETE SET NULL,
-    quest_id UUID REFERENCES quests(id) ON DELETE SET NULL,
-    skill_id UUID REFERENCES skills(id) ON DELETE SET NULL,
-    tags TEXT[],
-    shared_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -262,12 +253,9 @@ CREATE TABLE skill_dependencies (
     PRIMARY KEY (skill_id, prerequisite_skill_id)
 );
 
-ALTER TABLE notes ADD CONSTRAINT fk_notes_quest FOREIGN KEY (quest_id) REFERENCES quests(id) ON DELETE SET NULL;
-ALTER TABLE notes ADD CONSTRAINT fk_notes_skill FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE SET NULL;
-
--- Add missing foreign key constraint for user_profiles.class_id
-ALTER TABLE user_profiles ADD CONSTRAINT fk_userprofiles_class 
-    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL;
+-- Add foreign key constraints for notes table after dependencies are created
+ALTER TABLE notes ADD CONSTRAINT fk_notes_quest_id FOREIGN KEY (quest_id) REFERENCES quests(id) ON DELETE SET NULL;
+ALTER TABLE notes ADD CONSTRAINT fk_notes_skill_id FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE SET NULL;
 
 
 -- ------------------------------------------
@@ -366,10 +354,26 @@ CREATE TABLE guild_memberships (
     PRIMARY KEY (guild_id, auth_user_id)
 );
 
+-- This table stores shared notes in party stash, duplicating user notes for party collaboration
+CREATE TABLE party_stash_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
+    original_note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    shared_by_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    content JSONB NOT NULL,
+    syllabus_version_id UUID REFERENCES syllabus_versions(id) ON DELETE SET NULL,
+    quest_id UUID REFERENCES quests(id) ON DELETE SET NULL,
+    skill_id UUID REFERENCES skills(id) ON DELETE SET NULL,
+    tags TEXT[],
+    shared_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE meetings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    context_id UUID NOT NULL, -- References either parties.id or guilds.id
-    context_type VARCHAR(20) NOT NULL CHECK (context_type IN ('party', 'guild')),
+    party_id UUID REFERENCES parties(id) ON DELETE CASCADE, -- Nullable - for party meetings
+    guild_id UUID REFERENCES guilds(id) ON DELETE CASCADE, -- Nullable - for guild meetings
     creator_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE SET NULL,
     title TEXT NOT NULL,
     description TEXT,
@@ -377,11 +381,11 @@ CREATE TABLE meetings (
     scheduled_end_time TIMESTAMPTZ,
     status meeting_status NOT NULL DEFAULT 'Scheduled',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    -- Ensure context_id references valid Party or Guild based on context_type
-    CONSTRAINT meetings_context_party_fk 
-        CHECK ((context_type = 'party' AND context_id IN (SELECT id FROM parties)) OR context_type != 'party'),
-    CONSTRAINT meetings_context_guild_fk 
-        CHECK ((context_type = 'guild' AND context_id IN (SELECT id FROM guilds)) OR context_type != 'guild')
+    -- Ensure exactly one of party_id or guild_id is set
+    CONSTRAINT meetings_context_check CHECK (
+        (party_id IS NOT NULL AND guild_id IS NULL) OR 
+        (party_id IS NULL AND guild_id IS NOT NULL)
+    )
 );
 
 CREATE TABLE meeting_participants (
@@ -640,8 +644,8 @@ CREATE INDEX idx_skills_skill_tree_id ON skills(skill_tree_id);
 CREATE INDEX idx_user_skills_user_id ON user_skills(auth_user_id);
 CREATE INDEX idx_game_sessions_user_id ON game_sessions(auth_user_id);
 CREATE INDEX idx_guild_memberships_user_id ON guild_memberships(auth_user_id);
-CREATE INDEX idx_meetings_context ON meetings(context_id, context_type);
-CREATE INDEX idx_meetings_context_type ON meetings(context_type);
+CREATE INDEX idx_meetings_party_id ON meetings(party_id);
+CREATE INDEX idx_meetings_guild_id ON meetings(guild_id);
 CREATE INDEX idx_meeting_participants_user_id ON meeting_participants(auth_user_id);
 CREATE INDEX idx_meeting_agenda_meeting_id ON meeting_agenda(meeting_id);
 CREATE INDEX idx_meeting_notes_meeting_id ON meeting_notes(meeting_id);
