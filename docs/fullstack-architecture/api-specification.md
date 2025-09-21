@@ -30,153 +30,153 @@ components:
       type: object
       properties:
         id: { type: string, format: uuid }
-        userId: { type: string }
+        auth_user_id: { type: string }
         username: { type: string }
         email: { type: string }
-        classId: { type: string, format: uuid }
-        routeId: { type: string, format: uuid, nullable: true }
+        class_id: { type: string, format: uuid }
+        route_id: { type: string, format: uuid, nullable: true }
         level: { type: integer }
-        experiencePoints: { type: integer }
-        profileImageUrl: { type: string, nullable: true }
-        onboardingCompleted: { type: boolean }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: string, format: date-time }
+        experience_points: { type: integer }
+        profile_image_url: { type: string, nullable: true }
+        onboarding_completed: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
     Syllabus:
       type: object
       properties:
         id: { type: string, format: uuid }
-        curriculumId: { type: string, format: uuid }
-        courseCode: { type: string }
-        courseTitle: { type: string }
+        curriculum_id: { type: string, format: uuid }
+        course_code: { type: string }
+        course_title: { type: string }
         description: { type: string, nullable: true }
         credits: { type: integer, nullable: true }
     UserSyllabusEnrollment:
       type: object
       properties:
         id: { type: string, format: uuid }
-        userProfileId: { type: string, format: uuid }
-        syllabusId: { type: string, format: uuid }
-        enrollmentDate: { type: string, format: date-time }
+        user_profile_id: { type: string, format: uuid }
+        syllabus_id: { type: string, format: uuid }
+        enrollment_date: { type: string, format: date-time }
     UserUploadedSyllabus:
       type: object
       properties:
         id: { type: string, format: uuid }
-        enrollmentId: { type: string, format: uuid }
-        fileUrl: { type: string }
-        processingStatus: { type: string, enum: [Pending, Processing, Completed, Failed] }
-        structuredContent: { type: object, nullable: true }
-        uploadedAt: { type: string, format: date-time }
+        enrollment_id: { type: string, format: uuid }
+        file_url: { type: string }
+        processing_status: { type: string, enum: [Pending, Processing, Completed, Failed] }
+        structured_content: { type: object, nullable: true }
+        uploaded_at: { type: string, format: date-time }
     GameSession:
       type: object
       properties:
         id: { type: string, format: uuid }
-        questId: { type: string, format: uuid }
+        quest_id: { type: string, format: uuid }
         status: { type: string, enum: [InProgress, Completed, Abandoned] }
         score: { type: integer }
-        startedAt: { type: string, format: date-time }
-        completedAt: { type: string, format: date-time, nullable: true }
+        started_at: { type: string, format: date-time }
+        completed_at: { type: string, format: date-time, nullable: true }
     Meeting:
       type: object
       properties:
         id: { type: string, format: uuid }
-        partyId: { type: string, format: uuid }
-        creatorId: { type: string, format: uuid }
+        party_id: { type: string, format: uuid }
+        creator_id: { type: string, format: uuid }
         title: { type: string }
         description: { type: string, nullable: true }
-        scheduledStartTime: { type: string, format: date-time }
-        scheduledEndTime: { type: string, format: date-time, nullable: true }
+     scheduled_start_time: { type: string, format: date-time }
+                scheduled_end_time: { type: string, format: date-time }
         status: { type: string, enum: [Scheduled, InProgress, Completed, Cancelled] }
-        createdAt: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
     MeetingParticipant:
       type: object
       properties:
-        meetingId: { type: string, format: uuid }
-        userProfileId: { type: string, format: uuid }
+        meeting_id: { type: string, format: uuid }
+        user_profile_id: { type: string, format: uuid }
         status: { type: string, enum: [Invited, Accepted, Declined, Attended] }
     MeetingAgenda:
       type: object
       properties:
         id: { type: string, format: uuid }
-        meetingId: { type: string, format: uuid }
+        meeting_id: { type: string, format: uuid }
         topic: { type: string }
         description: { type: string, nullable: true }
-        presenterId: { type: string, format: uuid, nullable: true }
+        presenter_id: { type: string, format: uuid, nullable: true }
         sequence: { type: integer }
-        durationMinutes: { type: integer, nullable: true }
+        duration_minutes: { type: integer, nullable: true }
     MeetingNote:
       type: object
       properties:
         id: { type: string, format: uuid }
-        meetingId: { type: string, format: uuid }
-        agendaId: { type: string, format: uuid, nullable: true }
-        creatorId: { type: string, format: uuid }
+        meeting_id: { type: string, format: uuid }
+        agenda_id: { type: string, format: uuid, nullable: true }
+        creator_id: { type: string, format: uuid }
         content: { type: object }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
     Language:
       type: object
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
-        compileCmd: { type: string, nullable: true }
-        runCmd: { type: string }
-        timeoutSeconds: { type: number, nullable: true }
+        compile_cmd: { type: string, nullable: true }
+        run_cmd: { type: string }
+        timeout_seconds: { type: number, nullable: true }
     Room:
       type: object
       properties:
         id: { type: string, format: uuid }
-        eventId: { type: string, format: uuid }
+        event_id: { type: string, format: uuid }
         name: { type: string }
         description: { type: string, nullable: true }
-        createdAt: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
     RoomPlayer:
       type: object
       properties:
-        roomId: { type: string, format: uuid }
-        userProfileId: { type: string, format: uuid }
+        room_id: { type: string, format: uuid }
+        user_profile_id: { type: string, format: uuid }
         score: { type: integer }
         place: { type: integer, nullable: true }
         state: { type: string, nullable: true }
-        disconnectedAt: { type: string, format: date-time, nullable: true }
+        disconnected_at: { type: string, format: date-time, nullable: true }
     CodeProblem:
       type: object
       properties:
         id: { type: string, format: uuid }
         title: { type: string }
-        problemStatement: { type: string }
+        problem_statement: { type: string }
     TestCase:
       type: object
       properties:
         id: { type: string, format: uuid }
-        codeProblemId: { type: string, format: uuid }
+        code_problem_id: { type: string, format: uuid }
         input: { type: string }
-        expectedOutput: { type: string }
-        timeConstraint: { type: number, nullable: true }
-        spaceConstraint: { type: integer, nullable: true }
+        expected_output: { type: string }
+        time_constraint: { type: number, nullable: true }
+        space_constraint: { type: integer, nullable: true }
     Submission:
       type: object
       properties:
         id: { type: string, format: uuid }
-        userProfileId: { type: string, format: uuid }
-        eventId: { type: string, format: uuid }
-        codeProblemId: { type: string, format: uuid }
-        languageId: { type: string, format: uuid }
-        sourceCode: { type: string }
+        user_profile_id: { type: string, format: uuid }
+        event_id: { type: string, format: uuid }
+        code_problem_id: { type: string, format: uuid }
+        language_id: { type: string, format: uuid }
+        source_code: { type: string }
         status: { type: string, enum: [In Queue, Processing, Accepted, Wrong Answer, Time Limit Exceeded, Compilation Error, Runtime Error (Generic), Internal Error, Execution Server Error] }
-        stdOut: { type: string, nullable: true }
-        stdErr: { type: string, nullable: true }
-        compileOutput: { type: string, nullable: true }
-        exitCode: { type: integer, nullable: true }
-        exitSignal: { type: integer, nullable: true }
+        std_out: { type: string, nullable: true }
+        std_err: { type: string, nullable: true }
+        compile_output: { type: string, nullable: true }
+        exit_code: { type: integer, nullable: true }
+        exit_signal: { type: integer, nullable: true }
         message: { type: string, nullable: true }
         time: { type: number, nullable: true }
         memory: { type: integer, nullable: true }
-        wallTime: { type: number, nullable: true }
+        wall_time: { type: number, nullable: true }
         token: { type: string, nullable: true }
-        queuedAt: { type: string, format: date-time }
-        startedAt: { type: string, format: date-time, nullable: true }
-        finishedAt: { type: string, format: date-time, nullable: true }
-        updatedAt: { type: string, format: date-time }
+        queued_at: { type: string, format: date-time }
+        started_at: { type: string, format: date-time, nullable: true }
+        finished_at: { type: string, format: date-time, nullable: true }
+        updated_at: { type: string, format: date-time }
     Error:
       type: object
       properties:
@@ -190,17 +190,17 @@ components:
         meta:
           type: object
           properties:
-            packId: { type: string, format: uuid }
+            pack_id: { type: string, format: uuid }
             version: { type: string }
             source: { type: string, enum: [Set, Seed] }
-            createdAt: { type: string, format: date-time }
-            subjectId: { type: string, format: uuid, nullable: true }
-            curriculumId: { type: string, format: uuid, nullable: true }
-            aiModel: { type: string, nullable: true }
-            generatorVersion: { type: string, nullable: true }
-            promptHash: { type: string, nullable: true }
+            created_at: { type: string, format: date-time }
+            subject_id: { type: string, format: uuid, nullable: true }
+            curriculum_id: { type: string, format: uuid, nullable: true }
+            ai_model: { type: string, nullable: true }
+            generator_version: { type: string, nullable: true }
+            prompt_hash: { type: string, nullable: true }
             seed: { type: string, nullable: true }
-            approvedBy: { type: string, nullable: true }
+            approved_by: { type: string, nullable: true }
         items:
           type: array
           items:
@@ -216,7 +216,7 @@ components:
                   properties:
                     id: { type: string }
                     text: { type: string }
-              correctAnswers:
+              correct_answers:
                 type: array
                 items: { type: string }
               explanation: { type: string, nullable: true }
@@ -226,7 +226,7 @@ components:
                 items: { type: string }
               sequence: { type: integer, nullable: true }
               weight: { type: number, nullable: true }
-              timeLimitSec: { type: integer, nullable: true }
+              time_limit_sec: { type: integer, nullable: true }
               metadata: { type: object, nullable: true }
             required: [id, type, text]
       required: [meta, items]
@@ -343,8 +343,8 @@ paths:
                 partyId: { type: string, format: uuid }
                 title: { type: string }
                 description: { type: string }
-                scheduledStartTime: { type: string, format: date-time }
-                scheduledEndTime: { type: string, format: date-time }
+                scheduled_start_time: { type: string, format: date-time }
+                scheduled_end_time: { type: string, format: date-time }
       responses:
         '201':
           description: Meeting created
@@ -435,9 +435,9 @@ paths:
           application/json:
             schema:
               type: object
-              required: [userProfileId]
+              required: [user_profile_id]
               properties:
-                userProfileId: { type: string, format: uuid }
+                user_profile_id: { type: string, format: uuid }
       responses:
         '201':
           description: Participant added

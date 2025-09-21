@@ -28,29 +28,29 @@ export type PartyJoinType = 'Invite Only' | 'Open';
 
 ### **UserProfile**
 
-**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, with the `AuthUserId` directly referencing `auth.users.id` as the primary key.
+**Purpose:** Represents an authenticated user and their extended, game-specific profile information. The core identity is managed by **Supabase Auth**, with the `auth_user_id` directly referencing `auth.users.id` as the primary key.
 
 **Key Attributes:**
-- `authUserId`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table (Primary Key).
+- `auth_user_id`: `string` - The unique identifier, a **UUID** from Supabase's `auth.users` table (Primary Key).
 - `username`: `string` - The user's unique public name.
 - `email`: `string` - The user's unique email address.
-- `firstName`: `string` - The user's first name.
-- `lastName`: `string` - The user's last name.
-- `classId`: `string` - Foreign key to the selected class.
-- `createdAt`: `string` - Account creation timestamp.
-- `updatedAt`: `string` - Last profile update timestamp.
+- `first_name`: `string` - The user's first name.
+- `last_name`: `string` - The user's last name.
+- `class_id`: `string` - Foreign key to the selected class.
+- `created_at`: `string` - Account creation timestamp.
+- `updated_at`: `string` - Last profile update timestamp.
 
 #### **TypeScript Interface**
 ```typescript
 export interface UserProfile {
-  authUserId: string; // Primary key - Direct reference to auth.users.id
+  auth_user_id: string; // Primary key - Direct reference to auth.users.id
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  classId?: string;
-  createdAt: string; // ISO 8601 timestamp
-  updatedAt: string; // ISO 8601 timestamp
+  first_name: string;
+  last_name: string;
+  class_id?: string;
+  created_at: string; // ISO 8601 timestamp
+  updated_at: string; // ISO 8601 timestamp
 }
 ```
 
@@ -62,12 +62,12 @@ export interface UserProfile {
 ```typescript
 export interface Role {
   id: number;
-  roleName: string;
+  role_name: string;
 }
 
 export interface UserRole {
-  authUserId: string; // References UserProfiles.AuthUserId
-  roleId: number; // References Roles.Id
+  auth_user_id: string; // References user_profiles.auth_user_id
+  role_id: number; // References roles.id
 }
 ```
 
@@ -79,11 +79,11 @@ export interface UserRole {
 ```typescript
 export interface LecturerVerificationRequest {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId
+  auth_user_id: string; // References user_profiles.auth_user_id
   status: VerificationStatus;
-  submittedAt: string;
-  reviewedAt?: string;
-  reviewerNotes?: string;
+  submitted_at: string;
+  reviewed_at?: string;
+  reviewer_notes?: string;
 }
 ```
 
@@ -103,40 +103,40 @@ export interface Class {
 
 export interface CurriculumProgram {
   id: string;
-  programName: string;
-  programCode: string; // Unique identifier like "BSE" for Bachelor of Software Engineering
+  program_name: string;
+  program_code: string; // Unique identifier like "BSE" for Bachelor of Software Engineering
 }
 
 export interface CurriculumVersion {
   id: string;
-  programId: string; // References CurriculumPrograms.Id
-  versionTag: string; // "K18A", "K18B", "2024-2025 Catalog"
-  effectiveYear: number;
-  isPublished: boolean; // Is it visible to new students?
+  program_id: string; // References curriculum_programs.id
+  version_tag: string; // "K18A", "K18B", "2024-2025 Catalog"
+  effective_year: number;
+  is_published: boolean; // Is it visible to new students?
 }
 
 export interface Subject {
   id: string;
-  subjectCode: string; // "CS464"
+  subject_code: string; // "CS464"
   title: string; // "Introduction to Machine Learning"
   credits: number;
 }
 
 export interface CurriculumStructure {
   id: string;
-  curriculumVersionId: string; // References CurriculumVersions.Id
-  subjectId: string; // References Subjects.Id
-  termNumber: number; // Which academic term (1, 2, 3, etc.)
-  isRequired: boolean; // Required vs elective
+  curriculum_version_id: string; // References curriculum_versions.id
+  subject_id: string; // References subjects.id
+  term_number: number; // Which academic term (1, 2, 3, etc.)
+  is_required: boolean; // Required vs elective
 }
 
 export interface SyllabusVersion {
   id: string;
-  subjectId: string; // References Subjects.Id
-  versionTag: string; // "2024-Spring", "v1.2"
+  subject_id: string; // References subjects.id
+  version_tag: string; // "2024-Spring", "v1.2"
   content?: Record<string, any>; // Structured syllabus content as JSONB
-  effectiveDate: string;
-  isActive: boolean;
+  effective_date: string;
+  is_active: boolean;
 }
 ```
 
@@ -148,22 +148,22 @@ export interface SyllabusVersion {
 ```typescript
 export interface StudentEnrollment {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId
-  curriculumVersionId: string; // References CurriculumVersions.Id
-  enrollmentDate: string;
-  expectedGraduationDate?: string;
-  isActive: boolean;
+  auth_user_id: string; // References user_profiles.auth_user_id
+  curriculum_version_id: string; // References curriculum_versions.id
+  enrollment_date: string;
+  expected_graduation_date?: string;
+  is_active: boolean;
 }
 
 export interface StudentTermSubject {
   id: string;
-  enrollmentId: string; // References StudentEnrollments.Id
-  subjectId: string; // References Subjects.Id
-  academicTerm: string; // "2024-Spring", "2024-Fall"
+  enrollment_id: string; // References student_enrollments.id
+  subject_id: string; // References subjects.id
+  academic_term: string; // "2024-Spring", "2024-Fall"
   status: StudentTermSubjectStatus; // 'Enrolled', 'Completed', 'Failed', 'Withdrawn'
   grade?: string; // Final grade if completed
-  enrollmentDate: string;
-  completionDate?: string;
+  enrollment_date: string;
+  completion_date?: string;
 }
 ```
 
@@ -175,22 +175,22 @@ export interface StudentTermSubject {
 ```typescript
 export interface UserSkill {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId
-  skillId: string; // References Skills.Id (from Quests Service)
-  experiencePoints: number;
+  auth_user_id: string; // References user_profiles.auth_user_id
+  skill_id: string; // References skills.id (from Quests Service)
+  experience_points: number;
   level: number;
-  lastUpdated: string;
+  last_updated: string;
 }
 
 export interface UserQuestProgress {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId
-  questId: string; // References Quests.Id (from Quests Service)
+  auth_user_id: string; // References user_profiles.auth_user_id
+  quest_id: string; // References quests.id (from Quests Service)
   status: QuestStatus;
-  progressPercentage: number;
-  startedAt?: string;
-  completedAt?: string;
-  lastUpdated: string;
+  progress_percentage: number;
+  started_at?: string;
+  completed_at?: string;
+  last_updated: string;
 }
 ```
 
@@ -206,17 +206,17 @@ export interface Achievement {
   description: string;
   type: AchievementType; // 'Quest', 'Skill', 'Social', 'Special'
   criteria?: Record<string, any>; // Achievement unlock criteria as JSONB
-  rewardExperiencePoints: number;
-  iconUrl?: string;
-  isActive: boolean;
-  createdAt: string;
+  reward_experience_points: number;
+  icon_url?: string;
+  is_active: boolean;
+  created_at: string;
 }
 
 export interface UserAchievement {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId
-  achievementId: string; // References Achievements.Id
-  unlockedAt: string;
+  auth_user_id: string; // References user_profiles.auth_user_id
+  achievement_id: string; // References achievements.id
+  unlocked_at: string;
   context?: Record<string, any>; // Additional context about how it was earned
 }
 ```
@@ -229,13 +229,13 @@ export interface UserAchievement {
 ```typescript
 export interface Notification {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId
+  auth_user_id: string; // References user_profiles.auth_user_id
   type: NotificationType; // 'Quest', 'Achievement', 'Social', 'System'
   title: string;
   message: string;
   data?: Record<string, any>; // Additional notification data as JSONB
-  isRead: boolean;
-  createdAt: string;
+  is_read: boolean;
+  created_at: string;
 }
 ```
 
@@ -249,36 +249,36 @@ export interface Notification {
 ```typescript
 export interface QuestLine {
   id: string;
-  curriculumVersionId?: string; // Optional link to curriculum for academic quests
+  curriculum_version_id?: string; // Optional link to curriculum for academic quests
   title: string;
   description?: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export interface QuestChapter {
   id: string;
-  questLineId: string; // References QuestLines.Id
+  quest_line_id: string; // References quest_lines.id
   title: string; // "Week 5", "Midterm Prep"
   description?: string;
   sequence: number; // Order within the quest line
-  createdAt: string;
+  created_at: string;
 }
 
 export interface Quest {
   id: string;
-  questChapterId: string; // References QuestChapters.Id
+  quest_chapter_id: string; // References quest_chapters.id
   title: string;
   description?: string;
   type: QuestType; // 'Theory', 'Practice', 'Project', 'Assessment'
-  experiencePoints: number;
+  experience_points: number;
   metadata?: Record<string, any>; // Flexible quest data as JSONB
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface QuestDependency {
-  questId: string; // References Quests.Id
-  prerequisiteQuestId: string; // References Quests.Id
+  quest_id: string; // References quests.id
+  prerequisite_quest_id: string; // References quests.id
 }
 ```
 
@@ -292,29 +292,29 @@ export interface SkillTree {
   id: string;
   name: string;
   description?: string;
-  curriculumVersionId?: string; // Optional link to curriculum
-  createdAt: string;
+  curriculum_version_id?: string; // Optional link to curriculum
+  created_at: string;
 }
 
 export interface Skill {
   id: string;
-  skillTreeId: string; // References SkillTrees.Id
+  skill_tree_id: string; // References skill_trees.id
   name: string;
   description?: string;
-  experienceRequired: number; // XP needed to unlock this skill
+  experience_required: number; // XP needed to unlock this skill
   level: SkillLevel; // 'Beginner', 'Intermediate', 'Advanced', 'Expert'
-  createdAt: string;
+  created_at: string;
 }
 
 export interface SkillDependency {
-  skillId: string; // References Skills.Id
-  prerequisiteSkillId: string; // References Skills.Id
+  skill_id: string; // References skills.id
+  prerequisite_skill_id: string; // References skills.id
 }
 
 export interface QuestSkill {
-  questId: string; // References Quests.Id
-  skillId: string; // References Skills.Id
-  experiencePoints: number; // XP awarded for this skill when quest is completed
+  quest_id: string; // References quests.id
+  skill_id: string; // References skills.id
+  experience_points: number; // XP awarded for this skill when quest is completed
 }
 ```
 
@@ -326,19 +326,19 @@ export interface QuestSkill {
 ```typescript
 export interface GameSession {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
-  questId?: string; // References Quests.Id
-  startTime: string;
-  endTime?: string;
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
+  quest_id?: string; // References quests.id
+  start_time: string;
+  end_time?: string;
   status: GameSessionStatus; // 'InProgress', 'Completed', 'Abandoned'
   metadata?: Record<string, any>; // Session-specific data as JSONB
 }
 
 export interface SessionEvent {
   id: string;
-  sessionId: string; // References GameSessions.Id
-  eventType: string; // 'quest_start', 'skill_unlock', 'achievement_earned', etc.
-  eventData?: Record<string, any>; // Event-specific data as JSONB
+  session_id: string; // References game_sessions.id
+  event_type: string; // 'quest_start', 'skill_unlock', 'achievement_earned', etc.
+  event_data?: Record<string, any>; // Event-specific data as JSONB
   timestamp: string;
 }
 ```
@@ -351,15 +351,15 @@ export interface SessionEvent {
 ```typescript
 export interface Note {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
   title: string;
   content?: Record<string, any>; // Rich text content as JSONB
-  questId?: string; // References Quests.Id
-  skillId?: string; // References Skills.Id
+  quest_id?: string; // References quests.id
+  skill_id?: string; // References skills.id
   tags?: string[];
-  isPublic: boolean; // Can be shared with party/guild
-  createdAt: string;
-  updatedAt: string;
+  is_public: boolean; // Can be shared with party/guild
+  created_at: string;
+  updated_at: string;
 }
 ```
   id: string;
@@ -439,17 +439,17 @@ export interface Party {
   id: string;
   name: string;
   description?: string;
-  leaderId: string; // References UserProfiles.AuthUserId (cross-service)
-  maxMembers?: number;
-  isPrivate: boolean;
-  createdAt: string;
+  leader_id: string; // References user_profiles.auth_user_id (cross-service)
+  max_members?: number;
+  is_private: boolean;
+  created_at: string;
 }
 
 export interface PartyMembership {
-  partyId: string; // References Parties.Id
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  party_id: string; // References parties.id
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
   role: PartyRole; // 'Leader', 'Member'
-  joinedAt: string;
+  joined_at: string;
 }
 ```
 
@@ -463,15 +463,15 @@ export interface Guild {
   id: string;
   name: string;
   description?: string;
-  masterId: string; // References UserProfiles.AuthUserId (cross-service)
-  isVerified: boolean;
-  createdAt: string;
+  master_id: string; // References user_profiles.auth_user_id (cross-service)
+  is_verified: boolean;
+  created_at: string;
 }
 
 export interface GuildMembership {
-  guildId: string; // References Guilds.Id
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
-  joinedAt: string;
+  guild_id: string; // References guilds.id
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
+  joined_at: string;
 }
 ```
 
@@ -485,95 +485,74 @@ export interface GuildMembership {
 ```typescript
 export interface Meeting {
   id: string;
-  partyId?: string; // References Parties.Id (optional for non-party meetings)
-  creatorId: string; // References UserProfiles.AuthUserId (cross-service)
+  party_id?: string; // References parties.id (optional for non-party meetings)
+  creator_id: string; // References user_profiles.auth_user_id (cross-service)
   title: string;
   description?: string;
-  scheduledStartTime: string;
-  scheduledEndTime?: string;
-  actualStartTime?: string;
-  actualEndTime?: string;
+  scheduled_start_time: string;
+  scheduled_end_time?: string;
+  actual_start_time?: string;
+  actual_end_time?: string;
   status: EventStatus; // 'Scheduled', 'InProgress', 'Completed', 'Cancelled'
-  meetingUrl?: string;
-  createdAt: string;
+  meeting_url?: string;
+  created_at: string;
 }
 
 export interface MeetingParticipant {
-  meetingId: string; // References Meetings.Id
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  meeting_id: string; // References meetings.id
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
   status: ParticipantStatus; // 'Invited', 'Accepted', 'Declined', 'Attended'
-  joinedAt?: string;
-  leftAt?: string;
+  joined_at?: string;
+  left_at?: string;
 }
 
 export interface MeetingAgenda {
   id: string;
-  meetingId: string; // References Meetings.Id
+  meeting_id: string; // References meetings.id
   title: string;
   description?: string;
-  estimatedDuration?: number; // Minutes
-  actualDuration?: number; // Minutes
+  estimated_duration?: number; // Minutes
+  actual_duration?: number; // Minutes
   sequence: number; // Order in the agenda
-  createdAt: string;
+  created_at: string;
 }
 
 export interface MeetingNote {
   id: string;
-  meetingId: string; // References Meetings.Id
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  meeting_id: string; // References meetings.id
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
   content: Record<string, any>; // Rich text content as JSONB
   timestamp: string; // When the note was taken during the meeting
-  createdAt: string;
+  created_at: string;
 }
 
 export interface MeetingParticipantActivity {
   id: string;
-  meetingId: string; // References Meetings.Id
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
-  activityType: string; // 'join', 'leave', 'mute', 'unmute', 'camera_on', 'camera_off'
-  connectionQuality?: number; // 1-5 scale
+  meeting_id: string; // References meetings.id
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
+  activity_type: string; // 'join', 'leave', 'mute', 'unmute', 'camera_on', 'camera_off'
+  connection_quality?: number; // 1-5 scale
   timestamp: string;
 }
 
 export interface MeetingParticipantEngagement {
   id: string;
-  meetingId: string; // References Meetings.Id
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
-  speakingTime: number; // Total speaking time in seconds
-  chatMessages: number; // Number of chat messages sent
-  reactionsGiven: number; // Number of reactions/emojis used
-  pollsParticipated: number; // Number of polls participated in
+  meeting_id: string; // References meetings.id
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
+  speaking_time: number; // Total speaking time in seconds
+  chat_messages: number; // Number of chat messages sent
+  reactions_given: number; // Number of reactions/emojis used
+  polls_participated: number; // Number of polls participated in
 }
 
 export interface MeetingParticipantStats {
   id: string;
-  meetingId: string; // References Meetings.Id
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
-  attentionScore?: number; // AI-calculated attention score (1-100)
-  participationScore?: number; // Overall participation score (1-100)
-  contributionRating?: number; // Peer or self-rating (1-5)
-  createdAt: string;
-}
-```
-
-export interface MeetingAgenda {
-  id: string;
-  meetingId: string;
-  topic: string;
-  description?: string;
-  presenterId?: string;
-  sequence: number;
-  durationMinutes?: number;
-}
-
-export interface MeetingNote {
-  id: string;
-  meetingId: string;
-  agendaId?: string;
-  creatorId: string;
-  content: Record<string, any>;
-  createdAt: string;
-  updatedAt: string;
+  meeting_id: string; // References meetings.id
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
+  attention_score?: number; // AI-calculated attention score (1-100)
+  participation_score?: number; // Overall participation score (1-100)
+  contribution_rating?: number; // Peer or self-rating (1-5)
+  created_at: string;
 }
 ```
 
@@ -591,20 +570,20 @@ export interface Event {
   description?: string;
   type: EventType; // 'Competition', 'Workshop', 'Assessment', 'Social'
   status: EventStatus; // 'Scheduled', 'InProgress', 'Completed', 'Cancelled'
-  startTime: string;
-  endTime?: string;
-  maxParticipants?: number;
-  registrationDeadline?: string;
-  createdAt: string;
+  start_time: string;
+  end_time?: string;
+  max_participants?: number;
+  registration_deadline?: string;
+  created_at: string;
 }
 
 export interface EventParticipant {
-  eventId: string; // References Events.Id
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
-  registeredAt: string;
-  participatedAt?: string;
-  finalScore?: number;
-  finalRank?: number;
+  event_id: string; // References events.id
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
+  registered_at: string;
+  participated_at?: string;
+  final_score?: number;
+  final_rank?: number;
 }
 ```
 
@@ -617,107 +596,107 @@ export interface EventParticipant {
 export interface CodeProblem {
   id: string;
   title: string;
-  problemStatement: string;
+  problem_statement: string;
   difficulty?: string;
-  timeLimit?: number; // Seconds
-  memoryLimit?: number; // MB
-  createdAt: string;
+  time_limit?: number; // Seconds
+  memory_limit?: number; // MB
+  created_at: string;
 }
 
 export interface EventCodeProblem {
-  eventId: string; // References Events.Id
-  problemId: string; // References CodeProblems.Id
+  event_id: string; // References events.id
+  problem_id: string; // References code_problems.id
   sequence?: number; // Order in the event
 }
 
 export interface Language {
   id: string;
   name: string; // 'Python', 'Java', 'C++', etc.
-  compileCmd?: string;
-  runCmd: string;
-  timeoutSeconds?: number;
-  isActive: boolean;
+  compile_cmd?: string;
+  run_cmd: string;
+  timeout_seconds?: number;
+  is_active: boolean;
 }
 
 export interface Room {
   id: string;
-  eventId: string; // References Events.Id
+  event_id: string; // References events.id
   name: string;
   description?: string;
-  maxPlayers?: number;
-  createdAt: string;
+  max_players?: number;
+  created_at: string;
 }
 
 export interface RoomPlayer {
-  roomId: string; // References Rooms.Id
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
+  room_id: string; // References rooms.id
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
   score: number;
   place?: number;
   state?: string; // 'Active', 'Disconnected', 'Finished'
-  joinedAt: string;
-  disconnectedAt?: string;
+  joined_at: string;
+  disconnected_at?: string;
 }
 
 export interface TestCase {
   id: string;
-  codeProblemId: string; // References CodeProblems.Id
+  code_problem_id: string; // References code_problems.id
   input: string;
-  expectedOutput: string;
-  timeConstraint?: number; // Milliseconds
-  spaceConstraint?: number; // MB
-  isHidden: boolean; // Whether visible to participants
+  expected_output: string;
+  time_constraint?: number; // Milliseconds
+  space_constraint?: number; // MB
+  is_hidden: boolean; // Whether visible to participants
 }
 
 export interface Submission {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
-  eventId: string; // References Events.Id
-  codeProblemId: string; // References CodeProblems.Id
-  languageId: string; // References Languages.Id
-  sourceCode: string;
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
+  event_id: string; // References events.id
+  code_problem_id: string; // References code_problems.id
+  language_id: string; // References languages.id
+  source_code: string;
   status: SubmissionStatus; // 'Pending', 'Running', 'Accepted', 'WrongAnswer', 'TimeLimitExceeded', etc.
   
   // Execution Results
-  stdOut?: string;
-  stdErr?: string;
-  compileOutput?: string;
-  exitCode?: number;
-  exitSignal?: number;
+  std_out?: string;
+  std_err?: string;
+  compile_output?: string;
+  exit_code?: number;
+  exit_signal?: number;
   message?: string;
   
   // Performance Metrics
   time?: number; // Execution time in milliseconds
   memory?: number; // Memory usage in KB
-  wallTime?: number; // Wall clock time in milliseconds
+  wall_time?: number; // Wall clock time in milliseconds
   
   // Judge Configuration
   token?: string;
-  callbackUrl?: string;
-  numberOfRuns?: number;
-  compilerOptions?: string;
-  commandLineArguments?: string;
-  redirectStdErrToStdOut?: boolean;
-  additionalFiles?: ArrayBuffer;
-  enableNetwork?: boolean;
+  callback_url?: string;
+  number_of_runs?: number;
+  compiler_options?: string;
+  command_line_arguments?: string;
+  redirect_std_err_to_std_out?: boolean;
+  additional_files?: ArrayBuffer;
+  enable_network?: boolean;
   
   // Resource Limits
-  cpuTimeLimit?: number;
-  cpuExtraTime?: number;
-  wallTimeLimit?: number;
-  memoryLimit?: number;
-  stackLimit?: number;
-  maxProcessesAndOrThreads?: number;
-  enablePerProcessAndThreadTimeLimit?: boolean;
-  enablePerProcessAndThreadMemoryLimit?: boolean;
-  maxFileSize?: number;
+  cpu_time_limit?: number;
+  cpu_extra_time?: number;
+  wall_time_limit?: number;
+  memory_limit?: number;
+  stack_limit?: number;
+  max_processes_and_or_threads?: number;
+  enable_per_process_and_thread_time_limit?: boolean;
+  enable_per_process_and_thread_memory_limit?: boolean;
+  max_file_size?: number;
   
   // Timestamps & Host Info
-  queuedAt: string;
-  startedAt?: string;
-  finishedAt?: string;
-  updatedAt: string;
-  queueHost?: string;
-  executionHost?: string;
+  queued_at: string;
+  started_at?: string;
+  finished_at?: string;
+  updated_at: string;
+  queue_host?: string;
+  execution_host?: string;
 }
 ```
 
@@ -729,23 +708,23 @@ export interface Submission {
 ```typescript
 export interface LeaderboardEntry {
   id: string;
-  authUserId: string; // References UserProfiles.AuthUserId (cross-service)
-  eventId?: string; // References Events.Id (optional for global leaderboards)
+  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
+  event_id?: string; // References events.id (optional for global leaderboards)
   rank: number;
   score: number;
-  snapshotDate: string;
-  createdAt: string;
+  snapshot_date: string;
+  created_at: string;
 }
 
 export interface GuildLeaderboardEntry {
   id: string;
-  guildId: string; // References Guilds.Id
-  eventId?: string; // References Events.Id (optional for global leaderboards)
+  guild_id: string; // References guilds.id
+  event_id?: string; // References events.id (optional for global leaderboards)
   rank: number;
-  totalScore: number;
-  memberCount: number;
-  snapshotDate: string;
-  createdAt: string;
+  total_score: number;
+  member_count: number;
+  snapshot_date: string;
+  created_at: string;
 }
 ```
 
@@ -765,17 +744,17 @@ export interface QuestWithPrerequisites extends Quest {
 
 export interface SkillWithDependencies extends Skill {
   dependencies?: Skill[];
-  userLevel?: number;
+  user_level?: number;
 }
 
 export interface PartyWithMembers extends Party {
   members?: UserProfile[];
-  memberCount: number;
+  member_count: number;
 }
 
 export interface GuildWithMembers extends Guild {
   members?: UserProfile[];
-  memberCount: number;
+  member_count: number;
 }
 
 export interface EventWithDetails extends Event {
@@ -802,7 +781,7 @@ export interface SubmissionWithDetails extends Submission {
   event?: Event;
   problem?: CodeProblem;
   language?: Language;
-  testCases?: TestCase[];
+  test_cases?: TestCase[];
 }
 ```
 

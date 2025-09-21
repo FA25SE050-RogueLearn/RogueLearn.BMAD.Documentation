@@ -28,7 +28,7 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 *   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game session logic.
 *   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
 *   **`roguelearn-meeting-service`**: Go microservice for party meetings, scheduling, and meeting-related features.
-*   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code with ChromaDB for vector storage.
+*   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code with Qdrant for vector storage.
 *   **`roguelearn-buildingblocks`**: Shared common libraries and utilities used across backend microservices.
 *   **`roguelearn-shared-types`**: A private NPM package for shared TypeScript interfaces.
 

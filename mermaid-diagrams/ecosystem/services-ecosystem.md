@@ -7,7 +7,7 @@ graph TB
     %% External Systems
     subgraph "External Systems"
         SA[Supabase Auth]
-        CD[ChromaDB]
+        QD[Qdrant]
     end
     
     %% Core Services
@@ -50,7 +50,7 @@ graph TB
     
     %% External Service Dependencies
     CBS --> J0
-    CBS --> CD
+    CBS --> QD
     
     %% Data Flow Indicators
     US -.->|User Context| QS
@@ -183,7 +183,7 @@ graph TB
 
 **External Dependencies**:
 - Judge0 API: Code compilation and execution
-- ChromaDB: Vector embeddings for problem similarity
+- Qdrant: Vector embeddings for problem similarity
 
 ---
 
@@ -242,7 +242,7 @@ Meeting Service → User Service (Analytics)
 ### **External System Integration**
 - **Supabase Auth**: Centralized authentication and user management
 - **Judge0 API**: Secure code execution environment
-- **ChromaDB**: Vector database for AI-powered features
+- **Qdrant**: Vector database for AI-powered features
 
 ## Scalability & Performance Considerations
 

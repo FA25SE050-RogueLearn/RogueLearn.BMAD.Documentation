@@ -79,7 +79,7 @@ This document outlines which database tables and collections are used by each mi
 - `RoomPlayers` - Player participation with scoring and state tracking
 - `Submissions` - Comprehensive submission tracking with detailed execution results and judge integration
 
-**ChromaDB Collections**:
+**Qdrant Collections**:
 - `code_embeddings` - Vector embeddings of code submissions for similarity analysis
 - `problem_embeddings` - Vector embeddings of problem statements for matching
 - `solution_patterns` - Common solution pattern embeddings for automated scoring
@@ -108,8 +108,8 @@ Each service maintains its own database connection pool to the shared PostgreSQL
 - **Read-Only Access**: Services have read access to commonly referenced tables (UserProfiles, etc.)
 - **No Direct Access**: Services use API calls for complex cross-service operations
 
-### **ChromaDB Access**
-Only the Code Battle Service has direct access to ChromaDB collections for vector operations.
+### **Qdrant Access**
+Only the Code Battle Service has direct access to Qdrant collections for vector operations.
 
 ## **Future Considerations**
 

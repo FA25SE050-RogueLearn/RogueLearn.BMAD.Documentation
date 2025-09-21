@@ -10,53 +10,57 @@ This section provides the SQL DDL for the PostgreSQL database.
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Enum Types
-CREATE TYPE "UserRole" AS ENUM ('Student', 'Lecturer', 'Admin');
-CREATE TYPE "QuestStatus" AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Failed');
-CREATE TYPE "QuestType" AS ENUM ('Theory', 'Practice', 'Project', 'Assessment');
-CREATE TYPE "SkillLevel" AS ENUM ('Beginner', 'Intermediate', 'Advanced', 'Expert');
-CREATE TYPE "AchievementType" AS ENUM ('Quest', 'Skill', 'Social', 'Special');
-CREATE TYPE "NotificationType" AS ENUM ('Quest', 'Achievement', 'Social', 'System');
-CREATE TYPE "PartyRole" AS ENUM ('Leader', 'Member');
-CREATE TYPE "MeetingStatus" AS ENUM ('Scheduled', 'InProgress', 'Completed', 'Cancelled');
-CREATE TYPE "EventType" AS ENUM ('Competition', 'Workshop', 'Seminar', 'Social');
-CREATE TYPE "EventStatus" AS ENUM ('Upcoming', 'Ongoing', 'Completed', 'Cancelled');
-CREATE TYPE "SubmissionStatus" AS ENUM ('Pending', 'Running', 'Accepted', 'WrongAnswer', 'TimeLimitExceeded', 'RuntimeError', 'CompileError');
-CREATE TYPE "StudentTermSubjectStatus" AS ENUM ('Enrolled', 'Completed', 'Failed', 'Withdrawn');
+CREATE TYPE user_role AS ENUM ('Student', 'Lecturer', 'Admin');
+CREATE TYPE quest_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Failed');
+CREATE TYPE quest_type AS ENUM ('Theory', 'Practice', 'Project', 'Assessment');
+CREATE TYPE skill_level AS ENUM ('Beginner', 'Intermediate', 'Advanced', 'Expert');
+CREATE TYPE achievement_type AS ENUM ('Quest', 'Skill', 'Social', 'Special');
+CREATE TYPE notification_type AS ENUM ('Quest', 'Achievement', 'Social', 'System');
+CREATE TYPE party_role AS ENUM ('Leader', 'Member');
+CREATE TYPE meeting_status AS ENUM ('Scheduled', 'InProgress', 'Completed', 'Cancelled');
+CREATE TYPE event_type AS ENUM ('Competition', 'Workshop', 'Seminar', 'Social');
+CREATE TYPE event_status AS ENUM ('Upcoming', 'Ongoing', 'Completed', 'Cancelled');
+CREATE TYPE submission_status AS ENUM ('Pending', 'Running', 'Accepted', 'WrongAnswer', 'TimeLimitExceeded', 'RuntimeError', 'CompileError');
+CREATE TYPE student_term_subject_status AS ENUM ('Enrolled', 'Completed', 'Failed', 'Withdrawn');
+CREATE TYPE game_session_status AS ENUM ('InProgress', 'Completed', 'Abandoned');
+CREATE TYPE verification_status AS ENUM ('Pending', 'Approved', 'Rejected');
+CREATE TYPE party_join_type AS ENUM ('Open', 'Invite Only', 'Request');
+CREATE TYPE participant_status AS ENUM ('Invited', 'Accepted', 'Declined', 'Attended');
 
 
 -- ------------------------------------------
 -- SECTION 2: USER & PROFILE CORE (No Changes)
 -- ------------------------------------------
 
-CREATE TABLE "UserProfiles" (
-    "AuthUserId" UUID PRIMARY KEY, -- FK to Supabase Auth Users (now primary key)
-    "Username" TEXT UNIQUE NOT NULL,
-    "Email" TEXT UNIQUE NOT NULL,
-    "FirstName" TEXT NOT NULL,
-    "LastName" TEXT NOT NULL,
-    "ClassId" UUID, -- FK to Classes table
-    "CreatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    "UpdatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE user_profiles (
+    auth_user_id UUID PRIMARY KEY, -- FK to Supabase Auth Users (now primary key)
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    class_id UUID, -- FK to classes table
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "Roles" (
-    "Id" SERIAL PRIMARY KEY,
-    "RoleName" TEXT UNIQUE NOT NULL
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    role_name TEXT UNIQUE NOT NULL
 );
 
-CREATE TABLE "UserRoles" (
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "RoleId" INT NOT NULL REFERENCES "Roles"("Id") ON DELETE RESTRICT,
-    PRIMARY KEY ("AuthUserId", "RoleId")
+CREATE TABLE user_roles (
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    role_id INT NOT NULL REFERENCES roles(id) ON DELETE RESTRICT,
+    PRIMARY KEY (auth_user_id, role_id)
 );
 
-CREATE TABLE "LecturerVerificationRequests" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "Status" "VerificationStatus" NOT NULL DEFAULT 'Pending',
-    "SubmittedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "ReviewedAt" TIMESTAMPTZ,
-    "ReviewerNotes" TEXT
+CREATE TABLE lecturer_verification_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    status verification_status NOT NULL DEFAULT 'Pending',
+    submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    reviewed_at TIMESTAMPTZ,
+    reviewer_notes TEXT
 );
 
 
@@ -64,10 +68,10 @@ CREATE TABLE "LecturerVerificationRequests" (
 -- SECTION 3: ACADEMIC & CONTENT MANAGEMENT (Updated with Enhanced Curriculum Structure)
 -- ------------------------------------------
 
-CREATE TABLE "Classes" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "Name" TEXT UNIQUE NOT NULL,
-    "Description" TEXT
+CREATE TABLE classes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT UNIQUE NOT NULL,
+    description TEXT
 );
 
 -- ------------------------------------------
@@ -75,94 +79,94 @@ CREATE TABLE "Classes" (
 -- ------------------------------------------
 
 -- The abstract program, e.g., "B.S. in Software Engineering"
-CREATE TABLE "CurriculumPrograms" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "ProgramName" TEXT NOT NULL,
-    "ProgramCode" TEXT UNIQUE NOT NULL
+CREATE TABLE curriculum_programs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    program_name TEXT NOT NULL,
+    program_code TEXT UNIQUE NOT NULL
 );
 
 -- The specific, versioned "snapshot" of a program, e.g., "K18A"
-CREATE TABLE "CurriculumVersions" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "ProgramId" UUID NOT NULL REFERENCES "CurriculumPrograms"("Id") ON DELETE CASCADE,
-    "VersionTag" TEXT NOT NULL, -- "K18A", "K18B", "2024-2025 Catalog"
-    "EffectiveYear" INTEGER NOT NULL,
-    "IsPublished" BOOLEAN NOT NULL DEFAULT true, -- Is it visible to new students?
-    UNIQUE ("ProgramId", "VersionTag")
+CREATE TABLE curriculum_versions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    program_id UUID NOT NULL REFERENCES curriculum_programs(id) ON DELETE CASCADE,
+    version_tag TEXT NOT NULL, -- "K18A", "K18B", "2024-2025 Catalog"
+    effective_year INTEGER NOT NULL,
+    is_published BOOLEAN NOT NULL DEFAULT true, -- Is it visible to new students?
+    UNIQUE (program_id, version_tag)
 );
 
 -- The master list of all subjects offered
-CREATE TABLE "Subjects" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "SubjectCode" TEXT UNIQUE NOT NULL, -- "CS464"
-    "Title" TEXT NOT NULL, -- "Introduction to Machine Learning"
-    "Credits" INTEGER NOT NULL
+CREATE TABLE subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    subject_code TEXT UNIQUE NOT NULL, -- "CS464"
+    title TEXT NOT NULL, -- "Introduction to Machine Learning"
+    credits INTEGER NOT NULL
 );
 
 -- The CRUCIAL junction table defining the ideal path for a curriculum version
-CREATE TABLE "CurriculumStructure" (
-    "CurriculumVersionId" UUID NOT NULL REFERENCES "CurriculumVersions"("Id") ON DELETE CASCADE,
-    "SubjectId" UUID NOT NULL REFERENCES "Subjects"("Id") ON DELETE CASCADE,
-    "PrescribedSemester" INTEGER NOT NULL, -- The semester this subject is *supposed* to be taken in (1, 2, 3...)
-    PRIMARY KEY ("CurriculumVersionId", "SubjectId")
+CREATE TABLE curriculum_structure (
+    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    prescribed_semester INTEGER NOT NULL, -- The semester this subject is *supposed* to be taken in (1, 2, 3...)
+    PRIMARY KEY (curriculum_version_id, subject_id)
 );
 
 -- A table to handle versioned syllabi for each subject
-CREATE TABLE "SyllabusVersions" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "SubjectId" UUID NOT NULL REFERENCES "Subjects"("Id") ON DELETE CASCADE,
-    "VersionDescription" TEXT NOT NULL, -- "Fall 2025 Syllabus"
-    "EffectiveDate" DATE NOT NULL,
-    "SyllabusContent" JSONB, -- The structured content of the syllabus
-    "FileUrl" TEXT
+CREATE TABLE syllabus_versions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    version_description TEXT NOT NULL, -- "Fall 2025 Syllabus"
+    effective_date DATE NOT NULL,
+    syllabus_content JSONB, -- The structured content of the syllabus
+    file_url TEXT
 );
 
 -- Locks a student into a specific curriculum version
-CREATE TABLE "StudentEnrollments" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "CurriculumVersionId" UUID NOT NULL REFERENCES "CurriculumVersions"("Id") ON DELETE CASCADE,
-    "StartDate" DATE NOT NULL,
-    "ExpectedGraduationDate" DATE
+CREATE TABLE student_enrollments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
+    start_date DATE NOT NULL,
+    expected_graduation_date DATE
 );
 
 -- **KEY TABLE** - Tracks what a student is ACTUALLY taking each semester
-CREATE TABLE "StudentTermSubjects" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "EnrollmentId" UUID NOT NULL REFERENCES "StudentEnrollments"("Id") ON DELETE CASCADE,
-    "SubjectId" UUID NOT NULL REFERENCES "Subjects"("Id") ON DELETE CASCADE,
-    "AcademicTerm" TEXT NOT NULL, -- e.g., "Fall 2025", "Semester 3"
-    "Status" TEXT NOT NULL DEFAULT 'Enrolled', -- 'Enrolled', 'Completed', 'Failed', 'Withdrawn'
-    "FinalGrade" TEXT, -- Optional
-    "IsRetake" BOOLEAN NOT NULL DEFAULT false
+CREATE TABLE student_term_subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    enrollment_id UUID NOT NULL REFERENCES student_enrollments(id) ON DELETE CASCADE,
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    academic_term TEXT NOT NULL, -- e.g., "Fall 2025", "Semester 3"
+    status student_term_subject_status NOT NULL DEFAULT 'Enrolled', -- 'Enrolled', 'Completed', 'Failed', 'Withdrawn'
+    final_grade TEXT, -- Optional
+    is_retake BOOLEAN NOT NULL DEFAULT false
 );
 
-CREATE TABLE "Notes" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "Title" TEXT NOT NULL,
-    "Content" JSONB,
-    "QuestId" UUID,
-    "SkillId" UUID,
-    "Tags" TEXT[],
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    content JSONB,
+    quest_id UUID,
+    skill_id UUID,
+    tags TEXT[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- This table stores shared notes in party stash, duplicating user notes for party collaboration
-CREATE TABLE "PartyStashItems" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "PartyId" UUID NOT NULL REFERENCES "Parties"("Id") ON DELETE CASCADE,
-    "OriginalNoteId" UUID NOT NULL REFERENCES "Notes"("Id") ON DELETE CASCADE,
-    "SharedByUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "Title" TEXT NOT NULL,
-    "Content" JSONB NOT NULL,
-    "SyllabusId" UUID REFERENCES "Syllabuses"("Id") ON DELETE SET NULL,
-    "QuestId" UUID REFERENCES "Quests"("Id") ON DELETE SET NULL,
-    "SkillId" UUID REFERENCES "Skills"("Id") ON DELETE SET NULL,
-    "Tags" TEXT[],
-    "SharedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE party_stash_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
+    original_note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    shared_by_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    content JSONB NOT NULL,
+    syllabus_version_id UUID REFERENCES syllabus_versions(id) ON DELETE SET NULL,
+    quest_id UUID REFERENCES quests(id) ON DELETE SET NULL,
+    skill_id UUID REFERENCES skills(id) ON DELETE SET NULL,
+    tags TEXT[],
+    shared_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 
@@ -170,96 +174,100 @@ CREATE TABLE "PartyStashItems" (
 -- SECTION 4: QUEST & SKILL MANAGEMENT (No Changes)
 -- ------------------------------------------
 
-CREATE TABLE "QuestLines" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "ClassId" UUID NOT NULL REFERENCES "Classes"("Id") ON DELETE CASCADE,
-    "CurriculumVersionId" UUID NOT NULL REFERENCES "CurriculumVersions"("Id") ON DELETE CASCADE,
-    "Title" TEXT NOT NULL,
-    "Description" TEXT,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE quest_lines (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "QuestChapters" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "QuestLineId" UUID NOT NULL REFERENCES "QuestLines"("Id") ON DELETE CASCADE,
-    "Title" TEXT NOT NULL, -- e.g., "Semester 3: Week 5", "Finals Week"
-    "Sequence" INTEGER NOT NULL, -- 1, 2, 3... to order the chapters linearly
-    "Status" "QuestStatus" NOT NULL DEFAULT 'Not Started', -- 'Not Started', 'In Progress', 'Completed'
-    "StartDate" DATE,
-    "EndDate" DATE,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE ("QuestLineId", "Sequence")
+CREATE TABLE quest_chapters (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quest_line_id UUID NOT NULL REFERENCES quest_lines(id) ON DELETE CASCADE,
+    title TEXT NOT NULL, -- e.g., "Semester 3: Week 5", "Finals Week"
+    sequence INTEGER NOT NULL, -- 1, 2, 3... to order the chapters linearly
+    status quest_status NOT NULL DEFAULT 'NotStarted', -- 'NotStarted', 'InProgress', 'Completed'
+    start_date DATE,
+    end_date DATE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (quest_line_id, sequence)
 );
 
-CREATE TABLE "Quests" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "QuestChapterId" UUID NOT NULL REFERENCES "QuestChapters"("Id") ON DELETE CASCADE,
-    "SyllabusId" UUID NOT NULL REFERENCES "Syllabuses"("Id") ON DELETE CASCADE,
-    "SubjectId" UUID NOT NULL REFERENCES "Subjects"("Id") ON DELETE CASCADE,
-    "Title" TEXT NOT NULL,
-    "Description" TEXT,
-    "Type" "QuestType" NOT NULL,
-    "Status" "QuestStatus" NOT NULL DEFAULT 'Not Started',
-    "DueDate" TIMESTAMPTZ,
-    "ExperiencePoints" INTEGER NOT NULL DEFAULT 10,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE quests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quest_chapter_id UUID NOT NULL REFERENCES quest_chapters(id) ON DELETE CASCADE,
+    syllabus_version_id UUID NOT NULL REFERENCES syllabus_versions(id) ON DELETE CASCADE,
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    description TEXT,
+    type quest_type NOT NULL,
+    status quest_status NOT NULL DEFAULT 'NotStarted',
+    due_date TIMESTAMPTZ,
+    experience_points INTEGER NOT NULL DEFAULT 10,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "QuestPrerequisites" (
-    "QuestId" UUID NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE,
-    "PrerequisiteQuestId" UUID NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE,
-    PRIMARY KEY ("QuestId", "PrerequisiteQuestId")
+CREATE TABLE quest_prerequisites (
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    prerequisite_quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    PRIMARY KEY (quest_id, prerequisite_quest_id)
 );
 
-CREATE TABLE "SkillTrees" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "CurriculumId" UUID NOT NULL REFERENCES "Curriculums"("Id") ON DELETE CASCADE,
-    "Name" TEXT NOT NULL,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE skill_trees (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "Skills" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "SkillTreeId" UUID NOT NULL REFERENCES "SkillTrees"("Id") ON DELETE CASCADE,
-    "Name" TEXT NOT NULL,
-    "Description" TEXT,
-    "MaxLevel" INTEGER NOT NULL DEFAULT 10,
-    "PositionX" INTEGER,
-    "PositionY" INTEGER,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE skills (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    skill_tree_id UUID NOT NULL REFERENCES skill_trees(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT,
+    max_level INTEGER NOT NULL DEFAULT 10,
+    position_x INTEGER,
+    position_y INTEGER,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "UserSkills" (
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "SkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE,
-    "Level" INTEGER NOT NULL DEFAULT 0,
-    PRIMARY KEY ("AuthUserId", "SkillId")
+CREATE TABLE user_skills (
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    level INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (auth_user_id, skill_id)
 );
 
-CREATE TABLE "UserSkillTrees" (
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "SkillTreeId" UUID NOT NULL REFERENCES "SkillTrees"("Id") ON DELETE CASCADE,
-    PRIMARY KEY ("AuthUserId", "SkillTreeId")
+CREATE TABLE user_skill_trees (
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    skill_tree_id UUID NOT NULL REFERENCES skill_trees(id) ON DELETE CASCADE,
+    PRIMARY KEY (auth_user_id, skill_tree_id)
 );
 
-CREATE TABLE "QuestSkills" (
-    "QuestId" UUID NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE,
-    "SkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE,
-    PRIMARY KEY ("QuestId", "SkillId")
+CREATE TABLE quest_skills (
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    PRIMARY KEY (quest_id, skill_id)
 );
 
-CREATE TABLE "SkillDependencies" (
-    "SkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE,
-    "PrerequisiteSkillId" UUID NOT NULL REFERENCES "Skills"("Id") ON DELETE CASCADE,
-    PRIMARY KEY ("SkillId", "PrerequisiteSkillId")
+CREATE TABLE skill_dependencies (
+    skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    prerequisite_skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    PRIMARY KEY (skill_id, prerequisite_skill_id)
 );
 
-ALTER TABLE "Notes" ADD CONSTRAINT fk_notes_quest FOREIGN KEY ("QuestId") REFERENCES "Quests"("Id") ON DELETE SET NULL;
-ALTER TABLE "Notes" ADD CONSTRAINT fk_notes_skill FOREIGN KEY ("SkillId") REFERENCES "Skills"("Id") ON DELETE SET NULL;
+ALTER TABLE notes ADD CONSTRAINT fk_notes_quest FOREIGN KEY (quest_id) REFERENCES quests(id) ON DELETE SET NULL;
+ALTER TABLE notes ADD CONSTRAINT fk_notes_skill FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE SET NULL;
+
+-- Add missing foreign key constraint for user_profiles.class_id
+ALTER TABLE user_profiles ADD CONSTRAINT fk_userprofiles_class 
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL;
 
 
 -- ------------------------------------------
@@ -268,32 +276,32 @@ ALTER TABLE "Notes" ADD CONSTRAINT fk_notes_skill FOREIGN KEY ("SkillId") REFERE
 
 -- This table stores a summary of a user's progress on quests, providing a quick reference 
 -- for the User Service without needing to constantly query the Quest Service.
-CREATE TABLE "UserQuestProgress" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "QuestId" UUID NOT NULL,
-    "Status" "QuestStatus" NOT NULL,
-    "CompletedAt" TIMESTAMPTZ,
-    "LastUpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE ("AuthUserId", "QuestId")
+CREATE TABLE user_quest_progress (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    quest_id UUID NOT NULL,
+    status quest_status NOT NULL,
+    completed_at TIMESTAMPTZ,
+    last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (auth_user_id, quest_id)
 );
 
 -- This table serves as a central catalog of all possible achievements a user can earn.
-CREATE TABLE "Achievements" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "Name" TEXT NOT NULL UNIQUE,
-    "Description" TEXT NOT NULL,
-    "IconUrl" TEXT,
-    "SourceService" VARCHAR(255) NOT NULL -- e.g., 'QuestsService', 'CodeBattleService'
+CREATE TABLE achievements (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL UNIQUE,
+    description TEXT NOT NULL,
+    icon_url TEXT,
+    source_service VARCHAR(255) NOT NULL -- e.g., 'QuestsService', 'CodeBattleService'
 );
 
 -- This table links users to the achievements they have earned.
-CREATE TABLE "UserAchievements" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "AchievementId" UUID NOT NULL REFERENCES "Achievements"("Id") ON DELETE CASCADE,
-    "EarnedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "Context" JSONB -- To store additional details, like the event or quest that triggered the achievement
+CREATE TABLE user_achievements (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    achievement_id UUID NOT NULL REFERENCES achievements(id) ON DELETE CASCADE,
+    earned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    context JSONB -- To store additional details, like the event or quest that triggered the achievement
 );
 
 
@@ -301,24 +309,24 @@ CREATE TABLE "UserAchievements" (
 -- SECTION 6: GAME SESSION & NOTIFICATIONS (No Changes)
 -- ------------------------------------------
 
-CREATE TABLE "GameSessions" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "QuestId" UUID NOT NULL REFERENCES "Quests"("Id") ON DELETE CASCADE,
-    "Status" "GameSessionStatus" NOT NULL DEFAULT 'InProgress',
-    "Score" INTEGER NOT NULL DEFAULT 0,
-    "ProgressData" JSONB,
-    "StartedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "CompletedAt" TIMESTAMPTZ
+CREATE TABLE game_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    status game_session_status NOT NULL DEFAULT 'InProgress',
+    score INTEGER NOT NULL DEFAULT 0,
+    progress_data JSONB,
+    started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    completed_at TIMESTAMPTZ
 );
 
-CREATE TABLE "Notifications" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "Message" TEXT NOT NULL,
-    "IsRead" BOOLEAN NOT NULL DEFAULT false,
-    "Link" TEXT,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT false,
+    link TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 
@@ -326,135 +334,135 @@ CREATE TABLE "Notifications" (
 -- SECTION 7: SOCIAL & COMMUNITY (No Changes)
 -- ------------------------------------------
 
-CREATE TABLE "Parties" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "Name" TEXT NOT NULL,
-    "Description" TEXT,
-    "JoinType" "PartyJoinType" NOT NULL DEFAULT 'Invite Only',
-    "LeaderId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE parties (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    description TEXT,
+    join_type party_join_type NOT NULL DEFAULT 'Invite Only',
+    leader_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "PartyMemberships" (
-    "PartyId" UUID NOT NULL REFERENCES "Parties"("Id") ON DELETE CASCADE,
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "JoinedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    PRIMARY KEY ("PartyId", "AuthUserId")
+CREATE TABLE party_memberships (
+    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (party_id, auth_user_id)
 );
 
-CREATE TABLE "Guilds" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "Name" TEXT NOT NULL,
-    "Description" TEXT,
-    "MasterId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "IsVerified" BOOLEAN NOT NULL DEFAULT false,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE guilds (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    description TEXT,
+    master_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    is_verified BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "GuildMemberships" (
-    "GuildId" UUID NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE,
-    "AuthUserId" UUID NOT NULL UNIQUE REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "JoinedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    PRIMARY KEY ("GuildId", "AuthUserId")
+CREATE TABLE guild_memberships (
+    guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL UNIQUE REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (guild_id, auth_user_id)
 );
 
-CREATE TABLE "Meetings" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "ContextId" UUID NOT NULL, -- References either Parties.Id or Guilds.Id
-    "ContextType" VARCHAR(20) NOT NULL CHECK ("ContextType" IN ('party', 'guild')),
-    "CreatorId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE SET NULL,
-    "Title" TEXT NOT NULL,
-    "Description" TEXT,
-    "ScheduledStartTime" TIMESTAMPTZ NOT NULL,
-    "ScheduledEndTime" TIMESTAMPTZ,
-    "Status" "MeetingStatus" NOT NULL DEFAULT 'Scheduled',
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    -- Ensure ContextId references valid Party or Guild based on ContextType
-    CONSTRAINT "meetings_context_party_fk" 
-        CHECK (("ContextType" = 'party' AND "ContextId" IN (SELECT "Id" FROM "Parties")) OR "ContextType" != 'party'),
-    CONSTRAINT "meetings_context_guild_fk" 
-        CHECK (("ContextType" = 'guild' AND "ContextId" IN (SELECT "Id" FROM "Guilds")) OR "ContextType" != 'guild')
+CREATE TABLE meetings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    context_id UUID NOT NULL, -- References either parties.id or guilds.id
+    context_type VARCHAR(20) NOT NULL CHECK (context_type IN ('party', 'guild')),
+    creator_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE SET NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    scheduled_start_time TIMESTAMPTZ NOT NULL,
+    scheduled_end_time TIMESTAMPTZ,
+    status meeting_status NOT NULL DEFAULT 'Scheduled',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    -- Ensure context_id references valid Party or Guild based on context_type
+    CONSTRAINT meetings_context_party_fk 
+        CHECK ((context_type = 'party' AND context_id IN (SELECT id FROM parties)) OR context_type != 'party'),
+    CONSTRAINT meetings_context_guild_fk 
+        CHECK ((context_type = 'guild' AND context_id IN (SELECT id FROM guilds)) OR context_type != 'guild')
 );
 
-CREATE TABLE "MeetingParticipants" (
-    "MeetingId" UUID NOT NULL REFERENCES "Meetings"("Id") ON DELETE CASCADE,
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "Status" "ParticipantStatus" NOT NULL DEFAULT 'Invited',
-    PRIMARY KEY ("MeetingId", "AuthUserId")
+CREATE TABLE meeting_participants (
+    meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    status participant_status NOT NULL DEFAULT 'Invited',
+    PRIMARY KEY (meeting_id, auth_user_id)
 );
 
-CREATE TABLE "MeetingAgenda" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "MeetingId" UUID NOT NULL UNIQUE REFERENCES "Meetings"("Id") ON DELETE CASCADE,
-    "Topic" TEXT NOT NULL,
-    "Description" TEXT,
-    "PresenterId" UUID REFERENCES "UserProfiles"("AuthUserId") ON DELETE SET NULL,
-    "Sequence" INTEGER NOT NULL,
-    "DurationMinutes" INTEGER
+CREATE TABLE meeting_agenda (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meeting_id UUID NOT NULL UNIQUE REFERENCES meetings(id) ON DELETE CASCADE,
+    topic TEXT NOT NULL,
+    description TEXT,
+    presenter_id UUID REFERENCES user_profiles(auth_user_id) ON DELETE SET NULL,
+    sequence INTEGER NOT NULL,
+    duration_minutes INTEGER
 );
 
-CREATE TABLE "MeetingNotes" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "MeetingId" UUID NOT NULL UNIQUE REFERENCES "Meetings"("Id") ON DELETE CASCADE,
-    "AgendaId" UUID REFERENCES "MeetingAgenda"("Id") ON DELETE SET NULL,
-    "Content" JSONB NOT NULL,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE meeting_notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meeting_id UUID NOT NULL UNIQUE REFERENCES meetings(id) ON DELETE CASCADE,
+    agenda_id UUID REFERENCES meeting_agenda(id) ON DELETE SET NULL,
+    content JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "MeetingParticipantAgendaAccess" (
-    "ParticipantId" UUID NOT NULL,
-    "MeetingId" UUID NOT NULL,
-    "AgendaId" UUID NOT NULL REFERENCES "MeetingAgenda"("Id") ON DELETE CASCADE,
-    PRIMARY KEY ("ParticipantId", "MeetingId", "AgendaId"),
-    FOREIGN KEY ("ParticipantId", "MeetingId") REFERENCES "MeetingParticipants"("AuthUserId", "MeetingId") ON DELETE CASCADE
+CREATE TABLE meeting_participant_agenda_access (
+    participant_id UUID NOT NULL,
+    meeting_id UUID NOT NULL,
+    agenda_id UUID NOT NULL REFERENCES meeting_agenda(id) ON DELETE CASCADE,
+    PRIMARY KEY (participant_id, meeting_id, agenda_id),
+    FOREIGN KEY (participant_id, meeting_id) REFERENCES meeting_participants(auth_user_id, meeting_id) ON DELETE CASCADE
 );
 
 -- This table tracks detailed participant activity during meetings including check-in/check-out times
-CREATE TABLE "MeetingParticipantActivity" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "MeetingId" UUID NOT NULL REFERENCES "Meetings"("Id") ON DELETE CASCADE,
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "CheckInTime" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "CheckOutTime" TIMESTAMPTZ,
-    "ActivityType" VARCHAR(50) NOT NULL, -- 'join', 'leave', 'reconnect', 'disconnect'
-    "DeviceInfo" JSONB, -- Browser, OS, device details
-    "IpAddress" INET,
-    "Location" TEXT, -- Geographic location if available
-    "ConnectionQuality" VARCHAR(20), -- 'excellent', 'good', 'fair', 'poor'
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    FOREIGN KEY ("MeetingId", "AuthUserId") REFERENCES "MeetingParticipants"("MeetingId", "AuthUserId") ON DELETE CASCADE
+CREATE TABLE meeting_participant_activity (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    check_in_time TIMESTAMPTZ NOT NULL DEFAULT now(),
+    check_out_time TIMESTAMPTZ,
+    activity_type VARCHAR(50) NOT NULL, -- 'join', 'leave', 'reconnect', 'disconnect'
+    device_info JSONB, -- Browser, OS, device details
+    ip_address INET,
+    location TEXT, -- Geographic location if available
+    connection_quality VARCHAR(20), -- 'excellent', 'good', 'fair', 'poor'
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    FOREIGN KEY (meeting_id, auth_user_id) REFERENCES meeting_participants(meeting_id, auth_user_id) ON DELETE CASCADE
 );
 
 -- This table tracks participant engagement and interactions during meetings
-CREATE TABLE "MeetingParticipantEngagement" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "MeetingId" UUID NOT NULL REFERENCES "Meetings"("Id") ON DELETE CASCADE,
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "AgendaId" UUID REFERENCES "MeetingAgenda"("Id") ON DELETE SET NULL,
-    "EngagementType" VARCHAR(50) NOT NULL, -- 'spoke', 'shared_screen', 'chat_message', 'reaction', 'raised_hand'
-    "Duration" INTEGER, -- Duration in seconds for activities like speaking or screen sharing
-    "Content" JSONB, -- Additional context like chat message content, reaction type, etc.
-    "Timestamp" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    FOREIGN KEY ("MeetingId", "AuthUserId") REFERENCES "MeetingParticipants"("MeetingId", "AuthUserId") ON DELETE CASCADE
+CREATE TABLE meeting_participant_engagement (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    agenda_id UUID REFERENCES meeting_agenda(id) ON DELETE SET NULL,
+    engagement_type VARCHAR(50) NOT NULL, -- 'spoke', 'shared_screen', 'chat_message', 'reaction', 'raised_hand'
+    duration INTEGER, -- Duration in seconds for activities like speaking or screen sharing
+    content JSONB, -- Additional context like chat message content, reaction type, etc.
+    timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
+    FOREIGN KEY (meeting_id, auth_user_id) REFERENCES meeting_participants(meeting_id, auth_user_id) ON DELETE CASCADE
 );
 
 -- This table provides aggregated statistics for participant performance in meetings
-CREATE TABLE "MeetingParticipantStats" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "MeetingId" UUID NOT NULL REFERENCES "Meetings"("Id") ON DELETE CASCADE,
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "TotalAttendanceMinutes" INTEGER NOT NULL DEFAULT 0,
-    "SpeakingTimeMinutes" INTEGER NOT NULL DEFAULT 0,
-    "ScreenShareTimeMinutes" INTEGER NOT NULL DEFAULT 0,
-    "ChatMessagesCount" INTEGER NOT NULL DEFAULT 0,
-    "ReactionsCount" INTEGER NOT NULL DEFAULT 0,
-    "HandRaisesCount" INTEGER NOT NULL DEFAULT 0,
-    "ConnectionIssuesCount" INTEGER NOT NULL DEFAULT 0,
-    "EngagementScore" DECIMAL(5,2), -- Calculated engagement score (0-100)
-    "LastUpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE ("MeetingId", "AuthUserId"),
-    FOREIGN KEY ("MeetingId", "AuthUserId") REFERENCES "MeetingParticipants"("MeetingId", "AuthUserId") ON DELETE CASCADE
+CREATE TABLE meeting_participant_stats (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    total_attendance_minutes INTEGER NOT NULL DEFAULT 0,
+    speaking_time_minutes INTEGER NOT NULL DEFAULT 0,
+    screen_share_time_minutes INTEGER NOT NULL DEFAULT 0,
+    chat_messages_count INTEGER NOT NULL DEFAULT 0,
+    reactions_count INTEGER NOT NULL DEFAULT 0,
+    hand_raises_count INTEGER NOT NULL DEFAULT 0,
+    connection_issues_count INTEGER NOT NULL DEFAULT 0,
+    engagement_score DECIMAL(5,2), -- Calculated engagement score (0-100)
+    last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (meeting_id, auth_user_id),
+    FOREIGN KEY (meeting_id, auth_user_id) REFERENCES meeting_participants(meeting_id, auth_user_id) ON DELETE CASCADE
 );
 
 
@@ -462,47 +470,57 @@ CREATE TABLE "MeetingParticipantStats" (
 -- SECTION 8: EVENTS & COMPETITION (Modified)
 -- ------------------------------------------
 
-CREATE TABLE "Events" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "GuildId" UUID REFERENCES "Guilds"("Id") ON DELETE CASCADE,
-    "Title" TEXT NOT NULL,
-    "Description" TEXT,
-    "Type" "EventType" NOT NULL,
-    "StartDate" TIMESTAMPTZ,
-    "EndDate" TIMESTAMPTZ
+CREATE TABLE events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    description TEXT,
+    type event_type NOT NULL,
+    start_date TIMESTAMPTZ,
+    end_date TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Junction table for many-to-many relationship between Events and Guilds
+-- This allows multiple guilds to participate in the same event
+CREATE TABLE event_guild_participants (
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (event_id, guild_id)
 );
 
 -- This table now serves as a canonical reference for a problem's text.
--- The actual question content (template, etc.) is in ChromaDB.
-CREATE TABLE "CodeProblems" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "Title" TEXT NOT NULL,
-    "ProblemStatement" TEXT NOT NULL,
-    "LanguageId" UUID NOT NULL REFERENCES "Languages"("Id") ON DELETE RESTRICT
+-- The actual question content (template, etc.) is in Qdrant.
+CREATE TABLE code_problems (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    problem_statement TEXT NOT NULL,
+    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE RESTRICT
 );
 
-CREATE TABLE "EventCodeProblems" (
-    "EventId" UUID NOT NULL REFERENCES "Events"("Id") ON DELETE CASCADE,
-    "ProblemId" UUID NOT NULL REFERENCES "CodeProblems"("Id") ON DELETE CASCADE,
-    PRIMARY KEY ("EventId", "ProblemId")
+CREATE TABLE event_code_problems (
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    PRIMARY KEY (event_id, problem_id)
 );
 
-CREATE TABLE "LeaderboardEntries" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "EventId" UUID REFERENCES "Events"("Id") ON DELETE CASCADE,
-    "Rank" INT NOT NULL,
-    "Score" BIGINT NOT NULL,
-    "SnapshotDate" DATE NOT NULL
+CREATE TABLE leaderboard_entries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    rank INT NOT NULL,
+    score BIGINT NOT NULL,
+    snapshot_date DATE NOT NULL
 );
 
-CREATE TABLE "GuildLeaderboardEntries" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "GuildId" UUID NOT NULL REFERENCES "Guilds"("Id") ON DELETE CASCADE,
-    "EventId" UUID REFERENCES "Events"("Id") ON DELETE CASCADE,
-    "Rank" INT NOT NULL,
-    "TotalScore" BIGINT NOT NULL,
-    "SnapshotDate" DATE NOT NULL
+CREATE TABLE guild_leaderboard_entries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    rank INT NOT NULL,
+    total_score BIGINT NOT NULL,
+    snapshot_date DATE NOT NULL
 );
 
 
@@ -510,156 +528,156 @@ CREATE TABLE "GuildLeaderboardEntries" (
 -- SECTION 9: REAL-TIME CODE BATTLES & JUDGING (FULLY MERGED & DETAILED)
 -- ------------------------------------------
 
-CREATE TABLE "Languages" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "Name" TEXT NOT NULL UNIQUE,
-    "CompileCmd" TEXT,
-    "RunCmd" TEXT NOT NULL,
-    "TimeoutSeconds" DOUBLE PRECISION
+CREATE TABLE languages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL UNIQUE,
+    compile_cmd TEXT,
+    run_cmd TEXT NOT NULL,
+    timeout_seconds DOUBLE PRECISION
 );
 
-CREATE TABLE "Rooms" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "EventId" UUID NOT NULL REFERENCES "Events"("Id") ON DELETE CASCADE,
-    "Name" TEXT NOT NULL,
-    "Description" TEXT,
-    "CreatedAt" TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE rooms (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "RoomPlayers" (
-    "RoomId" UUID NOT NULL REFERENCES "Rooms"("Id") ON DELETE CASCADE,
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "Score" INTEGER NOT NULL DEFAULT 0,
-    "Place" INTEGER,
-    "State" TEXT,
-    "DisconnectedAt" TIMESTAMPTZ,
-    PRIMARY KEY ("RoomId", "AuthUserId")
+CREATE TABLE room_players (
+    room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    score INTEGER NOT NULL DEFAULT 0,
+    place INTEGER,
+    state TEXT,
+    disconnected_at TIMESTAMPTZ,
+    PRIMARY KEY (room_id, auth_user_id)
 );
 
-CREATE TABLE "TestCases" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "CodeProblemId" UUID NOT NULL REFERENCES "CodeProblems"("Id") ON DELETE CASCADE,
-    "LanguageId" UUID NOT NULL REFERENCES "Languages"("Id") ON DELETE RESTRICT,
-    "Input" TEXT NOT NULL,
-    "ExpectedOutput" TEXT NOT NULL,
-    "TimeConstraint" DOUBLE PRECISION,
-    "SpaceConstraint" INTEGER
+CREATE TABLE test_cases (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE RESTRICT,
+    input TEXT NOT NULL,
+    expected_output TEXT NOT NULL,
+    time_constraint DOUBLE PRECISION,
+    space_constraint INTEGER
 );
 
--- This fully-featured table replaces the original "CodeSubmissions"
+-- This fully-featured table replaces the original "code_submissions"
 -- It contains all fields necessary for a detailed, external judging service.
-CREATE TABLE "Submissions" (
-    "Id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "AuthUserId" UUID NOT NULL REFERENCES "UserProfiles"("AuthUserId") ON DELETE CASCADE,
-    "EventId" UUID NOT NULL REFERENCES "Events"("Id") ON DELETE CASCADE,
-    "CodeProblemId" UUID NOT NULL REFERENCES "CodeProblems"("Id") ON DELETE CASCADE,
-    "LanguageId" UUID NOT NULL REFERENCES "Languages"("Id") ON DELETE RESTRICT,
-    "SourceCode" TEXT NOT NULL,
-    "Status" "SubmissionStatus" NOT NULL DEFAULT 'Pending',
+CREATE TABLE submissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE RESTRICT,
+    source_code TEXT NOT NULL,
+    status submission_status NOT NULL DEFAULT 'Pending',
     
     -- Execution Results
-    "StdOut" TEXT,
-    "StdErr" TEXT,
-    "CompileOutput" TEXT,
-    "ExitCode" INTEGER,
-    "ExitSignal" INTEGER,
-    "Message" TEXT, -- Human-readable message from the judge
+    std_out TEXT,
+    std_err TEXT,
+    compile_output TEXT,
+    exit_code INTEGER,
+    exit_signal INTEGER,
+    message TEXT, -- Human-readable message from the judge
     
     -- Performance Metrics
-    "Time" NUMERIC, -- Execution time in seconds
-    "Memory" INTEGER, -- Memory used in kilobytes
-    "WallTime" NUMERIC, -- Wall clock time in seconds
+    time NUMERIC, -- Execution time in seconds
+    memory INTEGER, -- Memory used in kilobytes
+    wall_time NUMERIC, -- Wall clock time in seconds
 
     -- Judge Tracking & Configuration
-    "Token" TEXT UNIQUE, -- Unique token to track with the judge (e.g., Judge0)
-    "CallbackUrl" TEXT,
-    "NumberOfRuns" INTEGER,
-    "CompilerOptions" TEXT,
-    "CommandLineArguments" TEXT,
-    "RedirectStdErrToStdOut" BOOLEAN,
-    "AdditionalFiles" BYTEA,
-    "EnableNetwork" BOOLEAN,
+    token TEXT UNIQUE, -- Unique token to track with the judge (e.g., Judge0)
+    callback_url TEXT,
+    number_of_runs INTEGER,
+    compiler_options TEXT,
+    command_line_arguments TEXT,
+    redirect_std_err_to_std_out BOOLEAN,
+    additional_files BYTEA,
+    enable_network BOOLEAN,
 
     -- Judge Resource Limits
-    "CpuTimeLimit" NUMERIC,
-    "CpuExtraTime" NUMERIC,
-    "WallTimeLimit" NUMERIC,
-    "MemoryLimit" INTEGER,
-    "StackLimit" INTEGER,
-    "MaxProcessesAndOrThreads" INTEGER,
-    "EnablePerProcessAndThreadTimeLimit" BOOLEAN,
-    "EnablePerProcessAndThreadMemoryLimit" BOOLEAN,
-    "MaxFileSize" INTEGER,
+    cpu_time_limit NUMERIC,
+    cpu_extra_time NUMERIC,
+    wall_time_limit NUMERIC,
+    memory_limit INTEGER,
+    stack_limit INTEGER,
+    max_processes_and_or_threads INTEGER,
+    enable_per_process_and_thread_time_limit BOOLEAN,
+    enable_per_process_and_thread_memory_limit BOOLEAN,
+    max_file_size INTEGER,
     
     -- Timestamps & Host Info
-    "QueuedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "StartedAt" TIMESTAMPTZ,
-    "FinishedAt" TIMESTAMPTZ,
-    "UpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT now(),
-    "QueueHost" TEXT,
-    "ExecutionHost" TEXT
+    queued_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    started_at TIMESTAMPTZ,
+    finished_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    queue_host TEXT,
+    execution_host TEXT
 );
 
 
 -- ------------------------------------------
 -- SECTION 10: INDEXES FOR PERFORMANCE (Updated)
 -- ------------------------------------------
-CREATE INDEX "idx_userprofiles_email" ON "UserProfiles"("Email");
-CREATE INDEX "idx_enrollments_user_id" ON "UserSyllabusEnrollments"("UserProfileId");
-CREATE INDEX "idx_enrollments_syllabus_id" ON "UserSyllabusEnrollments"("SyllabusId");
-CREATE INDEX "idx_notes_user_id" ON "Notes"("UserProfileId");
-CREATE INDEX "idx_partystashitems_party_id" ON "PartyStashItems"("PartyId");
-CREATE INDEX "idx_partystashitems_shared_by_user_id" ON "PartyStashItems"("SharedByUserId");
-CREATE INDEX "idx_partystashitems_original_note_id" ON "PartyStashItems"("OriginalNoteId");
-CREATE INDEX "idx_partystashitems_shared_at" ON "PartyStashItems"("SharedAt");
-CREATE INDEX "idx_questlines_user_class" ON "QuestLines"("AuthUserId", "ClassId");
-CREATE INDEX "idx_questlines_curriculum_version" ON "QuestLines"("CurriculumVersionId");
-CREATE INDEX "idx_questlines_subject" ON "QuestLines"("SubjectId");
-CREATE INDEX "idx_questchapters_questline_id" ON "QuestChapters"("QuestLineId");
-CREATE INDEX "idx_questchapters_sequence" ON "QuestChapters"("QuestLineId", "Sequence");
-CREATE INDEX "idx_questchapters_status" ON "QuestChapters"("Status");
-CREATE INDEX "idx_quests_chapter_id" ON "Quests"("QuestChapterId");
-CREATE INDEX "idx_quests_subject_id" ON "Quests"("SubjectId");
-CREATE INDEX "idx_quests_syllabus_id" ON "Quests"("SyllabusId");
-CREATE INDEX "idx_skills_skilltree_id" ON "Skills"("SkillTreeId");
-CREATE INDEX "idx_userskills_user_id" ON "UserSkills"("UserProfileId");
-CREATE INDEX "idx_gamesessions_user_id" ON "GameSessions"("UserProfileId");
-CREATE INDEX "idx_guildmemberships_user_id" ON "GuildMemberships"("UserProfileId");
-CREATE INDEX "idx_meetings_context" ON "Meetings"("ContextId", "ContextType");
-CREATE INDEX "idx_meetings_context_type" ON "Meetings"("ContextType");
-CREATE INDEX "idx_meetingparticipants_user_id" ON "MeetingParticipants"("UserProfileId");
-CREATE INDEX "idx_meetingagenda_meeting_id" ON "MeetingAgenda"("MeetingId");
-CREATE INDEX "idx_meetingnotes_meeting_id" ON "MeetingNotes"("MeetingId");
-CREATE INDEX "idx_rooms_event_id" ON "Rooms"("EventId");
-CREATE INDEX "idx_roomplayers_user_id" ON "RoomPlayers"("AuthUserId");
-CREATE INDEX "idx_testcases_codeproblem_id" ON "TestCases"("CodeProblemId");
-CREATE INDEX "idx_submissions_user_event" ON "Submissions"("AuthUserId", "EventId");
-CREATE INDEX "idx_submissions_problem_id" ON "Submissions"("CodeProblemId");
-CREATE INDEX "idx_submissions_token" ON "Submissions"("Token");
-CREATE INDEX "idx_user_quest_progress_user_id" ON "UserQuestProgress"("UserProfileId");
-CREATE INDEX "idx_user_achievements_user_id" ON "UserAchievements"("UserProfileId");
+CREATE INDEX idx_user_profiles_email ON user_profiles(email);
+CREATE INDEX idx_notes_user_id ON notes(auth_user_id);
+CREATE INDEX idx_party_stash_items_party_id ON party_stash_items(party_id);
+CREATE INDEX idx_party_stash_items_shared_by_user_id ON party_stash_items(shared_by_user_id);
+CREATE INDEX idx_party_stash_items_original_note_id ON party_stash_items(original_note_id);
+CREATE INDEX idx_party_stash_items_shared_at ON party_stash_items(shared_at);
+CREATE INDEX idx_quest_lines_user_class ON quest_lines(auth_user_id, class_id);
+CREATE INDEX idx_quest_lines_curriculum_version ON quest_lines(curriculum_version_id);
+CREATE INDEX idx_quest_chapters_quest_line_id ON quest_chapters(quest_line_id);
+CREATE INDEX idx_quest_chapters_sequence ON quest_chapters(quest_line_id, sequence);
+CREATE INDEX idx_quest_chapters_status ON quest_chapters(status);
+CREATE INDEX idx_quests_chapter_id ON quests(quest_chapter_id);
+CREATE INDEX idx_quests_subject_id ON quests(subject_id);
+CREATE INDEX idx_quests_syllabus_version_id ON quests(syllabus_version_id);
+CREATE INDEX idx_skills_skill_tree_id ON skills(skill_tree_id);
+CREATE INDEX idx_user_skills_user_id ON user_skills(auth_user_id);
+CREATE INDEX idx_game_sessions_user_id ON game_sessions(auth_user_id);
+CREATE INDEX idx_guild_memberships_user_id ON guild_memberships(auth_user_id);
+CREATE INDEX idx_meetings_context ON meetings(context_id, context_type);
+CREATE INDEX idx_meetings_context_type ON meetings(context_type);
+CREATE INDEX idx_meeting_participants_user_id ON meeting_participants(auth_user_id);
+CREATE INDEX idx_meeting_agenda_meeting_id ON meeting_agenda(meeting_id);
+CREATE INDEX idx_meeting_notes_meeting_id ON meeting_notes(meeting_id);
+CREATE INDEX idx_rooms_event_id ON rooms(event_id);
+CREATE INDEX idx_room_players_user_id ON room_players(auth_user_id);
+CREATE INDEX idx_test_cases_code_problem_id ON test_cases(code_problem_id);
+CREATE INDEX idx_submissions_user_event ON submissions(auth_user_id, event_id);
+CREATE INDEX idx_submissions_problem_id ON submissions(code_problem_id);
+CREATE INDEX idx_submissions_token ON submissions(token);
+CREATE INDEX idx_user_quest_progress_user_id ON user_quest_progress(auth_user_id);
+CREATE INDEX idx_user_achievements_user_id ON user_achievements(auth_user_id);
+-- Event and Guild participation indexes
+CREATE INDEX idx_event_guild_participants_event_id ON event_guild_participants(event_id);
+CREATE INDEX idx_event_guild_participants_guild_id ON event_guild_participants(guild_id);
 -- Meeting participant activity tracking indexes
-CREATE INDEX "idx_meeting_participant_activity_meeting_id" ON "MeetingParticipantActivity"("MeetingId");
-CREATE INDEX "idx_meeting_participant_activity_user_id" ON "MeetingParticipantActivity"("UserProfileId");
-CREATE INDEX "idx_meeting_participant_activity_checkin_time" ON "MeetingParticipantActivity"("CheckInTime");
-CREATE INDEX "idx_meeting_participant_engagement_meeting_id" ON "MeetingParticipantEngagement"("MeetingId");
-CREATE INDEX "idx_meeting_participant_engagement_user_id" ON "MeetingParticipantEngagement"("UserProfileId");
-CREATE INDEX "idx_meeting_participant_engagement_timestamp" ON "MeetingParticipantEngagement"("Timestamp");
-CREATE INDEX "idx_meeting_participant_stats_meeting_id" ON "MeetingParticipantStats"("MeetingId");
-CREATE INDEX "idx_meeting_participant_stats_user_id" ON "MeetingParticipantStats"("UserProfileId");
+CREATE INDEX idx_meeting_participant_activity_meeting_id ON meeting_participant_activity(meeting_id);
+CREATE INDEX idx_meeting_participant_activity_user_id ON meeting_participant_activity(auth_user_id);
+CREATE INDEX idx_meeting_participant_activity_check_in_time ON meeting_participant_activity(check_in_time);
+CREATE INDEX idx_meeting_participant_engagement_meeting_id ON meeting_participant_engagement(meeting_id);
+CREATE INDEX idx_meeting_participant_engagement_user_id ON meeting_participant_engagement(auth_user_id);
+CREATE INDEX idx_meeting_participant_engagement_timestamp ON meeting_participant_engagement(timestamp);
+CREATE INDEX idx_meeting_participant_stats_meeting_id ON meeting_participant_stats(meeting_id);
+CREATE INDEX idx_meeting_participant_stats_user_id ON meeting_participant_stats(auth_user_id);
 -- Enhanced curriculum system indexes
-CREATE INDEX "idx_curriculum_versions_program_id" ON "CurriculumVersions"("ProgramId");
-CREATE INDEX "idx_curriculum_versions_effective_year" ON "CurriculumVersions"("EffectiveYear");
-CREATE INDEX "idx_curriculum_structure_version_id" ON "CurriculumStructure"("CurriculumVersionId");
-CREATE INDEX "idx_curriculum_structure_subject_id" ON "CurriculumStructure"("SubjectId");
-CREATE INDEX "idx_curriculum_structure_semester" ON "CurriculumStructure"("PrescribedSemester");
-CREATE INDEX "idx_syllabus_versions_subject_id" ON "SyllabusVersions"("SubjectId");
-CREATE INDEX "idx_syllabus_versions_effective_date" ON "SyllabusVersions"("EffectiveDate");
-CREATE INDEX "idx_student_enrollments_user_id" ON "StudentEnrollments"("UserProfileId");
-CREATE INDEX "idx_student_enrollments_curriculum_version_id" ON "StudentEnrollments"("CurriculumVersionId");
-CREATE INDEX "idx_student_term_subjects_enrollment_id" ON "StudentTermSubjects"("EnrollmentId");
-CREATE INDEX "idx_student_term_subjects_subject_id" ON "StudentTermSubjects"("SubjectId");
-CREATE INDEX "idx_student_term_subjects_term" ON "StudentTermSubjects"("AcademicTerm");
-CREATE INDEX "idx_student_term_subjects_status" ON "StudentTermSubjects"("Status");
+CREATE INDEX idx_curriculum_versions_program_id ON curriculum_versions(program_id);
+CREATE INDEX idx_curriculum_versions_effective_year ON curriculum_versions(effective_year);
+CREATE INDEX idx_curriculum_structure_version_id ON curriculum_structure(curriculum_version_id);
+CREATE INDEX idx_curriculum_structure_subject_id ON curriculum_structure(subject_id);
+CREATE INDEX idx_curriculum_structure_semester ON curriculum_structure(prescribed_semester);
+CREATE INDEX idx_syllabus_versions_subject_id ON syllabus_versions(subject_id);
+CREATE INDEX idx_syllabus_versions_effective_date ON syllabus_versions(effective_date);
+CREATE INDEX idx_student_enrollments_user_id ON student_enrollments(auth_user_id);
+CREATE INDEX idx_student_enrollments_curriculum_version_id ON student_enrollments(curriculum_version_id);
+CREATE INDEX idx_student_term_subjects_enrollment_id ON student_term_subjects(enrollment_id);
+CREATE INDEX idx_student_term_subjects_subject_id ON student_term_subjects(subject_id);
+CREATE INDEX idx_student_term_subjects_term ON student_term_subjects(academic_term);
+CREATE INDEX idx_student_term_subjects_status ON student_term_subjects(status);
 ```
 

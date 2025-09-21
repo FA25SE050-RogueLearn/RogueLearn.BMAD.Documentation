@@ -23,7 +23,7 @@ erDiagram
 - **CodeProblems**: Core problem definitions with statements
 - **EventCodeProblems**: Association between events and available problems
 - **TestCases**: Input/output test cases with performance constraints
-- **Problem Templates**: Stored in ChromaDB for vector similarity matching
+- **Problem Templates**: Stored in Qdrant for vector similarity matching
 
 ### Language Support
 - **Languages**: Supported programming languages with execution configurations
@@ -51,7 +51,7 @@ erDiagram
 5. **Scoring**: Results evaluated and performance metrics recorded
 6. **Callback**: Results returned via callback URL for real-time updates
 
-### ChromaDB Integration
+### Qdrant Integration
 - **code_embeddings**: Vector embeddings of code submissions for similarity analysis
 - **problem_embeddings**: Vector embeddings of problem statements for matching
 - **solution_patterns**: Common solution pattern embeddings for automated scoring

@@ -87,7 +87,7 @@ erDiagram
 - **Primary Responsibility**: Code compilation, execution, and competitive programming
 - **Key Entities**: CodeProblems, Submissions, Languages, Rooms
 - **Dependencies**: Social Service (Events), User Service (UserProfiles)
-- **External Integration**: ChromaDB for vector embeddings, Judge0 for code execution
+- **External Integration**: Qdrant for vector embeddings, Judge0 for code execution
 
 ### Data Flow Patterns
 
@@ -132,7 +132,7 @@ erDiagram
 
 #### **External Systems**
 - **Supabase Auth**: User authentication and session management
-- **ChromaDB**: Vector embeddings for code similarity and problem matching
+- **Qdrant**: Vector embeddings for code similarity and problem matching
 - **Judge0**: Code compilation and execution service
 
 #### **Internal APIs**

@@ -1,0 +1,347 @@
+# User Service Database Schema
+
+## Overview
+The User Service manages user profiles, authentication, academic structure, achievements, and user progress tracking. This service maintains the core user data and academic framework for the RogueLearn platform.
+
+## Database Tables
+
+### Core User Management
+
+#### user_profiles
+Core user profile data linked to Supabase auth.users
+```sql
+CREATE TABLE user_profiles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    class_id UUID REFERENCES classes(id),
+    route_id UUID REFERENCES curriculum_programs(id),
+    level INTEGER NOT NULL DEFAULT 1,
+    experience_points INTEGER NOT NULL DEFAULT 0,
+    profile_image_url TEXT,
+    onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### roles
+System roles for RBAC
+```sql
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### user_roles
+User role assignments
+```sql
+CREATE TABLE user_roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    assigned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (auth_user_id, role_id)
+);
+```
+
+#### lecturer_verification_requests
+Lecturer verification workflow
+```sql
+CREATE TABLE lecturer_verification_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    institution_name VARCHAR(255) NOT NULL,
+    department VARCHAR(255),
+    verification_document_url TEXT,
+    status verification_status NOT NULL DEFAULT 'Pending',
+    submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    reviewed_at TIMESTAMPTZ,
+    reviewer_id UUID REFERENCES user_profiles(auth_user_id),
+    notes TEXT
+);
+```
+
+### Academic Structure
+
+#### classes
+Academic class definitions
+```sql
+CREATE TABLE classes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    academic_year VARCHAR(10) NOT NULL,
+    semester VARCHAR(20) NOT NULL,
+    lecturer_id UUID REFERENCES user_profiles(auth_user_id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### curriculum_programs
+Abstract program definitions (e.g., "B.S. in Software Engineering")
+```sql
+CREATE TABLE curriculum_programs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    program_name VARCHAR(255) NOT NULL,
+    program_code VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT,
+    degree_level degree_level NOT NULL,
+    total_credits INTEGER,
+    duration_years INTEGER,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### curriculum_versions
+Versioned curriculum snapshots (e.g., "K18A", "K18B") with effective year tracking
+```sql
+CREATE TABLE curriculum_versions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    program_id UUID NOT NULL REFERENCES curriculum_programs(id) ON DELETE CASCADE,
+    version_code VARCHAR(50) NOT NULL,
+    effective_year INTEGER NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (program_id, version_code)
+);
+```
+
+#### subjects
+Master list of all subjects with codes and credits
+```sql
+CREATE TABLE subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    subject_code VARCHAR(50) NOT NULL UNIQUE,
+    subject_name VARCHAR(255) NOT NULL,
+    credits INTEGER NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### curriculum_structure
+Junction table defining curriculum-subject relationships with term sequencing
+```sql
+CREATE TABLE curriculum_structure (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    term_number INTEGER NOT NULL,
+    is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
+    prerequisite_subject_ids UUID[],
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (curriculum_version_id, subject_id)
+);
+```
+
+#### syllabus_versions
+Versioned syllabi for each subject
+```sql
+CREATE TABLE syllabus_versions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    version_number INTEGER NOT NULL,
+    content JSONB NOT NULL,
+    effective_date DATE NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by UUID REFERENCES user_profiles(auth_user_id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (subject_id, version_number)
+);
+```
+
+#### student_enrollments
+Links students to specific curriculum versions with enrollment tracking
+```sql
+CREATE TABLE student_enrollments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
+    enrollment_date DATE NOT NULL,
+    expected_graduation_date DATE,
+    status enrollment_status NOT NULL DEFAULT 'Active',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (auth_user_id, curriculum_version_id)
+);
+```
+
+#### student_term_subjects
+Comprehensive academic term tracking with status
+```sql
+CREATE TABLE student_term_subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    enrollment_id UUID NOT NULL REFERENCES student_enrollments(id) ON DELETE CASCADE,
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    term_number INTEGER NOT NULL,
+    academic_year VARCHAR(10) NOT NULL,
+    semester VARCHAR(20) NOT NULL,
+    status subject_enrollment_status NOT NULL DEFAULT 'Enrolled',
+    grade VARCHAR(5),
+    credits_earned INTEGER DEFAULT 0,
+    enrolled_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    completed_at TIMESTAMPTZ,
+    UNIQUE (enrollment_id, subject_id, term_number, academic_year, semester)
+);
+```
+
+### Skills and Progress Tracking
+
+#### user_skills
+User skill progression tracking with experience points
+```sql
+CREATE TABLE user_skills (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    skill_name VARCHAR(255) NOT NULL,
+    experience_points INTEGER NOT NULL DEFAULT 0,
+    level INTEGER NOT NULL DEFAULT 1,
+    last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (auth_user_id, skill_name)
+);
+```
+
+#### user_quest_progress
+Summary of user progress on quests for quick reference and cross-service sync
+```sql
+CREATE TABLE user_quest_progress (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    quest_id UUID NOT NULL,
+    status quest_status NOT NULL,
+    completed_at TIMESTAMPTZ,
+    last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (auth_user_id, quest_id)
+);
+```
+
+### Achievements System
+
+#### achievements
+Central catalog of all possible achievements with type categorization
+```sql
+CREATE TABLE achievements (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL UNIQUE,
+    description TEXT NOT NULL,
+    icon_url TEXT,
+    source_service VARCHAR(255) NOT NULL -- e.g., 'QuestsService', 'CodeBattleService'
+);
+```
+
+#### user_achievements
+Links users to earned achievements with context and timestamps
+```sql
+CREATE TABLE user_achievements (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    achievement_id UUID NOT NULL REFERENCES achievements(id) ON DELETE CASCADE,
+    earned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    context JSONB -- To store additional details, like the event or quest that triggered the achievement
+);
+```
+
+### Notifications
+
+#### notifications
+User notification system with type-based categorization
+```sql
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    type notification_type NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    metadata JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    read_at TIMESTAMPTZ
+);
+```
+
+## Enums and Types
+
+```sql
+-- Verification status for lecturer requests
+CREATE TYPE verification_status AS ENUM ('Pending', 'Approved', 'Rejected');
+
+-- Degree levels
+CREATE TYPE degree_level AS ENUM ('Associate', 'Bachelor', 'Master', 'Doctorate');
+
+-- Enrollment status
+CREATE TYPE enrollment_status AS ENUM ('Active', 'Graduated', 'Withdrawn', 'Suspended');
+
+-- Subject enrollment status
+CREATE TYPE subject_enrollment_status AS ENUM ('Enrolled', 'Completed', 'Failed', 'Withdrawn');
+
+-- Quest status
+CREATE TYPE quest_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Abandoned');
+
+-- Notification types
+CREATE TYPE notification_type AS ENUM ('Achievement', 'QuestComplete', 'PartyInvite', 'GuildInvite', 'MeetingReminder', 'System');
+```
+
+## Indexes for Performance
+
+```sql
+-- User profile indexes
+CREATE INDEX idx_user_profiles_auth_user_id ON user_profiles(auth_user_id);
+CREATE INDEX idx_user_profiles_username ON user_profiles(username);
+CREATE INDEX idx_user_profiles_email ON user_profiles(email);
+CREATE INDEX idx_user_profiles_class_id ON user_profiles(class_id);
+
+-- Academic structure indexes
+CREATE INDEX idx_curriculum_structure_curriculum_version_id ON curriculum_structure(curriculum_version_id);
+CREATE INDEX idx_curriculum_structure_subject_id ON curriculum_structure(subject_id);
+CREATE INDEX idx_student_enrollments_auth_user_id ON student_enrollments(auth_user_id);
+CREATE INDEX idx_student_term_subjects_enrollment_id ON student_term_subjects(enrollment_id);
+
+-- Skills and progress indexes
+CREATE INDEX idx_user_skills_auth_user_id ON user_skills(auth_user_id);
+CREATE INDEX idx_user_quest_progress_auth_user_id ON user_quest_progress(auth_user_id);
+CREATE INDEX idx_user_quest_progress_quest_id ON user_quest_progress(quest_id);
+
+-- Achievement indexes
+CREATE INDEX idx_user_achievements_auth_user_id ON user_achievements(auth_user_id);
+CREATE INDEX idx_user_achievements_achievement_id ON user_achievements(achievement_id);
+
+-- Notification indexes
+CREATE INDEX idx_notifications_auth_user_id ON notifications(auth_user_id);
+CREATE INDEX idx_notifications_type ON notifications(type);
+CREATE INDEX idx_notifications_is_read ON notifications(is_read);
+CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+```
+
+## Service Responsibilities
+
+### Primary Responsibilities
+- User profile management and authentication integration
+- Academic structure definition and management
+- Student enrollment and academic progress tracking
+- Skills progression and experience point management
+- Achievement system coordination
+- Cross-service user context provision
+- Notification system management
+
+### Cross-Service Integration
+- Provides user context to all other services
+- Receives quest completion updates from Quests Service
+- Receives achievement triggers from Social Service
+- Receives meeting analytics from Meeting Service
+- Receives competition results from Code Battle Service
+
+### Data Access Patterns
+- **Read/Write Access**: All tables within User Service domain
+- **Read-Only Access**: Provided to other services for user context
+- **API Integration**: Exposes user profile and academic data via REST APIs

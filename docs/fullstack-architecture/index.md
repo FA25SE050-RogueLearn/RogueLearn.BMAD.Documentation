@@ -10,7 +10,7 @@ This document provides a comprehensive architectural overview of the RogueLearn 
 - [High Level Architecture](./high-level-architecture.md)
 - [Tech Stack](./tech-stack.md)
 - [Database Architecture](#database-architecture)
-  - [Database Schema](./database-schema.md) - Complete PostgreSQL and ChromaDB schema definitions
+  - [Database Schema](./database-schema.md) - Complete PostgreSQL and Qdrant schema definitions
   - [Database Per Service](./database-per-service.md) - Service-specific data organization and cross-service patterns
 - [Data Models](#data-models)
   - [Data Models](./data-models.md) - TypeScript interfaces and data structures
@@ -57,7 +57,7 @@ This document provides a comprehensive architectural overview of the RogueLearn 
 - **Microservices Architecture**: Service-oriented design with clear boundaries
 - **Cross-Service Communication**: Efficient data synchronization patterns
 - **Real-time Features**: WebSocket-based real-time updates
-- **Scalable Data Storage**: PostgreSQL and ChromaDB for different data types
+- **Scalable Data Storage**: PostgreSQL and Qdrant for different data types
 
 ## Architecture Principles
 
