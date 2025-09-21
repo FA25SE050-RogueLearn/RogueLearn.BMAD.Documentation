@@ -7,6 +7,48 @@ The User Service manages user profiles, authentication, academic structure, achi
 
 ### Core User Management
 
+#### roles
+System roles for RBAC
+```sql
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### classes
+Academic class definitions
+```sql
+CREATE TABLE classes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    academic_year VARCHAR(10) NOT NULL,
+    semester VARCHAR(20) NOT NULL,
+    lecturer_id UUID, -- Will add FK constraint later
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### curriculum_programs
+Abstract program definitions (e.g., "B.S. in Software Engineering")
+```sql
+CREATE TABLE curriculum_programs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    program_name VARCHAR(255) NOT NULL,
+    program_code VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT,
+    degree_level degree_level NOT NULL,
+    total_credits INTEGER,
+    duration_years INTEGER,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
 #### user_profiles
 Core user profile data linked to Supabase auth.users
 ```sql
@@ -25,17 +67,6 @@ CREATE TABLE user_profiles (
     onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
-
-#### roles
-System roles for RBAC
-```sql
-CREATE TABLE roles (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL UNIQUE,
-    description TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ```
 
@@ -68,38 +99,13 @@ CREATE TABLE lecturer_verification_requests (
 );
 ```
 
+-- Add FK constraint to classes table after user_profiles is created
+```sql
+ALTER TABLE classes ADD CONSTRAINT fk_classes_lecturer 
+    FOREIGN KEY (lecturer_id) REFERENCES user_profiles(auth_user_id);
+```
+
 ### Academic Structure
-
-#### classes
-Academic class definitions
-```sql
-CREATE TABLE classes (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    academic_year VARCHAR(10) NOT NULL,
-    semester VARCHAR(20) NOT NULL,
-    lecturer_id UUID REFERENCES user_profiles(auth_user_id),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
-
-#### curriculum_programs
-Abstract program definitions (e.g., "B.S. in Software Engineering")
-```sql
-CREATE TABLE curriculum_programs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    program_name VARCHAR(255) NOT NULL,
-    program_code VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT,
-    degree_level degree_level NOT NULL,
-    total_credits INTEGER,
-    duration_years INTEGER,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
 
 #### curriculum_versions
 Versioned curriculum snapshots (e.g., "K18A", "K18B") with effective year tracking
