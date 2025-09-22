@@ -118,9 +118,27 @@ components:
       properties:
         id: { type: string, format: uuid }
         name: { type: string }
-        compile_cmd: { type: string, nullable: true }
+        compile_cmd: { type: string }
         run_cmd: { type: string }
-        timeout_seconds: { type: number, nullable: true }
+    Tag:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        created_at: { type: string, format: date-time }
+    CodeProblemTag:
+      type: object
+      properties:
+        code_problem_id: { type: string, format: uuid }
+        tag_id: { type: string, format: uuid }
+    CodeProblemLanguageDetails:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        code_problem_id: { type: string, format: uuid }
+        language_id: { type: string, format: uuid }
+        starter_code: { type: string, nullable: true }
+        solution_template: { type: string, nullable: true }
     Room:
       type: object
       properties:
@@ -144,39 +162,53 @@ components:
         id: { type: string, format: uuid }
         title: { type: string }
         problem_statement: { type: string }
+        difficulty: { type: integer }
+        created_at: { type: string, format: date-time }
     TestCase:
       type: object
       properties:
         id: { type: string, format: uuid }
         code_problem_id: { type: string, format: uuid }
-        input: { type: string }
-        expected_output: { type: string }
-        time_constraint: { type: number, nullable: true }
-        space_constraint: { type: integer, nullable: true }
+        input: { type: object }
+        expected_output: { type: object }
+        is_hidden: { type: boolean }
     Submission:
       type: object
       properties:
         id: { type: string, format: uuid }
-        user_profile_id: { type: string, format: uuid }
-        event_id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
         code_problem_id: { type: string, format: uuid }
         language_id: { type: string, format: uuid }
-        source_code: { type: string }
-        status: { type: string, enum: [In Queue, Processing, Accepted, Wrong Answer, Time Limit Exceeded, Compilation Error, Runtime Error (Generic), Internal Error, Execution Server Error] }
-        std_out: { type: string, nullable: true }
-        std_err: { type: string, nullable: true }
-        compile_output: { type: string, nullable: true }
-        exit_code: { type: integer, nullable: true }
-        exit_signal: { type: integer, nullable: true }
-        message: { type: string, nullable: true }
-        time: { type: number, nullable: true }
-        memory: { type: integer, nullable: true }
-        wall_time: { type: number, nullable: true }
-        token: { type: string, nullable: true }
-        queued_at: { type: string, format: date-time }
-        started_at: { type: string, format: date-time, nullable: true }
-        finished_at: { type: string, format: date-time, nullable: true }
-        updated_at: { type: string, format: date-time }
+        room_id: { type: string, format: uuid }
+        code_submitted: { type: string }
+        status: { type: string, enum: [pending, running, accepted, wrong_answer, time_limit_exceeded, compilation_error, runtime_error] }
+        execution_time_ms: { type: integer, nullable: true }
+        submitted_at: { type: string, format: date-time }
+    LeaderboardEntry:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        user_id: { type: string, format: uuid }
+        event_id: { type: string, format: uuid }
+        rank: { type: integer }
+        score: { type: integer }
+        snapshot_date: { type: string, format: date-time }
+    GuildLeaderboardEntry:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        guild_id: { type: string, format: uuid }
+        event_id: { type: string, format: uuid }
+        rank: { type: integer }
+        total_score: { type: integer }
+        member_count: { type: integer }
+        snapshot_date: { type: string, format: date-time }
+    EventGuildParticipant:
+      type: object
+      properties:
+        event_id: { type: string, format: uuid }
+        guild_id: { type: string, format: uuid }
+        registered_at: { type: string, format: date-time }
     Error:
       type: object
       properties:
@@ -721,12 +753,12 @@ paths:
           application/json:
             schema:
               type: object
-              required: [eventId, codeProblemId, languageId, sourceCode]
+              required: [codeProblemId, languageId, roomId, codeSubmitted]
               properties:
-                eventId: { type: string, format: uuid }
                 codeProblemId: { type: string, format: uuid }
                 languageId: { type: string, format: uuid }
-                sourceCode: { type: string }
+                roomId: { type: string, format: uuid }
+                codeSubmitted: { type: string }
       responses:
         '201':
           description: Submission created
@@ -880,4 +912,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CurriculumPack'
+
+  # Leaderboard Endpoints
+  /events/{eventId}/leaderboard:
+    get:
+      summary: Get event leaderboard
+      tags: [CodeBattle]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Event leaderboard entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeaderboardEntry'
+
+  /events/{eventId}/guild-leaderboard:
+    get:
+      summary: Get guild leaderboard for an event
+      tags: [CodeBattle]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Guild leaderboard entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GuildLeaderboardEntry'
 

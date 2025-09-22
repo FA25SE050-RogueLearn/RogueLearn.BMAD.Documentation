@@ -597,25 +597,40 @@ export interface CodeProblem {
   id: string;
   title: string;
   problem_statement: string;
-  difficulty?: string;
-  time_limit?: number; // Seconds
-  memory_limit?: number; // MB
+  difficulty: number;
   created_at: string;
 }
 
 export interface EventCodeProblem {
   event_id: string; // References events.id
-  problem_id: string; // References code_problems.id
+  code_problem_id: string; // References code_problems.id
   sequence?: number; // Order in the event
 }
 
 export interface Language {
   id: string;
   name: string; // 'Python', 'Java', 'C++', etc.
-  compile_cmd?: string;
+  compile_cmd: string;
   run_cmd: string;
-  timeout_seconds?: number;
-  is_active: boolean;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface CodeProblemTag {
+  code_problem_id: string; // References code_problems.id
+  tag_id: string; // References tags.id
+}
+
+export interface CodeProblemLanguageDetails {
+  id: string;
+  code_problem_id: string; // References code_problems.id
+  language_id: string; // References languages.id
+  starter_code?: string;
+  solution_template?: string;
 }
 
 export interface Room {
@@ -623,7 +638,6 @@ export interface Room {
   event_id: string; // References events.id
   name: string;
   description?: string;
-  max_players?: number;
   created_at: string;
 }
 
@@ -633,70 +647,33 @@ export interface RoomPlayer {
   score: number;
   place?: number;
   state?: string; // 'Active', 'Disconnected', 'Finished'
-  joined_at: string;
   disconnected_at?: string;
 }
 
 export interface TestCase {
   id: string;
   code_problem_id: string; // References code_problems.id
-  input: string;
-  expected_output: string;
-  time_constraint?: number; // Milliseconds
-  space_constraint?: number; // MB
-  is_hidden: boolean; // Whether visible to participants
+  input: object; // JSON input data
+  expected_output: object; // JSON expected output data
+  is_hidden: boolean; // Whether test case is hidden from users
 }
 
 export interface Submission {
   id: string;
-  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
-  event_id: string; // References events.id
+  user_id: string; // References user_profiles.auth_user_id (cross-service)
   code_problem_id: string; // References code_problems.id
   language_id: string; // References languages.id
-  source_code: string;
-  status: SubmissionStatus; // 'Pending', 'Running', 'Accepted', 'WrongAnswer', 'TimeLimitExceeded', etc.
-  
-  // Execution Results
-  std_out?: string;
-  std_err?: string;
-  compile_output?: string;
-  exit_code?: number;
-  exit_signal?: number;
-  message?: string;
-  
-  // Performance Metrics
-  time?: number; // Execution time in milliseconds
-  memory?: number; // Memory usage in KB
-  wall_time?: number; // Wall clock time in milliseconds
-  
-  // Judge Configuration
-  token?: string;
-  callback_url?: string;
-  number_of_runs?: number;
-  compiler_options?: string;
-  command_line_arguments?: string;
-  redirect_std_err_to_std_out?: boolean;
-  additional_files?: ArrayBuffer;
-  enable_network?: boolean;
-  
-  // Resource Limits
-  cpu_time_limit?: number;
-  cpu_extra_time?: number;
-  wall_time_limit?: number;
-  memory_limit?: number;
-  stack_limit?: number;
-  max_processes_and_or_threads?: number;
-  enable_per_process_and_thread_time_limit?: boolean;
-  enable_per_process_and_thread_memory_limit?: boolean;
-  max_file_size?: number;
-  
-  // Timestamps & Host Info
-  queued_at: string;
-  started_at?: string;
-  finished_at?: string;
-  updated_at: string;
-  queue_host?: string;
-  execution_host?: string;
+  room_id: string; // References rooms.id
+  code_submitted: string;
+  status: string; // 'pending', 'running', 'accepted', 'wrong_answer', etc.
+  execution_time_ms?: number;
+  submitted_at: string;
+}
+
+export interface EventGuildParticipant {
+  event_id: string; // References events.id
+  guild_id: string; // References guilds.id (cross-service)
+  registered_at: string;
 }
 ```
 
@@ -708,23 +685,21 @@ export interface Submission {
 ```typescript
 export interface LeaderboardEntry {
   id: string;
-  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
-  event_id?: string; // References events.id (optional for global leaderboards)
+  user_id: string; // References user_profiles.auth_user_id (cross-service)
+  event_id: string; // References events.id (required for event-based rankings)
   rank: number;
   score: number;
-  snapshot_date: string;
-  created_at: string;
+  snapshot_date: string; // UTC timestamp for ranking snapshot
 }
 
 export interface GuildLeaderboardEntry {
   id: string;
   guild_id: string; // References guilds.id
-  event_id?: string; // References events.id (optional for global leaderboards)
+  event_id: string; // References events.id (required for event-based rankings)
   rank: number;
   total_score: number;
   member_count: number;
-  snapshot_date: string;
-  created_at: string;
+  snapshot_date: string; // UTC timestamp for ranking snapshot
 }
 ```
 

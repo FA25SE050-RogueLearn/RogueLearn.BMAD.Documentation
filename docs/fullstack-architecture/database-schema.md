@@ -479,8 +479,7 @@ CREATE TABLE languages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL UNIQUE,
     compile_cmd TEXT,
-    run_cmd TEXT NOT NULL,
-    timeout_seconds DOUBLE PRECISION
+    run_cmd TEXT NOT NULL
 );
 
 CREATE TABLE events (
@@ -508,30 +507,49 @@ CREATE TABLE event_guild_participants (
 CREATE TABLE code_problems (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
-    problem_statement TEXT NOT NULL,
-    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE RESTRICT
+    problem_statement TEXT NOT NULL
+);
+
+CREATE TABLE tags (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE code_problem_tags (
+    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (code_problem_id, tag_id)
+);
+
+CREATE TABLE code_problem_language_details (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE CASCADE,
+    template TEXT,
+    solution TEXT,
+    UNIQUE (code_problem_id, language_id)
 );
 
 CREATE TABLE event_code_problems (
     event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-    problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
-    PRIMARY KEY (event_id, problem_id)
+    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    PRIMARY KEY (event_id, code_problem_id)
 );
 
 CREATE TABLE leaderboard_entries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
     event_id UUID REFERENCES events(id) ON DELETE CASCADE,
-    rank INT NOT NULL,
+    rank INTEGER NOT NULL,
     score BIGINT NOT NULL,
-    snapshot_date DATE NOT NULL
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE guild_leaderboard_entries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
     event_id UUID REFERENCES events(id) ON DELETE CASCADE,
-    rank INT NOT NULL,
+    rank INTEGER NOT NULL,
     total_score BIGINT NOT NULL,
     snapshot_date DATE NOT NULL
 );
@@ -573,54 +591,12 @@ CREATE TABLE test_cases (
 -- It contains all fields necessary for a detailed, external judging service.
 CREATE TABLE submissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
     code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
-    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE RESTRICT,
+    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE CASCADE,
     source_code TEXT NOT NULL,
     status submission_status NOT NULL DEFAULT 'Pending',
-    
-    -- Execution Results
-    std_out TEXT,
-    std_err TEXT,
-    compile_output TEXT,
-    exit_code INTEGER,
-    exit_signal INTEGER,
-    message TEXT, -- Human-readable message from the judge
-    
-    -- Performance Metrics
-    time NUMERIC, -- Execution time in seconds
-    memory INTEGER, -- Memory used in kilobytes
-    wall_time NUMERIC, -- Wall clock time in seconds
-
-    -- Judge Tracking & Configuration
-    token TEXT UNIQUE, -- Unique token to track with the judge (e.g., Judge0)
-    callback_url TEXT,
-    number_of_runs INTEGER,
-    compiler_options TEXT,
-    command_line_arguments TEXT,
-    redirect_std_err_to_std_out BOOLEAN,
-    additional_files BYTEA,
-    enable_network BOOLEAN,
-
-    -- Judge Resource Limits
-    cpu_time_limit NUMERIC,
-    cpu_extra_time NUMERIC,
-    wall_time_limit NUMERIC,
-    memory_limit INTEGER,
-    stack_limit INTEGER,
-    max_processes_and_or_threads INTEGER,
-    enable_per_process_and_thread_time_limit BOOLEAN,
-    enable_per_process_and_thread_memory_limit BOOLEAN,
-    max_file_size INTEGER,
-    
-    -- Timestamps & Host Info
-    queued_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    started_at TIMESTAMPTZ,
-    finished_at TIMESTAMPTZ,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    queue_host TEXT,
-    execution_host TEXT
+    submitted_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 
@@ -653,9 +629,16 @@ CREATE INDEX idx_meeting_notes_meeting_id ON meeting_notes(meeting_id);
 CREATE INDEX idx_rooms_event_id ON rooms(event_id);
 CREATE INDEX idx_room_players_user_id ON room_players(auth_user_id);
 CREATE INDEX idx_test_cases_code_problem_id ON test_cases(code_problem_id);
-CREATE INDEX idx_submissions_user_event ON submissions(auth_user_id, event_id);
+CREATE INDEX idx_submissions_user_event ON submissions(user_id);
 CREATE INDEX idx_submissions_problem_id ON submissions(code_problem_id);
-CREATE INDEX idx_submissions_token ON submissions(token);
+CREATE INDEX idx_leaderboard_entries_user_id ON leaderboard_entries(user_id);
+CREATE INDEX idx_leaderboard_entries_event_id ON leaderboard_entries(event_id);
+CREATE INDEX idx_code_problem_tags_problem_id ON code_problem_tags(code_problem_id);
+CREATE INDEX idx_code_problem_tags_tag_id ON code_problem_tags(tag_id);
+CREATE INDEX idx_code_problem_language_details_problem_id ON code_problem_language_details(code_problem_id);
+CREATE INDEX idx_code_problem_language_details_language_id ON code_problem_language_details(language_id);
+CREATE INDEX idx_event_code_problems_event_id ON event_code_problems(event_id);
+CREATE INDEX idx_event_code_problems_code_problem_id ON event_code_problems(code_problem_id);
 CREATE INDEX idx_user_quest_progress_user_id ON user_quest_progress(auth_user_id);
 CREATE INDEX idx_user_achievements_user_id ON user_achievements(auth_user_id);
 -- Event and Guild participation indexes

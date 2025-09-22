@@ -71,13 +71,19 @@ This document outlines which database tables and collections are used by each mi
 **Purpose**: Manages code problems, real-time battles, compilation, execution, and competitive programming
 
 **PostgreSQL Tables**:
-- `Languages` - Supported programming languages with execution configurations
-- `CodeProblems` - Code challenge problem definitions with statements
-- `EventCodeProblems` - Association between events and available problems
-- `TestCases` - Input/output test cases with performance constraints
-- `Rooms` - Battle rooms within events for competitive coding
-- `RoomPlayers` - Player participation with scoring and state tracking
-- `Submissions` - Comprehensive submission tracking with detailed execution results and judge integration
+- `languages` - Supported programming languages with execution configurations
+- `code_problems` - Code challenge problem definitions with statements and difficulty
+- `tags` - Categorization tags for code problems
+- `code_problem_tags` - Many-to-many relationship between problems and tags
+- `code_problem_language_details` - Language-specific starter code and templates
+- `event_code_problems` - Association between events and available problems
+- `test_cases` - Input/output test cases with JSON data and hidden flag
+- `rooms` - Battle rooms within events for competitive coding
+- `room_players` - Player participation with scoring and state tracking
+- `submissions` - Room-based submission tracking with execution time
+- `leaderboard_entries` - User rankings and scores for events with snapshot dates
+- `guild_leaderboard_entries` - Guild-based rankings and total scores for events
+- `event_guild_participants` - Guild participation tracking in events
 
 **Qdrant Collections**:
 - `code_embeddings` - Vector embeddings of code submissions for similarity analysis
