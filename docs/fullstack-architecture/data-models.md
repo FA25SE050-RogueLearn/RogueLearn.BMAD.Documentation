@@ -480,80 +480,58 @@ export interface GuildMembership {
 
 ### **Meeting System**
 
-**Purpose:** Comprehensive meeting management with analytics, engagement tracking, and multi-context support.
+**Purpose:** AI-powered meeting management with transcription, summarization, and content processing capabilities.
 
 #### **TypeScript Interface**
 ```typescript
 export interface Meeting {
-  id: string;
-  party_id?: string; // References parties.id (optional for non-party meetings)
-  creator_id: string; // References user_profiles.auth_user_id (cross-service)
+  meeting_id: string;
   title: string;
-  description?: string;
   scheduled_start_time: string;
-  scheduled_end_time?: string;
+  scheduled_end_time: string;
   actual_start_time?: string;
   actual_end_time?: string;
-  status: EventStatus; // 'Scheduled', 'InProgress', 'Completed', 'Cancelled'
-  meeting_url?: string;
+  organizer_id: string; // References user_profiles.auth_user_id (cross-service)
   created_at: string;
+  updated_at: string;
 }
 
 export interface MeetingParticipant {
-  meeting_id: string; // References meetings.id
-  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
-  status: ParticipantStatus; // 'Invited', 'Accepted', 'Declined', 'Attended'
-  joined_at?: string;
-  left_at?: string;
+  participant_id: string;
+  meeting_id: string; // References meeting.meeting_id
+  user_id: string; // References user_profiles.auth_user_id (cross-service)
+  join_time?: string;
+  leave_time?: string;
+  role_in_meeting: string; // Default: 'participant'
 }
 
-export interface MeetingAgenda {
-  id: string;
-  meeting_id: string; // References meetings.id
-  title: string;
-  description?: string;
-  estimated_duration?: number; // Minutes
-  actual_duration?: number; // Minutes
-  sequence: number; // Order in the agenda
+export interface TranscriptSegment {
+  segment_id: string;
+  meeting_id: string; // References meeting.meeting_id
+  speaker_id: string; // References meeting_participant.participant_id
+  start_time: string;
+  end_time: string;
+  transcript_text: string;
+  chunk_number: number;
   created_at: string;
+  updated_at: string;
 }
 
-export interface MeetingNote {
-  id: string;
-  meeting_id: string; // References meetings.id
-  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
-  content: Record<string, any>; // Rich text content as JSONB
-  timestamp: string; // When the note was taken during the meeting
+export interface SummaryChunk {
+  summary_chunk_id: string;
+  meeting_id: string; // References meeting.meeting_id
+  chunk_number: number;
+  summary_text: string;
   created_at: string;
+  updated_at: string;
 }
 
-export interface MeetingParticipantActivity {
-  id: string;
-  meeting_id: string; // References meetings.id
-  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
-  activity_type: string; // 'join', 'leave', 'mute', 'unmute', 'camera_on', 'camera_off'
-  connection_quality?: number; // 1-5 scale
-  timestamp: string;
-}
-
-export interface MeetingParticipantEngagement {
-  id: string;
-  meeting_id: string; // References meetings.id
-  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
-  speaking_time: number; // Total speaking time in seconds
-  chat_messages: number; // Number of chat messages sent
-  reactions_given: number; // Number of reactions/emojis used
-  polls_participated: number; // Number of polls participated in
-}
-
-export interface MeetingParticipantStats {
-  id: string;
-  meeting_id: string; // References meetings.id
-  auth_user_id: string; // References user_profiles.auth_user_id (cross-service)
-  attention_score?: number; // AI-calculated attention score (1-100)
-  participation_score?: number; // Overall participation score (1-100)
-  contribution_rating?: number; // Peer or self-rating (1-5)
+export interface MeetingSummary {
+  meeting_summary_id: string;
+  meeting_id: string; // References meeting.meeting_id
+  summary_text: string;
   created_at: string;
+  updated_at: string;
 }
 ```
 
@@ -740,11 +718,11 @@ export interface EventWithDetails extends Event {
 }
 
 export interface MeetingWithDetails extends Meeting {
-  party?: Party;
-  creator?: UserProfile;
+  organizer?: UserProfile;
   participants?: (MeetingParticipant & { user?: UserProfile })[];
-  agenda?: MeetingAgenda[];
-  notes?: MeetingNote[];
+  transcript_segments?: TranscriptSegment[];
+  summary_chunks?: SummaryChunk[];
+  meeting_summary?: MeetingSummary;
 }
 
 export interface RoomWithDetails extends Room {

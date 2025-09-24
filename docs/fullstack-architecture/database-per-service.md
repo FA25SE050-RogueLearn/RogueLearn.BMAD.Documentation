@@ -56,16 +56,14 @@ This document outlines which database tables and collections are used by each mi
 - `GuildLeaderboardEntries` - Guild-based competitive rankings
 
 ### **Meeting Service** (`roguelearn-meeting-service`)
-**Purpose**: Manages multi-context meetings, scheduling, participant tracking, and comprehensive meeting analytics
+**Purpose**: Manages meetings with AI-powered transcription, summarization, and content processing capabilities
 
 **PostgreSQL Tables**:
-- `Meetings` - Meeting definitions supporting both party and guild contexts with flexible scheduling
-- `MeetingParticipants` - Meeting invitation and attendance tracking with status management
-- `MeetingAgenda` - Structured meeting agenda items with sequencing and time allocation
-- `MeetingNotes` - Collaborative note-taking during meetings with participant attribution
-- `MeetingParticipantActivity` - Detailed participant activity tracking (check-in/out, device info, connection quality)
-- `MeetingParticipantEngagement` - Real-time engagement tracking (speaking time, screen sharing, chat participation)
-- `MeetingParticipantStats` - Aggregated participant performance and engagement metrics for analytics
+- `meeting` - Core meeting definitions with scheduling and organizer information
+- `meeting_participant` - Participant tracking with join/leave times and role assignments
+- `transcript_segment` - AI-generated transcript segments with speaker identification and timing
+- `summary_chunk` - Chunked meeting summaries for efficient processing and retrieval
+- `meeting_summary` - Complete meeting summaries generated from transcript analysis
 
 ### **Code Battle Service** (`roguelearn-code-battle-service`)
 **Purpose**: Manages code problems, real-time battles, compilation, execution, and competitive programming

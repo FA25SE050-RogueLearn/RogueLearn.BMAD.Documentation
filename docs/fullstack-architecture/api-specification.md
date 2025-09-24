@@ -78,39 +78,51 @@ components:
     Meeting:
       type: object
       properties:
-        id: { type: string, format: uuid }
-        party_id: { type: string, format: uuid }
-        creator_id: { type: string, format: uuid }
+        meeting_id: { type: string, format: uuid }
         title: { type: string }
-        description: { type: string, nullable: true }
-     scheduled_start_time: { type: string, format: date-time }
-                scheduled_end_time: { type: string, format: date-time }
-        status: { type: string, enum: [Scheduled, InProgress, Completed, Cancelled] }
+        scheduled_start_time: { type: string, format: date-time }
+        scheduled_end_time: { type: string, format: date-time }
+        actual_start_time: { type: string, format: date-time, nullable: true }
+        actual_end_time: { type: string, format: date-time, nullable: true }
+        organizer_id: { type: string, format: uuid }
         created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
     MeetingParticipant:
       type: object
       properties:
+        participant_id: { type: string, format: uuid }
         meeting_id: { type: string, format: uuid }
-        user_profile_id: { type: string, format: uuid }
-        status: { type: string, enum: [Invited, Accepted, Declined, Attended] }
-    MeetingAgenda:
+        user_id: { type: string, format: uuid }
+        join_time: { type: string, format: date-time, nullable: true }
+        leave_time: { type: string, format: date-time, nullable: true }
+        role_in_meeting: { type: string }
+    TranscriptSegment:
       type: object
       properties:
-        id: { type: string, format: uuid }
+        segment_id: { type: string, format: uuid }
         meeting_id: { type: string, format: uuid }
-        topic: { type: string }
-        description: { type: string, nullable: true }
-        presenter_id: { type: string, format: uuid, nullable: true }
-        sequence: { type: integer }
-        duration_minutes: { type: integer, nullable: true }
-    MeetingNote:
+        speaker_id: { type: string, format: uuid }
+        start_time: { type: string, format: date-time }
+        end_time: { type: string, format: date-time }
+        transcript_text: { type: string }
+        chunk_number: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    SummaryChunk:
       type: object
       properties:
-        id: { type: string, format: uuid }
+        summary_chunk_id: { type: string, format: uuid }
         meeting_id: { type: string, format: uuid }
-        agenda_id: { type: string, format: uuid, nullable: true }
-        creator_id: { type: string, format: uuid }
-        content: { type: object }
+        chunk_number: { type: integer }
+        summary_text: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    MeetingSummary:
+      type: object
+      properties:
+        meeting_summary_id: { type: string, format: uuid }
+        meeting_id: { type: string, format: uuid }
+        summary_text: { type: string }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
     Language:
@@ -347,7 +359,7 @@ paths:
   # Meeting Endpoints
   /meetings:
     get:
-      summary: Get meetings for current user's parties
+      summary: Get meetings for current user
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -370,11 +382,9 @@ paths:
           application/json:
             schema:
               type: object
-              required: [partyId, title, scheduledStartTime]
+              required: [title, scheduled_start_time, scheduled_end_time]
               properties:
-                partyId: { type: string, format: uuid }
                 title: { type: string }
-                description: { type: string }
                 scheduled_start_time: { type: string, format: date-time }
                 scheduled_end_time: { type: string, format: date-time }
       responses:
@@ -420,10 +430,10 @@ paths:
               type: object
               properties:
                 title: { type: string }
-                description: { type: string }
-                scheduledStartTime: { type: string, format: date-time }
-                scheduledEndTime: { type: string, format: date-time }
-                status: { type: string, enum: [Scheduled, InProgress, Completed, Cancelled] }
+                scheduled_start_time: { type: string, format: date-time }
+                scheduled_end_time: { type: string, format: date-time }
+                actual_start_time: { type: string, format: date-time }
+                actual_end_time: { type: string, format: date-time }
       responses:
         '200':
           description: Meeting updated
@@ -467,16 +477,17 @@ paths:
           application/json:
             schema:
               type: object
-              required: [user_profile_id]
+              required: [user_id]
               properties:
-                user_profile_id: { type: string, format: uuid }
+                user_id: { type: string, format: uuid }
+                role_in_meeting: { type: string }
       responses:
         '201':
           description: Participant added
 
-  /meetings/{meetingId}/participants/{userId}/status:
+  /meetings/{meetingId}/participants/{participantId}:
     put:
-      summary: Update participant status
+      summary: Update participant join/leave times
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -485,7 +496,7 @@ paths:
           in: path
           required: true
           schema: { type: string, format: uuid }
-        - name: userId
+        - name: participantId
           in: path
           required: true
           schema: { type: string, format: uuid }
@@ -494,16 +505,16 @@ paths:
           application/json:
             schema:
               type: object
-              required: [status]
               properties:
-                status: { type: string, enum: [Invited, Accepted, Declined, Attended] }
+                join_time: { type: string, format: date-time }
+                leave_time: { type: string, format: date-time }
       responses:
         '200':
-          description: Status updated
+          description: Participant updated
 
-  /meetings/{meetingId}/agenda:
+  /meetings/{meetingId}/transcript:
     get:
-      summary: Get meeting agenda
+      summary: Get meeting transcript segments
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -514,15 +525,15 @@ paths:
           schema: { type: string, format: uuid }
       responses:
         '200':
-          description: Meeting agenda
+          description: Meeting transcript segments
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MeetingAgenda'
+                  $ref: '#/components/schemas/TranscriptSegment'
     post:
-      summary: Add agenda item
+      summary: Add transcript segment
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -536,24 +547,24 @@ paths:
           application/json:
             schema:
               type: object
-              required: [topic, sequence]
+              required: [speaker_id, start_time, end_time, transcript_text, chunk_number]
               properties:
-                topic: { type: string }
-                description: { type: string }
-                presenterId: { type: string, format: uuid }
-                sequence: { type: integer }
-                durationMinutes: { type: integer }
+                speaker_id: { type: string, format: uuid }
+                start_time: { type: string, format: date-time }
+                end_time: { type: string, format: date-time }
+                transcript_text: { type: string }
+                chunk_number: { type: integer }
       responses:
         '201':
-          description: Agenda item added
+          description: Transcript segment added
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MeetingAgenda'
+                $ref: '#/components/schemas/TranscriptSegment'
 
-  /meetings/{meetingId}/notes:
+  /meetings/{meetingId}/summary-chunks:
     get:
-      summary: Get meeting notes
+      summary: Get meeting summary chunks
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -564,15 +575,15 @@ paths:
           schema: { type: string, format: uuid }
       responses:
         '200':
-          description: Meeting notes
+          description: Meeting summary chunks
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MeetingNote'
+                  $ref: '#/components/schemas/SummaryChunk'
     post:
-      summary: Add meeting note
+      summary: Add summary chunk
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -586,17 +597,61 @@ paths:
           application/json:
             schema:
               type: object
-              required: [content]
+              required: [chunk_number, summary_text]
               properties:
-                agendaId: { type: string, format: uuid }
-                content: { type: object }
+                chunk_number: { type: integer }
+                summary_text: { type: string }
       responses:
         '201':
-          description: Note added
+          description: Summary chunk added
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MeetingNote'
+                $ref: '#/components/schemas/SummaryChunk'
+
+  /meetings/{meetingId}/summary:
+    get:
+      summary: Get meeting summary
+      tags: [Meetings]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Meeting summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingSummary'
+    post:
+      summary: Create meeting summary
+      tags: [Meetings]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [summary_text]
+              properties:
+                summary_text: { type: string }
+      responses:
+        '201':
+          description: Meeting summary created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingSummary'
 
   # Code Battle Endpoints
   /languages:
