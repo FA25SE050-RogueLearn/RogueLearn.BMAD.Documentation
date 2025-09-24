@@ -215,3 +215,70 @@ sequenceDiagram
     WebSocketHub->>Player2: Final results and rewards
 ```
 
+### **Workflow 5: Boss Fight – Unity Host (Ephemeral Pack)**
+
+```mermaid
+sequenceDiagram
+    participant HostUser as User (Host)
+    participant Frontend (Vercel)
+    participant APIGateway (Azure)
+    participant QuestsService
+    participant AIProxyService
+    participant UnityHost as Unity (Host)
+    participant Relay as Relay (Netcode)
+    participant Database (Supabase)
+
+    %% Step 1: Host requests ephemeral session + pack %%
+    HostUser->>Frontend: Clicks "Host Boss Fight"
+    Frontend->>APIGateway: POST /game/sessions/ephemeral (questId, providerPreference, fallbackEnabled)
+    APIGateway->>QuestsService: Create ephemeral session + request pack
+    QuestsService->>AIProxyService: Generate BossFightQuestionPack (ephemeral)
+    AIProxyService-->>QuestsService: Returns vetted pack + providerInfo
+    QuestsService-->>APIGateway: { session, pack, providerInfo }
+    APIGateway-->>Frontend: Returns session + pack (no DB persistence of pack)
+
+    %% Step 2: Boot Unity host and create room %%
+    Frontend->>UnityHost: Launch with sessionId + pack JSON + providerInfo
+    UnityHost->>Relay: Create room and get join code
+    Relay-->>UnityHost: Join code / roomId
+    UnityHost-->>Frontend: Surface join code for sharing
+
+    %% Step 3: Run game and submit completion %%
+    Note over UnityHost: Host is authoritative for questions, timers, effects
+    UnityHost-->>Relay: Broadcast question/state to joiners
+    UnityHost-->>Relay: Sync results (Power Play / punish windows)
+    Note over UnityHost: When battle ends
+    UnityHost-->>Frontend: Post-match results via bridge
+    Frontend->>APIGateway: POST /game/sessions/{sessionId}/complete (summary only)
+    APIGateway->>QuestsService: Record attempt summary (no pack stored)
+    QuestsService-->>APIGateway: OK
+    APIGateway-->>Frontend: Completed
+```
+
+### **Workflow 6: Boss Fight – Unity Join**
+
+```mermaid
+sequenceDiagram
+    participant JoinUser as User (Joiner)
+    participant Frontend (Vercel)
+    participant UnityJoin as Unity (Joiner)
+    participant Relay as Relay (Netcode)
+    participant UnityHost as Unity (Host)
+
+    %% Step 1: Join with join code %%
+    JoinUser->>Frontend: Enters join code and clicks Join
+    Frontend->>UnityJoin: Launch with sessionId + join code
+    UnityJoin->>Relay: Connect using join code
+    Relay-->>UnityJoin: Connected to host room
+
+    %% Step 2: Play under host authority %%
+    UnityHost-->>UnityJoin: Replicate question, HUD, timers, effects
+    UnityJoin->>UnityHost: Submit answer input
+    UnityHost-->>UnityJoin: Resolve outcome (Power Play or punish) and broadcast to all
+    Note over UnityJoin, UnityHost: Joiners do NOT fetch packs from backend; host is source of truth
+
+    %% Step 3: Finish %%
+    Note over UnityJoin: Optionally show local stats to joiner
+    Note over UnityJoin, UnityHost: Only host sends session completion to backend
+```
+

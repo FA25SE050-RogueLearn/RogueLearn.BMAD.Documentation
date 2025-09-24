@@ -24,6 +24,7 @@ export type GameSessionStatus = 'InProgress' | 'Completed' | 'Abandoned';
 export type PartyJoinType = 'Invite Only' | 'Open';
 ```
 
+
 ## **User & Profile Core**
 
 ### **UserProfile**
@@ -803,16 +804,44 @@ export interface CurriculumPackMeta {
   approvedBy?: string; // Human approver (for assessments)
   createdAt: string; // ISO timestamp
   source: CurriculumSource; // 'Set' (curated) or 'Seed' (procedural)
+  ephemeral?: boolean; // If true, generated for a single run and not persisted
 }
 
 export interface CurriculumPack {
   meta: CurriculumPackMeta;
   items: CurriculumQuestion[]; // Snapshot of served questions/items
 }
+#### BossFightQuestionPack (Specialization)
+
+This is a specialization of CurriculumPack for the Boss Fight loop.
+
+```typescript
+export interface BossFightQuestionPack extends CurriculumPack {
+  meta: CurriculumPackMeta & { type: 'BossFightQuestionPack' };
+  items: Array<{
+    id: string;
+    type: 'MCQ';
+    text: string;
+    choices: string[]; // Unity-friendly
+    correctIndex: number; // Single-correct for fast combat resolution
+    timeLimitSec?: number; // Default 25s
+    tags?: string[];
+  }>;
+}
 ```
 
-#### **JSON Schema (Draft 2020-12)**
+Minimal JSON example used by Unity:
+
 ```json
+{
+  "meta": { "packId": "uuid", "version": "1.0.0", "source": "Seed", "ephemeral": true, "type": "BossFightQuestionPack" },
+  "items": [
+    { "id": "q1", "type": "MCQ", "text": "What is 2+2?", "choices": ["3", "4", "5"], "correctIndex": 1, "timeLimitSec": 20 }
+  ]
+}
+```
+
+#### JSON Schema (Draft 2020-12)
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://bmad.local/schemas/curriculum-pack.json",
@@ -837,7 +866,9 @@ export interface CurriculumPack {
         "seed": { "type": ["string", "null"], "maxLength": 64 },
         "approvedBy": { "type": ["string", "null"], "maxLength": 100 },
         "createdAt": { "type": "string", "format": "date-time" },
-        "source": { "type": "string", "enum": ["Set", "Seed"] }
+        "source": { "type": "string", "enum": ["Set", "Seed"] },
+        "ephemeral": { "type": ["boolean", "null"] },
+        "type": { "type": ["string", "null"], "enum": ["BossFightQuestionPack"] }
       },
       "required": ["packId", "version", "createdAt", "source"]
     },
@@ -896,6 +927,7 @@ export interface CurriculumPack {
   },
   "required": ["meta", "items"]
 }
+
 ```
 
 > Implementation note

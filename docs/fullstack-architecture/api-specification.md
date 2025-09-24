@@ -956,3 +956,107 @@ paths:
                 items:
                   $ref: '#/components/schemas/GuildLeaderboardEntry'
 
+
+# Ephemeral Question Pack (No Persist)
+
+## Endpoint
+
+/game/sessions/ephemeral:
+  post:
+    summary: Start a new game session and return an ephemeral CurriculumPack inline (no persistence)
+    tags: [Game]
+    security:
+      - BearerAuth: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              questId:
+                type: string
+                format: uuid
+              subjectId:
+                type: string
+                format: uuid
+                nullable: true
+              seed:
+                type: string
+                nullable: true
+              packType:
+                type: string
+                enum: [BossFightQuestionPack]
+                default: BossFightQuestionPack
+              providerPreference:
+                type: string
+                enum: [Gemini, OpenAI]
+                description: Preferred LLM provider to use first
+              fallbackEnabled:
+                type: boolean
+                default: true
+                description: If true, automatically fall back to the alternate provider on failure or schema validation errors
+              syllabusContextId:
+                type: string
+                format: uuid
+                nullable: true
+              promptHints:
+                type: object
+                additionalProperties: true
+                description: Optional hints to condition generation (topics, difficulty, count)
+    responses:
+      '201':
+        description: Ephemeral session created and pack returned inline
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session:
+                  $ref: '#/components/schemas/GameSession'
+                pack:
+                  $ref: '#/components/schemas/CurriculumPack'
+                providerInfo:
+                  type: object
+                  properties:
+                    chosenProvider:
+                      type: string
+                      enum: [Gemini, OpenAI]
+                    fallbackUsed:
+                      type: boolean
+                      description: True if fallback provider was used
+
+## Provider Selection & Fallback Semantics
+- providerPreference determines the first provider attempted.
+- If fallbackEnabled is true and generation fails or JSON schema validation fails, the system retries once with the alternate provider.
+- providerInfo in the response indicates which provider produced the pack and whether fallback occurred.
+
+## Example Request
+
+POST /game/sessions/ephemeral
+{
+  "questId": "f1b1a4d8-7f8a-4a10-a0b0-8d0e2a8f9e21",
+  "subjectId": "3a2f0b77-0e72-4a0a-bf8a-1a9e9a4a9a77",
+  "seed": "student-123-run-001",
+  "packType": "BossFightQuestionPack",
+  "providerPreference": "Gemini",
+  "fallbackEnabled": true,
+  "promptHints": { "topic": "Binary Search", "difficulty": "Beginner", "count": 6 }
+}
+
+## Example Response (201)
+{
+  "session": {
+    "id": "b5f33d1e-5a2f-4a7b-8ed4-2b4f7d2b6a91",
+    "status": "InProgress",
+    "quest_id": "f1b1a4d8-7f8a-4a10-a0b0-8d0e2a8f9e21",
+    "started_at": "2025-09-12T10:02:31Z"
+  },
+  "pack": {
+    "meta": { "type": "BossFightQuestionPack", "version": "1.0.0", "ephemeral": true },
+    "items": [
+      { "id": "q1", "prompt": "What is the time complexity of binary search?", "choices": ["O(n)", "O(log n)", "O(n log n)", "O(1)"], "correctIndex": 1, "timeLimitSec": 25 }
+    ]
+  },
+  "providerInfo": { "chosenProvider": "Gemini", "fallbackUsed": false }
+}
+
