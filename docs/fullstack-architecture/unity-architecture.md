@@ -200,10 +200,58 @@ Integration notes
 - Caching: Cache the pack in-memory; invalidate on session end or version mismatch.
 - Security: Never accept raw AI output client-side; only consume the backend-vetted pack.
 
+## Ephemeral Pack Consumption & Provider Abstraction
+
+To support dynamic generation per attempt without persistence, the Unity client uses a provider abstraction.
+
+```csharp
+public interface IPackProvider {
+  Task<CurriculumPack> GetPackAsync(GameSession session);
+}
+
+public sealed class RemoteEphemeralPackProvider : IPackProvider {
+  private readonly IApiClient _api; // wraps API Gateway calls
+  public RemoteEphemeralPackProvider(IApiClient api) { _api = api; }
+
+  public async Task<CurriculumPack> GetPackAsync(GameSession session) {
+    // Preferred flow: POST /game/sessions/ephemeral returning { session, pack }
+    var result = await _api.StartEphemeralSessionAsync(new {
+      questId = session.quest_id,
+      seed = session.seed,
+      packType = "BossFightQuestionPack",
+      providerPreference = "Gemini",
+      fallbackEnabled = true
+    });
+    return result.pack; // vetted by backend JSON Schema
+  }
+}
+
+public sealed class LocalFallbackPackProvider : IPackProvider {
+  public Task<CurriculumPack> GetPackAsync(GameSession session) {
+    // Minimal offline pack for resilience
+    var pack = new CurriculumPack {
+      meta = new CurriculumPackMeta { version = "1.0.0", source = "Seed", ephemeral = true },
+      items = new [] {
+        new CurriculumQuestion { id = "q1", type = "MCQ", text = "2+2?", options = new[]{ new CurriculumOption{ id="a", text="3"}, new CurriculumOption{ id="b", text="4"} }, correctAnswers = new[]{ "b" }, timeLimitSec = 20 }
+      }
+    };
+    return Task.FromResult(pack);
+  }
+}
+```
+
+Provider selection & fallback semantics
+- Preferred: RemoteEphemeralPackProvider using POST /game/sessions/ephemeral
+- If remote fails or validation errors occur, switch to LocalFallbackPackProvider for continuity
+- Log providerInfo (chosenProvider, fallbackUsed) for analytics; expose in HUD if desired
+
+Frontend bridge
+- The web app obtains JWT and passes session bootstrap info to Unity
+- Unity calls the provider to fetch the ephemeral pack, plays the boss fight, and posts completion via /game/sessions/{sessionId}/complete
+
 API references
-- POST /game/sessions
-- GET /game/sessions/{sessionId}/pack
+- POST /game/sessions/ephemeral
 - POST /game/sessions/{sessionId}/complete
 
 Data model reference
-- See CurriculumPack in Data Models for structure and constraints.
+- See BossFightQuestionPack specialization and ephemeral flag in Data Models
