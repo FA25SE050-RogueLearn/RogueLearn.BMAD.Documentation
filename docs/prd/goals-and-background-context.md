@@ -15,6 +15,51 @@
 
 University students often face significant challenges with motivation and connecting their current studies to future career goals. The lack of a clear, engaging pathway can lead to procrastination and anxiety. RogueLearn addresses this by transforming the educational journey into an interactive RPG. It allows students to choose a "Class" (their desired profession) and a "Route" (their current academic program), and further personalize their experience by uploading academic data like GPA, transcripts, and schedules. The system then provides a structured, AI-powered "main quest line" where exams become "Boss Fights," and knowledge acquisition is visualized as a "Skill Tree." This shows students exactly how their learning connects and contributes to their ultimate goal. A companion browser extension further enhances this by automatically capturing relevant learning materials from the web, organizing them into the student's "Arsenal." This turns passive learning into an active and meaningful adventure, making studying more effective and building a foundation for a rich academic ecosystem involving lecturers, tutors, and peer groups.
 
+### **User Research & Validation Framework**
+
+#### **Target User Validation**
+To ensure RogueLearn addresses real user needs, we will conduct comprehensive user research before and during development:
+
+**Pre-Development Research (Required before Phase 1):**
+- **User Interviews:** Conduct 8-12 structured interviews with university students across different academic disciplines
+- **Problem Validation:** Validate core assumptions about student motivation challenges and learning preferences
+- **Solution Validation:** Test initial concept reception and gather feedback on gamification approach
+- **Competitive Analysis:** Interview users about current study tools and identify gaps in existing solutions
+
+**Research Methodology:**
+1. **Participant Recruitment:** Target students aged 18-25 across STEM and non-STEM disciplines
+2. **Interview Structure:** 45-60 minute sessions covering current study habits, motivation challenges, and technology preferences
+3. **Key Research Questions:**
+   - How do students currently organize and track their learning progress?
+   - What are the primary sources of academic stress and motivation loss?
+   - How do students connect current coursework to career goals?
+   - What role does social learning play in their academic success?
+   - How do they currently use digital tools for studying?
+
+**Validation Criteria:**
+- **Problem-Solution Fit:** 70%+ of interviewed students express strong interest in gamified learning approach
+- **Feature Prioritization:** Validate which core features (skill tree, quest system, social features) resonate most
+- **Usability Preferences:** Understand preferred interaction patterns and UI expectations
+- **Pricing Sensitivity:** Gauge willingness to pay for premium features
+
+**Ongoing Validation (During Development):**
+- **Weekly User Testing:** Test core features with 3-5 users every 2 weeks during development
+- **A/B Testing Framework:** Test different approaches to key interactions (onboarding, quest completion, social features)
+- **Analytics Integration:** Track user behavior patterns and engagement metrics from day one
+- **Feedback Loops:** Implement in-app feedback collection and regular user surveys
+
+**Success Metrics for Validation:**
+- **User Interview Completion:** Complete 8+ user interviews before development begins
+- **Concept Validation:** Achieve 70%+ positive response to core gamification concept
+- **Feature Validation:** Identify top 3 most valuable features through user feedback
+- **Usability Validation:** Achieve 80%+ task completion rate in early prototype testing
+
+#### **Risk Mitigation Through Research**
+- **Assumption Documentation:** Clearly document all assumptions about user behavior and preferences
+- **Pivot Criteria:** Define specific metrics that would trigger feature pivots or scope changes
+- **Continuous Learning:** Establish regular research cadence to validate new features and improvements
+- **User Advisory Board:** Recruit 3-5 engaged users to provide ongoing feedback throughout development
+
 ### **Change Log**
 
 | **Date** | **Version** | **Description** | **Author** |
@@ -22,3 +67,4 @@ University students often face significant challenges with motivation and connec
 | *Initial Draft* | 1.0 | Initial PRD creation, expanded to include Phases 1, 2, & 3. | John, PM |
 | September 10, 2025 | 1.1 | Refined scope to focus on Software Engineering students. Removed "Guide" role and clarified "Lecturer" into a "Verified" status for the "Guild Master" role. Generalized competitions to an "Events" system. | John, PM |
 | *Current* | 2.0 | **MENTOR-DRIVEN PIVOT:** Significantly simplified scope based on mentor feedback. Removed Phases 4-5 (60% of features) and streamlined Phase 3 to focus on core MVP validation. Enhanced Verified Lecturer system while maintaining gamified learning focus. | John, PM |
+| January 2025 | 2.1 | **USER RESEARCH ENHANCEMENT:** Added comprehensive user research and validation framework to address validation gaps identified in PM checklist review. | John, PM |

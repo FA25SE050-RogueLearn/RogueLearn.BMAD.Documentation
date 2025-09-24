@@ -101,20 +101,138 @@ All significant technical decisions will be evaluated against the following crit
 - **SQL Injection Prevention:** Parameterized queries and ORM usage
 
 #### **Testing Strategy**
-- **Unit Tests:**
-  - Frontend: Jest + React Testing Library (>80% coverage)
-  - Backend: xUnit + Moq + FluentAssertions (>85% coverage)
-  - Shared: TypeScript type testing with tsd
 
-- **Integration Tests:**
-  - API integration tests using WebApplicationFactory
-  - Database integration tests with test containers
-  - External service integration tests with WireMock
+##### **Unit Testing Framework**
+- **Frontend:** Jest + React Testing Library (>80% coverage)
+  - Component testing with mock data and user interactions
+  - Hook testing for custom React hooks
+  - Utility function testing with edge cases
+  - State management testing (Redux/Zustand)
 
-- **End-to-End Tests:**
-  - Playwright for cross-browser testing
-  - Critical user journeys: registration, quest creation, skill tree navigation
-  - Performance testing with Lighthouse CI
+- **Backend:** xUnit + Moq + FluentAssertions (>85% coverage)
+  - Service layer testing with dependency injection
+  - Repository pattern testing with in-memory databases
+  - Business logic validation and edge case handling
+  - Authentication and authorization testing
+
+- **Shared:** TypeScript type testing with tsd
+  - API contract validation between frontend and backend
+  - Type safety verification for shared models
+  - Interface compliance testing
+
+##### **Integration Testing Strategy**
+
+**API Integration Testing**
+- **Framework:** WebApplicationFactory + TestContainers
+- **Scope:** End-to-end API workflow validation
+- **Test Scenarios:**
+  - User authentication flow (registration, login, token refresh)
+  - Document upload and AI processing pipeline
+  - Quest generation and completion workflows
+  - Party creation and collaboration features
+  - Skill tree progression and achievement unlocking
+  - Browser extension API endpoints
+
+**Database Integration Testing**
+- **Framework:** TestContainers with PostgreSQL
+- **Scope:** Data persistence and retrieval validation
+- **Test Scenarios:**
+  - CRUD operations for all entities (User, Quest, Party, Guild)
+  - Complex queries with joins and aggregations
+  - Transaction rollback and consistency validation
+  - Migration testing and schema validation
+  - Performance testing for large datasets
+
+**External Service Integration Testing**
+- **Framework:** WireMock + Docker Compose
+- **Scope:** Third-party service interaction validation
+- **Test Scenarios:**
+  - **AI Services:** Gemini API quest generation with various document types
+  - **Authentication:** Supabase integration with different user scenarios
+  - **File Storage:** Upload/download workflows with different file sizes
+  - **Email Services:** Notification delivery and template rendering
+  - **Payment Processing:** Stripe webhook handling and subscription management
+
+**Cross-Service Integration Testing**
+- **Framework:** Docker Compose + Newman (Postman CLI)
+- **Scope:** Multi-service workflow validation
+- **Test Scenarios:**
+  - **User Onboarding Flow:** Registration → Email verification → Profile setup → First quest
+  - **Learning Workflow:** Document upload → Processing → Quest generation → Completion → Progress tracking
+  - **Social Features:** Party creation → Member invitation → Collaborative quest → Achievement sharing
+  - **Browser Extension:** Content capture → Processing → Arsenal integration → Quest suggestion
+
+**Unity WebGL Integration Testing**
+- **Framework:** Playwright + Unity Test Framework
+- **Scope:** Game client and web platform integration
+- **Test Scenarios:**
+  - Unity WebGL loading and initialization in browser
+  - JavaScript-Unity communication bridge functionality
+  - Boss fight game state synchronization with backend
+  - Performance testing under various browser conditions
+  - Error handling for Unity loading failures
+  - Mobile browser compatibility testing
+
+##### **End-to-End Testing Framework**
+
+**Browser Testing**
+- **Framework:** Playwright for cross-browser testing
+- **Coverage:** Chrome, Firefox, Safari, Edge
+- **Test Scenarios:**
+  - Complete user journeys from registration to quest completion
+  - Responsive design validation across device sizes
+  - Accessibility compliance testing (WCAG 2.1 AA)
+  - Performance testing with Lighthouse CI integration
+
+**Performance & Load Testing**
+- **Framework:** Artillery.js + K6 for load testing
+- **Scope:** System performance under realistic load
+- **Test Scenarios:**
+  - **Concurrent Users:** 100-500 simultaneous users
+  - **AI Processing Load:** Multiple document uploads and quest generations
+  - **Database Performance:** Complex queries under load
+  - **Real-time Features:** WebSocket connections and party synchronization
+  - **Unity WebGL Performance:** Multiple concurrent game sessions
+
+##### **Integration Test Environment Strategy**
+
+**Test Environment Configuration**
+- **Staging Environment:** Production-like setup with test data
+- **Integration Test Environment:** Isolated environment for automated testing
+- **Local Development:** Docker Compose with all services
+- **CI/CD Pipeline:** Automated test execution on every pull request
+
+**Test Data Management**
+- **Seed Data:** Consistent test datasets for reproducible results
+- **Test User Accounts:** Pre-configured users with different roles and permissions
+- **Mock External Services:** Controlled responses for third-party integrations
+- **Database Cleanup:** Automated cleanup between test runs
+
+**Continuous Integration Testing Pipeline**
+- **Pre-commit Hooks:** Unit tests and linting
+- **Pull Request Validation:** Integration tests and code coverage
+- **Staging Deployment:** End-to-end tests and performance validation
+- **Production Deployment:** Smoke tests and health checks
+
+##### **Quality Assurance & Monitoring**
+
+**Test Reporting & Analytics**
+- **Coverage Reports:** Detailed code coverage with branch analysis
+- **Test Results Dashboard:** Real-time test execution status
+- **Performance Metrics:** Response time trends and bottleneck identification
+- **Failure Analysis:** Automated failure categorization and alerting
+
+**Integration Health Monitoring**
+- **Service Health Checks:** Continuous monitoring of all integrations
+- **API Response Time Tracking:** Performance degradation alerts
+- **Error Rate Monitoring:** Integration failure pattern analysis
+- **Dependency Status:** Third-party service availability tracking
+
+**Testing Best Practices**
+- **Test Isolation:** Each test runs independently without side effects
+- **Deterministic Results:** Consistent test outcomes across environments
+- **Fast Feedback:** Test execution time optimization (<10 minutes for full suite)
+- **Maintainable Tests:** Clear test structure and documentation
 
 #### **Performance Optimization**
 - **Frontend:**
@@ -183,18 +301,183 @@ All significant technical decisions will be evaluated against the following crit
 
 ### **High-Risk Areas & Mitigation (MVP Focused)**
 
-#### **Simplified AI-driven Quest Generation**
+#### **AI-Driven Quest Generation Implementation Strategy**
+
+##### **Core AI Architecture**
+- **Primary AI Service:** Gemini API via internal AI Proxy service
+- **Model Selection:** Gemini-1.5-Flash for cost-efficiency and speed
+- **Fallback Model:** Gemini-1.5-Pro for complex documents when Flash fails
+- **Processing Pipeline:** Document → Text Extraction → Content Analysis → Quest Generation → Validation → Storage
+
+##### **Document Processing Workflow**
+1. **Document Upload & Validation**
+   - File type validation (PDF, DOCX, TXT, MD)
+   - Size limits: 10MB max per document
+   - Virus scanning before processing
+   - Metadata extraction (title, author, creation date)
+
+2. **Text Extraction Strategy**
+   - **PDF:** Use PDF.js for client-side extraction, fallback to server-side with pdf2pic
+   - **DOCX:** Server-side processing with mammoth.js
+   - **TXT/MD:** Direct text processing
+   - **OCR Fallback:** Tesseract.js for image-heavy PDFs (Phase 2)
+
+3. **Content Preprocessing**
+   - Text chunking (max 4000 tokens per chunk for Gemini context limits)
+   - Content sanitization and formatting
+   - Key concept extraction using NLP preprocessing
+   - Document structure analysis (headers, sections, bullet points)
+
+##### **Quest Generation Pipeline**
+
+**Phase 1: Content Analysis**
+```
+Input: Processed document chunks
+Process: 
+- Identify learning objectives
+- Extract key concepts and relationships
+- Determine difficulty level
+- Map to skill tree categories
+Output: Structured content analysis
+```
+
+**Phase 2: Quest Template Selection**
+```
+Quest Types:
+- Knowledge Check: Multiple choice, true/false
+- Application: Scenario-based problems
+- Synthesis: Connect concepts across documents
+- Boss Fight: Gamified knowledge application
+```
+
+**Phase 3: Quest Generation**
+```
+Prompt Template Structure:
+- System context (learning objectives, user level)
+- Document content (chunked and formatted)
+- Quest type specification
+- Output format requirements (JSON schema)
+- Difficulty calibration parameters
+```
+
+**Phase 4: Validation & Quality Assurance**
+```
+Automated Validation:
+- JSON schema compliance
+- Content relevance scoring (0.7+ threshold)
+- Difficulty appropriateness check
+- Duplicate detection
+Manual Review Triggers:
+- Low confidence scores (<0.6)
+- User feedback flags
+- Content moderation alerts
+```
+
+##### **Fallback Workflows & Error Handling**
+
+**Level 1: API Failure Handling**
+```
+Primary: Gemini-1.5-Flash
+├── Rate limit exceeded → Exponential backoff (2^n seconds, max 60s)
+├── Token limit exceeded → Document chunking + parallel processing
+├── API timeout → Retry with Gemini-1.5-Pro
+└── Service unavailable → Fallback to pre-generated quest templates
+```
+
+**Level 2: Content Processing Failures**
+```
+Document parsing failure:
+├── PDF extraction fails → Try alternative parser (pdf-parse)
+├── Text quality too low → Request user to upload better quality
+├── Content too short → Combine with related documents
+└── No extractable content → Suggest manual content input
+```
+
+**Level 3: Quest Quality Failures**
+```
+Generated quest quality < threshold:
+├── Retry with enhanced prompt context
+├── Switch to simpler quest template
+├── Use human-curated fallback questions
+└── Flag for manual review and improvement
+```
+
+**Level 4: System Degradation**
+```
+Complete AI service failure:
+├── Serve cached/pre-generated quests
+├── Enable manual quest creation tools
+├── Provide study guide generation instead
+└── Graceful degradation message to users
+```
+
+##### **Performance & Cost Optimization**
+
+**Caching Strategy**
+- **Document Analysis Cache:** 7 days TTL for processed documents
+- **Quest Template Cache:** 30 days TTL for generated quest patterns
+- **User Context Cache:** 24 hours TTL for personalization data
+- **API Response Cache:** 1 hour TTL for similar content requests
+
+**Cost Management**
+- **Token Optimization:** Compress prompts, remove redundant context
+- **Batch Processing:** Group similar documents for efficiency
+- **Smart Retry Logic:** Avoid unnecessary API calls on permanent failures
+- **Usage Monitoring:** Track costs per user, implement usage caps
+- **Model Selection:** Use Flash for 80% of requests, Pro for complex cases only
+
+**Performance Targets**
+- **Quest Generation Time:** <30 seconds for standard documents
+- **Concurrent Processing:** Support 10 simultaneous generations
+- **Cache Hit Rate:** >60% for repeat content patterns
+- **API Success Rate:** >95% with fallback workflows
+
+##### **Quality Assurance & Monitoring**
+
+**Real-time Monitoring**
+- API response times and error rates
+- Quest generation success/failure rates
+- User satisfaction scores (thumbs up/down)
+- Content quality metrics (relevance, difficulty)
+
+**Quality Metrics**
+- **Relevance Score:** AI-generated content alignment with source material
+- **Difficulty Calibration:** Match between intended and actual difficulty
+- **Engagement Rate:** User completion rates for generated quests
+- **Accuracy Rate:** Correctness of generated questions and answers
+
+**Continuous Improvement**
+- **Feedback Loop:** User ratings → prompt refinement
+- **A/B Testing:** Compare different prompt strategies
+- **Model Fine-tuning:** Collect high-quality examples for future training
+- **Human Review:** Weekly review of flagged content
+
+##### **Security & Privacy Considerations**
+
+**Data Protection**
+- **Document Encryption:** AES-256 for stored documents
+- **API Communication:** TLS 1.3 for all AI service calls
+- **Content Sanitization:** Remove PII before AI processing
+- **Audit Logging:** Track all AI interactions for compliance
+
+**Privacy Safeguards**
+- **Data Minimization:** Only send necessary content to AI services
+- **Retention Limits:** Delete processed content after 30 days
+- **User Consent:** Clear opt-in for AI processing
+- **Data Locality:** Ensure compliance with regional data laws
+
+##### **Technical Risk Mitigation**
 - **Risk:** Basic document parsing and quest generation accuracy
 - **Technical Constraints:**
-- **Gemini API quotas and rate limits** as provided by the platform
-- **Model token/context limits** per selected Gemini model
-- **Cost considerations** managed with quota monitoring and caching strategies
-  - Simple document text extraction (no OCR for MVP)
-  - Basic prompt templates for quest generation
-  - Implement response validation and retry logic
-  - Cache processed results to minimize API calls
-  - Use a cost-efficient Gemini model variant via the AI Proxy for cost optimization
-  - Simple loading states instead of streaming responses
+  - **Gemini API quotas and rate limits** as provided by the platform
+  - **Model token/context limits** per selected Gemini model
+  - **Cost considerations** managed with quota monitoring and caching strategies
+- **Enhanced Mitigation Strategy:**
+  - Multi-tier fallback system with 4 levels of degradation
+  - Comprehensive caching to reduce API dependency
+  - Quality scoring and validation at each step
+  - Human oversight for edge cases and quality assurance
+  - Cost monitoring with automatic usage caps and alerts
 
 #### **Browser Extension Security**
 - **Risk:** Security vulnerabilities and cross-site scripting attacks

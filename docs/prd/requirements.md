@@ -84,15 +84,148 @@
 
 
 
-### **Success Metrics (KPIs)**
+### **Success Metrics (KPIs) with Specific Targets**
 
-To measure the success of the RogueLearn MVP, we will track the following Key Performance Indicators (KPIs):
+#### **Primary Success Metrics**
 
-*   **Weekly Active Users (WAU)**: The number of unique users who interact with the platform in a given week. This is a primary indicator of user engagement and retention.
-*   **Average Number of Quests Completed per User per Week**: This metric will help us understand how effectively users are engaging with the core functionality of the platform.
-*   **Party Creation Rate**: The number of new parties created per week. This will indicate the adoption of the social learning feature.
-*   **User Retention Rate**: The percentage of users who return to the platform week after week. This is a critical measure of the platform's value and stickiness.
-*   **User Feedback Score**: We will collect user feedback through surveys and other mechanisms to gauge user satisfaction and identify areas for improvement. A Net Promoter Score (NPS) or a similar metric will be used.
+**User Engagement & Retention**
+*   **Weekly Active Users (WAU)**: Target 70% of registered users active weekly by Month 3
+    - Baseline: 0 users (new platform)
+    - Month 1 Target: 40% of registered users
+    - Month 2 Target: 55% of registered users  
+    - Month 3 Target: 70% of registered users
+    - Success Threshold: >60% sustained for 4 consecutive weeks
+
+*   **User Retention Rate**: Target 40% weekly retention by Month 2
+    - Week 1 Retention: 60% (users return after first week)
+    - Week 2 Retention: 50% (users return after second week)
+    - Week 4 Retention: 40% (users return after fourth week)
+    - Month 3 Retention: 35% (users return after 3 months)
+    - Critical Threshold: <25% weekly retention triggers intervention
+
+*   **Session Duration**: Target average 25 minutes per session
+    - Baseline Target: 15 minutes (Month 1)
+    - Growth Target: 20 minutes (Month 2)
+    - Optimal Target: 25 minutes (Month 3+)
+    - Quality Indicator: >80% of sessions include quest completion
+
+#### **Core Feature Adoption Metrics**
+
+**Quest & Learning Engagement**
+*   **Average Number of Quests Completed per User per Week**: Target 8-12 quests weekly
+    - New User Target: 3-5 quests in first week
+    - Active User Target: 8-12 quests weekly by Month 2
+    - Power User Target: 15+ quests weekly
+    - Completion Rate: >75% of started quests completed
+
+*   **AI Quest Generation Success Rate**: Target >85% user satisfaction
+    - Technical Success: >95% successful generation (no errors)
+    - Content Quality: >80% user rating of "helpful" or "excellent"
+    - Relevance Score: >85% content relevance to uploaded documents
+    - Time to Generation: <30 seconds for 90% of requests
+
+*   **Document Upload & Processing**: Target 90% successful processing
+    - Upload Success Rate: >95% of files uploaded successfully
+    - Processing Success Rate: >90% of files processed without errors
+    - Processing Time: <2 minutes for 80% of documents
+    - User Satisfaction: >85% satisfied with generated content
+
+#### **Social & Collaboration Metrics**
+
+**Party & Social Features**
+*   **Party Creation Rate**: Target 25% of active users create or join parties
+    - Month 1: 10% of users engage with party features
+    - Month 2: 18% of users in active parties
+    - Month 3: 25% of users in active parties
+    - Party Retention: >60% of parties remain active after 2 weeks
+
+*   **Collaborative Learning Engagement**: Target 40% participation in social features
+    - Party Quest Completion: >70% of party quests completed collaboratively
+    - Peer Interaction: Average 5 meaningful interactions per user per week
+    - Knowledge Sharing: >30% of users share notes or insights weekly
+    - Guild Participation: >15% of users join guilds by Month 3
+
+#### **Technical Performance Metrics**
+
+**System Performance & Reliability**
+*   **Page Load Performance**: Target <2 seconds initial load, <1 second navigation
+    - Critical Pages (Dashboard, Quest): <1.5 seconds (P95)
+    - Secondary Pages: <2.5 seconds (P95)
+    - Mobile Performance: <3 seconds on 3G connection
+    - Lighthouse Score: >85 for core pages
+
+*   **API Response Times**: Target <500ms for 95% of requests
+    - Authentication: <200ms (P95)
+    - Quest Generation: <5 seconds (P95)
+    - Data Retrieval: <300ms (P95)
+    - File Upload: <10 seconds for 10MB files
+
+*   **System Availability**: Target 99.5% uptime
+    - Monthly Uptime: >99.5% (≤3.6 hours downtime)
+    - Incident Response: <15 minutes for critical issues
+    - Recovery Time: <30 minutes for service restoration
+    - Planned Maintenance: <4 hours monthly, off-peak hours
+
+#### **Business & Growth Metrics**
+
+**User Acquisition & Conversion**
+*   **User Registration Conversion**: Target 15% of visitors register
+    - Landing Page Conversion: >12% visitor-to-signup rate
+    - Onboarding Completion: >80% complete initial setup
+    - First Quest Completion: >70% complete first quest within 48 hours
+    - Feature Discovery: >60% use 3+ core features in first week
+
+*   **User Feedback & Satisfaction**: Target NPS >50, CSAT >4.2/5
+    - Net Promoter Score (NPS): Target >50 (excellent)
+    - Customer Satisfaction (CSAT): Target >4.2/5.0
+    - Feature Satisfaction: >80% rate core features as "useful" or "very useful"
+    - Support Satisfaction: >90% satisfied with support interactions
+
+#### **Educational Impact Metrics**
+
+**Learning Effectiveness**
+*   **Learning Progress Tracking**: Target measurable skill advancement
+    - Skill Tree Progression: Average 2-3 skills advanced per week
+    - Knowledge Retention: >70% correct answers on review quests after 1 week
+    - Concept Mastery: >60% users demonstrate mastery in tracked subjects
+    - Study Habit Formation: >50% users maintain consistent weekly study patterns
+
+*   **Academic Integration Success**: Target seamless workflow integration
+    - Document Processing Success: >90% of academic documents processed successfully
+    - Browser Extension Usage: >40% of users actively use extension weekly
+    - Study Session Effectiveness: >75% report improved study organization
+    - Time to Value: <10 minutes from document upload to first quest
+
+#### **Content Quality & Moderation Metrics**
+
+**Content & Community Health**
+*   **Content Quality Scores**: Target >85% high-quality content
+    - AI Content Quality: >85% user rating of "good" or "excellent"
+    - User-Generated Content: >80% meets quality standards
+    - Moderation Efficiency: <4 hours response time for flagged content
+    - Community Guidelines Compliance: >95% content complies with policies
+
+### **Baseline Measurement & Tracking Strategy**
+
+#### **Data Collection Framework**
+- **Analytics Platform**: Google Analytics 4 + custom event tracking
+- **User Behavior Tracking**: Mixpanel or Amplitude for detailed user journeys
+- **Performance Monitoring**: Application Performance Monitoring (APM) tools
+- **A/B Testing Platform**: Optimizely or similar for feature experimentation
+- **Survey Tools**: In-app surveys + email campaigns for qualitative feedback
+
+#### **Reporting & Review Cadence**
+- **Daily Monitoring**: Critical system metrics and user activity
+- **Weekly Reviews**: Feature adoption, user engagement, and performance trends
+- **Monthly Analysis**: Comprehensive KPI review and goal assessment
+- **Quarterly Planning**: Strategic adjustments based on metric performance
+- **Annual Evaluation**: Long-term trend analysis and goal setting
+
+#### **Success Thresholds & Intervention Triggers**
+- **Green Zone**: Metrics meeting or exceeding targets (continue current strategy)
+- **Yellow Zone**: Metrics 10-20% below targets (implement optimization tactics)
+- **Red Zone**: Metrics >20% below targets (immediate intervention required)
+- **Critical Alerts**: System availability <99%, user satisfaction <3.5/5, or security incidents
 
 ### **MVP Validation Approach**
 
