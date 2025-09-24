@@ -46,7 +46,7 @@
 *   Party leader can invite users.
 *   Shared resource space ("Party Stash").
 *   Schedule, organize, and manage study meetings within parties.
-*   Browser extension capture and recording of meeting content.
+*   System provides built-in meeting recording capabilities to capture participant discussions, shared resources, and key decisions. The browser extension is used only for external web resource capture, not meeting recording.
 *   AI-generated comprehensive meeting summaries and action items.
 *   Party member role management and permissions.
 *   Real-time collaboration tools within parties.

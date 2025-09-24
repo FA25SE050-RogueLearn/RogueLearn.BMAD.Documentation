@@ -234,14 +234,17 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   Meeting details are visible in the party dashboard and individual calendars.
 
 #### **Story: Meeting Content Recording & Capture**
-**As a** party member, **I want** the browser extension to capture and record our meeting content during study sessions, **so that** we can preserve important discussions and decisions for future reference.
+**As a** party member, **I want** the system to provide built-in meeting recording capabilities during our study sessions, **so that** we can preserve important discussions and decisions for future reference.
 
-*   **Acceptance Criteria:**
-    *   Browser extension can be activated during party meetings to start recording.
-    *   Multiple recording methods are supported: manual entry, audio transcription, and automated capture.
-    *   Participant discussions, shared resources, and key decisions are captured.
-    *   Recording quality and completeness are tracked and displayed.
-    *   Raw content is stored securely and linked to the specific meeting.
+**Acceptance Criteria:**
+*   System provides built-in meeting recording functionality that can be activated during party meetings.
+*   Recording functionality is integrated into the meeting interface and does not require external tools.
+*   Multiple recording methods are supported: manual entry, audio transcription, and automated capture.
+*   Participants can activate/deactivate recording features through the meeting interface.
+*   Content capture includes discussions, shared resources, and key decisions.
+*   Recording permissions and privacy controls are clearly defined within the system.
+*   Raw content is stored securely and linked to the specific meeting.
+*   Browser extension is used only for capturing external web resources, not meeting content.
     *   Recording can be paused, resumed, and stopped by authorized party members.
 
 #### **Story: AI-Generated Meeting Summaries & Action Items**

@@ -23,12 +23,15 @@ The use cases are organized into three main phases:
    - Quest generation and completion
    - Progress tracking and achievements
 
-2. **Phase 2: Social & Extension MVP** (UC-008 to UC-010)
+2. **Phase 2: Social & Extension MVP** (UC-008 to UC-012)
    - Browser extension integration
    - Social features and leaderboards
+   - Party system and collaborative learning
+   - Meeting scheduling and management
+   - Meeting recording and content capture
    - Enhanced gamification elements
 
-3. **Phase 3: Educator & Admin Toolkit** (UC-011 to UC-018)
+3. **Phase 3: Educator & Admin Toolkit** (UC-013 to UC-018)
    - Verified Lecturer system
    - Guild management and administration
    - Advanced analytics and monitoring
@@ -487,9 +490,201 @@ The use cases are organized into three main phases:
 
 ---
 
+### **UC-011: Party System and Collaborative Learning**
+
+**Actor:** Student
+**Goal:** Create or join study parties for collaborative learning experiences
+**Preconditions:** User is authenticated and has completed basic platform onboarding
+**Trigger:** User selects "Create Party" or accepts party invitation
+
+**Main Success Scenario:**
+1. **Party Creation/Joining**: User initiates collaborative learning:
+   - Create new study party with name, description, and privacy settings
+   - Set party member roles and permissions (Leader, Member, Viewer)
+   - Generate invitation links or accept existing party invitations
+   - Configure Party Stash access and sharing permissions
+2. **Collaborative Resource Management**: User manages shared learning materials:
+   - Access Party Stash with shared documents and resources
+   - Upload and organize materials for group access
+   - Collaborate on shared notes and study guides
+   - Track version changes and contribution history
+3. **Group Learning Activities**: User participates in party-based learning:
+   - Engage in group quests and challenges
+   - Share individual progress and achievements
+   - Provide peer support and study assistance
+   - Coordinate study schedules and learning goals
+4. **Party Administration**: Party leaders manage group dynamics:
+   - Add or remove party members
+   - Adjust member permissions and roles
+   - Moderate discussions and resolve conflicts
+   - Archive or dissolve parties when appropriate
+5. **Progress Tracking**: System tracks collective and individual progress:
+   - Monitor party-wide learning achievements
+   - Track individual contributions to group goals
+   - Generate party performance analytics
+   - Celebrate group milestones and successes
+
+**Extensions:**
+- 1a. Party limit reached: System notifies user of account limitations
+- 2a. Resource conflicts: System provides version control and conflict resolution
+- 3a. Member inactive: System suggests engagement strategies or removal
+- 4a. Leadership disputes: System provides mediation tools and guidelines
+
+**Business Rules:**
+- Party size limits based on account type and platform capacity
+- All shared content must respect copyright and privacy regulations
+- Party leaders have administrative responsibility for group conduct
+- Individual privacy settings override party sharing preferences
+
+---
+
+### **UC-012: Meeting Scheduling and Management**
+
+**Actor:** Party Member
+**Goal:** Schedule, organize, and manage study meetings within party
+**Preconditions:** User is member of active party with meeting permissions
+**Trigger:** User selects "Schedule Meeting" from party dashboard
+
+**Main Success Scenario:**
+1. **Meeting Creation**: User sets up new study meeting:
+   - Enter meeting title, description, and learning objectives
+   - Select meeting type (Study Session, Project Discussion, Exam Prep, General Meeting)
+   - Set date, time, duration, and timezone
+   - Choose meeting format (video call, in-person, hybrid)
+2. **Participant Management**: User manages meeting attendance:
+   - Invite specific party members or entire party
+   - Set participant permissions and roles
+   - Track RSVP responses and availability
+   - Send reminder notifications before meeting
+3. **Meeting Integration**: System integrates meeting with party workflow:
+   - Add meeting to party calendar and individual calendars
+   - Link relevant study materials and resources
+   - Prepare meeting agenda based on learning objectives
+   - Set up meeting recording and content capture preferences
+4. **Meeting Coordination**: User coordinates meeting logistics:
+   - Share meeting links and access information
+   - Provide pre-meeting materials and preparation guidelines
+   - Coordinate with external calendar systems
+   - Handle meeting rescheduling and cancellations
+5. **Follow-up Management**: User manages post-meeting activities:
+   - Review meeting recordings and summaries
+   - Assign action items and follow-up tasks
+   - Schedule recurring meetings if needed
+   - Archive meeting materials in Party Stash
+
+**Extensions:**
+- 1a. Scheduling conflicts: System suggests alternative times based on availability
+- 2a. Low attendance: System provides engagement strategies and alternatives
+- 3a. Integration failures: System provides manual coordination options
+- 4a. Technical issues: System offers backup meeting solutions
+
+**Business Rules:**
+- Meeting scheduling must respect all participants' privacy preferences
+- Recording permissions require explicit consent from all participants
+- Meeting data must be stored securely and remain accessible to party members
+- External calendar integration should maintain data synchronization
+
+---
+
+### **UC-013: Meeting Recording and Content Capture**
+
+**Actor:** Party Member
+**Goal:** Record meeting content and capture important discussions for future reference
+**Preconditions:** User is participating in active meeting with recording permissions
+**Trigger:** User activates recording through meeting interface or system auto-starts
+
+**Main Success Scenario:**
+1. **Recording Activation**: System initiates meeting content capture:
+   - User activates built-in recording system through meeting interface
+   - System displays recording status and permissions to all participants
+   - Multiple recording methods available (manual entry, audio transcription, automated capture)
+   - Recording permissions and privacy controls clearly defined
+2. **Content Capture**: System captures comprehensive meeting information:
+   - Record participant discussions and key conversation points
+   - Capture shared resources, links, and materials mentioned
+   - Document decisions made and consensus reached
+   - Track action items and assignments as they're discussed
+3. **Real-time Processing**: System processes content during meeting:
+   - Transcribe audio content using speech-to-text technology
+   - Identify key topics and themes automatically
+   - Tag important moments and decisions for easy reference
+   - Maintain secure storage of all captured content
+4. **Recording Management**: Participants manage recording preferences:
+   - Pause, resume, or stop recording as needed
+   - Mark private discussions that should not be recorded
+   - Add manual notes and annotations during meeting
+   - Control personal participation in recorded content
+5. **Quality Assurance**: System ensures recording completeness:
+   - Monitor recording quality and technical issues
+   - Provide backup recording methods if primary fails
+   - Verify content capture completeness
+   - Store raw content securely linked to specific meeting
+
+**Extensions:**
+- 1a. Privacy concerns: System provides manual note-taking alternatives
+- 2a. Technical recording issues: System falls back to manual entry methods
+- 3a. Processing failures: System stores raw content for later processing
+- 4a. Storage limitations: System compresses or archives older recordings
+
+**Business Rules:**
+- All meeting recording requires explicit participant consent
+- Recording system must not interfere with meeting flow or participant experience
+- Recorded content remains property of the party with appropriate access controls
+- System must comply with privacy regulations and institutional policies
+
+---
+
+### **UC-014: Meeting Summary Generation and Distribution**
+
+**Actor:** AI System (triggered by meeting end)
+**Goal:** Generate comprehensive meeting summaries and distribute to participants
+**Preconditions:** Meeting has ended with recorded content available
+**Trigger:** Meeting recording stops or meeting officially ends
+
+**Main Success Scenario:**
+1. **Content Processing**: AI analyzes recorded meeting content:
+   - Process audio transcriptions and manual notes
+   - Identify key discussion points and themes
+   - Extract decisions made and consensus reached
+   - Recognize action items and assignments mentioned
+2. **Summary Generation**: System creates comprehensive meeting summary:
+   - Generate executive summary of main topics covered
+   - List key discussion points with participant contributions
+   - Document all decisions and their rationale
+   - Create action item list with assignments and deadlines
+3. **Content Organization**: System structures summary for accessibility:
+   - Organize content by topic and importance
+   - Include timestamps for easy reference to recordings
+   - Link to relevant resources and materials mentioned
+   - Highlight unresolved questions and next steps
+4. **Distribution Management**: System delivers summaries to participants:
+   - Send personalized summaries to all meeting participants
+   - Include individual action items and responsibilities
+   - Provide access links to full recording and materials
+   - Integrate summary into Party Stash for future reference
+5. **Follow-up Integration**: System integrates summary into learning workflow:
+   - Create follow-up quests based on action items
+   - Update skill trees with new concepts discussed
+   - Schedule reminder notifications for deadlines
+   - Track completion of assigned tasks and commitments
+
+**Extensions:**
+- 1a. Insufficient recorded content: System requests manual summary input
+- 2a. AI processing fails: System provides template for manual summary creation
+- 3a. Content organization unclear: System requests participant clarification
+- 4a. Delivery failures: System retries delivery and logs failed attempts
+
+**Business Rules:**
+- Meeting summaries must accurately represent discussion content
+- Individual action items require participant acknowledgment
+- Summary distribution respects individual privacy preferences
+- All generated content must be editable by authorized party members
+
+---
+
 ## **Phase 3: Educator & Admin Toolkit Use Cases**
 
-### **UC-011: Verified Lecturer Registration and Verification**
+### **UC-015: Verified Lecturer Registration and Verification**
 
 **Actor:** Educator/Lecturer
 **Goal:** Register as a Verified Lecturer and gain access to educator tools
