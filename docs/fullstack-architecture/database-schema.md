@@ -370,103 +370,54 @@ CREATE TABLE party_stash_items (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE meetings (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    party_id UUID REFERENCES parties(id) ON DELETE CASCADE, -- Nullable - for party meetings
-    guild_id UUID REFERENCES guilds(id) ON DELETE CASCADE, -- Nullable - for guild meetings
-    creator_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE SET NULL,
-    title TEXT NOT NULL,
-    description TEXT,
+CREATE TABLE meeting (
+    meeting_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
     scheduled_start_time TIMESTAMPTZ NOT NULL,
-    scheduled_end_time TIMESTAMPTZ,
-    status meeting_status NOT NULL DEFAULT 'Scheduled',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    -- Ensure exactly one of party_id or guild_id is set
-    CONSTRAINT meetings_context_check CHECK (
-        (party_id IS NOT NULL AND guild_id IS NULL) OR 
-        (party_id IS NULL AND guild_id IS NOT NULL)
-    )
-);
-
-CREATE TABLE meeting_participants (
-    meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    status participant_status NOT NULL DEFAULT 'Invited',
-    PRIMARY KEY (meeting_id, auth_user_id)
-);
-
-CREATE TABLE meeting_agenda (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    meeting_id UUID NOT NULL UNIQUE REFERENCES meetings(id) ON DELETE CASCADE,
-    topic TEXT NOT NULL,
-    description TEXT,
-    presenter_id UUID REFERENCES user_profiles(auth_user_id) ON DELETE SET NULL,
-    sequence INTEGER NOT NULL,
-    duration_minutes INTEGER
-);
-
-CREATE TABLE meeting_notes (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    meeting_id UUID NOT NULL UNIQUE REFERENCES meetings(id) ON DELETE CASCADE,
-    agenda_id UUID REFERENCES meeting_agenda(id) ON DELETE SET NULL,
-    content JSONB NOT NULL,
+    scheduled_end_time TIMESTAMPTZ NOT NULL,
+    actual_start_time TIMESTAMPTZ,
+    actual_end_time TIMESTAMPTZ,
+    organizer_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE meeting_participant_agenda_access (
-    participant_id UUID NOT NULL,
-    meeting_id UUID NOT NULL,
-    agenda_id UUID NOT NULL REFERENCES meeting_agenda(id) ON DELETE CASCADE,
-    PRIMARY KEY (participant_id, meeting_id, agenda_id),
-    FOREIGN KEY (participant_id, meeting_id) REFERENCES meeting_participants(auth_user_id, meeting_id) ON DELETE CASCADE
+CREATE TABLE meeting_participant (
+    participant_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meeting_id UUID NOT NULL REFERENCES meeting(meeting_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    join_time TIMESTAMPTZ,
+    leave_time TIMESTAMPTZ,
+    role_in_meeting VARCHAR(50) NOT NULL DEFAULT 'participant'
 );
 
--- This table tracks detailed participant activity during meetings including check-in/check-out times
-CREATE TABLE meeting_participant_activity (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    check_in_time TIMESTAMPTZ NOT NULL DEFAULT now(),
-    check_out_time TIMESTAMPTZ,
-    activity_type VARCHAR(50) NOT NULL, -- 'join', 'leave', 'reconnect', 'disconnect'
-    device_info JSONB, -- Browser, OS, device details
-    ip_address INET,
-    location TEXT, -- Geographic location if available
-    connection_quality VARCHAR(20), -- 'excellent', 'good', 'fair', 'poor'
+CREATE TABLE transcript_segment (
+    segment_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meeting_id UUID NOT NULL REFERENCES meeting(meeting_id) ON DELETE CASCADE,
+    speaker_id UUID NOT NULL REFERENCES meeting_participant(participant_id) ON DELETE CASCADE,
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ NOT NULL,
+    transcript_text TEXT NOT NULL,
+    chunk_number INTEGER NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    FOREIGN KEY (meeting_id, auth_user_id) REFERENCES meeting_participants(meeting_id, auth_user_id) ON DELETE CASCADE
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- This table tracks participant engagement and interactions during meetings
-CREATE TABLE meeting_participant_engagement (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    agenda_id UUID REFERENCES meeting_agenda(id) ON DELETE SET NULL,
-    engagement_type VARCHAR(50) NOT NULL, -- 'spoke', 'shared_screen', 'chat_message', 'reaction', 'raised_hand'
-    duration INTEGER, -- Duration in seconds for activities like speaking or screen sharing
-    content JSONB, -- Additional context like chat message content, reaction type, etc.
-    timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
-    FOREIGN KEY (meeting_id, auth_user_id) REFERENCES meeting_participants(meeting_id, auth_user_id) ON DELETE CASCADE
+CREATE TABLE summary_chunk (
+    summary_chunk_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meeting_id UUID NOT NULL REFERENCES meeting(meeting_id) ON DELETE CASCADE,
+    chunk_number INTEGER NOT NULL,
+    summary_text TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- This table provides aggregated statistics for participant performance in meetings
-CREATE TABLE meeting_participant_stats (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    total_attendance_minutes INTEGER NOT NULL DEFAULT 0,
-    speaking_time_minutes INTEGER NOT NULL DEFAULT 0,
-    screen_share_time_minutes INTEGER NOT NULL DEFAULT 0,
-    chat_messages_count INTEGER NOT NULL DEFAULT 0,
-    reactions_count INTEGER NOT NULL DEFAULT 0,
-    hand_raises_count INTEGER NOT NULL DEFAULT 0,
-    connection_issues_count INTEGER NOT NULL DEFAULT 0,
-    engagement_score DECIMAL(5,2), -- Calculated engagement score (0-100)
-    last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (meeting_id, auth_user_id),
-    FOREIGN KEY (meeting_id, auth_user_id) REFERENCES meeting_participants(meeting_id, auth_user_id) ON DELETE CASCADE
+CREATE TABLE meeting_summary (
+    meeting_summary_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meeting_id UUID NOT NULL REFERENCES meeting(meeting_id) ON DELETE CASCADE,
+    summary_text TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 
