@@ -3,13 +3,13 @@
 ```mermaid
 sequenceDiagram
     participant U as Student User
-    participant UI as Web Interface (Next.js)
-    participant Unity as Unity WebGL Client
-    participant APIGateway as API Gateway (Azure)
+    participant UI as Web Interface
+    participant GameClient as Game Client (WebGL)
+    participant APIGateway as API Gateway
     participant QuestsService as Quests Service
     participant UserService as User Service
     participant SocialService as Social Service
-    participant Database as Database (Supabase)
+    participant Database as Database
 
     %% Step 1: User starts the assessment from the web UI %%
     U->>UI: Clicks "Start Boss Fight" on a quest
@@ -27,18 +27,18 @@ sequenceDiagram
     deactivate QuestsService
     APIGateway-->>UI: Returns session data and assessment content
 
-    %% Step 3: Web UI launches the Unity client with the session data %%
-    UI->>Unity: Initialize game embed with session data via JS bridge
-    Unity->>U: Displays Boss Fight arena and gameplay UI
+    %% Step 3: Web UI launches the game client with the session data %%
+    UI->>GameClient: Initialize game embed with session data via JS bridge
+    GameClient->>U: Displays Boss Fight arena and gameplay UI
 
-    %% Step 4: Gameplay loop is handled entirely within the Unity client %%
+    %% Step 4: Gameplay loop is handled entirely within the game client %%
     loop Gameplay
-        U->>Unity: Answers questions presented in the game
-        Unity->>Unity: Evaluates answers, plays animations, updates local score
+        U->>GameClient: Answers questions presented in the game
+        GameClient->>GameClient: Evaluates answers, plays animations, updates local score
     end
 
-    %% Step 5: Unity client reports final score back to the web UI upon completion %%
-    Unity->>UI: Calls onGameComplete(finalScore, progressData) via JS bridge
+    %% Step 5: Game client reports final score back to the web UI upon completion %%
+    GameClient->>UI: Calls onGameComplete(finalScore, progressData) via JS bridge
     
     %% Step 6: Web UI sends the final results to the backend %%
     UI->>APIGateway: POST /game/sessions/{sessionId}/complete (score, data)

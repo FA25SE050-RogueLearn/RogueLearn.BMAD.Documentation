@@ -4,12 +4,12 @@
 sequenceDiagram
     participant GM as Guild Master (Lecturer)
     participant S as Student
-    participant UI as Web Interface (Next.js)
-    participant APIGateway as API Gateway (Azure)
+    participant UI as Web Interface
+    participant APIGateway as API Gateway
     participant SocialService as Social Service
     participant QuestsService as Quests Service
-    participant RealtimeHub as Real-time Hub (SignalR)
-    participant Database as Database (Supabase)
+    participant RealtimeHub as Real-time Hub
+    participant Database as Database
 
     %% Step 1: Guild Master creates a Guild %%
     GM->>UI: Creates a new Guild
