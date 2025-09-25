@@ -4,56 +4,83 @@
 sequenceDiagram
     participant U as Student User
     participant UI as Web Interface
-    participant GameClient as Game Client (WebGL)
+    participant GameClient as Game Client (Unity WebGL)
+    participant GameServer as Netcode Host (Server Authoritative)
     participant APIGateway as API Gateway
     participant QuestsService as Quests Service
     participant UserService as User Service
     participant SocialService as Social Service
     participant Database as Database
 
-    %% Step 1: User starts the assessment from the web UI %%
+    %% Step 0: Auth & session handoff %%
+    UI->>UI: Retrieve auth token/session
+    UI->>GameClient: Pass {sessionId, pack, authToken} via JS bridge
+
+    %% Step 1: Start Boss Fight from Web UI %%
     U->>UI: Clicks "Start Boss Fight" on a quest
     UI->>APIGateway: POST /game/sessions (questId)
-    APIGateway->>QuestsService: Forwards request to start session
-
-    %% Step 2: Backend creates a game session and fetches the assessment content %%
+    APIGateway->>QuestsService: Start session
     activate QuestsService
-    QuestsService->>Database: CREATE GameSession record (status: 'InProgress')
-    Database-->>QuestsService: Returns new sessionId
-    QuestsService->>Database: Fetch or Generate CurriculumPack for the quest
-    Database-->>QuestsService: Returns assessment questions (CurriculumPack)
-    
-    QuestsService-->>APIGateway: 201 Created { sessionId, pack, gameBuildUrl }
+    QuestsService->>Database: CREATE GameSession (status: 'InProgress')
+    Database-->>QuestsService: sessionId
+    QuestsService->>Database: Fetch/Generate CurriculumPack
+    Database-->>QuestsService: CurriculumPack
+    QuestsService-->>APIGateway: 201 { sessionId, pack, gameBuildUrl }
     deactivate QuestsService
-    APIGateway-->>UI: Returns session data and assessment content
+    APIGateway-->>UI: Session data + assessment content
 
-    %% Step 3: Web UI launches the game client with the session data %%
-    UI->>GameClient: Initialize game embed with session data via JS bridge
-    GameClient->>U: Displays Boss Fight arena and gameplay UI
+    %% Step 2: Launch Game Client and connect to Netcode Host %%
+    UI->>GameClient: Initialize WebGL embed with session data via JS bridge
+    GameClient->>GameServer: Connect (Netcode) and join room/lobby
+    GameServer-->>GameClient: Sync replicated states (ready counts, charges, timers)
+    GameClient->>U: Display Boss Fight arena and HUD
 
-    %% Step 4: Gameplay loop is handled entirely within the game client %%
-    loop Gameplay
-        U->>GameClient: Answers questions presented in the game
-        GameClient->>GameClient: Evaluates answers, plays animations, updates local score
+    %% Step 3: Answer Station majority gating %%
+    U->>GameClient: Interact 'Ready at Station'
+    GameClient->>GameServer: RequestToggleReadyAtStation(stationId, isReady)
+    GameServer->>GameServer: Update stationReadyCount; evaluate majority
+    alt Majority reached
+        GameServer-->>GameClient: AnswerModeEntered (replicated)
+        GameClient->>GameClient: Show Question UI from pack; start timer
+    else Not enough players ready
+        GameServer-->>GameClient: StationReadyChanged (update HUD)
     end
 
-    %% Step 5: Game client reports final score back to the web UI upon completion %%
-    GameClient->>UI: Calls onGameComplete(finalScore, progressData) via JS bridge
-    
-    %% Step 6: Web UI sends the final results to the backend %%
-    UI->>APIGateway: POST /game/sessions/{sessionId}/complete (score, data)
-    APIGateway->>QuestsService: Forwards completion request
+    %% Step 4: Question phase & server-side validation %%
+    U->>GameClient: Submit answer
+    GameClient->>GameServer: SubmitAnswer(answerData)
+    GameServer->>GameServer: Validate answer
+    alt Correct answer
+        GameServer->>GameServer: teamCharges++ (replicated)
+        GameServer-->>GameClient: TeamChargeAdded (HUD update)
+        GameServer->>GameServer: Start Power Play window; select empowered player
+        GameServer-->>GameClient: PowerPlayStarted(playerId, timer, multipliers)
+    else Incorrect answer or timeout
+        GameServer-->>GameClient: Feedback; optional lockout/cooldown
+    end
 
-    %% Step 7: Backend finalizes the session and updates all relevant user data %%
+    %% Step 5: Power Play window (first-hit ends window) %%
+    U->>GameClient: Empowered player attacks boss
+    GameClient->>GameServer: Damage event
+    GameServer->>GameServer: Apply vulnerability/bonus to first hit; end window
+    GameServer-->>GameClient: PowerPlayEnded; clear buffs
+
+    %% Step 6: Exit Answer Mode; prep next question %%
+    GameServer-->>GameClient: AnswerModeExited; hide panel; stop timer
+    GameClient->>GameClient: Pending state until majority requests next question
+
+    %% Step 7: Session completion and backend updates %%
+    GameClient->>UI: onGameComplete(finalScore, progressData) via JS bridge
+    UI->>APIGateway: POST /game/sessions/{sessionId}/complete (score, data)
+    APIGateway->>QuestsService: Forward completion
     activate QuestsService
-    QuestsService->>Database: UPDATE GameSession status to 'Completed' and save score
+    QuestsService->>Database: UPDATE GameSession status 'Completed'; save score
     QuestsService->>UserService: UpdateUserProgress(userId, xpGained, skillsUpdated)
     QuestsService->>SocialService: UpdateLeaderboard(userId, eventId, score)
     deactivate QuestsService
-    
     QuestsService-->>APIGateway: 200 OK
     APIGateway-->>UI: 200 OK
 
-    %% Step 8: User sees their final results on the web UI %%
-    UI->>U: Display results screen (score, XP, skill points, new rank)
+    %% Step 8: Web UI displays final results %%
+    UI->>U: Show score, XP, skill points, rank, leaderboard updates
 ```

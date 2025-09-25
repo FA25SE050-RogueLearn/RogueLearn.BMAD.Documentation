@@ -25,8 +25,11 @@ graph TB
         WEB[Web Application]
         MOB[Mobile Application]
         API[API Gateway]
-        UNITY[Unity Game Client]
+        UNITY[Unity WebGL (embedded)]
     end
+
+    %% Unity is embedded in Web App %%
+    WEB -.->|Embedded in Web App| UNITY
 
     %% Authentication Flow
     WEB --> SA
