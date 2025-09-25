@@ -5,7 +5,7 @@ This section provides the SQL DDL for the PostgreSQL database.
 ```sql
 -- RogueLearn Database Schema for PostgreSQL
 -- FINAL VERSION: Integrated with Supabase Auth and a robust, real-time Code Battle engine.
--- CORRECTED: Fixed table creation order and constraint issues. Applied snake_case to User, Quests, and Social services.
+-- CORRECTED: Fixed table creation order, added missing social service tables, and applied snake_case convention.
 
 -- Enable UUID generation if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -17,30 +17,37 @@ CREATE TYPE quest_type AS ENUM ('Theory', 'Practice', 'Project', 'Assessment');
 CREATE TYPE skill_level AS ENUM ('Beginner', 'Intermediate', 'Advanced', 'Expert');
 CREATE TYPE achievement_type AS ENUM ('Quest', 'Skill', 'Social', 'Special');
 CREATE TYPE notification_type AS ENUM ('Quest', 'Achievement', 'Social', 'System');
-CREATE TYPE party_role AS ENUM ('Leader', 'Member');
+CREATE TYPE party_role AS ENUM ('Leader', 'CoLeader', 'Member');
 CREATE TYPE meeting_status AS ENUM ('Scheduled', 'InProgress', 'Completed', 'Cancelled');
-CREATE TYPE event_type AS ENUM ('Competition', 'Workshop', 'Seminar', 'Social');
-CREATE TYPE event_status AS ENUM ('Upcoming', 'Ongoing', 'Completed', 'Cancelled');
+CREATE TYPE event_type AS ENUM ('Competition', 'Workshop', 'Seminar', 'Social', 'StudySession', 'Presentation', 'Review');
+CREATE TYPE event_status AS ENUM ('Scheduled', 'InProgress', 'Completed', 'Cancelled', 'Postponed');
 CREATE TYPE submission_status AS ENUM ('Pending', 'Running', 'Accepted', 'WrongAnswer', 'TimeLimitExceeded', 'RuntimeError', 'CompileError');
 CREATE TYPE student_term_subject_status AS ENUM ('Enrolled', 'Completed', 'Failed', 'Withdrawn');
 CREATE TYPE game_session_status AS ENUM ('InProgress', 'Completed', 'Abandoned');
 CREATE TYPE verification_status AS ENUM ('Pending', 'Approved', 'Rejected');
 CREATE TYPE party_join_type AS ENUM ('Open', 'Invite Only', 'Request');
-CREATE TYPE participant_status AS ENUM ('Invited', 'Accepted', 'Declined', 'Attended');
+CREATE TYPE participant_status AS ENUM ('Registered', 'Attended', 'NoShow', 'Cancelled');
+CREATE TYPE party_type AS ENUM ('StudyGroup', 'ProjectTeam', 'PeerReview', 'Casual', 'Competition');
+CREATE TYPE member_status AS ENUM ('Active', 'Inactive', 'Suspended', 'Left');
+CREATE TYPE invitation_status AS ENUM ('Pending', 'Accepted', 'Declined', 'Expired', 'Cancelled');
+CREATE TYPE invitation_type AS ENUM ('Invite', 'Application');
+CREATE TYPE guild_type AS ENUM ('Academic', 'Professional', 'Hobby', 'Competition', 'Study', 'Research');
+CREATE TYPE activity_type AS ENUM ('QuestCompletion', 'StudySession', 'ProjectWork', 'Discussion', 'Competition', 'Meeting');
+CREATE TYPE friendship_status AS ENUM ('Pending', 'Accepted', 'Blocked');
+CREATE TYPE message_type AS ENUM ('Direct', 'Party', 'Guild');
+CREATE TYPE location_type AS ENUM ('Virtual', 'Physical', 'Hybrid');
 
 
 -- ------------------------------------------
 -- SECTION 1: FOUNDATION TABLES (No Dependencies)
 -- ------------------------------------------
 
--- Create classes table first as it's referenced by user_profiles
 CREATE TABLE classes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT UNIQUE NOT NULL,
     description TEXT
 );
 
--- Create roles table early as it's referenced by user_roles
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
     role_name TEXT UNIQUE NOT NULL
@@ -51,7 +58,7 @@ CREATE TABLE roles (
 -- ------------------------------------------
 
 CREATE TABLE user_profiles (
-    auth_user_id UUID PRIMARY KEY, -- FK to Supabase Auth Users (now primary key)
+    auth_user_id UUID PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE NOT NULL,
     first_name TEXT NOT NULL,
@@ -78,17 +85,15 @@ CREATE TABLE lecturer_verification_requests (
 
 
 -- ------------------------------------------
--- SECTION 3: ACADEMIC & CONTENT MANAGEMENT (Updated with Enhanced Curriculum Structure)
+-- SECTION 3: ACADEMIC & CONTENT MANAGEMENT
 -- ------------------------------------------
 
--- The abstract program, e.g., "B.S. in Software Engineering"
 CREATE TABLE curriculum_programs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     program_name TEXT NOT NULL,
     program_code TEXT UNIQUE NOT NULL
 );
 
--- The specific, versioned "snapshot" of a program, e.g., "K18A"
 CREATE TABLE curriculum_versions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     program_id UUID NOT NULL REFERENCES curriculum_programs(id) ON DELETE CASCADE,
@@ -98,7 +103,6 @@ CREATE TABLE curriculum_versions (
     UNIQUE (program_id, version_tag)
 );
 
--- The master list of all subjects offered
 CREATE TABLE subjects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     subject_code TEXT UNIQUE NOT NULL,
@@ -106,7 +110,6 @@ CREATE TABLE subjects (
     credits INTEGER NOT NULL
 );
 
--- The CRUCIAL junction table defining the ideal path for a curriculum version
 CREATE TABLE curriculum_structure (
     curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
     subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
@@ -114,7 +117,6 @@ CREATE TABLE curriculum_structure (
     PRIMARY KEY (curriculum_version_id, subject_id)
 );
 
--- A table to handle versioned syllabi for each subject
 CREATE TABLE syllabus_versions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
@@ -124,7 +126,6 @@ CREATE TABLE syllabus_versions (
     file_url TEXT
 );
 
--- Locks a student into a specific curriculum version
 CREATE TABLE student_enrollments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
@@ -133,7 +134,6 @@ CREATE TABLE student_enrollments (
     expected_graduation_date DATE
 );
 
--- Tracks what a student is ACTUALLY taking each semester
 CREATE TABLE student_term_subjects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     enrollment_id UUID NOT NULL REFERENCES student_enrollments(id) ON DELETE CASCADE,
@@ -248,7 +248,6 @@ CREATE TABLE skill_dependencies (
     PRIMARY KEY (skill_id, prerequisite_skill_id)
 );
 
--- Add foreign key constraints for notes table after dependencies are created
 ALTER TABLE notes ADD CONSTRAINT fk_notes_quest_id FOREIGN KEY (quest_id) REFERENCES quests(id) ON DELETE SET NULL;
 ALTER TABLE notes ADD CONSTRAINT fk_notes_skill_id FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE SET NULL;
 
@@ -322,11 +321,16 @@ CREATE TABLE parties (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE party_memberships (
+CREATE TABLE party_members (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    role party_role NOT NULL DEFAULT 'Member',
+    status member_status NOT NULL DEFAULT 'Active',
     joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    PRIMARY KEY (party_id, auth_user_id)
+    left_at TIMESTAMPTZ,
+    contribution_score INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (party_id, auth_user_id)
 );
 
 CREATE TABLE guilds (
@@ -338,11 +342,17 @@ CREATE TABLE guilds (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE guild_memberships (
+CREATE TABLE guild_members (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL UNIQUE REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    role guild_role NOT NULL DEFAULT 'Member',
+    status member_status NOT NULL DEFAULT 'Active',
     joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    PRIMARY KEY (guild_id, auth_user_id)
+    left_at TIMESTAMPTZ,
+    contribution_points INTEGER NOT NULL DEFAULT 0,
+    rank_within_guild INTEGER,
+    UNIQUE (guild_id, auth_user_id)
 );
 
 CREATE TABLE party_stash_items (
@@ -358,6 +368,144 @@ CREATE TABLE party_stash_items (
     tags TEXT[],
     shared_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE party_invitations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
+    inviter_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    invitee_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    status invitation_status NOT NULL DEFAULT 'Pending',
+    message TEXT,
+    invited_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    responded_at TIMESTAMPTZ,
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + INTERVAL '7 days'),
+    UNIQUE (party_id, invitee_id)
+);
+
+CREATE TABLE party_activities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
+    activity_type activity_type NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    quest_id UUID,
+    meeting_id UUID,
+    started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    completed_at TIMESTAMPTZ,
+    experience_points_earned INTEGER NOT NULL DEFAULT 0,
+    participants UUID[] NOT NULL,
+    metadata JSONB
+);
+
+CREATE TABLE guild_invitations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    inviter_id UUID REFERENCES user_profiles(auth_user_id),
+    invitee_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    invitation_type invitation_type NOT NULL,
+    status invitation_status NOT NULL DEFAULT 'Pending',
+    message TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    responded_at TIMESTAMPTZ,
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + INTERVAL '14 days'),
+    UNIQUE (guild_id, invitee_id)
+);
+
+CREATE TABLE guild_achievements (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    achievement_name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    achieved_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    experience_points_awarded INTEGER NOT NULL DEFAULT 0,
+    contributing_members UUID[] NOT NULL,
+    metadata JSONB
+);
+
+CREATE TABLE friendships (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    requester_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    addressee_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    status friendship_status NOT NULL DEFAULT 'Pending',
+    requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    accepted_at TIMESTAMPTZ,
+    blocked_at TIMESTAMPTZ,
+    UNIQUE (requester_id, addressee_id),
+    CHECK (requester_id != addressee_id)
+);
+
+CREATE TABLE user_social_stats (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL UNIQUE REFERENCES user_profiles(auth_user_id),
+    friends_count INTEGER NOT NULL DEFAULT 0,
+    parties_joined INTEGER NOT NULL DEFAULT 0,
+    parties_created INTEGER NOT NULL DEFAULT 0,
+    guilds_joined INTEGER NOT NULL DEFAULT 0,
+    guilds_created INTEGER NOT NULL DEFAULT 0,
+    total_collaboration_hours DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    social_reputation_score INTEGER NOT NULL DEFAULT 0,
+    last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE social_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sender_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    message_type message_type NOT NULL,
+    recipient_id UUID REFERENCES user_profiles(auth_user_id),
+    party_id UUID REFERENCES parties(id) ON DELETE CASCADE,
+    guild_id UUID REFERENCES guilds(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    attachments JSONB,
+    is_system_message BOOLEAN NOT NULL DEFAULT FALSE,
+    sent_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    edited_at TIMESTAMPTZ,
+    deleted_at TIMESTAMPTZ,
+    CHECK (
+        (message_type = 'Direct' AND recipient_id IS NOT NULL AND party_id IS NULL AND guild_id IS NULL) OR
+        (message_type = 'Party' AND party_id IS NOT NULL AND recipient_id IS NULL AND guild_id IS NULL) OR
+        (message_type = 'Guild' AND guild_id IS NOT NULL AND recipient_id IS NULL AND party_id IS NULL)
+    )
+);
+
+CREATE TABLE message_reactions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    message_id UUID NOT NULL REFERENCES social_messages(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    reaction_emoji VARCHAR(10) NOT NULL,
+    reacted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (message_id, auth_user_id, reaction_emoji)
+);
+
+CREATE TABLE social_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    event_type event_type NOT NULL,
+    organizer_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    party_id UUID REFERENCES parties(id) ON DELETE SET NULL,
+    guild_id UUID REFERENCES guilds(id) ON DELETE SET NULL,
+    max_participants INTEGER,
+    current_participants_count INTEGER NOT NULL DEFAULT 0,
+    scheduled_start_time TIMESTAMPTZ NOT NULL,
+    scheduled_end_time TIMESTAMPTZ NOT NULL,
+    location_type location_type NOT NULL,
+    location_details JSONB,
+    status event_status NOT NULL DEFAULT 'Scheduled',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE event_participants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL REFERENCES social_events(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    status participant_status NOT NULL DEFAULT 'Registered',
+    registered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    attended_at TIMESTAMPTZ,
+    feedback_rating INTEGER CHECK (feedback_rating >= 1 AND feedback_rating <= 5),
+    feedback_comment TEXT,
+    UNIQUE (event_id, auth_user_id)
 );
 
 -- ------------------------------------------
@@ -579,10 +727,8 @@ CREATE INDEX idx_event_code_problems_event_id ON event_code_problems(event_id);
 CREATE INDEX idx_event_code_problems_code_problem_id ON event_code_problems(code_problem_id);
 CREATE INDEX idx_user_quest_progress_user_id ON user_quest_progress(auth_user_id);
 CREATE INDEX idx_user_achievements_user_id ON user_achievements(auth_user_id);
--- Event and Guild participation indexes
 CREATE INDEX idx_event_guild_participants_event_id ON event_guild_participants(event_id);
 CREATE INDEX idx_event_guild_participants_guild_id ON event_guild_participants(guild_id);
--- Enhanced curriculum system indexes
 CREATE INDEX idx_curriculum_versions_program_id ON curriculum_versions(program_id);
 CREATE INDEX idx_curriculum_versions_effective_year ON curriculum_versions(effective_year);
 CREATE INDEX idx_curriculum_structure_version_id ON curriculum_structure(curriculum_version_id);
@@ -596,4 +742,16 @@ CREATE INDEX idx_student_term_subjects_enrollment_id ON student_term_subjects(en
 CREATE INDEX idx_student_term_subjects_subject_id ON student_term_subjects(subject_id);
 CREATE INDEX idx_student_term_subjects_term ON student_term_subjects(academic_term);
 CREATE INDEX idx_student_term_subjects_status ON student_term_subjects(status);
+
+-- Indexes for Social Service Tables
+CREATE INDEX idx_parties_created_by ON parties(leader_id);
+CREATE INDEX idx_party_members_party_id ON party_members(party_id);
+CREATE INDEX idx_party_members_auth_user_id ON party_members(auth_user_id);
+CREATE INDEX idx_guilds_created_by ON guilds(master_id);
+CREATE INDEX idx_social_messages_sender_id ON social_messages(sender_id);
+CREATE INDEX idx_social_messages_party_id ON social_messages(party_id);
+CREATE INDEX idx_social_messages_guild_id ON social_messages(guild_id);
+CREATE INDEX idx_social_events_organizer_id ON social_events(organizer_id);
+CREATE INDEX idx_event_participants_event_id ON event_participants(event_id);
+CREATE INDEX idx_event_participants_auth_user_id ON event_participants(auth_user_id);
 ```
