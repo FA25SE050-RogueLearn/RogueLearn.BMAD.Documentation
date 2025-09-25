@@ -78,4 +78,3 @@ sequenceDiagram
     end
 
     U->>UI: View meeting summary
-```

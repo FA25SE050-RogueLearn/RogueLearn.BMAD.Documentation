@@ -47,13 +47,20 @@ This document outlines which database tables and collections are used by each mi
 
 **PostgreSQL Tables**:
 - `Parties` - Party/group definitions with configurable join types
-- `PartyMemberships` - Party membership tracking with join timestamps
+- `PartyMembers` - Party membership tracking with roles and status
+- `PartyInvitations` - Manages invitations for users to join parties
+- `PartyActivities` - Tracks collaborative activities and achievements within a party
 - `PartyStashItems` - Shared note repository for party collaboration
 - `Guilds` - Guild definitions with verification status
-- `GuildMemberships` - Guild membership tracking (unique per user)
-- `Events` - Event definitions for competitions and activities
-- `LeaderboardEntries` - Individual user rankings per event
-- `GuildLeaderboardEntries` - Guild-based competitive rankings
+- `GuildMembers` - Guild membership with hierarchical roles
+- `GuildInvitations` - Manages invitations and applications to join guilds
+- `GuildAchievements` - Tracks guild-level achievements and milestones
+- `Friendships` - Manages user-to-user friend connections
+- `UserSocialStats` - Aggregated social statistics for users
+- `SocialMessages` - Direct, party, and guild communication
+- `MessageReactions` - Emoji reactions to social messages
+- `SocialEvents` - Social learning events and activities
+- `EventParticipants` - Tracks user participation in social events
 
 ### **Meeting Service** (`roguelearn-meeting-service`)
 **Purpose**: Manages meetings with AI-powered transcription, summarization, and content processing capabilities
@@ -69,6 +76,7 @@ This document outlines which database tables and collections are used by each mi
 **Purpose**: Manages code problems, real-time battles, compilation, execution, and competitive programming
 
 **PostgreSQL Tables**:
+- `events` - Event definitions for competitions and activities
 - `languages` - Supported programming languages with execution configurations
 - `code_problems` - Code challenge problem definitions with statements and difficulty
 - `tags` - Categorization tags for code problems

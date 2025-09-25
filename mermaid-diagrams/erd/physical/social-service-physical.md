@@ -55,6 +55,18 @@ erDiagram
         json metadata "Additional activity-specific data"
     }
 
+    party_stash_items {
+        uuid id PK "Unique identifier for a shared note"
+        uuid party_id FK "FK to the party"
+        uuid original_note_id FK "FK to Quests Service: notes table"
+        uuid shared_by_user_id FK "FK to User Service: user_profiles table"
+        text title "Title of the note"
+        json content "The rich text content of the note"
+        text tags "Array of tags"
+        timestamp shared_at "Timestamp when shared"
+        timestamp updated_at "Last update timestamp"
+    }
+
     guilds {
         uuid id PK "Primary key for the guild"
         text name "Name of the guild"
@@ -189,6 +201,7 @@ erDiagram
     parties ||--o{ party_activities : " "
     parties ||--o{ social_messages : " "
     parties ||--o{ social_events : " "
+    parties ||--o{ party_stash_items : " "
     guilds ||--o{ guild_members : " "
     guilds ||--o{ guild_invitations : " "
     guilds ||--o{ guild_achievements : " "
