@@ -8,7 +8,7 @@ graph TB
     subgraph "External Systems"
         SA[Supabase Auth]
         QD[Qdrant]
-        RL[Relay (Netcode)]
+        RL[Relay Netcode]
     end
     
     %% Core Services
@@ -25,7 +25,7 @@ graph TB
         WEB[Web Application]
         MOB[Mobile Application]
         API[API Gateway]
-        UNITY[Unity (Game Client)]
+        UNITY[Unity Game Client]
     end
     
     %% Authentication Flow
@@ -52,7 +52,6 @@ graph TB
     CBS --> SS
     
     %% External Service Dependencies
-    CBS --> J0
     CBS --> QD
     UNITY --> RL
     
@@ -74,7 +73,7 @@ graph TB
     classDef client fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
     
     class US,QS,SS,MS,CBS service
-    class SA,J0,CD,RL external
+    class SA,QD,RL external
     class WEB,MOB,API,UNITY client
 ```
 
