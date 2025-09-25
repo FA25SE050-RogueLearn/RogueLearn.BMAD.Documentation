@@ -13,7 +13,8 @@ sequenceDiagram
     U->>UI: Clicks 'Sign Up' and submits credentials
     UI->>SupabaseAuth: Calls Supabase signUp() with credentials
     SupabaseAuth-->>UI: Confirms sign-up, returns session/JWT
-
+    SupabaseAuth-->>Database: Create a user record
+    
     %% Step 2: Backend Profile Creation via DB Trigger %%
     Note over SupabaseAuth, Database: Supabase creates a new record in auth.users table
     Database->>UserService: PostgreSQL Trigger on new user INSERT fires
