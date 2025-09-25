@@ -189,6 +189,64 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 
 ---
 
+## **Flow 6: Event Management & Code Battle Competition**
+
+### **Description**
+The competitive programming system that enables Guild Masters and System Admins to create code battle events where guilds compete against each other. This flow manages event creation, approval workflows, participant registration, and real-time competitive coding battles with comprehensive scoring and leaderboards.
+
+### **Actors**
+- **Primary:** Guild Master, System Admin
+- **Secondary:** Guild Members (Students), Code Battle Service, Social Service, Database, Analytics Engine
+
+### **Process**
+1. **Event Creation Phase:**
+   - System Admin imports code problems into the system with difficulty levels and test cases
+   - Guild Master initiates event creation through the guild management interface
+   - System presents event configuration options (number of easy/medium/hard questions, points per question, start/end times, participation rules)
+   - Guild Master configures event parameters and submits for approval (if required)
+   - System Admin reviews and approves guild-created events (if approval workflow is enabled)
+
+2. **Event Setup & Registration:**
+   - System randomly selects code problems based on configured difficulty distribution
+   - Code Battle Service creates event rooms and prepares judging infrastructure
+   - System broadcasts event announcement to eligible guilds
+   - Guild Masters register their guilds for participation
+   - System tracks guild registrations and manages participant limits
+
+3. **Competition Execution:**
+   - Code Battle Service initializes real-time battle rooms for participating guilds
+   - System distributes selected code problems to all participants simultaneously
+   - Guild members submit code solutions through the battle interface
+   - Code Battle Service evaluates submissions against test cases in real-time
+   - System updates individual and guild leaderboards based on scoring algorithm
+   - Real-time notifications keep participants informed of standings and progress
+
+4. **Results & Analytics:**
+   - System calculates final individual and guild rankings
+   - Analytics Engine processes performance data and generates insights
+   - System updates guild reputation scores and member achievements
+   - Results are published to guild dashboards and community leaderboards
+   - Post-event analysis provides feedback for future improvements
+
+### **Outputs**
+- Configured competitive events with approved code problems
+- Real-time battle environments with secure code execution
+- Individual participant leaderboards with detailed scoring
+- Guild-based leaderboards showing collective performance
+- Performance analytics and achievement tracking
+- Event history and statistical reports
+
+### **Success Criteria**
+- Event creation and approval process completed within 24 hours
+- Code problem selection accurately reflects configured difficulty distribution
+- Real-time battle system supports concurrent participants without performance degradation
+- Scoring algorithm provides fair and accurate ranking based on solution correctness and speed
+- Guild leaderboards accurately aggregate member performance
+- System maintains 99.9% uptime during active competitions
+- Post-event analytics provide actionable insights for participants and organizers
+
+---
+
 ## **Integration Points**
 
 ### **Cross-Flow Dependencies**
@@ -196,6 +254,9 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 - **Core AI Loop → Assessment:** The generated quest line includes and leads to "Boss Fight" assessments.
 - **Assessment → Core AI Loop:** Assessment results feed back into the adaptive learning part of the loop.
 - **Social Learning → Guild Management:** Party activities can contribute to Guild analytics and community health.
+- **Guild Management → Event Management:** Guild Masters can create competitive events for their communities.
+- **Event Management → Assessment:** Code battle competitions provide alternative assessment mechanisms.
+- **Event Management → Social Learning:** Competitive events foster guild collaboration and peer learning.
 
 ### **Data Flow Architecture**
 - **User Profile Service:** Central repository for character data and preferences.
@@ -214,6 +275,8 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 - **Assessment Participation:** >90% of users engage with Boss Fight assessments.
 - **Social Learning Adoption:** >40% of users join or create parties.
 - **Guild Effectiveness:** Educator interventions improve outcomes by >20%.
+- **Event Management Engagement:** >60% of active guilds participate in competitive events monthly.
+- **Code Battle Completion:** >80% of event participants complete at least one code challenge.
 - **Adaptation Success:** Personalized adjustments increase retention by >30%.
 
 ### **Overall Platform Health**
