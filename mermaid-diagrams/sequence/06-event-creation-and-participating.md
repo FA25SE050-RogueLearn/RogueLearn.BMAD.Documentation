@@ -1,16 +1,17 @@
-# Event Creation and Participating - Sequence Diagram
+# Flow 6: Event Creation and Participating - Sequence Diagram
 
 ## Overview
-This sequence diagram illustrates the complete flow of event creation by Guild Masters and participation by guild members in code battle competitions. The flow covers event creation, approval workflow, guild registration, and real-time competitive coding battles.
+This sequence diagram illustrates the complete workflow for code battle event creation and participation, showcasing how Guild Master A creates events that require admin approval, and how Guild Master B and other guilds can register and participate in approved events.
 
 ## Actors
-- **Guild Master**: Creates and manages competitive events for guilds
+- **Guild Master A**: The guild leader who initiates event creation
+- **Admin**: System administrator who approves event creation requests
+- **Guild Master B**: Representative of participating guilds
 - **User (Student)**: Guild members who participate in code battles
 - **Web Interface**: Frontend application interface
-- **API Gateway**: Central API routing and authentication
-- **Code Battle Service**: Manages events, rooms, problems, and judging
-- **Social Service**: Handles guild information and member management
-- **Database**: Persistent data storage
+- **API Gateway**: Central API routing and authentication layer
+- **Code Battle Service**: Core service managing events, rooms, and judging
+- **Database**: Data persistence layer
 
 ## Sequence Diagram
 

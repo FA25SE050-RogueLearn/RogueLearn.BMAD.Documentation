@@ -195,38 +195,42 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 The competitive programming system that enables Guild Masters and System Admins to create code battle events where guilds compete against each other. This flow manages event creation, approval workflows, participant registration, and real-time competitive coding battles with comprehensive scoring and leaderboards.
 
 ### **Actors**
-- **Primary:** Guild Master, System Admin
+- **Primary:** Guild Master A (Event Creator), Admin (Event Approver), Guild Master B (Participating Guild Leader)
 - **Secondary:** Guild Members (Students), Code Battle Service, Social Service, Database, Analytics Engine
 
 ### **Process**
-1. **Event Creation Phase:**
-   - System Admin imports code problems into the system with difficulty levels and test cases
-   - Guild Master initiates event creation through the guild management interface
+1. **Event Creation & Approval Phase:**
+   - Admin imports code problems into the system with difficulty levels and test cases
+   - Guild Master A initiates event creation through the guild management interface
    - System presents event configuration options (number of easy/medium/hard questions, points per question, start/end times, participation rules)
-   - Guild Master configures event parameters and submits for approval (if required)
-   - System Admin reviews and approves guild-created events (if approval workflow is enabled)
+   - Guild Master A configures event parameters and submits event creation request
+   - Admin receives notification of pending event approval request
+   - Admin reviews event configuration and approves or rejects the request
+   - Upon approval, system finalizes event creation and makes it available for registration
 
-2. **Event Setup & Registration:**
-   - System randomly selects code problems based on configured difficulty distribution
-   - Code Battle Service creates event rooms and prepares judging infrastructure
-   - System broadcasts event announcement to eligible guilds
-   - Guild Masters register their guilds for participation
-   - System tracks guild registrations and manages participant limits
+2. **Event Setup & Guild Registration:**
+   - System randomly selects code problems based on Guild Master A's configured difficulty distribution
+   - Code Battle Service creates event infrastructure and prepares judging environment
+   - System broadcasts approved event announcement to all eligible guilds
+   - Guild Master B (and other guild leaders) review available events
+   - Guild Master B registers their guild for participation in the approved event
+   - System validates guild eligibility and confirms registration
+   - Code Battle Service coordinates with Social Service to verify guild information and member counts
 
 3. **Competition Execution:**
-   - Code Battle Service initializes real-time battle rooms for participating guilds
-   - System distributes selected code problems to all participants simultaneously
-   - Guild members submit code solutions through the battle interface
+   - Code Battle Service initializes real-time battle rooms for all registered guilds
+   - System distributes the randomly selected code problems to all participants simultaneously
+   - Guild members from participating guilds submit code solutions through the battle interface
    - Code Battle Service evaluates submissions against test cases in real-time
-   - System updates individual and guild leaderboards based on scoring algorithm
-   - Real-time notifications keep participants informed of standings and progress
+   - System updates individual participant leaderboards and guild aggregate scores
+   - Real-time notifications keep all participants informed of current standings and progress
 
 4. **Results & Analytics:**
-   - System calculates final individual and guild rankings
-   - Analytics Engine processes performance data and generates insights
-   - System updates guild reputation scores and member achievements
-   - Results are published to guild dashboards and community leaderboards
-   - Post-event analysis provides feedback for future improvements
+   - System calculates final individual and guild rankings based on scoring algorithm
+   - Analytics Engine processes comprehensive performance data from the competition
+   - System updates guild reputation scores and individual member achievements
+   - Final results are published to all participating guild dashboards and community leaderboards
+   - Post-event analysis provides insights and recommendations for future events
 
 ### **Outputs**
 - Configured competitive events with approved code problems
