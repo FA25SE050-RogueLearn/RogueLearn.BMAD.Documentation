@@ -40,39 +40,46 @@ The foundational flow where new users create their academic gaming profile and e
 
 ---
 
-## **Flow 2: AI-Powered Quest Generation & Learning Path Creation**
+## **Flow 2: The Core AI Learning Loop (Ingestion, Generation & Adaptation)**
 
 ### **Description**
-The core AI-driven process that transforms academic syllabi into personalized, gamified learning experiences with dynamic quest lines and skill progression.
+This is the central, dynamic engine of the RogueLearn platform. It combines content ingestion (from either file uploads or a browser extension), AI-powered generation of personalized learning paths, and a continuous, adaptive feedback loop that refines the experience based on user progress.
 
 ### **Actors**
-- **Primary:** Student User, AI System
-- **Secondary:** Syllabus Processing Service, Quest Generation Engine
+- **Primary:** Student User, AI Adaptation Engine
+- **Secondary:** Syllabus Processing Service, Quest Generation Engine, Browser Extension, Progress Analytics, Notification System
 
 ### **Process**
-1. User uploads course syllabus document (PDF, DOCX)
-2. AI System ingests and parses syllabus content
-3. AI identifies course structure, topics, and learning objectives
-4. AI analyzes user's academic background and career goals
-5. AI generates interconnected skill tree from syllabus topics
-6. AI creates personalized "main quest line" aligned with course progression
-7. AI establishes prerequisites and dependencies between skill nodes
-8. System populates quest line with tasks based on uploaded schedules
-9. AI continuously monitors progress and adjusts quest difficulty
-10. System sends notifications for quest updates and new learning paths
+1.  **Content Ingestion (Triggers)**: The loop is initiated in one of two ways:
+    *   **File Upload**: A user uploads a course syllabus or other academic document (PDF, DOCX).
+    *   **Browser Extension**: A user captures educational content from a university portal or academic website.
+2.  **AI-Powered Generation**: The backend begins an asynchronous process to:
+    *   Ingest and parse the document content.
+    *   Identify the course structure, key topics, and learning objectives.
+    *   Generate an interconnected skill tree based on the content.
+    *   Create a personalized "main quest line" aligned with the learning objectives.
+    *   Establish prerequisites and dependencies between skills and quests.
+    *   Populate the user's "Arsenal" with the processed content and notify the user of completion.
+3.  **Continuous Adaptation (Feedback Loop)**: Once the user begins interacting with the generated quests and content, the system continuously:
+    *   Monitors user interactions, performance, and engagement across all features.
+    *   Identifies patterns, including areas of struggle or accelerated learning.
+    *   The Adaptive Engine dynamically adjusts quest difficulty and modifies learning paths.
+    *   The Skill Tree visualization is updated in real-time to reflect progress.
+    *   Personalized recommendations for improvement or new challenges are generated.
+    *   The feedback loop constantly refines the personalization algorithms to optimize the learning journey.
 
 ### **Outputs**
-- Dynamic, interconnected skill tree visualization
-- Personalized main quest line with scheduled tasks
-- Skill node prerequisites and dependency mapping
-- Automated quest adjustments based on progress
-- Notification system for learning path updates
+- A dynamic, interconnected skill tree that evolves with the user.
+- A personalized quest line that adapts to the user's performance.
+- Real-time progress visualization and analytics.
+- Automated notifications for quest updates, achievements, and recommendations.
+- A continuously optimized and personalized learning experience.
 
 ### **Success Criteria**
-- Syllabus is accurately parsed within 2 minutes
-- Generated skill tree covers 90%+ of syllabus topics
-- Quest line aligns with user's academic schedule
-- Dynamic adjustments improve learning outcomes
+- Content ingestion (upload or capture) is accurately parsed over 95% of the time.
+- The initial generated skill tree and quest line cover 90%+ of the source material's topics.
+- Adaptive adjustments demonstrate a measurable improvement in user learning outcomes and engagement.
+- The entire loop feels seamless to the user, from content input to personalized feedback.
 
 ---
 
@@ -152,140 +159,62 @@ The collaborative learning system that enables students to form study groups ("P
 ## **Flow 5: Guild Management & Educator Dashboard**
 
 ### **Description**
-The educator-focused system that enables verified lecturers to create educational guilds, monitor student progress, and provide targeted support through data-driven insights.
+The community-focused system that enables a **Guild Master** (a Verified Lecturer or an experienced Student) to create an educational guild, share resources, and monitor the anonymized, aggregated progress of guild members to provide targeted support and foster a healthy learning environment.
 
 ### **Actors**
-- **Primary:** Guild Master (Verified Lecturer)
-- **Secondary:** Student Players, Analytics Engine, Content Management System
+- **Primary:** Guild Master
+- **Secondary:** Student Players (Guild Members), Analytics Engine, Content Management System
 
 ### **Process**
-1. Verified Lecturer creates new Guild with course information
-2. Students join Guild and link their academic progress
-3. Guild Master uploads reference materials and course resources
-4. System aggregates anonymized student progress data
-5. Analytics engine identifies struggling topics and performance patterns
-6. Dashboard highlights areas where significant percentages struggle
-7. Guild Master creates targeted announcements and interventions
-8. System tracks effectiveness of educator interventions
-9. Guild Master adjusts course materials based on data insights
-10. Continuous monitoring provides ongoing feedback loop
+1. Guild Master creates a new Guild with a specific subject focus.
+2. Students discover and join the Guild.
+3. Guild Master uploads reference materials and curated resources for the members.
+4. System aggregates anonymized student progress data from all members.
+5. The Analytics Engine identifies common struggling topics and performance patterns within the guild.
+6. The Guild Master's dashboard highlights these areas, enabling them to provide targeted support.
+7. Guild Master creates announcements or shares supplementary materials to address common challenges.
+8. The system tracks the effectiveness of these interventions by monitoring subsequent performance trends.
 
 ### **Outputs**
-- Configured Guild with enrolled students
-- Anonymized progress analytics and performance insights
-- Targeted intervention recommendations
-- Shared course materials and resources
-- Communication channels for announcements and support
+- A configured Guild with enrolled students.
+- Anonymized progress analytics and community performance insights.
+- Shared course materials and resources for guild members.
+- Communication channels for announcements and support.
 
 ### **Success Criteria**
-- Guild setup completed within 15 minutes
-- Analytics accurately identify struggling areas within 24 hours
-- Educator interventions show measurable improvement in student outcomes
-- Student engagement with Guild resources exceeds 70%
-
----
-
-## **Flow 6: Browser Extension Integration & Content Capture**
-
-### **Description**
-The seamless integration system that captures academic content from web sources and automatically organizes it within the user's learning ecosystem.
-
-### **Actors**
-- **Primary:** Student User
-- **Secondary:** Browser Extension, Content Processing Engine, Arsenal Organization System
-
-### **Process**
-1. User browses university portal or academic websites
-2. Browser extension automatically detects academic content
-3. User highlights relevant text or triggers manual capture
-4. Extension extracts and processes academic documents and information
-5. Content processing engine categorizes and tags captured information
-6. System automatically organizes content into user's Arsenal
-7. AI links captured content to relevant skill tree nodes
-8. Extension displays contextual Arsenal notes when user highlights text
-9. System maintains synchronization across devices and platforms
-10. User receives notifications about newly captured and organized content
-
-### **Outputs**
-- Automatically captured and organized academic content
-- Contextual note display system for highlighted text
-- Synchronized Arsenal across all user devices
-- AI-powered content categorization and linking
-- Seamless integration with existing learning workflows
-
-### **Success Criteria**
-- Content capture accuracy exceeds 95% for supported formats
-- Automatic categorization correctly classifies 90%+ of content
-- Contextual notes display within 2 seconds of text highlighting
-- Cross-device synchronization occurs within 30 seconds
-
----
-
-## **Flow 7: Real-time Progress Tracking & Adaptive Learning**
-
-### **Description**
-The continuous monitoring and adaptation system that tracks user progress across all learning activities and dynamically adjusts the learning experience for optimal outcomes.
-
-### **Actors**
-- **Primary:** Student User, AI Adaptation Engine
-- **Secondary:** Progress Analytics, Notification System, Skill Tree Manager
-
-### **Process**
-1. System continuously monitors user interactions across all platform features
-2. Progress analytics engine processes learning activity data
-3. AI identifies patterns in user performance and engagement
-4. System detects areas of struggle or accelerated learning
-5. Adaptive engine adjusts quest difficulty and learning paths
-6. Skill tree visualization updates to reflect current progress
-7. System generates personalized recommendations for improvement
-8. Notification system alerts user to important progress milestones
-9. AI suggests optimal study schedules based on performance patterns
-10. Continuous feedback loop refines personalization algorithms
-
-### **Outputs**
-- Real-time progress visualization and analytics
-- Dynamically adjusted learning paths and quest difficulty
-- Personalized improvement recommendations
-- Optimized study schedule suggestions
-- Milestone notifications and achievement tracking
-
-### **Success Criteria**
-- Progress tracking updates in real-time with <1 second latency
-- Adaptive adjustments improve learning outcomes by 25%+
-- User engagement with recommendations exceeds 60%
-- Personalization accuracy improves over time with usage
+- Guild setup is completed within 15 minutes.
+- Analytics accurately identify struggling areas for the community within 24 hours of sufficient data aggregation.
+- Educator interventions show a measurable improvement in student outcomes.
+- Student engagement with Guild resources exceeds 70%.
 
 ---
 
 ## **Integration Points**
 
 ### **Cross-Flow Dependencies**
-- **Onboarding → Quest Generation:** Character creation data feeds into AI quest generation
-- **Quest Generation → Assessment:** Generated quests include Boss Fight assessments
-- **Assessment → Progress Tracking:** Assessment results update skill tree and progress analytics
-- **Social Learning → Guild Management:** Party activities contribute to Guild analytics
-- **Browser Extension → All Flows:** Captured content enhances all learning activities
-- **Progress Tracking → All Flows:** Adaptive insights influence all user experiences
+- **Onboarding → Core AI Loop:** Character creation data and initial document uploads trigger the AI learning loop.
+- **Core AI Loop → Assessment:** The generated quest line includes and leads to "Boss Fight" assessments.
+- **Assessment → Core AI Loop:** Assessment results feed back into the adaptive learning part of the loop.
+- **Social Learning → Guild Management:** Party activities can contribute to Guild analytics and community health.
 
 ### **Data Flow Architecture**
-- **User Profile Service:** Central repository for character data and preferences
-- **AI Processing Pipeline:** Handles syllabus parsing, quest generation, and adaptations
-- **Real-time Synchronization:** Ensures consistent state across all user interactions
-- **Analytics Engine:** Processes data from all flows for insights and recommendations
-- **Notification Hub:** Coordinates alerts and updates across all system components
+- **User Profile Service:** Central repository for character data and preferences.
+- **AI Processing Pipeline:** Handles all content ingestion and adaptive generation.
+- **Real-time Synchronization:** Ensures consistent state across all user interactions.
+- **Analytics Engine:** Processes data from all flows for insights and recommendations.
+- **Notification Hub:** Coordinates alerts and updates across all system components.
 
 ---
 
 ## **Success Metrics**
 
 ### **Flow-Specific KPIs**
-- **Onboarding Completion Rate:** >85% of users complete character creation
-- **Quest Engagement:** Average 5+ quests completed per user per week
-- **Assessment Participation:** >90% of users engage with Boss Fight assessments
-- **Social Learning Adoption:** >40% of users join or create parties
-- **Guild Effectiveness:** Educator interventions improve outcomes by >20%
-- **Content Capture Usage:** >60% of users actively use browser extension
-- **Adaptation Success:** Personalized adjustments increase retention by >30%
+- **Onboarding Completion Rate:** >85% of users complete character creation.
+- **Core AI Loop Engagement:** >70% of users successfully process content and start a quest within 48 hours.
+- **Assessment Participation:** >90% of users engage with Boss Fight assessments.
+- **Social Learning Adoption:** >40% of users join or create parties.
+- **Guild Effectiveness:** Educator interventions improve outcomes by >20%.
+- **Adaptation Success:** Personalized adjustments increase retention by >30%.
 
 ### **Overall Platform Health**
 - **Weekly Active Users (WAU):** Primary engagement metric
