@@ -8,59 +8,63 @@ This document outlines which database tables and collections are used by each mi
 **Purpose**: Manages user profiles, authentication, academic structure, achievements, and user progress tracking
 
 **PostgreSQL Tables**:
-- `UserProfiles` - Core user profile data linked to Supabase auth.users (AuthUserId as primary key)
-- `Roles` - System roles for RBAC
-- `UserRoles` - User role assignments
-- `LecturerVerificationRequests` - Lecturer verification workflow
-- `Classes` - Academic class definitions
-- `CurriculumPrograms` - Abstract program definitions (e.g., "B.S. in Software Engineering")
-- `CurriculumVersions` - Versioned curriculum snapshots (e.g., "K18A", "K18B") with effective year tracking
-- `Subjects` - Master list of all subjects with codes and credits
-- `CurriculumStructure` - Junction table defining curriculum-subject relationships with term sequencing
-- `SyllabusVersions` - Versioned syllabi for each subject
-- `StudentEnrollments` - Links students to specific curriculum versions with enrollment tracking
-- `StudentTermSubjects` - Comprehensive academic term tracking with status (Enrolled, Completed, Failed, Withdrawn)
-- `UserSkills` - User skill progression tracking with experience points
-- `UserQuestProgress` - Summary of user progress on quests for quick reference and cross-service sync
-- `Achievements` - Central catalog of all possible achievements with type categorization
-- `UserAchievements` - Links users to earned achievements with context and timestamps
-- `Notifications` - User notification system with type-based categorization
+- `user_profiles` - Core user profile data linked to Supabase auth.users (auth_user_id as primary key)
+- `roles` - System roles for RBAC
+- `user_roles` - User role assignments
+- `lecturer_verification_requests` - Lecturer verification workflow
+- `classes` - Academic class definitions
+- `curriculum_programs` - Abstract program definitions (e.g., "B.S. in Software Engineering")
+- `curriculum_versions` - Versioned curriculum snapshots (e.g., "K18A", "K18B") with effective year tracking
+- `subjects` - Master list of all subjects with codes and credits
+- `curriculum_structure` - Junction table defining curriculum-subject relationships with term sequencing
+- `syllabus_versions` - Versioned syllabi for each subject
+- `student_enrollments` - Links students to specific curriculum versions with enrollment tracking
+- `student_term_subjects` - Comprehensive academic term tracking with status (Enrolled, Completed, Failed, Withdrawn)
+- `user_skills` - User skill progression tracking with experience points
+- `user_quest_progress` - Summary of user progress on quests for quick reference and cross-service sync
+- `achievements` - Central catalog of all possible achievements with type categorization
+- `user_achievements` - Links users to earned achievements with context and timestamps
+- `notifications` - User notification system with type-based categorization
 
 ### **Quests Service** (`roguelearn-quests-service`)
 **Purpose**: Manages quest lines, quests, skill trees, game sessions, and learning content with comprehensive progress tracking
 
 **PostgreSQL Tables**:
-- `QuestLines` - Organized sequences of learning objectives for entire academic journeys with curriculum integration
-- `QuestChapters` - Time-boxed containers representing weeks or major milestones (e.g., "Week 5", "Midterm Prep")
-- `Quests` - Individual learning tasks within chapters with rewards, metadata, and flexible quest types
-- `QuestDependencies` - Quest prerequisite relationships enabling complex learning paths
-- `SkillTrees` - Skill tree structures and hierarchies for different domains
-- `Skills` - Individual skill definitions with experience requirements and level progression
-- `SkillDependencies` - Skill prerequisite relationships for progressive mastery
-- `QuestSkills` - Links quests to skill development with experience point rewards
-- `GameSessions` - Comprehensive game session tracking with user engagement analytics
-- `SessionEvents` - Detailed interaction logging for learning analytics and adaptive content
-- `Notes` - User-generated content linked to quests and skills for collaborative knowledge sharing
+- `learning_paths` - Structured sequences of quests for comprehensive learning
+- `quests` - Core quest definitions with metadata and configuration
+- `quest_steps` - Individual steps within a quest for structured progression
+- `learning_path_quests` - Junction table linking quests to learning paths with sequencing
+- `quest_assessments` - Assessment configurations for quests requiring evaluation
+- `skill_trees` - Skill tree structures and hierarchies for different domains
+- `skills` - Individual skill definitions with experience requirements and level progression
+- `quest_skills` - Links quests to skill development with experience point rewards
+- `skill_dependencies` - Skill prerequisite relationships for progressive mastery
+- `user_quest_attempts` - Tracks user attempts and progress on quests
+- `user_quest_step_progress` - Detailed tracking of individual step completion
+- `user_learning_path_progress` - Tracks user progress through learning paths
+- `quest_submissions` - User submissions for assessed quests
+- `quest_analytics` - Aggregated analytics data for quest performance and engagement
+- `notes` - User-generated content linked to quests and skills for collaborative knowledge sharing
 
 ### **Social Service** (`roguelearn-social-service`)
 **Purpose**: Manages parties, guilds, events, leaderboards, and collaborative knowledge sharing
 
 **PostgreSQL Tables**:
-- `Parties` - Party/group definitions with configurable join types
-- `PartyMembers` - Party membership tracking with roles and status
-- `PartyInvitations` - Manages invitations for users to join parties
-- `PartyActivities` - Tracks collaborative activities and achievements within a party
-- `PartyStashItems` - Shared note repository for party collaboration
-- `Guilds` - Guild definitions with verification status
-- `GuildMembers` - Guild membership with hierarchical roles
-- `GuildInvitations` - Manages invitations and applications to join guilds
-- `GuildAchievements` - Tracks guild-level achievements and milestones
-- `Friendships` - Manages user-to-user friend connections
-- `UserSocialStats` - Aggregated social statistics for users
-- `SocialMessages` - Direct, party, and guild communication
-- `MessageReactions` - Emoji reactions to social messages
-- `SocialEvents` - Social learning events and activities
-- `EventParticipants` - Tracks user participation in social events
+- `parties` - Party/group definitions with configurable join types
+- `party_members` - Party membership tracking with roles and status
+- `party_invitations` - Manages invitations for users to join parties
+- `party_activities` - Tracks collaborative activities and achievements within a party
+- `party_stash_items` - Shared note repository for party collaboration
+- `guilds` - Guild definitions with verification status
+- `guild_members` - Guild membership with hierarchical roles
+- `guild_invitations` - Manages invitations and applications to join guilds
+- `guild_achievements` - Tracks guild-level achievements and milestones
+- `friendships` - Manages user-to-user friend connections
+- `user_social_stats` - Aggregated social statistics for users
+- `social_messages` - Direct, party, and guild communication
+- `message_reactions` - Emoji reactions to social messages
+- `social_events` - Social learning events and activities
+- `event_participants` - Tracks user participation in social events
 
 ### **Meeting Service** (`roguelearn-meeting-service`)
 **Purpose**: Manages meetings with AI-powered transcription, summarization, and content processing capabilities
@@ -117,7 +121,7 @@ Some services may need to read data from other services' primary tables:
 Each service maintains its own database connection pool to the shared PostgreSQL instance with appropriate permissions:
 
 - **Read/Write Access**: Services have full access to their primary tables
-- **Read-Only Access**: Services have read access to commonly referenced tables (UserProfiles, etc.)
+- **Read-Only Access**: Services have read access to commonly referenced tables (e.g., `user_profiles`)
 - **No Direct Access**: Services use API calls for complex cross-service operations
 
 ### **Qdrant Access**

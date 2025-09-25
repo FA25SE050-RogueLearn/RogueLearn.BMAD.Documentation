@@ -1,4 +1,3 @@
-// docs/fullstack-architecture/database-schema.md
 # **Database Schema**
 
 This section provides the SQL DDL for the PostgreSQL database.
@@ -6,7 +5,7 @@ This section provides the SQL DDL for the PostgreSQL database.
 ```sql
 -- RogueLearn Database Schema for PostgreSQL
 -- FINAL VERSION: Integrated with Supabase Auth and a robust, real-time Code Battle engine.
--- CORRECTED: Fixed table creation order and constraint issues
+-- CORRECTED: Fixed table creation order and constraint issues. Applied snake_case to User, Quests, and Social services.
 
 -- Enable UUID generation if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -57,7 +56,7 @@ CREATE TABLE user_profiles (
     email TEXT UNIQUE NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    class_id UUID REFERENCES classes(id) ON DELETE SET NULL, -- Fixed FK reference
+    class_id UUID REFERENCES classes(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -82,10 +81,6 @@ CREATE TABLE lecturer_verification_requests (
 -- SECTION 3: ACADEMIC & CONTENT MANAGEMENT (Updated with Enhanced Curriculum Structure)
 -- ------------------------------------------
 
--- ------------------------------------------
--- CURRICULUM MANAGEMENT SYSTEM
--- ------------------------------------------
-
 -- The abstract program, e.g., "B.S. in Software Engineering"
 CREATE TABLE curriculum_programs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -97,17 +92,17 @@ CREATE TABLE curriculum_programs (
 CREATE TABLE curriculum_versions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     program_id UUID NOT NULL REFERENCES curriculum_programs(id) ON DELETE CASCADE,
-    version_tag TEXT NOT NULL, -- "K18A", "K18B", "2024-2025 Catalog"
+    version_tag TEXT NOT NULL,
     effective_year INTEGER NOT NULL,
-    is_published BOOLEAN NOT NULL DEFAULT true, -- Is it visible to new students?
+    is_published BOOLEAN NOT NULL DEFAULT true,
     UNIQUE (program_id, version_tag)
 );
 
 -- The master list of all subjects offered
 CREATE TABLE subjects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    subject_code TEXT UNIQUE NOT NULL, -- "CS464"
-    title TEXT NOT NULL, -- "Introduction to Machine Learning"
+    subject_code TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
     credits INTEGER NOT NULL
 );
 
@@ -115,7 +110,7 @@ CREATE TABLE subjects (
 CREATE TABLE curriculum_structure (
     curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
     subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    prescribed_semester INTEGER NOT NULL, -- The semester this subject is *supposed* to be taken in (1, 2, 3...)
+    prescribed_semester INTEGER NOT NULL,
     PRIMARY KEY (curriculum_version_id, subject_id)
 );
 
@@ -123,9 +118,9 @@ CREATE TABLE curriculum_structure (
 CREATE TABLE syllabus_versions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    version_description TEXT NOT NULL, -- "Fall 2025 Syllabus"
+    version_description TEXT NOT NULL,
     effective_date DATE NOT NULL,
-    syllabus_content JSONB, -- The structured content of the syllabus
+    syllabus_content JSONB,
     file_url TEXT
 );
 
@@ -138,16 +133,20 @@ CREATE TABLE student_enrollments (
     expected_graduation_date DATE
 );
 
--- **KEY TABLE** - Tracks what a student is ACTUALLY taking each semester
+-- Tracks what a student is ACTUALLY taking each semester
 CREATE TABLE student_term_subjects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     enrollment_id UUID NOT NULL REFERENCES student_enrollments(id) ON DELETE CASCADE,
     subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    academic_term TEXT NOT NULL, -- e.g., "Fall 2025", "Semester 3"
-    status student_term_subject_status NOT NULL DEFAULT 'Enrolled', -- 'Enrolled', 'Completed', 'Failed', 'Withdrawn'
-    final_grade TEXT, -- Optional
+    academic_term TEXT NOT NULL,
+    status student_term_subject_status NOT NULL DEFAULT 'Enrolled',
+    final_grade TEXT,
     is_retake BOOLEAN NOT NULL DEFAULT false
 );
+
+-- ------------------------------------------
+-- SECTION 4: QUEST & SKILL MANAGEMENT
+-- ------------------------------------------
 
 CREATE TABLE notes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -160,11 +159,6 @@ CREATE TABLE notes (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
-
--- ------------------------------------------
--- SECTION 4: QUEST & SKILL MANAGEMENT (No Changes)
--- ------------------------------------------
 
 CREATE TABLE quest_lines (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -180,9 +174,9 @@ CREATE TABLE quest_lines (
 CREATE TABLE quest_chapters (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quest_line_id UUID NOT NULL REFERENCES quest_lines(id) ON DELETE CASCADE,
-    title TEXT NOT NULL, -- e.g., "Semester 3: Week 5", "Finals Week"
-    sequence INTEGER NOT NULL, -- 1, 2, 3... to order the chapters linearly
-    status quest_status NOT NULL DEFAULT 'NotStarted', -- 'NotStarted', 'InProgress', 'Completed'
+    title TEXT NOT NULL,
+    sequence INTEGER NOT NULL,
+    status quest_status NOT NULL DEFAULT 'NotStarted',
     start_date DATE,
     end_date DATE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -263,8 +257,6 @@ ALTER TABLE notes ADD CONSTRAINT fk_notes_skill_id FOREIGN KEY (skill_id) REFERE
 -- SECTION 5: USER QUEST PROGRESS & ACHIEVEMENTS
 -- ------------------------------------------
 
--- This table stores a summary of a user's progress on quests, providing a quick reference 
--- for the User Service without needing to constantly query the Quest Service.
 CREATE TABLE user_quest_progress (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
@@ -275,27 +267,25 @@ CREATE TABLE user_quest_progress (
     UNIQUE (auth_user_id, quest_id)
 );
 
--- This table serves as a central catalog of all possible achievements a user can earn.
 CREATE TABLE achievements (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL UNIQUE,
     description TEXT NOT NULL,
     icon_url TEXT,
-    source_service VARCHAR(255) NOT NULL -- e.g., 'QuestsService', 'CodeBattleService'
+    source_service VARCHAR(255) NOT NULL
 );
 
--- This table links users to the achievements they have earned.
 CREATE TABLE user_achievements (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
     achievement_id UUID NOT NULL REFERENCES achievements(id) ON DELETE CASCADE,
     earned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    context JSONB -- To store additional details, like the event or quest that triggered the achievement
+    context JSONB
 );
 
 
 -- ------------------------------------------
--- SECTION 6: GAME SESSION & NOTIFICATIONS (No Changes)
+-- SECTION 6: GAME SESSION & NOTIFICATIONS
 -- ------------------------------------------
 
 CREATE TABLE game_sessions (
@@ -320,7 +310,7 @@ CREATE TABLE notifications (
 
 
 -- ------------------------------------------
--- SECTION 7: SOCIAL & COMMUNITY (No Changes)
+-- SECTION 7: SOCIAL & COMMUNITY
 -- ------------------------------------------
 
 CREATE TABLE parties (
@@ -355,7 +345,6 @@ CREATE TABLE guild_memberships (
     PRIMARY KEY (guild_id, auth_user_id)
 );
 
--- This table stores shared notes in party stash, duplicating user notes for party collaboration
 CREATE TABLE party_stash_items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
@@ -370,6 +359,10 @@ CREATE TABLE party_stash_items (
     shared_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- ------------------------------------------
+-- SECTION 8: MEETING SERVICE
+-- ------------------------------------------
 
 CREATE TABLE meeting (
     meeting_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -423,7 +416,7 @@ CREATE TABLE meeting_summary (
 
 
 -- ------------------------------------------
--- SECTION 8: EVENTS & CODE BATTLES (MERGED)
+-- SECTION 9: EVENTS & CODE BATTLES
 -- ------------------------------------------
 
 CREATE TABLE languages (
@@ -505,7 +498,7 @@ CREATE TABLE leaderboard_entries (
     user_id uuid NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
     event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     rank integer NOT NULL,
-    score bigint NOT NULL,
+    score integer NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text)
 );
 
@@ -514,7 +507,7 @@ CREATE TABLE guild_leaderboard_entries (
     guild_id uuid NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
     event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     rank integer NOT NULL,
-    total_score bigint NOT NULL,
+    total_score integer NOT NULL,
     snapshot_date date NOT NULL
 );
 
@@ -531,11 +524,9 @@ CREATE TABLE room_players (
 CREATE TABLE test_cases (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
     code_problem_id uuid NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
-    language_id uuid NOT NULL REFERENCES languages(id) ON DELETE RESTRICT,
-    input text NOT NULL,
-    expected_output text NOT NULL,
-    time_constraint double precision,
-    space_constraint integer
+    input json NOT NULL,
+    expected_output json NOT NULL,
+    is_hidden boolean NOT NULL DEFAULT true
 );
 
 CREATE TABLE submissions (
@@ -552,7 +543,7 @@ CREATE TABLE submissions (
 
 
 -- ------------------------------------------
--- SECTION 9: INDEXES FOR PERFORMANCE (Updated)
+-- SECTION 10: INDEXES FOR PERFORMANCE
 -- ------------------------------------------
 CREATE INDEX idx_user_profiles_email ON user_profiles(email);
 CREATE INDEX idx_notes_user_id ON notes(auth_user_id);
@@ -572,11 +563,7 @@ CREATE INDEX idx_skills_skill_tree_id ON skills(skill_tree_id);
 CREATE INDEX idx_user_skills_user_id ON user_skills(auth_user_id);
 CREATE INDEX idx_game_sessions_user_id ON game_sessions(auth_user_id);
 CREATE INDEX idx_guild_memberships_user_id ON guild_memberships(auth_user_id);
-CREATE INDEX idx_meetings_party_id ON meetings(party_id);
-CREATE INDEX idx_meetings_guild_id ON meetings(guild_id);
-CREATE INDEX idx_meeting_participants_user_id ON meeting_participants(auth_user_id);
-CREATE INDEX idx_meeting_agenda_meeting_id ON meeting_agenda(meeting_id);
-CREATE INDEX idx_meeting_notes_meeting_id ON meeting_notes(meeting_id);
+CREATE INDEX idx_meeting_participants_user_id ON meeting_participant(user_id);
 CREATE INDEX idx_rooms_event_id ON rooms(event_id);
 CREATE INDEX idx_room_players_user_id ON room_players(auth_user_id);
 CREATE INDEX idx_test_cases_code_problem_id ON test_cases(code_problem_id);
@@ -595,15 +582,6 @@ CREATE INDEX idx_user_achievements_user_id ON user_achievements(auth_user_id);
 -- Event and Guild participation indexes
 CREATE INDEX idx_event_guild_participants_event_id ON event_guild_participants(event_id);
 CREATE INDEX idx_event_guild_participants_guild_id ON event_guild_participants(guild_id);
--- Meeting participant activity tracking indexes
-CREATE INDEX idx_meeting_participant_activity_meeting_id ON meeting_participant_activity(meeting_id);
-CREATE INDEX idx_meeting_participant_activity_user_id ON meeting_participant_activity(auth_user_id);
-CREATE INDEX idx_meeting_participant_activity_check_in_time ON meeting_participant_activity(check_in_time);
-CREATE INDEX idx_meeting_participant_engagement_meeting_id ON meeting_participant_engagement(meeting_id);
-CREATE INDEX idx_meeting_participant_engagement_user_id ON meeting_participant_engagement(auth_user_id);
-CREATE INDEX idx_meeting_participant_engagement_timestamp ON meeting_participant_engagement(timestamp);
-CREATE INDEX idx_meeting_participant_stats_meeting_id ON meeting_participant_stats(meeting_id);
-CREATE INDEX idx_meeting_participant_stats_user_id ON meeting_participant_stats(auth_user_id);
 -- Enhanced curriculum system indexes
 CREATE INDEX idx_curriculum_versions_program_id ON curriculum_versions(program_id);
 CREATE INDEX idx_curriculum_versions_effective_year ON curriculum_versions(effective_year);
