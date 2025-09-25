@@ -1,16 +1,17 @@
 # Flow 6: Event Creation and Participating - Sequence Diagram
 
 ## Overview
-This sequence diagram illustrates the complete workflow for code battle event creation and participation, showcasing how Guild Master A creates events that require admin approval, and how Guild Master B and other guilds can register and participate in approved events.
+This sequence diagram illustrates the complete workflow for "Flow 6: Event Management & Code Battle Competition" showing the interaction between Guild Master A (event creator), Admin (event approver), Guild Master B (participating guild leader), Users (Students), and the system services for creating, approving, registering, and executing code battle competitions.
 
 ## Actors
-- **Guild Master A**: The guild leader who initiates event creation
-- **Admin**: System administrator who approves event creation requests
-- **Guild Master B**: Representative of participating guilds
+- **Guild Master A**: Creates and configures competitive events
 - **User (Student)**: Guild members who participate in code battles
-- **Web Interface**: Frontend application interface
-- **API Gateway**: Central API routing and authentication layer
-- **Code Battle Service**: Core service managing events, rooms, and judging
+- **Guild Master B**: Leaders of guilds that join events
+- **Admin**: Approves event creation requests
+- **Web Interface**: User interaction layer
+- **API Gateway**: Request routing and authentication
+- **Code Battle Service**: Manages events, rooms, code problems, and judging
+- **Social Service**: Manages guild information and membership
 - **Database**: Data persistence layer
 
 ## Sequence Diagram
@@ -24,161 +25,153 @@ sequenceDiagram
     participant Web as Web Interface
     participant API as API Gateway
     participant CBS as Code Battle Service
+    participant SS as Social Service
     participant DB as Database
 
-    Note over GMA, DB: Event Creation & Approval Phase
-    
+    Note over GMA, DB: Phase 1: Event Creation & Approval
+
     GMA->>Web: Access event creation interface
     Web->>API: Request event creation form
-    API->>CBS: Fetch event configuration options
-    CBS->>DB: Query available code problems and settings
-    DB-->>CBS: Return problem categories and configuration options
-    CBS-->>API: Return event creation form data
-    API-->>Web: Provide form with options
-    Web-->>GMA: Display event creation form
-    
+    API->>CBS: Get event configuration options
+    CBS->>DB: Retrieve code problems and difficulty levels
+    DB-->>CBS: Return available problems
+    CBS-->>API: Return configuration options
+    API-->>Web: Display event creation form
+    Web-->>GMA: Show event configuration options
+
     GMA->>Web: Configure event (difficulty distribution, points, timing)
     Web->>API: Submit event creation request
-    API->>CBS: Process event creation request
-    CBS->>DB: Store pending event with approval status
-    DB-->>CBS: Confirm event stored as pending
-    CBS-->>API: Event creation request submitted
-    API-->>Web: Confirm submission
-    Web-->>GMA: Display submission confirmation
-    
-    CBS->>Admin: Send event approval notification
-    Admin->>Web: Review pending event request
-    Web->>API: Request event details for approval
-    API->>CBS: Fetch pending event details
-    CBS->>DB: Query event configuration and requirements
-    DB-->>CBS: Return event details
-    CBS-->>API: Provide event details
-    API-->>Web: Display event for review
-    Web-->>Admin: Show event details and approval options
-    
-    Admin->>Web: Approve event creation
-    Web->>API: Submit event approval
-    API->>CBS: Process event approval
-    CBS->>DB: Update event status to approved and finalize setup
-    CBS->>DB: Randomly select code problems based on configuration
-    DB-->>CBS: Confirm event approved and problems assigned
-    CBS-->>API: Event approved and ready
-    API-->>Web: Confirm approval
-    Web-->>Admin: Display approval confirmation
-    
-    Note over GMA, DB: Event Setup & Guild Registration Phase
-    
-    CBS->>Web: Broadcast approved event announcement
-    Web->>GMB: Notify of available event
-    Web->>User: Display event in guild dashboard
-    
-    GMB->>Web: View available events
+    API->>CBS: Create event with configuration
+    CBS->>DB: Store event data
+    DB-->>CBS: Confirm event stored
+    CBS->>CBS: Generate approval notification
+    CBS-->>API: Event creation pending approval
+    API-->>Web: Display pending approval status
+    Web-->>GMA: Show event awaiting approval
+
+    CBS->>Admin: Notify pending event approval
+    Admin->>Web: Review event details
     Web->>API: Request event details
-    API->>CBS: Fetch event information
-    CBS->>DB: Query event details and requirements
-    DB-->>CBS: Return event information
-    CBS-->>API: Provide event details
-    API-->>Web: Display event information
-    Web-->>GMB: Show event details and registration option
-    
+    API->>CBS: Get event information
+    CBS->>DB: Retrieve event data
+    DB-->>CBS: Return event details
+    CBS-->>API: Return event information
+    API-->>Web: Display event details
+    Web-->>Admin: Show event for approval
+
+    Admin->>Web: Approve event
+    Web->>API: Submit approval decision
+    API->>CBS: Approve event
+    CBS->>DB: Update event status to approved
+    DB-->>CBS: Confirm status updated
+    CBS->>CBS: Randomly select code problems
+    CBS->>DB: Store selected problems for event
+    DB-->>CBS: Confirm problems stored
+    CBS-->>API: Event approved and ready
+    API-->>Web: Display approval confirmation
+    Web-->>Admin: Show event approved
+
+    Note over GMA, DB: Phase 2: Event Setup & Guild Registration
+
+    CBS->>SS: Broadcast event announcement to guilds
+    SS->>DB: Retrieve eligible guild list
+    DB-->>SS: Return guild information
+    SS-->>CBS: Confirm announcement sent
+
+    GMB->>Web: View available events
+    Web->>API: Request available events
+    API->>CBS: Get approved events
+    CBS->>DB: Retrieve approved events
+    DB-->>CBS: Return event list
+    CBS-->>API: Return available events
+    API-->>Web: Display events list
+    Web-->>GMB: Show available events
+
     GMB->>Web: Register guild for event
     Web->>API: Submit guild registration
-    API->>CBS: Process guild registration
-    CBS->>DB: Verify guild eligibility and store registration
-    DB-->>CBS: Confirm guild registered
-    CBS-->>API: Registration successful
-    API-->>Web: Confirm registration
-    Web-->>GMB: Display registration confirmation
-    
-    Note over GMA, DB: Competition Execution Phase
-    
-    CBS->>DB: Initialize event battle rooms
-    DB-->>CBS: Battle rooms created
-    CBS->>Web: Notify event start to all participants
-    Web->>User: Display event start notification
-    
-    User->>Web: Join battle room
-    Web->>API: Request battle room access
-    API->>CBS: Authenticate and grant room access
-    CBS->>DB: Log participant entry
+    API->>CBS: Register guild for event
+    CBS->>SS: Validate guild eligibility
+    SS->>DB: Check guild status and membership
+    DB-->>SS: Return guild validation data
+    SS-->>CBS: Confirm guild eligible
+    CBS->>DB: Create event-guild participation record
+    DB-->>CBS: Confirm registration stored
+    CBS-->>API: Guild registration confirmed
+    API-->>Web: Display registration success
+    Web-->>GMB: Show registration confirmed
+
+    Note over GMA, DB: Phase 3: Competition Execution
+
+    CBS->>CBS: Initialize battle rooms for event
+    CBS->>DB: Create room records for guilds
+    DB-->>CBS: Confirm rooms created
+    CBS->>SS: Notify guild members of event start
+    SS->>DB: Retrieve guild member lists
+    DB-->>SS: Return member information
+    SS-->>CBS: Members notified
+
+    User->>Web: Join competition room
+    Web->>API: Request room access
+    API->>CBS: Validate user participation
+    CBS->>SS: Verify user guild membership
+    SS->>DB: Check user guild status
+    DB-->>SS: Return membership status
+    SS-->>CBS: Confirm user eligible
+    CBS->>DB: Add user to room
+    DB-->>CBS: Confirm user added
     CBS-->>API: Room access granted
-    API-->>Web: Provide battle interface
-    Web-->>User: Display code battle interface with problems
-    
-    loop For each code submission
-        User->>Web: Submit code solution
-        Web->>API: Send code submission
-        API->>CBS: Process code submission
-        CBS->>DB: Store submission and run automated tests
-        DB-->>CBS: Return test results and scoring
-        CBS->>DB: Update participant and guild leaderboards
-        CBS-->>API: Submission processed with results
-        API-->>Web: Provide submission feedback
-        Web-->>User: Display results and updated leaderboard
-        
-        Note over CBS, Web: Real-time updates to all participants
-        CBS->>Web: Broadcast leaderboard updates
-        Web-->>User: Real-time leaderboard updates
-        Web-->>GMB: Guild performance updates
-        Web-->>GMA: Event progress updates
-    end
-    
-    Note over GMA, DB: Results & Analytics Phase
-    
-    CBS->>DB: Calculate final rankings and statistics
-    DB-->>CBS: Return comprehensive results
-    CBS->>Web: Publish final results to all participants
-    Web->>GMA: Display event results and analytics
-    Web->>GMB: Show guild performance and rankings
-    Web->>User: Present individual achievements and scores
-    
-    Note over GMA, DB: Post-Event Analytics
-    
-    GMA->>Web: Access event analytics dashboard
-    Web->>API: Request event performance data
-    API->>CBS: Fetch detailed event analytics
-    CBS->>DB: Query submission patterns and performance metrics
-    DB-->>CBS: Return analytics data
-    CBS-->>API: Comprehensive event analytics
-    API-->>Web: Analytics dashboard data
-    Web-->>GMA: Display event insights and recommendations
+    API-->>Web: Display competition interface
+    Web-->>User: Show code problems
+
+    User->>Web: Submit code solution
+    Web->>API: Send solution for evaluation
+    API->>CBS: Process code submission
+    CBS->>CBS: Execute code against test cases
+    CBS->>DB: Store submission results
+    DB-->>CBS: Confirm results stored
+    CBS->>CBS: Update leaderboards
+    CBS->>DB: Update individual and guild scores
+    DB-->>CBS: Confirm scores updated
+    CBS-->>API: Return submission results
+    API-->>Web: Display results and rankings
+    Web-->>User: Show submission feedback
+
+    Note over GMA, DB: Phase 4: Results & Analytics
+
+    CBS->>CBS: Calculate final rankings
+    CBS->>DB: Retrieve all submission data
+    DB-->>CBS: Return competition results
+    CBS->>SS: Update guild reputation scores
+    SS->>DB: Update guild statistics
+    DB-->>SS: Confirm updates applied
+    SS-->>CBS: Guild updates confirmed
+
+    CBS->>DB: Store final leaderboards
+    DB-->>CBS: Confirm leaderboards stored
+    CBS->>SS: Publish results to guild dashboards
+    SS->>DB: Update guild achievement records
+    DB-->>SS: Confirm achievements updated
+    SS-->>CBS: Results published successfully
+
+    CBS-->>API: Competition completed
+    API-->>Web: Display final results
+    Web-->>User: Show final rankings and achievements
+    Web-->>GMB: Show guild performance summary
+    Web-->>GMA: Show event completion report
 ```
 
 ## Key Features Highlighted
 
-### Event Creation Workflow
-- Guild Masters can configure events with specific difficulty distributions
-- System randomly selects problems based on configuration
-- Automatic guild registration and eligibility validation
-
-### Real-time Competition
-- Live code submission and judging
-- Real-time leaderboard updates for individuals and guilds
-- Secure code execution with comprehensive test case validation
-
-### Cross-Service Integration
-- Code Battle Service manages technical aspects (problems, judging, scoring)
-- Social Service handles guild information and member management
-- Seamless data flow between services for comprehensive functionality
-
-### Analytics and Insights
-- Post-event performance analysis
-- Guild engagement metrics
-- Individual and collective achievement tracking
+1. **Admin Approval Workflow**: Clear approval process where Admin must review and approve events before they become available
+2. **Service Separation**: Distinct responsibilities between Code Battle Service (event management, judging) and Social Service (guild management)
+3. **Guild Information Integration**: Code Battle Service queries Social Service for guild eligibility, membership, and updates
+4. **Real-time Competition**: Live code submission, evaluation, and leaderboard updates during competition
+5. **Comprehensive Results**: Final rankings update both individual achievements and guild reputation through service coordination
 
 ## Technical Considerations
 
-### Performance
-- Real-time updates use efficient broadcasting mechanisms
-- Code execution is sandboxed and optimized for concurrent submissions
-- Database queries are optimized for leaderboard calculations
-
-### Security
-- All code submissions are executed in secure, isolated environments
-- Guild permissions are validated at multiple checkpoints
-- User authentication is maintained throughout the competition
-
-### Scalability
-- System supports multiple concurrent events
-- Battle rooms can accommodate varying numbers of participants
-- Leaderboard calculations are optimized for large-scale competitions
+- **Service Communication**: Code Battle Service and Social Service communicate for guild data validation and updates
+- **Real-time Updates**: Live leaderboard updates during competition execution
+- **Data Consistency**: Cross-service data synchronization for guild information and achievements
+- **Scalability**: Room-based architecture supports multiple concurrent competitions
+- **Security**: API Gateway handles authentication and request routing for all user interactions

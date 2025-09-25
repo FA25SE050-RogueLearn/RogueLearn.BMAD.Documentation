@@ -195,41 +195,53 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 The competitive programming system that enables Guild Masters and System Admins to create code battle events where guilds compete against each other. This flow manages event creation, approval workflows, participant registration, and real-time competitive coding battles with comprehensive scoring and leaderboards.
 
 ### **Actors**
-- **Primary:** Guild Master A (Event Creator), Admin (Event Approver), Guild Master B (Participating Guild Leader)
-- **Secondary:** Guild Members (Students), Code Battle Service, Social Service, Database, Analytics Engine
+- **Primary:** 
+  - Guild Master A (Event Creator)
+  - User (Student) - Guild members participating in competitions
+  - Guild Master B (Participating Guild Leader)
+  - Admin (Event Approver)
+- **Secondary:** 
+  - Web Interface (User interaction layer)
+  - API Gateway (Request routing and authentication)
+  - Code Battle Service (Manages events, rooms, code problems, judging)
+  - Social Service (Manages guild information and membership)
+  - Database (Data persistence layer)
 
 ### **Process**
 1. **Event Creation & Approval Phase:**
-   - Admin imports code problems into the system with difficulty levels and test cases
-   - Guild Master A initiates event creation through the guild management interface
-   - System presents event configuration options (number of easy/medium/hard questions, points per question, start/end times, participation rules)
+   - Admin imports code problems into Code Battle Service with difficulty levels and test cases
+   - Guild Master A initiates event creation through the Web Interface
+   - API Gateway routes request to Code Battle Service for event configuration
+   - Code Battle Service presents event configuration options (number of easy/medium/hard questions, points per question, start/end times, participation rules)
    - Guild Master A configures event parameters and submits event creation request
-   - Admin receives notification of pending event approval request
-   - Admin reviews event configuration and approves or rejects the request
-   - Upon approval, system finalizes event creation and makes it available for registration
+   - Code Battle Service stores event data and notifies Admin of pending approval request
+   - Admin reviews event configuration through Web Interface and approves or rejects the request
+   - Upon approval, Code Battle Service finalizes event creation and makes it available for registration
 
 2. **Event Setup & Guild Registration:**
-   - System randomly selects code problems based on Guild Master A's configured difficulty distribution
+   - Code Battle Service randomly selects code problems based on Guild Master A's configured difficulty distribution
    - Code Battle Service creates event infrastructure and prepares judging environment
-   - System broadcasts approved event announcement to all eligible guilds
-   - Guild Master B (and other guild leaders) review available events
+   - System broadcasts approved event announcement to all eligible guilds through Social Service
+   - Guild Master B (and other guild leaders) review available events through Web Interface
    - Guild Master B registers their guild for participation in the approved event
-   - System validates guild eligibility and confirms registration
-   - Code Battle Service coordinates with Social Service to verify guild information and member counts
+   - Code Battle Service validates guild eligibility by querying Social Service for guild information
+   - Social Service provides guild membership data, verification status, and member counts to Code Battle Service
+   - Code Battle Service confirms registration and creates event-guild participation records
 
 3. **Competition Execution:**
    - Code Battle Service initializes real-time battle rooms for all registered guilds
    - System distributes the randomly selected code problems to all participants simultaneously
-   - Guild members from participating guilds submit code solutions through the battle interface
+   - Users (Students) from participating guilds submit code solutions through the Web Interface
+   - API Gateway routes submissions to Code Battle Service for evaluation
    - Code Battle Service evaluates submissions against test cases in real-time
-   - System updates individual participant leaderboards and guild aggregate scores
+   - Code Battle Service updates individual participant leaderboards and guild aggregate scores
    - Real-time notifications keep all participants informed of current standings and progress
 
 4. **Results & Analytics:**
-   - System calculates final individual and guild rankings based on scoring algorithm
-   - Analytics Engine processes comprehensive performance data from the competition
-   - System updates guild reputation scores and individual member achievements
-   - Final results are published to all participating guild dashboards and community leaderboards
+   - Code Battle Service calculates final individual and guild rankings based on scoring algorithm
+   - Code Battle Service queries Social Service to update guild reputation scores and member achievements
+   - Social Service processes guild performance data and updates guild statistics
+   - Final results are published to all participating guild dashboards through Social Service integration
    - Post-event analysis provides insights and recommendations for future events
 
 ### **Outputs**
