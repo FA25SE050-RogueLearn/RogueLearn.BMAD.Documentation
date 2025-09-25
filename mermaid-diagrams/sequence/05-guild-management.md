@@ -15,7 +15,7 @@ sequenceDiagram
     GM->>UI: Creates a new Guild
     UI->>APIGateway: POST /guilds
     APIGateway->>SocialService: Forwards request
-    SocialService->>Database: CREATE Guild record
+    SocialService->>Database: CREATE Guild record in its schema
     SocialService-->>APIGateway: 201 Created
     APIGateway-->>UI: Guild created
 
@@ -33,33 +33,34 @@ sequenceDiagram
     
     %% Step 4: Backend services collaborate to aggregate anonymized data %%
     activate SocialService
-    SocialService->>Database: Get all member IDs for the guild
+    SocialService->>Database: Get all member IDs for the specified guild
     Database-->>SocialService: Returns list of user IDs
     
-    Note right of SocialService: Internal service-to-service call<br/>to fetch progress data.
-    SocialService->>QuestsService: GetBulkProgress(userIds)
+    Note right of SocialService: Secure, internal service-to-service call to fetch progress.
+    SocialService->>QuestsService: GetBulkProgressForUsers(userIds)
+    
     activate QuestsService
-    QuestsService->>Database: Fetch quest progress for all members
-    Database-->>QuestsService: Returns progress data
-    QuestsService-->>SocialService: Returns anonymized, aggregated data
+    QuestsService->>Database: Fetch quest progress for all specified members
+    Database-->>QuestsService: Returns detailed progress data
+    QuestsService-->>SocialService: Returns anonymized, aggregated progress statistics
     deactivate QuestsService
     
-    Note right of SocialService: Analytics engine processes data<br/>to identify struggling topics.
-    SocialService->>SocialService: Process data to find insights
+    Note right of SocialService: Social Service's analytics engine processes<br/>the aggregated data to find insights.
+    SocialService->>SocialService: Process data to identify struggling topics, etc.
     
-    SocialService-->>APIGateway: Returns analytics payload (e.g., struggling topics)
+    SocialService-->>APIGateway: Returns final analytics payload
     deactivate SocialService
-    APIGateway-->>UI: Returns analytics data
-    UI->>GM: Displays dashboard with insights
+    APIGateway-->>UI: Returns analytics data to the client
+    UI->>GM: Displays dashboard with actionable insights
 
-    %% Step 5: Guild Master takes action based on insights %%
-    GM->>UI: Creates a targeted announcement
+    %% Step 5: Guild Master takes action %%
+    GM->>UI: Creates a targeted announcement for the guild
     UI->>APIGateway: POST /guilds/{guildId}/announcements
-    APIGateway->>SocialService: Forwards request
+    APIGateway->>SocialService: Forwards request to create announcement
     SocialService->>Database: Store announcement
     
-    %% Step 6: Students are notified %%
+    %% Step 6: Students are notified in real-time %%
     SocialService->>RealtimeHub: NotifyGuildMembers('NewAnnouncement', guildId)
-    RealtimeHub-->>UI: Pushes real-time notification to all guild members' UIs
-    UI-->>S: Displays new announcement
+    RealtimeHub-->>UI: Pushes real-time notification to all online guild members
+    UI-->>S: Displays the new announcement
 ```

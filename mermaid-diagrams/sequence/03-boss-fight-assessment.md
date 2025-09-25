@@ -16,13 +16,18 @@ sequenceDiagram
     UI->>APIGateway: POST /game/sessions (questId)
     APIGateway->>QuestsService: Forwards request to start session
 
-    %% Step 2: Backend creates a game session and fetches questions %%
+    %% Step 2: Backend creates a game session and fetches the assessment content %%
+    activate QuestsService
     QuestsService->>Database: CREATE GameSession record (status: 'InProgress')
-    Database-->>QuestsService: Returns new sessionId and assessment questions
-    QuestsService-->>APIGateway: 201 Created { sessionId, questions, gameBuildUrl }
-    APIGateway-->>UI: Returns session data
+    Database-->>QuestsService: Returns new sessionId
+    QuestsService->>Database: Fetch or Generate CurriculumPack for the quest
+    Database-->>QuestsService: Returns assessment questions (CurriculumPack)
+    
+    QuestsService-->>APIGateway: 201 Created { sessionId, pack, gameBuildUrl }
+    deactivate QuestsService
+    APIGateway-->>UI: Returns session data and assessment content
 
-    %% Step 3: Web UI launches the Unity client and passes it the session data %%
+    %% Step 3: Web UI launches the Unity client with the session data %%
     UI->>Unity: Initialize game embed with session data via JS bridge
     Unity->>U: Displays Boss Fight arena and gameplay UI
 
@@ -35,7 +40,7 @@ sequenceDiagram
     %% Step 5: Unity client reports final score back to the web UI upon completion %%
     Unity->>UI: Calls onGameComplete(finalScore, progressData) via JS bridge
     
-    %% Step 6: Web UI sends the final results to the backend for processing %%
+    %% Step 6: Web UI sends the final results to the backend %%
     UI->>APIGateway: POST /game/sessions/{sessionId}/complete (score, data)
     APIGateway->>QuestsService: Forwards completion request
 
@@ -49,6 +54,6 @@ sequenceDiagram
     QuestsService-->>APIGateway: 200 OK
     APIGateway-->>UI: 200 OK
 
-    %% Step 8: User sees their final results %%
+    %% Step 8: User sees their final results on the web UI %%
     UI->>U: Display results screen (score, XP, skill points, new rank)
 ```

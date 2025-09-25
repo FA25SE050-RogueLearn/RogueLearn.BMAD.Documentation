@@ -41,24 +41,26 @@ sequenceDiagram
 
     %% --- Continuous Adaptation Loop Begins After User Interaction ---
 
-    U->>UI: Completes a quest
-    UI->>AnalyticsService: LogUserActivity(...)
-    AnalyticsService->>Database: Store event
+    loop Continuous Adaptation
+        U->>UI: Completes a quest
+        UI->>AnalyticsService: LogUserActivity(...)
+        AnalyticsService->>Database: Store event
 
-    activate AnalyticsService
-    AnalyticsService->>AI_Engine: TriggerProgressAnalysis(...)
-    deactivate AnalyticsService
-    
-    activate AI_Engine
-    AI_Engine->>AI_Engine: Identify struggle/acceleration
-    AI_Engine->>QuestsService: Request quest adjustment
-    deactivate AI_Engine
+        activate AnalyticsService
+        AnalyticsService->>AI_Engine: TriggerProgressAnalysis(...)
+        deactivate AnalyticsService
+        
+        activate AI_Engine
+        AI_Engine->>AI_Engine: Identify struggle/acceleration
+        AI_Engine->>QuestsService: Request quest adjustment
+        deactivate AI_Engine
 
-    activate QuestsService
-    QuestsService->>Database: UPDATE Quest parameters
-    deactivate QuestsService
-    
-    QuestsService->>RealtimeHub: NotifyUser('QuestUpdated')
-    RealtimeHub-->>UI: Pushes update
-    UI-->>U: "Your path has been updated!"
+        activate QuestsService
+        QuestsService->>Database: UPDATE Quest parameters
+        deactivate QuestsService
+        
+        QuestsService->>RealtimeHub: NotifyUser('QuestUpdated')
+        RealtimeHub-->>UI: Pushes update
+        UI-->>U: "Your path has been updated!"
+    end
 ```
