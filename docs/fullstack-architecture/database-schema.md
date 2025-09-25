@@ -1,3 +1,4 @@
+// docs/fullstack-architecture/database-schema.md
 # **Database Schema**
 
 This section provides the SQL DDL for the PostgreSQL database.
@@ -422,137 +423,136 @@ CREATE TABLE meeting_summary (
 
 
 -- ------------------------------------------
--- SECTION 8: EVENTS & COMPETITION (Modified)
+-- SECTION 8: EVENTS & CODE BATTLES (MERGED)
 -- ------------------------------------------
 
--- Languages table must come first as it's referenced by code_problems
 CREATE TABLE languages (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL UNIQUE,
-    compile_cmd TEXT,
-    run_cmd TEXT NOT NULL
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name text NOT NULL,
+    compile_cmd text NOT NULL,
+    run_cmd text NOT NULL,
+    CONSTRAINT languages_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE events (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title TEXT NOT NULL,
-    description TEXT,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    title text NOT NULL DEFAULT ''::text,
+    description text NOT NULL DEFAULT ''::text,
     type event_type NOT NULL,
-    start_date TIMESTAMPTZ,
-    end_date TIMESTAMPTZ,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    start_date timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text),
+    end_date timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text),
+    CONSTRAINT events_pkey PRIMARY KEY (id)
 );
 
--- Junction table for many-to-many relationship between Events and Guilds
--- This allows multiple guilds to participate in the same event
+CREATE TABLE rooms (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+  name text NOT NULL DEFAULT ''::text,
+  description text NOT NULL DEFAULT ''::text,
+  created_date timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text),
+  CONSTRAINT rooms_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE event_guild_participants (
-    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-    guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    guild_id uuid NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    joined_at timestamp with time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
+    room_id uuid REFERENCES rooms(id) ON DELETE SET NULL,
     PRIMARY KEY (event_id, guild_id)
 );
 
--- This table now serves as a canonical reference for a problem's text.
--- The actual question content (template, etc.) is in Qdrant.
 CREATE TABLE code_problems (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title TEXT NOT NULL,
-    problem_statement TEXT NOT NULL
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    title text NOT NULL DEFAULT ''::text,
+    problem_statement text NOT NULL DEFAULT ''::text,
+    difficulty integer NOT NULL DEFAULT 1,
+    created_at timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text),
+    CONSTRAINT code_problems_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE tags (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL UNIQUE
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name text NOT NULL DEFAULT ''::text UNIQUE,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT tags_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE code_problem_tags (
-    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
-    tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    code_problem_id uuid NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    tag_id uuid NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
     PRIMARY KEY (code_problem_id, tag_id)
 );
 
 CREATE TABLE code_problem_language_details (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
-    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE CASCADE,
-    template TEXT,
-    solution TEXT,
-    UNIQUE (code_problem_id, language_id)
+    code_problem_id uuid NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    language_id uuid NOT NULL REFERENCES languages(id) ON DELETE CASCADE,
+    solution_stub text NOT NULL DEFAULT ''::text,
+    driver_code text NOT NULL DEFAULT ''::text,
+    time_constraint_ms integer NOT NULL DEFAULT 1000,
+    space_constraint_mb integer NOT NULL DEFAULT 16,
+    PRIMARY KEY (code_problem_id, language_id)
 );
 
 CREATE TABLE event_code_problems (
-    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    code_problem_id uuid NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    score integer NOT NULL DEFAULT 0,
     PRIMARY KEY (event_id, code_problem_id)
 );
 
 CREATE TABLE leaderboard_entries (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
-    rank INTEGER NOT NULL,
-    score BIGINT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    user_id uuid NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    rank integer NOT NULL,
+    score bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text)
 );
 
 CREATE TABLE guild_leaderboard_entries (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
-    rank INTEGER NOT NULL,
-    total_score BIGINT NOT NULL,
-    snapshot_date DATE NOT NULL
-);
-
-
--- ------------------------------------------
--- SECTION 9: REAL-TIME CODE BATTLES & JUDGING (FULLY MERGED & DETAILED)
--- ------------------------------------------
-
-CREATE TABLE rooms (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,
-    description TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    guild_id uuid NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    rank integer NOT NULL,
+    total_score bigint NOT NULL,
+    snapshot_date date NOT NULL
 );
 
 CREATE TABLE room_players (
-    room_id UUID NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    score INTEGER NOT NULL DEFAULT 0,
-    place INTEGER,
-    state TEXT,
-    disconnected_at TIMESTAMPTZ,
+    room_id uuid NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+    auth_user_id uuid NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    score integer NOT NULL DEFAULT 0,
+    place integer,
+    state text DEFAULT ''::text,
+    disconnected_at timestamp with time zone,
     PRIMARY KEY (room_id, auth_user_id)
 );
 
 CREATE TABLE test_cases (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
-    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE RESTRICT,
-    input TEXT NOT NULL,
-    expected_output TEXT NOT NULL,
-    time_constraint DOUBLE PRECISION,
-    space_constraint INTEGER
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    code_problem_id uuid NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    language_id uuid NOT NULL REFERENCES languages(id) ON DELETE RESTRICT,
+    input text NOT NULL,
+    expected_output text NOT NULL,
+    time_constraint double precision,
+    space_constraint integer
 );
 
--- This fully-featured table replaces the original "code_submissions"
--- It contains all fields necessary for a detailed, external judging service.
 CREATE TABLE submissions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    code_problem_id UUID NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
-    language_id UUID NOT NULL REFERENCES languages(id) ON DELETE CASCADE,
-    source_code TEXT NOT NULL,
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    user_id uuid NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    code_problem_id uuid NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
+    language_id uuid NOT NULL REFERENCES languages(id) ON DELETE CASCADE,
+    room_id uuid NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+    submitted_guild_id uuid NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    source_code text NOT NULL,
     status submission_status NOT NULL DEFAULT 'Pending',
-    submitted_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    submitted_at timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text)
 );
 
 
 -- ------------------------------------------
--- SECTION 10: INDEXES FOR PERFORMANCE (Updated)
+-- SECTION 9: INDEXES FOR PERFORMANCE (Updated)
 -- ------------------------------------------
 CREATE INDEX idx_user_profiles_email ON user_profiles(email);
 CREATE INDEX idx_notes_user_id ON notes(auth_user_id);
@@ -619,4 +619,3 @@ CREATE INDEX idx_student_term_subjects_subject_id ON student_term_subjects(subje
 CREATE INDEX idx_student_term_subjects_term ON student_term_subjects(academic_term);
 CREATE INDEX idx_student_term_subjects_status ON student_term_subjects(status);
 ```
-

@@ -3,60 +3,54 @@
 ```mermaid
 sequenceDiagram
     participant U as Student User
-    participant UI as Web Interface
-    participant Monitor as Activity Monitor
-    participant Analytics as Progress Analytics
-    participant AI as Adaptation Engine
-    participant STree as Skill Tree Service
-    participant Quest as Quest System
-    participant Recommend as Recommendation Engine
-    participant Notify as Notification Service
-    participant DB as Database
+    participant UI as Web Interface (Next.js)
+    participant AnalyticsService as Analytics Service
+    participant AI_Engine as AI Adaptation Engine
+    participant QuestsService as Quests Service
+    participant UserService as User Service
+    participant RealtimeHub as Real-time Hub (SignalR)
+    participant Database as Database (Supabase)
 
-    loop Continuous Monitoring
-        U->>UI: Interact with platform features
-        UI->>Monitor: Log user activity
-        Monitor->>DB: Store interaction data
+    loop Continuous Monitoring & Adaptation
+        %% Step 1: User interacts with the platform %%
+        U->>UI: Completes a quest step or learning activity
+        UI->>AnalyticsService: LogUserActivity(userId, activityDetails)
+        AnalyticsService->>Database: INSERT activity event log
+
+        %% Step 2: Analytics are processed (can be real-time or batched) %%
+        activate AnalyticsService
+        AnalyticsService->>Database: Process recent activity logs for the user
+        Database-->>AnalyticsService: Returns performance patterns
         
-        Monitor->>Analytics: Process activity patterns
-        Analytics->>AI: Analyze performance trends
+        %% Step 3: The AI Engine evaluates the user's progress %%
+        AnalyticsService->>AI_Engine: TriggerProgressAnalysis(userId, patterns)
+        deactivate AnalyticsService
         
-        AI->>AI: Identify learning patterns
-        AI->>AI: Detect struggle/acceleration areas
+        activate AI_Engine
+        AI_Engine->>AI_Engine: Identify areas of struggle or acceleration
+        
+        alt User is Struggling
+            AI_Engine->>QuestsService: AdjustQuestDifficulty(questId, 'decrease')
+            QuestsService->>Database: UPDATE quest parameters
+            AI_Engine->>UI: Suggest remedial resources or simpler quests
+        else User is Excelling
+            AI_Engine->>QuestsService: IncreaseQuestComplexity(questId)
+            QuestsService->>Database: Unlock advanced skill nodes
+            AI_Engine->>UI: Recommend challenge quests
+        end
+        deactivate AI_Engine
+
+        %% Step 4: Check for milestone achievements %%
+        activate UserService
+        UserService->>Database: Check for unlocked achievements based on new progress
+        Database-->>UserService: Returns newly earned achievements
+        UserService->>RealtimeHub: NotifyUser(userId, achievements)
+        RealtimeHub-->>UI: Push achievement notifications
+        deactivate UserService
+        
+        AI_Engine->>AI_Engine: Refine personalization algorithms
+        AI_Engine->>Database: Update user learning profile
     end
     
-    alt Performance Issues Detected
-        AI->>Quest: Adjust quest difficulty down
-        Quest->>DB: Update quest parameters
-        
-        AI->>Recommend: Generate improvement suggestions
-        Recommend->>UI: Display recommendations
-        
-    else Accelerated Learning Detected
-        AI->>Quest: Increase quest complexity
-        Quest->>STree: Unlock advanced skill nodes
-        STree->>DB: Update skill tree structure
-    end
-    
-    Analytics->>STree: Update progress visualization
-    STree->>UI: Refresh skill tree display
-    UI->>U: Show updated progress
-    
-    AI->>Recommend: Generate study schedule
-    Recommend->>Analytics: Optimize based on patterns
-    Analytics->>Recommend: Return optimal schedule
-    
-    Recommend->>Notify: Send schedule suggestions
-    Notify->>U: Receive personalized recommendations
-    
-    loop Milestone Tracking
-        Analytics->>Analytics: Check progress milestones
-        Analytics->>Notify: Trigger achievement alerts
-        Notify->>U: Celebrate progress milestones
-    end
-    
-    AI->>AI: Refine personalization algorithms
-    AI->>DB: Update user learning profile
-    
-    Note over U,DB: Continuous adaptation creates<br/>personalized learning experience
+    Note over U,Database: Continuous adaptation creates personalized learning experience
 ```

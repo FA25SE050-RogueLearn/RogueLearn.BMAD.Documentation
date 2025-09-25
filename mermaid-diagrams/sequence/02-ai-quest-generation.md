@@ -3,46 +3,47 @@
 ```mermaid
 sequenceDiagram
     participant U as Student User
-    participant UI as Web Interface
-    participant Upload as Upload Service
-    participant AI as AI Processing Engine
-    participant Parser as Syllabus Parser
-    participant STree as Skill Tree Service
-    participant Quest as Quest Generator
-    participant Schedule as Schedule Service
-    participant Notify as Notification Service
-    participant DB as Database
+    participant UI as Web Interface (Next.js)
+    participant APIGateway as API Gateway (Azure)
+    participant QuestsService as Quests Service
+    participant AIProxyService as AI Proxy Service
+    participant Gemini as Gemini API (External)
+    participant RealtimeHub as Real-time Hub (SignalR)
+    participant Database as Database (Supabase)
 
-    U->>UI: Upload course syllabus
-    UI->>Upload: Process document upload
-    Upload->>Parser: Send syllabus for parsing
+    %% Step 1: User initiates the process by uploading a syllabus %%
+    U->>UI: Uploads a new course syllabus
+    UI->>APIGateway: POST /syllabi/upload (Authenticated request with file)
+    APIGateway->>QuestsService: Forwards request
+
+    %% Step 2: Backend acknowledges the request and starts the job asynchronously %%
+    QuestsService->>Database: CREATE UserUploadedSyllabus record with status 'Processing'
+    QuestsService-->>APIGateway: 202 Accepted (Response is immediate)
+    APIGateway-->>UI: 202 Accepted
+    UI-->>U: Show notification: "Syllabus processing has started..."
+
+    %% Step 3: The Quests Service uses the AI Proxy to analyze the document %%
+    activate QuestsService
+    Note right of QuestsService: The following steps happen in the background.
+    QuestsService->>AIProxyService: RequestSyllabusAnalysis(syllabus_content)
     
-    Parser->>AI: Extract course structure & topics
-    AI->>AI: Analyze learning objectives
-    AI->>DB: Retrieve user academic background
-    
-    AI->>STree: Generate skill tree from topics
-    STree->>STree: Create interconnected nodes
-    STree->>STree: Establish prerequisites & dependencies
-    STree->>DB: Store skill tree structure
-    
-    AI->>Quest: Create personalized quest line
-    Quest->>DB: Retrieve user career goals
-    Quest->>Schedule: Integrate with user schedule
-    Schedule->>Quest: Return scheduled tasks
-    
-    Quest->>DB: Store generated quest line
-    AI->>AI: Set up continuous monitoring
-    
-    DB->>UI: Quest generation complete
-    UI->>U: Display updated skill tree & quests
-    
-    loop Continuous Adaptation
-        AI->>DB: Monitor user progress
-        AI->>Quest: Adjust quest difficulty
-        Quest->>Notify: Send update notifications
-        Notify->>U: New learning path available
-    end
-    
-    Note over U,DB: Dynamic learning system<br/>continuously adapts to user progress
+    activate AIProxyService
+    AIProxyService->>Gemini: POST /generateContent (Sends engineered prompt with syllabus text and requests structured JSON output)
+    Gemini-->>AIProxyService: Returns structured JSON (learning objectives, topics, week-by-week breakdown)
+    deactivate AIProxyService
+    AIProxyService-->>QuestsService: Returns parsed and validated data
+
+    %% Step 4: The Quests Service creates the learning content in the database %%
+    QuestsService->>Database: CREATE SkillTree, Skills, QuestLine, QuestChapters, and Quests from AI data
+    Database-->>QuestsService: Confirms creation of all entities
+    QuestsService->>Database: UPDATE UserUploadedSyllabus record, set status to 'Completed'
+    deactivate QuestsService
+
+    %% Step 5: The user is notified in real-time upon completion %%
+    QuestsService->>RealtimeHub: NotifyUser(userId, 'SyllabusProcessed')
+    RealtimeHub-->>UI: Pushes real-time event to the user's client
+    UI->>U: Display notification: "Your new Quest Line is ready!"
+    U->>UI: Clicks to view the new learning path
+
+    Note over U,Database: Dynamic learning system continuously adapts to user progre
 ```

@@ -2,59 +2,64 @@
 
 ```mermaid
 sequenceDiagram
-    participant Educator as Guild Master (Verified Lecturer)
-    participant Students as Student Players
-    participant UI as Web Interface
-    participant Guild as Guild Service
-    participant Analytics as Analytics Engine
-    participant Content as Content Management
-    participant Dashboard as Educator Dashboard
-    participant Notify as Notification Service
-    participant DB as Database
+    participant GM as Guild Master (Lecturer)
+    participant S as Student
+    participant UI as Web Interface (Next.js)
+    participant APIGateway as API Gateway (Azure)
+    participant SocialService as Social Service
+    participant QuestsService as Quests Service
+    participant RealtimeHub as Real-time Hub (SignalR)
+    participant Database as Database (Supabase)
 
-    Educator->>UI: Create new Guild
-    UI->>Guild: Initialize guild configuration
-    Guild->>DB: Store guild information
+    %% Step 1: Guild Master creates a Guild %%
+    GM->>UI: Creates a new Guild
+    UI->>APIGateway: POST /guilds
+    APIGateway->>SocialService: Forwards request
+    SocialService->>Database: CREATE Guild record
+    SocialService-->>APIGateway: 201 Created
+    APIGateway-->>UI: Guild created
+
+    %% Step 2: Student joins the Guild %%
+    S->>UI: Finds and joins the Guild
+    UI->>APIGateway: POST /guilds/{guildId}/join
+    APIGateway->>SocialService: Forwards join request
+    SocialService->>Database: CREATE GuildMembership record
+    SocialService-->>APIGateway: 200 OK
+
+    %% Step 3: Guild Master views the Analytics Dashboard %%
+    GM->>UI: Navigates to the Guild Dashboard
+    UI->>APIGateway: GET /guilds/{guildId}/analytics
+    APIGateway->>SocialService: Forwards analytics request
     
-    Educator->>UI: Upload course materials
-    UI->>Content: Process reference materials
-    Content->>DB: Store shared resources
+    %% Step 4: Backend services collaborate to aggregate anonymized data %%
+    activate SocialService
+    SocialService->>Database: Get all member IDs for the guild
+    Database-->>SocialService: Returns list of user IDs
     
-    Students->>UI: Join Guild
-    UI->>Guild: Add students to guild
-    Guild->>Analytics: Link student progress data
+    Note right of SocialService: Internal service-to-service call<br/>to fetch progress data.
+    SocialService->>QuestsService: GetBulkProgress(userIds)
+    activate QuestsService
+    QuestsService->>Database: Fetch quest progress for all members
+    Database-->>QuestsService: Returns progress data
+    QuestsService-->>SocialService: Returns anonymized, aggregated data
+    deactivate QuestsService
     
-    loop Continuous Monitoring
-        Students->>DB: Learning activity data
-        Analytics->>Analytics: Process anonymized progress
-        Analytics->>Dashboard: Generate insights
-        
-        Dashboard->>Educator: Show struggling topics
-        Dashboard->>Educator: Display performance patterns
-    end
+    Note right of SocialService: Analytics engine processes data<br/>to identify struggling topics.
+    SocialService->>SocialService: Process data to find insights
     
-    alt Intervention Needed
-        Educator->>UI: Create targeted announcement
-        UI->>Notify: Send to struggling students
-        Notify->>Students: Receive support notification
-        
-        Educator->>Content: Upload additional materials
-        Content->>Guild: Share with guild members
-        Guild->>Students: Access new resources
-    end
+    SocialService-->>APIGateway: Returns analytics payload (e.g., struggling topics)
+    deactivate SocialService
+    APIGateway-->>UI: Returns analytics data
+    UI->>GM: Displays dashboard with insights
+
+    %% Step 5: Guild Master takes action based on insights %%
+    GM->>UI: Creates a targeted announcement
+    UI->>APIGateway: POST /guilds/{guildId}/announcements
+    APIGateway->>SocialService: Forwards request
+    SocialService->>Database: Store announcement
     
-    Analytics->>Dashboard: Track intervention effectiveness
-    Dashboard->>Educator: Show improvement metrics
-    
-    loop Ongoing Guild Management
-        Educator->>Dashboard: Review guild analytics
-        Dashboard->>Analytics: Fetch latest insights
-        Analytics->>Dashboard: Return performance data
-        
-        Educator->>UI: Adjust course materials
-        UI->>Content: Update shared resources
-        Content->>Students: Notify of updates
-    end
-    
-    Note over Educator,DB: Data-driven educational<br/>support and intervention system
+    %% Step 6: Students are notified %%
+    SocialService->>RealtimeHub: NotifyGuildMembers('NewAnnouncement', guildId)
+    RealtimeHub-->>UI: Pushes real-time notification to all guild members' UIs
+    UI-->>S: Displays new announcement
 ```

@@ -3,52 +3,52 @@
 ```mermaid
 sequenceDiagram
     participant U as Student User
-    participant UI as Web Interface
-    participant Quest as Quest System
-    participant Unity as Unity WebGL Engine
-    participant Assessment as Assessment Service
-    participant Scoring as Scoring Algorithm
-    participant STree as Skill Tree Service
-    participant Leaderboard as Leaderboard Service
-    participant DB as Database
+    participant UI as Web Interface (Next.js)
+    participant Unity as Unity WebGL Client
+    participant APIGateway as API Gateway (Azure)
+    participant QuestsService as Quests Service
+    participant UserService as User Service
+    participant SocialService as Social Service
+    participant Database as Database (Supabase)
 
-    U->>UI: Access exam preparation quest
-    UI->>Quest: Retrieve upcoming assessment
-    Quest->>Assessment: Generate Boss Fight content
-    
-    Assessment->>DB: Fetch exam topics & difficulty
-    Assessment->>Unity: Create boss character & mechanics
-    Unity->>UI: Load WebGL interface
-    
-    UI->>U: Display Boss Fight arena
-    U->>Unity: Start assessment battle
-    
-    loop Question Sequence
-        Unity->>U: Present question as combat action
-        U->>Unity: Select answer choice
-        Unity->>Assessment: Validate answer
-        
-        alt Correct Answer
-            Assessment->>Unity: Trigger success animation
-            Unity->>Scoring: Award points based on difficulty
-        else Incorrect Answer
-            Assessment->>Unity: Trigger boss attack animation
-            Unity->>Scoring: Deduct points/health
-        end
-        
-        Unity->>U: Show real-time feedback
+    %% Step 1: User starts the assessment from the web UI %%
+    U->>UI: Clicks "Start Boss Fight" on a quest
+    UI->>APIGateway: POST /game/sessions (questId)
+    APIGateway->>QuestsService: Forwards request to start session
+
+    %% Step 2: Backend creates a game session and fetches questions %%
+    QuestsService->>Database: CREATE GameSession record (status: 'InProgress')
+    Database-->>QuestsService: Returns new sessionId and assessment questions
+    QuestsService-->>APIGateway: 201 Created { sessionId, questions, gameBuildUrl }
+    APIGateway-->>UI: Returns session data
+
+    %% Step 3: Web UI launches the Unity client and passes it the session data %%
+    UI->>Unity: Initialize game embed with session data via JS bridge
+    Unity->>U: Displays Boss Fight arena and gameplay UI
+
+    %% Step 4: Gameplay loop is handled entirely within the Unity client %%
+    loop Gameplay
+        U->>Unity: Answers questions presented in the game
+        Unity->>Unity: Evaluates answers, plays animations, updates local score
     end
+
+    %% Step 5: Unity client reports final score back to the web UI upon completion %%
+    Unity->>UI: Calls onGameComplete(finalScore, progressData) via JS bridge
     
-    Unity->>Scoring: Calculate final weighted score
-    Scoring->>DB: Store assessment results
-    Scoring->>STree: Update skill progress
-    STree->>DB: Save skill mastery levels
+    %% Step 6: Web UI sends the final results to the backend for processing %%
+    UI->>APIGateway: POST /game/sessions/{sessionId}/complete (score, data)
+    APIGateway->>QuestsService: Forwards completion request
+
+    %% Step 7: Backend finalizes the session and updates all relevant user data %%
+    activate QuestsService
+    QuestsService->>Database: UPDATE GameSession status to 'Completed' and save score
+    QuestsService->>UserService: UpdateUserProgress(userId, xpGained, skillsUpdated)
+    QuestsService->>SocialService: UpdateLeaderboard(userId, eventId, score)
+    deactivate QuestsService
     
-    Scoring->>Leaderboard: Update user rankings
-    Leaderboard->>DB: Store leaderboard data
-    
-    Unity->>U: Display final score & feedback
-    UI->>U: Show improvement recommendations
-    
-    Note over U,DB: Assessment results integrated<br/>across all learning systems
+    QuestsService-->>APIGateway: 200 OK
+    APIGateway-->>UI: 200 OK
+
+    %% Step 8: User sees their final results %%
+    UI->>U: Display results screen (score, XP, skill points, new rank)
 ```
