@@ -10,7 +10,7 @@ graph TB
         QD[Qdrant]
         RL[Relay Netcode]
     end
-    
+
     %% Core Services
     subgraph "RogueLearn Microservices"
         US[User Service<br/>roguelearn-user-service]
@@ -19,7 +19,7 @@ graph TB
         MS[Meeting Service<br/>roguelearn-meeting-service]
         CBS[Code Battle Service<br/>roguelearn-code-battle-service]
     end
-    
+
     %% Client Applications
     subgraph "Client Applications"
         WEB[Web Application]
@@ -27,22 +27,22 @@ graph TB
         API[API Gateway]
         UNITY[Unity Game Client]
     end
-    
+
     %% Authentication Flow
-    SA --> US
     WEB --> SA
     MOB --> SA
-    
+    SA --> US
+
     %% API Gateway
+    WEB --> API
+    MOB --> API
+    UNITY --> API
     API --> US
     API --> QS
     API --> SS
     API --> MS
     API --> CBS
-    WEB --> API
-    MOB --> API
-    UNITY --> API
-    
+
     %% Inter-Service Dependencies
     QS --> US
     SS --> US
@@ -50,11 +50,11 @@ graph TB
     MS --> SS
     CBS --> US
     CBS --> SS
-    
+
     %% External Service Dependencies
     CBS --> QD
     UNITY --> RL
-    
+
     %% Data Flow Indicators
     US -.->|User Context| QS
     US -.->|User Context| SS
@@ -67,11 +67,11 @@ graph TB
     SS -.->|Event Context| CBS
     SS -.->|Party/Guild Context| MS
     QS -.->|Notes Sharing| SS
-    
+
     classDef service fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef client fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    
+
     class US,QS,SS,MS,CBS service
     class SA,QD,RL external
     class WEB,MOB,API,UNITY client
