@@ -3,21 +3,21 @@
 ```mermaid
 sequenceDiagram
     participant U as Student User
-    participant UI as Web Interface (Next.js)
-    participant SupabaseAuth as Supabase Auth (External)
-    participant APIGateway as API Gateway (Azure)
+    participant UI as Web Interface
+    participant AuthProvider as Authentication Provider (External)
+    participant APIGateway as API Gateway
     participant UserService as User Service
-    participant Database as Database (Supabase)
+    participant Database as Database
 
-    %% Step 1: User Registration via Supabase SDK %%
+    %% Step 1: User Registration via SDK %%
     U->>UI: Clicks 'Sign Up' and submits credentials
-    UI->>SupabaseAuth: Calls Supabase signUp() with credentials
-    SupabaseAuth-->>UI: Confirms sign-up, returns session/JWT
-    SupabaseAuth->>Database: Create a user record
+    UI->>AuthProvider: Calls signUp() with credentials
+    AuthProvider-->>UI: Confirms sign-up, returns session/JWT
+    AuthProvider->>Database: Create a user record
 
     %% Step 2: Backend Profile Creation via DB Trigger %%
-    Note over SupabaseAuth, Database: Supabase creates a new record in auth.users table
-    Database->>UserService: PostgreSQL Trigger on new user INSERT fires
+    Note over AuthProvider, Database: Authentication Provider creates a new record in its user table
+    Database->>UserService: Database Trigger on new user INSERT fires
     activate UserService
     UserService->>Database: CREATE user_profiles record
     Database-->>UserService: Confirms creation
