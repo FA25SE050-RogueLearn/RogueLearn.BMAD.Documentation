@@ -7,7 +7,7 @@ graph TB
     %% External Systems
     subgraph "External Systems"
         SA[Supabase Auth]
-        QD[Qdrant]
+        PC[Pinecone]
         RL[Relay Netcode]
     end
 
@@ -52,7 +52,7 @@ graph TB
     CBS --> SS
 
     %% External Service Dependencies
-    CBS --> QD
+    CBS --> PC
     UNITY --> RL
 
     %% Data Flow Indicators
@@ -73,7 +73,7 @@ graph TB
     classDef client fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
 
     class US,QS,SS,MS,CBS service
-    class SA,QD,RL external
+    class SA,PC,RL external
     class WEB,MOB,API,UNITY client
 ```
 
@@ -185,8 +185,7 @@ graph TB
 - Social Service: Event context for competitions
 
 **External Dependencies**:
-- Judge0 API: Code compilation and execution
-- Qdrant: Vector embeddings for problem similarity
+- Pinecone: Vector embeddings for problem similarity
 
 ---
 
@@ -244,8 +243,7 @@ Meeting Service → User Service (Analytics)
 
 ### **External System Integration**
 - **Supabase Auth**: Centralized authentication and user management
-- **Judge0 API**: Secure code execution environment
-- **Qdrant**: Vector database for AI-powered features
+- **Pinecone**: Vector database for AI-powered features
 
 ## Scalability & Performance Considerations
 
