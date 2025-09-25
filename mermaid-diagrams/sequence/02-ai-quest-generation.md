@@ -5,7 +5,7 @@ sequenceDiagram
     participant U as Student User
     participant Browser as Web Browser
     participant Extension as Browser Extension
-    participant UI as Web Interface (Next.js)
+    participant UI as Web Interface
     participant APIGateway as API Gateway
     participant QuestsService as Quests Service
     participant AIProxyService as AI Proxy Service
