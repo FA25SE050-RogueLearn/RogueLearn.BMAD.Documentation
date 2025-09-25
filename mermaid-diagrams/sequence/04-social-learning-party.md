@@ -2,60 +2,80 @@
 
 ```mermaid
 sequenceDiagram
-    participant U as Student User
-    participant UI as Web Interface (Next.js)
-    participant APIGateway as API Gateway (Azure)
+    participant U as User
+    participant UI as Web Interface
+    participant APIGateway as API Gateway
     participant SocialService as Social Service
     participant MeetingService as Meeting Service
-    participant AIProxyService as AI Proxy Service
-    participant Gemini as Gemini API (External)
-    participant RealtimeHub as Real-time Hub (SignalR)
-    participant Database as Database (Supabase)
+    participant MediaServer as Media Server
+    participant Gemini as Gemini API
+    participant Database as Database
 
-    %% Step 1: User creates a study party %%
+    %% Party Creation
     U->>UI: Creates a new Party
     UI->>APIGateway: POST /parties
     APIGateway->>SocialService: Forwards request
     SocialService->>Database: CREATE Party and PartyMembership records
-    Database-->>SocialService: Confirms creation
-    SocialService-->>APIGateway: 201 Created
-    APIGateway-->>UI: Party created successfully
+    SocialService-->>UI: Party created successfully
 
-    %% Step 2: User schedules a meeting for the party %%
-    U->>UI: Schedules a new meeting for the Party
-    UI->>APIGateway: POST /meetings (partyId, schedule, etc.)
+    %% Meeting Creation
+    U->>UI: Starts a new meeting (opts-in for AI summary)
+    UI->>APIGateway: POST /meetings (partyId, summarize: true)
     APIGateway->>MeetingService: Forwards request
     MeetingService->>Database: CREATE Meeting record
-    MeetingService->>RealtimeHub: NotifyPartyMembers('NewMeeting')
-    RealtimeHub-->>UI: Pushes real-time notification to party members
+    MeetingService->>MediaServer: Create media session
+    MeetingService-->>UI: Notify party members (meeting started)
 
-    %% Step 3: Meeting is conducted and content is captured %%
-    U->>UI: Starts the scheduled meeting
-    UI->>MeetingService: PUT /meetings/{id}/start
-    Note over UI, MeetingService: The UI's built-in recording feature captures discussions and shared content during the session.
-    UI->>MeetingService: POST /meetings/{id}/transcript-segment (streams content)
-    MeetingService->>Database: INSERT TranscriptSegment record
+    %% Join Meeting
+    U->>UI: Join the meeting
+    UI->>APIGateway: GET /meetings/{id}
+    APIGateway->>MeetingService: Get meeting details
+    MeetingService-->>UI: Return meeting info
+    UI->>MediaServer: Connect to media session
+    MediaServer-->>UI: Media connection established
 
-    %% Step 4: Meeting ends and AI processing begins asynchronously %%
+    %% During Meeting (Continuous Processing)
+    Note over MediaServer, Database: Ongoing during meeting
+    loop Continuous while meeting active
+        MediaServer->>MediaServer: Record audio/video streams
+        MediaServer->>MeetingService: Send transcript segments
+        MeetingService->>Database: Save transcript segments
+        opt If AI summary enabled
+            MeetingService->>Gemini: Generate summary chunks
+            Gemini-->>MeetingService: Return summary chunks
+            MeetingService->>Database: Save summary chunks
+        end
+    end
+
+    %% End Meeting
     U->>UI: Ends the meeting
-    UI->>MeetingService: PUT /meetings/{id}/end
-    MeetingService-->>UI: 200 OK (immediate response)
-    
-    activate MeetingService
-    Note right of MeetingService: The following summary generation happens in the background.
-    MeetingService->>AIProxyService: RequestMeetingSummary(meetingId, full_transcript)
-    
-    activate AIProxyService
-    AIProxyService->>Gemini: POST /generateContent (prompt for structured summary and action items)
-    Gemini-->>AIProxyService: Returns structured JSON summary
-    deactivate AIProxyService
-    AIProxyService-->>MeetingService: Returns validated summary data
+    UI->>APIGateway: DELETE /meetings/{id}
+    APIGateway->>MeetingService: End meeting request
+    MeetingService->>MediaServer: Stop media session
+    MediaServer->>MediaServer: Stop recording
+    MeetingService-->>UI: Meeting ended
 
-    %% Step 5: Summary is stored and users are notified %%
-    MeetingService->>Database: CREATE MeetingSummary record
-    deactivate MeetingService
-    
-    MeetingService->>RealtimeHub: NotifyPartyMembers('SummaryReady', meetingId)
-    RealtimeHub-->>UI: Pushes real-time notification to party members
-    U->>UI: Clicks notification to view the AI-generated summary
+    %% Background Final Summary
+    Note over MeetingService, Database: Background processing
+    par Final Summary Generation
+        MeetingService->>Database: Get all summary chunks
+        Database-->>MeetingService: Return chunks
+        loop Up to 5 retry attempts
+            MeetingService->>Gemini: Generate final meeting summary
+            alt Success
+                Gemini-->>MeetingService: Return final summary
+                MeetingService->>Database: Save meeting summary
+                MeetingService-->>UI: Notify users (Summary Ready)
+            else Failure
+                MeetingService->>MeetingService: Wait and retry
+            end
+        end
+        
+        opt All retries failed
+            MeetingService->>Database: Mark summary as failed
+            MeetingService-->>UI: Notify users (Summary Failed)
+        end
+    end
+
+    U->>UI: View meeting summary
 ```
