@@ -38,10 +38,9 @@ sequenceDiagram
     %% Step 3: Answer Station majority gating %%
     U->>GameClient: Interact 'Ready at Station'
     GameClient->>GameServer: RequestToggleReadyAtStation(stationId, isReady)
-    GameServer->>GameServer: Update stationReadyCount; evaluate majority
     alt Majority reached
         GameServer-->>GameClient: AnswerModeEntered (replicated)
-        GameClient->>GameClient: Show Question UI from pack; start timer
+        GameClient->>GameClient: Show Question UI from pack, start timer
     else Not enough players ready
         GameServer-->>GameClient: StationReadyChanged (update HUD)
     end
@@ -49,24 +48,23 @@ sequenceDiagram
     %% Step 4: Question phase & server-side validation %%
     U->>GameClient: Submit answer
     GameClient->>GameServer: SubmitAnswer(answerData)
-    GameServer->>GameServer: Validate answer
     alt Correct answer
         GameServer->>GameServer: teamCharges++ (replicated)
         GameServer-->>GameClient: TeamChargeAdded (HUD update)
-        GameServer->>GameServer: Start Power Play window; select empowered player
+        GameServer->>GameServer: Start Power Play window, select empowered player
         GameServer-->>GameClient: PowerPlayStarted(playerId, timer, multipliers)
     else Incorrect answer or timeout
-        GameServer-->>GameClient: Feedback; optional lockout/cooldown
+        GameServer-->>GameClient: Feedback, optional lockout/cooldown
     end
 
     %% Step 5: Power Play window (first-hit ends window) %%
     U->>GameClient: Empowered player attacks boss
     GameClient->>GameServer: Damage event
-    GameServer->>GameServer: Apply vulnerability/bonus to first hit; end window
-    GameServer-->>GameClient: PowerPlayEnded; clear buffs
+    GameServer->>GameServer: Apply vulnerability/bonus to first hit, end window
+    GameServer-->>GameClient: PowerPlayEnded, clear buffs
 
-    %% Step 6: Exit Answer Mode; prep next question %%
-    GameServer-->>GameClient: AnswerModeExited; hide panel; stop timer
+    %% Step 6: Exit Answer Mode, prep next question %%
+    GameServer-->>GameClient: AnswerModeExited, hide panel, stop timer
     GameClient->>GameClient: Pending state until majority requests next question
 
     %% Step 7: Session completion and backend updates %%
@@ -74,7 +72,7 @@ sequenceDiagram
     UI->>APIGateway: POST /game/sessions/{sessionId}/complete (score, data)
     APIGateway->>QuestsService: Forward completion
     activate QuestsService
-    QuestsService->>Database: UPDATE GameSession status 'Completed'; save score
+    QuestsService->>Database: UPDATE GameSession status 'Completed', save score
     QuestsService->>UserService: UpdateUserProgress(userId, xpGained, skillsUpdated)
     QuestsService->>SocialService: UpdateLeaderboard(userId, eventId, score)
     deactivate QuestsService
@@ -83,4 +81,3 @@ sequenceDiagram
 
     %% Step 8: Web UI displays final results %%
     UI->>U: Show score, XP, skill points, rank, leaderboard updates
-```
