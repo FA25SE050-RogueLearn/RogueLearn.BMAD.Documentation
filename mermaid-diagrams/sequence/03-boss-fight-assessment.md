@@ -14,7 +14,7 @@ sequenceDiagram
 
     %% Step 0: Auth & session handoff %%
     UI->>UI: Retrieve auth token/session
-    UI->>GameClient: Pass {sessionId, pack, authToken} via JS bridge
+    UI->>UI: Prepare session launch (pack is returned after Start Session)
 
     %% Step 1: Start Boss Fight from Web UI %%
     U->>UI: Clicks "Start Boss Fight" on a quest
@@ -23,8 +23,7 @@ sequenceDiagram
     activate QuestsService
     QuestsService->>Database: CREATE GameSession (status: 'InProgress')
     Database-->>QuestsService: sessionId
-    QuestsService->>Database: Fetch/Generate CurriculumPack
-    Database-->>QuestsService: CurriculumPack
+    QuestsService->>QuestsService: Generate CurriculumPack (in-memory, ephemeral)
     QuestsService-->>APIGateway: 201 { sessionId, pack, gameBuildUrl }
     deactivate QuestsService
     APIGateway-->>UI: Session data + assessment content
@@ -32,6 +31,8 @@ sequenceDiagram
     %% Step 2: Launch Game Client and connect to Netcode Host %%
     UI->>GameClient: Initialize WebGL embed with session data via JS bridge
     GameClient->>GameServer: Connect (Netcode) and join room/lobby
+    GameServer->>QuestsService: RequestEphemeralPack(sessionId)
+    QuestsService-->>GameServer: CurriculumPack (in-memory cache for session)
     GameServer-->>GameClient: Sync replicated states (ready counts, charges, timers)
     GameClient->>U: Display Boss Fight arena and HUD
 

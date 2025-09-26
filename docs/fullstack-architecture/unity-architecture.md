@@ -179,26 +179,27 @@ flowchart LR
   classDef client fill:#E6F7FF,stroke:#1890FF,color:#000;
   classDef server fill:#F6FFED,stroke:#52C41A,color:#000;
   classDef svc fill:#FFF7E6,stroke:#FA8C16,color:#000;
-```
 
 ## CurriculumPack Delivery Flow (Unity)
 
-This section details how the Unity client consumes vetted AI-generated content packs via backend APIs.
+This section details how the Unity client consumes vetted AI-generated content packs via backend APIs — using ephemeral, in-memory generation (no pack persisted).
 
 1) Start session
-- Call POST /game/sessions with questId and optionally packId or subjectId/seed/source to bind or generate a pack on the backend.
-- The backend validates, binds/generates, snapshots items, and returns a GameSession.
+- Call POST /game/sessions with questId (and optionally subjectId/seed/provider hints).
+- Backend creates GameSession (status: InProgress), generates CurriculumPack in-memory, and returns { sessionId, pack, gameBuildUrl }.
 
-2) Fetch pack
-- Call GET /game/sessions/{sessionId}/pack to retrieve the CurriculumPack snapshot for rendering. Keep payload small; consider streaming if needed.
+2) Launch client and sync server
+- Initialize Unity WebGL embed and pass { sessionId, pack } via the JS bridge.
+- Game Server obtains the same ephemeral pack from Quests Service by sessionId for server-authoritative validation.
 
 3) Play & submit
-- Unity renders items from the pack. On completion, call POST /game/sessions/{sessionId}/complete with score and progressData.
+- Unity renders items from the ephemeral pack; server validates answers against its copy.
+- On completion, call POST /game/sessions/{sessionId}/complete with score and progressData; ephemeral pack is discarded.
 
 Integration notes
-- Determinism: Always use the session-bound snapshot to ensure fair scoring and reproducibility.
-- Caching: Cache the pack in-memory; invalidate on session end or version mismatch.
-- Security: Never accept raw AI output client-side; only consume the backend-vetted pack.
+- Determinism: Use session-bound ephemeral pack across client and server during the match; no DB snapshot required.
+- Caching: Cache only in memory for the session; invalidate on session end.
+- Security: Never accept raw AI output client-side; only consume backend-vetted packs provided via session start.
 
 ## Ephemeral Pack Consumption & Provider Abstraction
 
