@@ -4,6 +4,71 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
+### **Epic: Core Business Logic & Scoring Systems**
+*Goal: Implement the fundamental business rules, algorithms, and scoring mechanisms that drive the gamification experience.*
+
+#### **Story: Skill Point Calculation Engine**
+**As a** system developer, **I want** to implement the core skill point calculation algorithm, **so that** student performance is consistently and fairly quantified across all learning activities.
+
+*   **Acceptance Criteria:**
+    *   Skill point calculation follows exact formula: `skill_points = (difficulty_level × base_points × performance_multiplier)`
+    *   Difficulty levels are standardized: Easy (1.0), Medium (1.5), Hard (2.0), Expert (2.5)
+    *   Base points are configurable per quest type: Knowledge Check (10), Boss Fight (25), Project (50)
+    *   Performance multiplier ranges from 0.5 (poor) to 2.0 (exceptional) based on accuracy and completion time
+    *   Algorithm handles edge cases: partial completion, time penalties, bonus achievements
+    *   Calculation results are logged for audit and debugging purposes
+    *   Real-time calculation updates user progress immediately upon quest completion
+
+#### **Story: XP Conversion and Leveling System**
+**As a** student, **I want** my skill points to convert to experience points with clear leveling progression, **so that** I can track my overall advancement and unlock new capabilities.
+
+*   **Acceptance Criteria:**
+    *   XP conversion follows exact formula: `xp_gained = skill_points × 10`
+    *   Level progression uses exponential curve: `level = floor(sqrt(total_xp / 100))`
+    *   Level thresholds are clearly defined: Level 1 (100 XP), Level 2 (400 XP), Level 3 (900 XP), etc.
+    *   Level-up triggers unlock new features: skill tree nodes, quest types, social features
+    *   XP gains are displayed with visual feedback and celebration animations
+    *   Historical XP tracking maintains complete progression history
+    *   Level benefits are clearly communicated to users upon advancement
+
+#### **Story: Boss Fight Scoring Algorithm**
+**As a** student, **I want** Boss Fight challenges to be scored fairly based on accuracy, speed, and difficulty, **so that** my performance reflects my true mastery level.
+
+*   **Acceptance Criteria:**
+    *   Scoring follows exact formula: `score = (correct_answers / total_questions) × time_bonus × difficulty_multiplier`
+    *   Time bonus calculation: `time_bonus = max(0.5, min(2.0, (time_limit - time_taken) / time_limit + 1))`
+    *   Difficulty multipliers: Easy (1.0), Medium (1.3), Hard (1.6), Expert (2.0)
+    *   Minimum score threshold for quest completion: 60% for Easy, 70% for Medium, 80% for Hard, 90% for Expert
+    *   Partial credit system awards points for partially correct multiple-choice answers
+    *   Score breakdown is displayed post-challenge with detailed performance analysis
+    *   High scores (>90%) trigger bonus XP rewards and achievement unlocks
+
+#### **Story: Dynamic Difficulty Adjustment Engine**
+**As a** student, **I want** the system to automatically adjust quest difficulty based on my performance patterns, **so that** I'm consistently challenged without being overwhelmed.
+
+*   **Acceptance Criteria:**
+    *   Performance tracking analyzes last 10 completed quests for trend identification
+    *   Success rate thresholds trigger adjustments: >85% success increases difficulty, <60% decreases difficulty
+    *   Difficulty adjustments are gradual: maximum one level change per adjustment cycle
+    *   Adjustment notifications explain reasoning and provide opt-out mechanism
+    *   Performance metrics include: completion time, accuracy, retry attempts, help usage
+    *   Difficulty changes affect quest generation, not retroactively applied to existing quests
+    *   Manual difficulty override available with performance impact warnings
+
+#### **Story: Leaderboard Ranking Algorithms**
+**As a** student, **I want** to see my ranking compared to peers across different categories and timeframes, **so that** I can gauge my progress and stay motivated through friendly competition.
+
+*   **Acceptance Criteria:**
+    *   Weekly leaderboard calculation: `weekly_score = sum(skill_points_earned_this_week) × consistency_multiplier`
+    *   Monthly leaderboard includes cumulative progress and improvement metrics
+    *   Category-specific rankings: by subject, skill type, quest difficulty, party performance
+    *   Consistency multiplier rewards regular activity: `consistency = min(2.0, days_active_this_week / 7 + 0.5)`
+    *   Ranking updates occur daily at midnight UTC with historical tracking
+    *   Privacy controls allow users to opt-out of public rankings while maintaining personal tracking
+    *   Leaderboard displays top 100 globally, top 20 in user's institution, and user's relative position
+
+---
+
 ## **Phase 1: Core Student MVP**
 *Focus: Establish the fundamental single-player experience.*
 
@@ -289,15 +354,17 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 *Goal: Transform learning from an isolated activity into a collaborative, team-based effort.*
 
 #### **Story: Party Creation & Management**
-**As a** student, **I want** to create a 'Party' and become its 'Party Leader', **so that** I can organize a study group.
+**As a** student, **I want** to create a 'Party' and become its 'Party Leader', **so that** I can organize a study group with clear size limits and management capabilities.
 
 *   **Acceptance Criteria:**
     *   Party creation interface allows setting name, description, and privacy settings
     *   Party Leader role is automatically assigned to creator with management privileges
-    *   Maximum party size limits are enforced (configurable, default 8 members)
+    *   Party size is strictly enforced: minimum 2 members, maximum 8 members
+    *   Party size validation prevents joining when at capacity with clear error messaging
     *   Party settings include study focus areas, meeting schedules, and collaboration preferences
-    *   Party deletion and transfer of leadership capabilities are available
-    *   Party analytics track member engagement and group progress
+    *   Party deletion requires confirmation and notifies all members 24 hours in advance
+    *   Leadership transfer protocol: requires current leader initiation and new leader acceptance
+    *   Party analytics track member engagement, attendance rates, and group progress metrics
 
 #### **Story: Party Invitations & Membership**
 **As a** Party Leader, **I want** to invite other students to my party, **so that** we can study together.
@@ -311,15 +378,19 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   Role assignment system for different member responsibilities
 
 #### **Story: Shared 'Party Stash'**
-**As a** party member, **I want** access to a shared space for notes and resources, **so that** we can easily collaborate.
+**As a** party member, **I want** access to a shared space for notes and resources with granular permission controls, **so that** we can collaborate effectively while maintaining content security.
 
 *   **Acceptance Criteria:**
-    *   Shared repository for notes, documents, and study materials
-    *   Version control system tracks changes and contributor history
-    *   Permission system controls read/write access for different content types
-    *   Integration with individual Arsenal systems for easy sharing
-    *   Search and organization tools for shared content discovery
-    *   Collaborative editing capabilities for shared documents
+    *   Shared repository for notes, documents, and study materials with 1GB storage limit per party
+    *   Version control system tracks changes with contributor attribution and rollback capability
+    *   Permission system implements three levels: View-only, Contributor, Editor
+    *   Party Leader can assign permissions per member and per content type
+    *   Integration with individual Arsenal systems allows one-click sharing to party stash
+    *   Search functionality includes full-text search across all shared content
+    *   Content organization supports folders, tags, and custom categories
+    *   Collaborative editing supports real-time multi-user editing with conflict resolution
+    *   Content deletion requires confirmation and creates 30-day recovery window
+    *   Activity log tracks all stash interactions for accountability and audit purposes
 
 #### **Story: Forming a Study Party**
 **As a** student, **I want** to create or join a 'Party' with other students, **so that** I can collaborate, share knowledge, and study together.

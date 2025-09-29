@@ -1,14 +1,16 @@
 # **Epic List**
 
 ## **Phase 1: Core Student MVP**
-*Focus: Establish the fundamental single-player experience.* 
+*Focus: Establish the fundamental single-player experience.*
 
 ### **Epic: User Onboarding & Profile Management**
+*Goal: Create a seamless and engaging entry point for new users, allowing them to set up their accounts and profiles.*
 *   **FR1:** User account creation and onboarding ("Character Creation").
 *   **FR2:** Manual upload of academic documents.
 *   **FR3:** Personal dashboard ("Character Sheet").
 
 ### **Epic: Core AI & Quest Generation**
+*Goal: Leverage AI to transform academic documents into a personalized and dynamic learning path.*
 *   **FR4:** Ingest syllabus documents.
 *   **FR5:** AI-powered personalized "main quest line" generation from syllabus.
 *   **FR6:** AI analysis of syllabus structure and content.
@@ -18,7 +20,18 @@
 *   **FR10:** Dynamic, AI-driven changes to the main quest line.
 *   **FR11:** Notification system for quest changes and new learning paths.
 
+### **Epic: Core Business Logic & Scoring Systems**
+*Goal: Implement the fundamental business rules, algorithms, and scoring mechanisms that drive the gamification experience.*
+
+*   **FR3:** Skill point calculation algorithm: `skill_points = (difficulty_level × base_points × performance_multiplier)`
+*   **FR6:** XP conversion system: `xp_gained = skill_points × 10`
+*   **FR7:** Boss Fight scoring algorithm: `score = (correct_answers / total_questions) × time_bonus × difficulty_multiplier`
+*   **FR8:** Dynamic difficulty adjustment based on performance patterns
+*   **FR9:** Leaderboard ranking algorithms (weekly/monthly/category-specific)
+*   **FR10:** Achievement and milestone calculation systems
+
 ### **Epic: Skill Tree & Knowledge Management**
+*Goal: Provide tools for students to organize their knowledge and visualize their academic progress.*
 *   **FR12:** Dynamic and interconnected skill tree.
 *   **FR13:** Rich text editor for study notes ("Arsenal").
 *   **FR14:** Linking skill tree nodes to notes in "Arsenal".
@@ -27,6 +40,7 @@
 *   **FR17:** Visual progress indicators for skill mastery.
 
 ### **Epic: Gamification & Assessment**
+*Goal: Make learning engaging and measurable through Unity-based interactive challenges and progress tracking.*
 *   **FR18:** Gamified mock exams ("Boss Fights").
 *   **FR19:** Leaderboards.
 *   **FR20:** Simplified Guild Creation for Verified Lecturers.
@@ -41,16 +55,14 @@
 *Focus: Introduce multiplayer and external integration features.*
 
 ### **Epic: Social & Collaboration (Parties)**
-*   Create "Party" (study group).
-*   Party invitation and joining options.
-*   Party leader can invite users.
-*   Shared resource space ("Party Stash").
-*   Schedule, organize, and manage study meetings within parties.
-*   System provides built-in meeting recording capabilities to capture participant discussions, shared resources, and key decisions. The browser extension is used only for external web resource capture, not meeting recording.
-*   AI-generated comprehensive meeting summaries and action items.
-*   Party member role management and permissions.
-*   Real-time collaboration tools within parties.
-*   Party-specific communication channels.
+*Goal: Transform learning from an isolated activity into a collaborative, team-based effort.*
+
+*   **FR21:** Party creation and management system (2-8 members per party)
+*   **FR22:** Party leadership and role management with transfer protocols
+*   **FR23:** Shared resource space ("Party Stash") with permission controls
+*   **FR24:** Meeting scheduling and organization tools
+*   **FR25:** AI-powered meeting summaries and action item extraction
+*   **FR26:** Collaborative study session coordination
 
 ### **Epic: Browser Extension**
 *   Scan and extract academic documents from web pages.
