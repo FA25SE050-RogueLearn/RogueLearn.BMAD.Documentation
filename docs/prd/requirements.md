@@ -12,8 +12,8 @@
       - DevOps Engineer
       - Data Analyst
       - AI Engineer
-      - Mobile Developer
       - Game Developer
+      - Mobile Developer
     - **Step 3 - Skill-based Roadmap**: System suggests specific skill roadmaps based on combination of selected Route's smaller major and chosen Class role
     - **Roadmap Integration**: Direct integration with roadmap.sh API for up-to-date career path guidance
 2.  **FR2 (User):** During character creation or from their profile, users may optionally upload academic documents such as their GPA and transcripts to enhance their character stats and skill tree initialization.
@@ -454,7 +454,7 @@ To validate the RogueLearn MVP, we will use a combination of qualitative and qua
 
 1.  **NFR1 (Responsiveness):** The application must be a responsive web application, providing an optimal viewing and interaction experience across a range of devices (desktops, tablets, and mobile phones). All functionality must be accessible and usable on screen widths from 320px to 1920px.
 2.  **NFR2 (Authentication):** The system must use **Supabase Authentication** for user authentication, ensuring a secure and reliable user management system integrated with the primary data platform.
-3.  **NFR3 (Backend Technology):** The system must use .NET 8 and Golang for all backend services, leveraging its performance and security features.
+3.  **NFR3 (Backend Technology):** The system must use .NET 9 and Golang for all backend services, leveraging its performance and security features.
 4.  **NFR4 (Services Communication):** Services communicate via RESTful HTTP for inter-service calls, with real-time updates delivered through SignalR; no centralized message broker is used in the MVP.
 5.  **NFR5 (Frontend Technology):** The system must use Next.js (version 14 or later) for the frontend application to enable server-side rendering and a fast user experience.
 6.  **NFR6 (Data Storage):** The system must use Supabase for database and file storage, configured for scalability and reliability.

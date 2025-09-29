@@ -10,7 +10,7 @@
 
 #### **Service Architecture (Simplified for MVP)**
 - **Frontend:** Next.js 14+ with App Router, TypeScript, Tailwind CSS
-- **Backend:** .NET 8 Web API with Clean Architecture pattern
+- **Backend:** .NET 9 Web API with Clean Architecture pattern
 - **Database:** PostgreSQL 15+ with Entity Framework Core
 - **Cache:** Redis for session management and API response caching
 - **File Storage:** Local file system for MVP (Supabase Storage for production)
@@ -25,10 +25,10 @@
 
 #### **Technology Stack Constraints (MVP Focused)**
 - **Node.js:** Version 18+ (LTS) for frontend development
-- **.NET:** Version 8.0+ for backend services
+- **.NET:** Version 9.0+ for backend services
 - **Database:** PostgreSQL 15+ (required for JSON operations and user data)
 - **Browser Support:** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+ (standard web technologies)
-- **Mobile:** Responsive design targeting iOS 14+ and Android 10+
+- **Mobile:** Post-MVP Phase - Responsive design targeting iOS 14+ and Android 10+
 
 **Included in MVP:**
 - Unity Engine requirements (WebGL client build target)
@@ -574,7 +574,7 @@ Complete AI service failure:
 
 #### **Included in MVP**
 - Next.js frontend with basic gamification UI
-- .NET 8 backend with clean architecture
+- .NET 9 backend with clean architecture
 - PostgreSQL database with Entity Framework
 - Redis caching for sessions and API responses
 - Gemini API (via AI Proxy) for basic quest generation

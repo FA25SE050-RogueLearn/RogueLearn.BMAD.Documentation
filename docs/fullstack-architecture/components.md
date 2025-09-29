@@ -16,17 +16,17 @@ This section details the major logical components of the platform.
 ### **User Service (`roguelearn-user-service`)**
 
 *   **Responsibility:** Manages user profiles, preferences, and user-related operations. Handles profile synchronization with Supabase Auth and manages user data across the platform.
-*   **Technology Stack:** .NET 8, C#.
+*   **Technology Stack:** .NET 9, C#.
 
 ### **Quests Service (`roguelearn-quests-service`)**
 
 *   **Responsibility:** Owns the core learning loop, including Academic Management (Syllabuses, Enrollments), Quests, SkillTrees, and **Game Sessions**.
-*   **Technology Stack:** .NET 8, C#.
+*   **Technology Stack:** .NET 9, C#.
 
 ### **Social Service (`roguelearn-social-service`)**
 
 *   **Responsibility:** Manages all multi-user features like Parties, Guilds, Events, and real-time Duels.
-*   **Technology Stack:** .NET 8, C#, SignalR.
+*   **Technology Stack:** .NET 9, C#, SignalR.
 
 ### **Meeting Service (`roguelearn-meeting-service`)**
 
@@ -41,7 +41,7 @@ This section details the major logical components of the platform.
 ### **AI Proxy Service (`roguelearn-ai-proxy-service`)**
 
 *   **Responsibility:** Acts as a secure, internal gateway for all communications with the Gemini API.
-*   **Technology Stack:** .NET 8, C#.
+*   **Technology Stack:** .NET 9, C#.
 
 ### **Code Battle Service (`roguelearn-code-battle-service`)**
 
