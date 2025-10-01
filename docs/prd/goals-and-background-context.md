@@ -2,9 +2,9 @@
 
 ### **Goals**
 
-- To launch a viable MVP that demonstrates the core student and collaborative learning loops.
-- To create a highly engaging, gamified student experience that increases motivation and reduces exam anxiety by transforming academic milestones into epic "Boss Fights" and learning modules into a visualized, interconnected "Skill Tree."
-- To provide a browser extension that seamlessly integrates with the student's digital environment, automatically capturing and organizing learning materials from across the web into a personal "Arsenal."
+- To launch a viable MVP that demonstrates the core player and collaborative learning loops.
+- To create a highly engaging, gamified player experience that increases motivation and reduces exam anxiety by transforming academic milestones into epic "Boss Fights" and learning modules into a visualized, interconnected "Skill Tree."
+- To provide a browser extension that seamlessly integrates with the player's digital environment, automatically capturing and organizing learning materials from across the web into a personal "Arsenal."
 - To establish a clear, AI-driven learning path for students that aligns their academic curriculum (Route) with their career specialization from roadmap.sh (Class) through intelligent gap analysis and supplementary quest generation.
 - To empower students to enhance their learning journey by uploading achievement documents and project portfolios, which will dynamically influence their skill tree visualization and personal arsenal management.
 - To allow students to select their curriculum ("Route") and career specialization ("Class") to generate a curriculum-based main quest line supplemented with industry-relevant content from roadmap.sh.
@@ -13,7 +13,7 @@
 
 ### **Background Context**
 
-University students often face significant challenges with motivation and connecting their current studies to future career goals. The lack of a clear, engaging pathway can lead to procrastination and anxiety. RogueLearn addresses this by transforming the educational journey into an interactive RPG. It allows students to choose their academic curriculum as their "Route" (foundational quest line) and select a career specialization from roadmap.sh as their "Class" (supplementary career-focused content). The system provides a structured, AI-powered curriculum-based "main quest line" where exams become "Boss Fights," and knowledge acquisition is visualized as a "Skill Tree." Students can enhance their experience by uploading achievement documents and project portfolios to personalize their skill tree and arsenal management. The AI performs intelligent gap analysis between curriculum and career requirements, generating supplementary quests to bridge academic learning with industry needs. This shows students exactly how their learning connects and contributes to their ultimate career goal. A companion browser extension further enhances this by automatically capturing relevant learning materials from the web, organizing them into the student's "Arsenal." This turns passive learning into an active and meaningful adventure, making studying more effective and building a foundation for a rich academic ecosystem involving lecturers, tutors, and peer groups.
+University students often face significant challenges with motivation and connecting their current studies to future career goals. The lack of a clear, engaging pathway can lead to procrastination and anxiety. RogueLearn addresses this by transforming the educational journey into an interactive RPG. It allows players to choose their academic curriculum as their "Route" (foundational quest line) and select a career specialization from roadmap.sh as their "Class" (supplementary career-focused content). The system provides a structured, AI-powered curriculum-based "main quest line" where exams become "Boss Fights," and knowledge acquisition is visualized as a "Skill Tree." Players can enhance their experience by uploading achievement documents and project portfolios to personalize their skill tree and arsenal management. The AI performs intelligent gap analysis between curriculum and career requirements, generating supplementary quests to bridge academic learning with industry needs. This shows players exactly how their learning connects and contributes to their ultimate career goal. A companion browser extension further enhances this by automatically capturing relevant learning materials from the web, organizing them into the player's "Arsenal." This turns passive learning into an active and meaningful adventure, making studying more effective and building a foundation for a rich academic ecosystem involving lecturers, tutors, and peer groups.
 
 ### **User Research & Validation Framework**
 
@@ -22,7 +22,7 @@ To ensure RogueLearn addresses real user needs, we will conduct comprehensive us
 
 **Pre-Development Research (Required before Phase 1):**
 - **User Interviews:** Conduct 8-12 structured interviews with university students across different academic disciplines
-- **Problem Validation:** Validate core assumptions about student motivation challenges and learning preferences
+- **Problem Validation:** Validate core assumptions about player motivation challenges and learning preferences
 - **Solution Validation:** Test initial concept reception and gather feedback on gamification approach
 - **Competitive Analysis:** Interview users about current study tools and identify gaps in existing solutions
 

@@ -2,7 +2,7 @@
 
 This document visualizes the primary interaction flows for each user role within the RogueLearn platform using Mermaid diagrams.
 
-## Student (Player) Flow
+## Player Flow
 
 ```mermaid
 graph TD
@@ -82,13 +82,13 @@ graph TD
     end
 ```
 
-## Guild Master Flow (Student or Verified Lecturer)
+## Guild Master Flow (Player or Verified Lecturer)
 
 ```mermaid
 graph TD
     subgraph "Guild Creation & Verification"
         A[Start] --> B{User Type?};
-        B -- Student --> C[Create Curriculum-Based Guild];
+        B -- Player --> C[Create Curriculum-Based Guild];
         B -- Lecturer --> D[Upload Academic Credentials];
         D --> E[Academic Credential Validation];
         E --> F[Become Verified Lecturer];
@@ -98,7 +98,7 @@ graph TD
     end
 
     subgraph "Phase 3: Curriculum-Focused Guild Management"
-        H --> I[Monitor Route-Based Student Progress];
+        H --> I[Monitor Route-Based Player Progress];
         I --> J[Identify Curriculum Knowledge Gaps];
         H --> K[Upload Curriculum Reference Materials];
         K --> L[Share Academic Resources with Guild];
@@ -108,7 +108,7 @@ graph TD
         O --> P[Facilitate Curriculum-Career Learning];
     end
 
-    subgraph "Student Integration"
+    subgraph "Player Integration"
         L --> Q[Students Access Curriculum Materials];
         Q --> R[Materials Enhance Personal Quest Lines];
         N --> S[Students Receive Academic Notifications];
@@ -120,7 +120,7 @@ graph TD
 ```mermaid
 graph TD
     subgraph "Route-Compatible Party Creation"
-        A[Student decides to create a Party] --> B[Becomes Party Leader];
+        A[Player decides to create a Party] --> B[Becomes Party Leader];
         B --> C[Set Route/Class Compatibility Rules];
         B --> D{Invite Members};
         D --> E[Invite Route-Compatible Friends];
@@ -184,15 +184,15 @@ graph TD
     end
 ```
 
-## System Admin Flow
+## Game Master (Admin) Flow
 
 ```mermaid
 graph TD
-    A[Start] --> B[Access Admin Dashboard];
+    A[Start] --> B[Access Game Master Dashboard];
 
     subgraph "Curriculum-Career Analytics & Monitoring"
         B --> C{View Educational Analytics};
-        C --> D[Student Engagement Metrics];
+        C --> D[Player Engagement Metrics];
         D --> D1[Route Completion Rates];
         D --> D2[Career Quest Progress];
         D --> D3[Curriculum-Career Party Formation];
@@ -223,7 +223,7 @@ graph TD
         M --> P[Monitor Academic Credential Validation];
         M --> Q{Educational User Management};
         Q --> R[Route/Class-Based Access Control];
-        Q --> S[Student Data Privacy & GDPR Compliance];
+        Q --> S[Player Data Privacy & GDPR Compliance];
         Q --> T[Academic Data Retention Policies];
     end
 

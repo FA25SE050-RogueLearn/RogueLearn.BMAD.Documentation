@@ -10,5 +10,5 @@ The visual theme will evoke a "Magical Scribe" or "Adventurer's Journal" aesthet
 - **Leaderboard Display:** The UI must present a clear and motivating leaderboard, with filters for viewing rankings by class and overall.
 - **Arsenal/Notes Editor:** The notes editor must be a clean, intuitive, Notion-like interface that supports rich text formatting, embedding, and organization.
 - **Skill Tree Interaction:** When a user interacts with a skill node on the tree, the interface should seamlessly display links to related notes in their Arsenal.
-- **Guild Management Interface:** A dedicated interface for lecturers to create and manage guilds, upload documents, and communicate with student members. Students will need an interface to join guilds and access these materials.
+- **Guild Management Interface:** A dedicated interface for lecturers to create and manage guilds, upload documents, and communicate with player members. Players will need an interface to join guilds and access these materials.
 - **Notification Center:** A clear and accessible notification system to alert users to dynamic changes in their questline and other important updates.

@@ -5,13 +5,13 @@ This document outlines the critical main flows for the RogueLearn platform, focu
 
 ---
 
-## **Flow 1: Student Onboarding & Character Creation**
+## **Flow 1: Player Onboarding & Character Creation**
 
 ### **Description**
 The foundational flow where new users create their academic gaming profile and establish their learning journey within the RogueLearn ecosystem.
 
 ### **Actors**
-- **Primary:** New Student User
+- **Primary:** New Player User
 - **Secondary:** AI System, User Service
 
 ### **Process**
@@ -48,7 +48,7 @@ The foundational flow where new users create their academic gaming profile and e
 This is the central, dynamic engine of the RogueLearn platform. It combines curriculum-based quest generation with roadmap.sh integration, AI-powered gap analysis, and a continuous adaptive feedback loop that refines the learning experience based on user progress and industry alignment.
 
 ### **Actors**
-- **Primary:** Student User, AI Adaptation Engine
+- **Primary:** Player User, AI Adaptation Engine
 - **Secondary:** Quest Service, Gap Analysis Engine, Curriculum Parser
 
 ### **Process**
@@ -97,7 +97,7 @@ This is the central, dynamic engine of the RogueLearn platform. It combines curr
 The interactive assessment system that transforms traditional exams into engaging Unity-based gaming experiences with real-time feedback and scoring.
 
 ### **Actors**
-- **Primary:** Student User
+- **Primary:** Player User
 - **Secondary:** Unity WebGL Engine, Quest Service
 
 ### **Process**
@@ -167,7 +167,7 @@ The collaborative learning system that enables students to form study groups ("P
 ## **Flow 5: Guild Management & Educator Dashboard**
 
 ### **Description**
-The community-focused system that enables a **Guild Master** (a Verified Lecturer or an experienced Student) to create an educational guild, share resources, and monitor the anonymized, aggregated progress of guild members to provide targeted support and foster a healthy learning environment.
+The community-focused system that enables a **Guild Master** (a Verified Lecturer or an experienced Player) to create an educational guild, share resources, and monitor the anonymized, aggregated progress of guild members to provide targeted support and foster a healthy learning environment.
 
 ### **Actors**
 - **Primary:** Guild Master
@@ -177,7 +177,7 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 1. Guild Master creates a new Guild with a specific subject focus.
 2. Students discover and join the Guild.
 3. Guild Master uploads reference materials and curated resources for the members.
-4. System aggregates anonymized student progress data from all members.
+4. System aggregates anonymized player progress data from all members.
 5. The Analytics Engine identifies common struggling topics and performance patterns within the guild.
 6. The Guild Master's dashboard highlights these areas, enabling them to provide targeted support.
 7. Guild Master creates announcements or shares supplementary materials to address common challenges.
@@ -192,8 +192,8 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 ### **Success Criteria**
 - Guild setup is completed within 15 minutes.
 - Analytics accurately identify struggling areas for the community within 24 hours of sufficient data aggregation.
-- Educator interventions show a measurable improvement in student outcomes.
-- Student engagement with Guild resources exceeds 70%.
+- Educator interventions show a measurable improvement in player outcomes.
+- Player engagement with Guild resources exceeds 70%.
 
 ---
 
@@ -205,9 +205,9 @@ The comprehensive competitive programming system that enables Guild Masters and 
 ### **Actors**
 - **Primary:** 
   - Guild Master A (Event Creator)
-  - User (Student) - Guild members participating in competitions
+  - User (Player) - Guild members participating in competitions
   - Guild Master B (Participating Guild Leader)
-  - Admin (Event Approver & Platform Overseer)
+  - Game Master (Admin) (Event Approver & Platform Overseer)
   - **Spectators** - Non-participating users watching live competitions
 - **Secondary:** 
   - Web Interface (User interaction layer)

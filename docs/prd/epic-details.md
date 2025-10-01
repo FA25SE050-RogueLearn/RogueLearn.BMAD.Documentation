@@ -8,7 +8,7 @@ This document provides detailed user stories for each epic, aligned with the pha
 *Goal: Implement the fundamental business rules, algorithms, and scoring mechanisms that drive the gamification experience.*
 
 #### **Story: Skill Point Calculation Engine**
-**As a** system developer, **I want** to implement the core skill point calculation algorithm, **so that** student performance is consistently and fairly quantified across all learning activities.
+**As a** system developer, **I want** to implement the core skill point calculation algorithm, **so that** player performance is consistently and fairly quantified across all learning activities.
 
 *   **Acceptance Criteria:**
     *   Skill point calculation follows exact formula: `skill_points = (difficulty_level × base_points × performance_multiplier)`
@@ -20,7 +20,7 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Real-time calculation updates user progress immediately upon quest completion
 
 #### **Story: XP Conversion and Leveling System**
-**As a** student, **I want** my skill points to convert to experience points with clear leveling progression, **so that** I can track my overall advancement and unlock new capabilities.
+**As a** player, **I want** my skill points to convert to experience points with clear leveling progression, **so that** I can track my overall advancement and unlock new capabilities.
 
 *   **Acceptance Criteria:**
     *   XP conversion follows exact formula: `xp_gained = skill_points × 10`
@@ -32,7 +32,7 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Level benefits are clearly communicated to users upon advancement
 
 #### **Story: Boss Fight Scoring Algorithm**
-**As a** student, **I want** Boss Fight challenges to be scored fairly based on accuracy, speed, and difficulty, **so that** my performance reflects my true mastery level.
+**As a** player, **I want** Boss Fight challenges to be scored fairly based on accuracy, speed, and difficulty, **so that** my performance reflects my true mastery level.
 
 *   **Acceptance Criteria:**
     *   Scoring follows exact formula: `score = (correct_answers / total_questions) × time_bonus × difficulty_multiplier`
@@ -44,7 +44,7 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   High scores (>90%) trigger bonus XP rewards and achievement unlocks
 
 #### **Story: Dynamic Difficulty Adjustment Engine**
-**As a** student, **I want** the system to automatically adjust quest difficulty based on my performance patterns, **so that** I'm consistently challenged without being overwhelmed.
+**As a** player, **I want** the system to automatically adjust quest difficulty based on my performance patterns, **so that** I'm consistently challenged without being overwhelmed.
 
 *   **Acceptance Criteria:**
     *   Performance tracking analyzes last 10 completed quests for trend identification
@@ -56,7 +56,7 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Manual difficulty override available with performance impact warnings
 
 #### **Story: Leaderboard Ranking Algorithms**
-**As a** student, **I want** to see my ranking compared to peers across different categories and timeframes, **so that** I can gauge my progress and stay motivated through friendly competition.
+**As a** player, **I want** to see my ranking compared to peers across different categories and timeframes, **so that** I can gauge my progress and stay motivated through friendly competition.
 
 *   **Acceptance Criteria:**
     *   Weekly leaderboard calculation: `weekly_score = sum(skill_points_earned_this_week) × consistency_multiplier`
@@ -69,7 +69,7 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
-## **Phase 1: Core Student MVP**
+## **Phase 1: Core Player MVP**
 *Focus: Establish the fundamental single-player experience.*
 
 ### **Epic: User Onboarding & Profile Management**
@@ -99,7 +99,7 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   A PostgreSQL trigger is created in the Supabase database to synchronize new users from `auth.users` to the public `UserProfiles` table.
     
 #### **Story: User Registration Flow**
-**As a** prospective student, **I want** to create an account with email verification, **so that** I can access the RogueLearn platform securely.
+**As a** prospective player, **I want** to create an account with email verification, **so that** I can access the RogueLearn platform securely.
 
 *   **Acceptance Criteria:**
     *   Registration form validates email format and password strength (8+ chars, mixed case, numbers)
@@ -330,7 +330,7 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Question difficulty levels trigger corresponding boss attack patterns and animations
     *   Real-time visual feedback shows correct/incorrect answers with particle effects
     *   Boss health decreases with correct answers, increases with incorrect ones
-    *   Progressive difficulty scaling adjusts boss mechanics based on student performance
+    *   Progressive difficulty scaling adjusts boss mechanics based on player performance
 
 #### **Story: Boss Fight Gameplay & Results Visualization**
 **As a** student, **I want** to complete Unity boss fight challenges and see detailed results with visual progress indicators, **so that** I can track my character progression and learning outcomes.
@@ -791,7 +791,7 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 **As a** party member, **I want** real-time coordination tools during study sessions, **so that** I can collaborate effectively with my study group.
 
 *   **Acceptance Criteria:**
-    *   Live session status indicators for all party members
+    *   The UI displays live session status indicators for all party members
     *   Real-time shared whiteboard and note-taking tools
     *   Voice/video integration for remote study sessions
     *   Screen sharing capabilities for collaborative work
@@ -812,7 +812,7 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 
 *   **Acceptance Criteria:**
     *   Tournament-style knowledge competitions
-    *   Skill-based matchmaking for fair competition
+    *   Skill-based matchmaking is used for fair competition
     *   Real-time leaderboards and rankings
     *   Achievement badges and rewards system
     *   Team-based challenges and competitions
@@ -825,201 +825,4 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   Real-time duel interface with timer and scoring
     *   Duel history and statistics tracking
     *   Spectator mode for other students to watch
-    *   Ranking system based on duel performance
-
----
-
-### **Epic: Enhanced Browser Extension Integration**
-*Goal: Provide seamless web integration and contextual learning assistance.*
-
-#### **Story: Advanced Web Content Extraction**
-**As a** student, **I want** the browser extension to intelligently extract and organize web content, **so that** I can build my knowledge base efficiently while browsing.
-
-*   **Acceptance Criteria:**
-    *   AI-powered content analysis and categorization
-    *   Automatic tagging and metadata extraction
-    *   Smart content summarization and key point extraction
-    *   Integration with existing Arsenal organization system
-    *   Bulk content processing and organization tools
-
-#### **Story: Contextual Learning Assistance**
-**As a** student, **I want** contextual learning assistance while browsing, **so that** I can connect new information to my existing knowledge.
-
-*   **Acceptance Criteria:**
-    *   Real-time content analysis and related knowledge suggestions
-    *   Popup displays of relevant Arsenal notes and connections
-    *   Skill tree integration showing how content relates to learning goals
-    *   Difficulty assessment and learning recommendations
-    *   Progress tracking for web-based learning activities
-
-#### **Story: Cross-Platform Synchronization**
-**As a** student, **I want** seamless synchronization across all my devices, **so that** my learning progress and content are always up-to-date.
-
-*   **Acceptance Criteria:**
-    *   Real-time sync of Arsenal content across devices
-    *   Offline capability with sync when connection restored
-    *   Conflict resolution for simultaneous edits
-    *   Progress synchronization across web and mobile platforms
-    *   Backup and restore functionality for all user data
-
----
-
-## **Phase 6: Marketplace & Economy**
-*Focus: Introduce a user-driven economy for sharing and monetizing knowledge.*
-
-### **Epic: Marketplace**
-*Goal: Create a platform for students to share and monetize their knowledge.*
-
-#### **Story: Marketplace Creation & Content Upload**
-**As a** student, **I want** to upload and share my study materials in the Marketplace, **so that** I can help others and potentially earn rewards.
-
-*   **Acceptance Criteria:**
-    *   Content upload system supporting various formats and media types
-    *   Quality assessment and moderation workflow for uploaded content
-    *   Pricing and monetization options for content creators
-    *   Content categorization and tagging system for discoverability
-    *   Creator analytics showing content performance and earnings
-    *   Revenue sharing system with transparent fee structure
-
-#### **Story: Content Rating & Review**
-**As a** student, **I want** to rate and review content in the Marketplace, **so that** I can help others find quality materials.
-
-*   **Acceptance Criteria:**
-    *   5-star rating system with detailed review capabilities
-    *   Review moderation system to ensure quality and appropriateness
-    *   Helpful/unhelpful voting system for reviews
-    *   Creator response system for addressing feedback
-    *   Review aggregation and display system showing overall ratings
-    *   Verified purchase requirement for leaving reviews
-
----
-
-### **Epic: AI-Powered Curation**
-*Goal: Use AI to curate and enhance user-generated content.*
-
-#### **Story: AI Content Review & Elevation**
-**As a** platform administrator, **I want** the AI to review and elevate high-quality user content, **so that** the best materials are easily accessible to all users.
-
-*   **Acceptance Criteria:**
-    *   AI quality assessment algorithm analyzing content value and accuracy
-    *   Automated content categorization and skill mapping
-    *   Featured content promotion system highlighting exceptional materials
-    *   Quality score system influencing search rankings and visibility
-    *   Automated plagiarism and duplicate content detection
-    *   Content improvement suggestions generated by AI analysis
-
-#### **Story: Knowledge Pack Creation**
-**As a** student, **I want** the AI to curate themed bundles of study materials, **so that** I can access comprehensive resources for specific topics or exams.
-
-*   **Acceptance Criteria:**
-    *   AI-generated content bundles based on learning objectives and skill requirements
-    *   Personalized knowledge pack recommendations based on user progress and goals
-    *   Bundle pricing and packaging options with bulk discounts
-    *   Quality assurance ensuring content coherence and completeness
-    *   Regular updates to knowledge packs based on curriculum changes
-    *   User feedback integration for continuous improvement of curation algorithms
-
----
-
-## **Post-Capstone Epics (Future Vision)**
-*Focus: These features represent the long-term vision for the RogueLearn platform, to be developed after the core career-readiness loop has been validated.*
-
-### **Epic: Enhanced Browser Extension**
-*Goal: Fully integrate the RogueLearn experience into the student's daily web-based academic workflow, making knowledge capture and contextual access seamless and intelligent.*
-
-#### **Story: Extension for Document Extraction**
-**As a** student, **I want** a browser extension that can extract academic info from my university portal, **so that** I can easily import it into RogueLearn.
-
-*   **Acceptance Criteria:**
-    *   The extension can identify and extract structured data like syllabus, GPA, timetables, and exam schedules from supported university portals.
-    *   Extracted information is sent to the RogueLearn backend for AI processing to generate or update quests.
-    *   The user is notified within the extension when the import and processing are complete.
-    *   The extension provides a user-friendly interface for mapping and confirming extracted data fields.
-
-#### **Story: Contextual Note Access**
-**As a** student, **I want** the extension to show me my relevant notes when I highlight text on a webpage, **so that** I can quickly access my knowledge.
-
-*   **Acceptance Criteria:**
-    *   Highlighting text on any webpage triggers a non-intrusive popup or sidebar.
-    *   The extension performs a real-time search of the user's "Arsenal" based on the highlighted keywords.
-    *   Relevant notes are displayed in the popup with links to open them fully within the platform.
-    *   The user can create a new note pre-populated with the highlighted text and source URL.
-
-#### **Story: Advanced Web Content Extraction**
-**As a** student, **I want** the browser extension to intelligently extract and organize web content, **so that** I can build my knowledge base efficiently while browsing.
-
-*   **Acceptance Criteria:**
-    *   The extension uses AI-powered content analysis to categorize captured web pages (e.g., Article, Tutorial, Reference).
-    *   The system performs automatic tagging and metadata extraction on saved content.
-    *   A "Smart Summarization" feature generates key points from long articles.
-    *   Content is integrated directly into the user's existing Arsenal organization system.
-
-#### **Story: Contextual Learning Assistance**
-**As a** student, **I want** contextual learning assistance while browsing, **so that** I can connect new information to my existing knowledge.
-
-*   **Acceptance Criteria:**
-    *   The extension analyzes the content of the current page in real-time to suggest relevant notes from the user's Arsenal.
-    *   The UI displays links to related Skill Tree nodes, showing how the current content fits into their learning goals.
-    *   The extension can assess the difficulty of an article and provide learning recommendations.
-    *   Time spent on relevant educational websites is tracked as part of the user's progress.
-
-#### **Story: Cross-Platform Synchronization**
-**As a** student, **I want** seamless synchronization across all my devices, **so that** my learning progress and content are always up-to-date.
-
-*   **Acceptance Criteria:**
-    *   Notes and content captured via the browser extension are available in real-time on the main web application.
-    *   The extension has offline capabilities, caching captured content and syncing it when a connection is restored.
-    *   The system handles conflict resolution for simultaneous edits on different platforms.
-    *   Progress made on the web app (e.g., completing a quest) is reflected in extension-based recommendations.
-
-### **Epic: Advanced Social & Collaboration Features**
-*Goal: Deepen the collaborative learning experience with more powerful tools for teamwork, peer-to-peer engagement, and friendly competition.*
-
-#### **Story: Advanced Party Management Tools**
-**As a** party leader, **I want** advanced management tools for my study group, **so that** I can coordinate complex study sessions and track member progress effectively.
-
-*   **Acceptance Criteria:**
-    *   A party analytics dashboard is available, showing member engagement and progress metrics.
-    *   Advanced scheduling tools are provided with calendar integration options.
-    *   The system supports customizable party roles and permissions.
-    *   Party leaders can set and track performance metrics and goals for the group.
-    *   The system sends automated reminders and notifications for party activities.
-
-#### **Story: Real-time Study Session Coordination**
-**As a** party member, **I want** real-time coordination tools during study sessions, **so that** I can collaborate effectively with my study group.
-
-*   **Acceptance Criteria:**
-    *   The UI displays live session status indicators for all party members.
-    *   The platform includes a real-time shared whiteboard and collaborative note-taking tools.
-    *   Voice/video integration is available for remote study sessions.
-    *   Screen sharing capabilities are provided for collaborative work.
-    *   Sessions can be recorded and played back later.
-
-#### **Story: Peer-to-Peer Learning System**
-**As a** student, **I want** to engage in peer teaching and learning, **so that** I can both help others and deepen my own understanding.
-
-*   **Acceptance Criteria:**
-    *   A peer tutoring matching system is available, based on skills and needs.
-    *   The system includes a rewards and recognition system for knowledge sharing.
-    *   Peer review and feedback mechanisms are implemented.
-    *   The platform provides collaborative problem-solving tools.
-
-#### **Story: Competitive Learning Challenges**
-**As a** student, **I want** to participate in competitive learning challenges, **so that** I can test my knowledge against peers and stay motivated.
-
-*   **Acceptance Criteria:**
-    *   The platform supports tournament-style knowledge competitions.
-    *   Skill-based matchmaking is used for fair competition.
-    *   Real-time leaderboards and rankings are displayed during events.
-    *   An achievement badges and rewards system is in place for winners.
-    *   The system supports team-based challenges and competitions.
-
-#### **Story: Knowledge Duels**
-**As a** student, **I want** to challenge other students to knowledge duels, **so that** I can test my understanding in a fun, competitive format.
-
-*   **Acceptance Criteria:**
-    *   A one-on-one challenge system is available with topic selection.
-    *   The duel interface is real-time with a timer and scoring.
-    *   The system tracks and displays duel history and statistics.
-    *   A spectator mode is available for other students to watch duels.
-    *   A ranking system is implemented based on duel performance.
+    *   Ranking system is implemented based on duel performance.

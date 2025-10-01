@@ -1,4 +1,4 @@
-### **Functional - Phase 1: Core Student MVP**
+### **Functional - Phase 1: Core Player MVP**
 *Focus: Establish the fundamental single-player experience.*
 
 1.  **FR1 (User):** The system must allow a new user to create an account and onboard via a 3-step "Character Creation" flow: (1) Route selection (Curriculum), (2) Class selection (Roadmap.sh specialization), and (3) Skill-based roadmap selection.
@@ -256,10 +256,10 @@
 34. **FR34 (AI/Player):** The system must generate comprehensive meeting summaries from recorded content, including executive summaries, key discussion points, action items with assignments, next steps, resources mentioned, study materials covered, and unresolved questions, with options for both AI-generated and manual/collaborative summary creation.
 35. **FR35 (System):** The notification system must support email notifications and push notifications for mobile devices with user-configurable preferences.
 
-### **Functional - Phase 3: Educator & Admin Toolkit**
+### **Functional - Phase 3: Educator & Game Master Toolkit**
 *Focus: Empower educators and administrators with tools.*
 
-36. **FR36 (Guild Master):** Any user (Student or Verified Lecturer) can create a "Guild." Verified Lecturers receive additional features and capabilities within the system.
+36. **FR36 (Guild Master):** Any user (Player or Verified Lecturer) can create a "Guild." Verified Lecturers receive additional features and capabilities within the system.
     
     **Business Logic Specifications:**
     - **Guild Creation Requirements**:
@@ -276,15 +276,15 @@
       - Custom quest creation and assignment capabilities
     - **Guild Progression**: Guilds earn experience through member activities and unlock new features at milestone levels
     - **Lecturer-Specific Features**:
-      - **Advanced Analytics Dashboard**: Detailed student progress tracking, performance analytics, and learning pattern insights
+      - **Advanced Analytics Dashboard**: Detailed player progress tracking, performance analytics, and learning pattern insights
       - **Custom Quest Creation**: Ability to create and assign specialized quests with custom objectives and deadlines
-      - **Bulk Student Management**: Import/export student data, batch operations for large classes
+      - **Bulk Player Management**: Import/export player data, batch operations for large classes
       - **Assessment Integration**: Create and manage custom Boss Fights with tailored difficulty and question sets
       - **Resource Library Access**: Access to premium educational content and templates for quest creation
       - **Priority Support**: Dedicated support channel and faster response times for technical issues
-      - **Advanced Reporting**: Generate detailed reports on student engagement, completion rates, and skill development
+      - **Advanced Reporting**: Generate detailed reports on player engagement, completion rates, and skill development
       - **Curriculum Mapping Tools**: Advanced tools to map course content to skill trees and quest objectives
-    - **Access Restrictions**: Lecturer status provides feature access only; lecturers cannot view student notes, personal quests, or private data outside of party/guild rules
+    - **Access Restrictions**: Lecturer status provides feature access only; lecturers cannot view player notes, personal quests, or private data outside of party/guild rules
     - **Verification Requirements**: Lecturer status requires institutional email verification and periodic re-verification (annually)
     - **Verified Lecturer Process**: The system must provide a verification process for Guild Masters to become "Verified Lecturers" through academic credential validation, enabling enhanced guild creation privileges and credibility indicators
     - **Streamlined Guild Creation**: Verified Lecturers must be able to create guilds with streamlined processes, basic document sharing capabilities, and simple member management tools focused on educational content delivery
@@ -349,7 +349,7 @@
     **Social Learning Features:**
     - **Peer Challenges**: Direct challenge system between users with customizable problem sets
     - **Collaborative Battles**: Team-based coding challenges requiring coordination and communication
-    - **Mentorship Integration**: Mentor-student pairing for guided competitive learning experiences
+    - **Mentorship Integration**: Mentor-player pairing for guided competitive learning experiences
     - **Knowledge Sharing**: Post-battle code review sessions, solution explanation features
     - **Study Groups**: Competitive study sessions with shared objectives and group scoring
     - **Skill Matching**: Intelligent pairing based on skill levels, learning objectives, and compatibility
@@ -572,7 +572,7 @@ To validate the RogueLearn MVP, we will use a combination of qualitative and qua
 12. **NFR12 (Data Backup & Recovery):** All user data stored in Supabase must have a point-in-time recovery (PITR) backup plan with a recovery point objective (RPO) of 1 hour and a recovery time objective (RTO) of 4 hours.
 13. **NFR13 (Security):** The application must implement security best practices to mitigate risks from the OWASP Top 10, including secure data handling, input validation, and protection against injection attacks.
 14. **NFR14 (Data Privacy):** The system must be designed with data privacy as a priority, complying with GDPR principles. It must include a configurable data retention policy allowing for automated data deletion upon user request or after a defined period of inactivity.
-15. **NFR15 (Access Control):** The system must implement a robust Role-Based Access Control (RBAC) system to ensure users can only access data and functionality appropriate for their role (e.g., Student, Guild Master, Game Master).
+15. **NFR15 (Access Control):** The system must implement a robust Role-Based Access Control (RBAC) system to ensure users can only access data and functionality appropriate for their role (e.g., Player, Guild Master, Game Master).
 16. **NFR16 (Scalability):** The architecture must support horizontal scaling for both the backend services and the database to handle a 50% increase in user traffic over a 3-month period without significant performance degradation. AI/ML workloads must be managed in a cost-effective manner, using serverless functions or dedicated instances as appropriate.
 17. **NFR17 (Microservices Architecture):** The system must be built using a microservices architecture with clearly defined service boundaries, independent deployment capabilities, and fault isolation to ensure system resilience and maintainability.
 18. **NFR18 (API Design):** All services must expose RESTful APIs with comprehensive OpenAPI documentation, consistent error handling, rate limiting, and versioning support to enable seamless integration and future extensibility.

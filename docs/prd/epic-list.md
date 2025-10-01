@@ -1,6 +1,6 @@
 # **Epic List**
 
-## **Phase 1: Core Student MVP**
+## **Phase 1: Core Player MVP**
 *Focus: Establish the fundamental single-player experience.*
 
 ### **Epic: User Onboarding & Profile Management**
@@ -110,7 +110,7 @@
 *   Event archival and historical tracking
 *   Game Master administrative dashboard for platform oversight
 
-*Note: Advanced educator features (AI-assisted quest generation, complex analytics, skill tree overlays, and comprehensive game master tools) have been moved to post-MVP to focus on core student experience validation.*
+*Note: Advanced educator features (AI-assisted quest generation, complex analytics, skill tree overlays, and comprehensive game master tools) have been moved to post-MVP to focus on core player experience validation.*
 
 ---
 

@@ -5,7 +5,7 @@ This document defines RPG-specific terminologies and gamification concepts used 
 ## Core RPG Concepts
 
 ### **Arsenal**
-A student's personal knowledge repository containing all their notes, documents, and learning materials. Functions as the player's "inventory" where they store and organize their accumulated knowledge and resources.
+A player's personal knowledge repository containing all their notes, documents, and learning materials. Functions as the player's "inventory" where they store and organize their accumulated knowledge and resources.
 
 ### **Character Creation**
 The onboarding process where new users define their academic identity by selecting:
@@ -41,22 +41,22 @@ A learning task or objective generated from academic documents (syllabus, schedu
 - **Schedule Quests**: Time-based academic events
 
 ### **Quest Line**
-A sequence of related quests that form a complete learning path, primarily generated from curriculum content and academic progression. Represents the main storyline of a student's academic journey, supplemented with career-focused content from roadmap.sh.
+A sequence of related quests that form a complete learning path, primarily generated from curriculum content and academic progression. Represents the main storyline of a player's academic journey, supplemented with career-focused content from roadmap.sh.
 
 ### **Route (Curriculum)**
-The academic curriculum selected by the student that serves as the foundational quest line structure. The Route defines the primary learning path based on university program requirements, course sequences, and academic milestones.
+The academic curriculum selected by the player that serves as the foundational quest line structure. The Route defines the primary learning path based on university program requirements, course sequences, and academic milestones.
 
 ### **Class (Career Specialization)**
-A career-focused specialization from roadmap.sh that complements the student's curriculum. The Class provides supplementary quests and content to bridge gaps between academic learning and industry requirements.
+A career-focused specialization from roadmap.sh that complements the player's curriculum. The Class provides supplementary quests and content to bridge gaps between academic learning and industry requirements.
 
 ### **Gap Analysis**
-An AI-driven process that compares the student's selected curriculum (Route) with their chosen career specialization (Class) to identify missing industry-standard skills, technologies, and competencies not covered in academic coursework.
+An AI-driven process that compares the player's selected curriculum (Route) with their chosen career specialization (Class) to identify missing industry-standard skills, technologies, and competencies not covered in academic coursework.
 
 ### **Curriculum-First Quest Generation**
 The primary quest generation methodology where the academic curriculum forms the main quest line structure, with supplementary quests from roadmap.sh integration filling identified gaps between academic and industry requirements.
 
 ### **Skill**
-A specific knowledge area or competency within a student's field of study. Skills are:
+A specific knowledge area or competency within a player's field of study. Skills are:
 - Organized in interconnected skill trees
 - Leveled up through quest completion and learning activities
 - Visualized to show knowledge relationships and dependencies
@@ -98,7 +98,7 @@ Small groups of students who can collaborate on learning activities, share progr
 ### **Verified Lecturer**
 An educator who has completed the platform's verification process and gained access to:
 - Guild creation and management tools
-- Student progress monitoring capabilities
+- Player progress monitoring capabilities
 - Content creation and sharing features
 - Advanced analytics and reporting
 
@@ -127,22 +127,43 @@ Instant updates across all user devices and interfaces when:
 
 ## User Roles
 
-### **Student**
+### **Player**
 The primary user type who:
 - Uploads academic documents and creates quests
 - Completes learning activities and tracks progress
 - Manages their Arsenal and skill development
 - Participates in social learning features
 
+### **Party Leader**
+An enhanced Player role with group management capabilities who:
+- Creates and manages study parties (2-8 members)
+- Organizes collaborative learning sessions
+- Coordinates party activities and schedules
+- Manages shared party resources and permissions
+
+### **Guild Master**
+A Verified Lecturer who creates and manages guilds, providing:
+- Educational content and curated learning materials
+- Learning guidance and mentorship to guild members
+- Community management and moderation
+- Progress monitoring and academic oversight
+
+### **Game Master (Admin)**
+System administrators who:
+- Manage platform operations and user accounts
+- Oversee content moderation and community guidelines
+- Handle technical support and system maintenance
+- Monitor platform security and performance
+
 ### **Verified Lecturer**
-Educators who provide:
-- Expert guidance and mentorship
-- Curated learning materials and resources
-- Community leadership through guild management
-- Academic oversight and progress monitoring
+A special status (not a separate role) that can be applied to Players, indicating:
+- Completed platform verification process
+- Access to enhanced educational tools and features
+- Ability to become a Guild Master
+- Authority to create and manage educational content
 
 ### **Guild Member**
-Students who have joined a guild and can:
+Players who have joined a guild and can:
 - Access guild-specific resources and content
 - Participate in guild activities and discussions
 - Receive mentorship from the Guild Master
@@ -151,7 +172,7 @@ Students who have joined a guild and can:
 ## Learning Analytics Terms
 
 ### **Learning Path**
-The sequence of skills, quests, and activities that lead a student toward their academic goals, dynamically adjusted based on progress and performance.
+The sequence of skills, quests, and activities that lead a player toward their academic goals, dynamically adjusted based on progress and performance.
 
 ### **Mastery Level**
 A measure of proficiency in a specific skill or subject area, determined by:
@@ -161,7 +182,7 @@ A measure of proficiency in a specific skill or subject area, determined by:
 - Peer interactions and contributions
 
 ### **Progress Tracking**
-Continuous monitoring of student advancement through:
+Continuous monitoring of player advancement through:
 - Quest completion status
 - Skill level improvements
 - XP accumulation over time
