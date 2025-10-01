@@ -7,7 +7,7 @@ This sequence diagram illustrates the complete workflow for "Flow 6: Event Manag
 - **Guild Master A**: Creates and configures competitive events
 - **User (Student)**: Guild members who participate in code battles
 - **Guild Master B**: Leaders of guilds that join events
-- **Admin**: Approves event creation requests
+- **Game Master**: Reviews and approves Guild Master event requests with highest administrative authority
 - **Web Interface**: User interaction layer
 - **API Gateway**: Request routing and authentication
 - **Code Battle Service**: Manages events, rooms, code problems, and judging
@@ -19,7 +19,7 @@ This sequence diagram illustrates the complete workflow for "Flow 6: Event Manag
 ```mermaid
 sequenceDiagram
     participant GMA as Guild Master A
-    participant Admin as Admin
+    participant GM as Game Master
     participant GMB as Guild Master B
     participant User as User (Student)
     participant Web as Web Interface
@@ -49,17 +49,17 @@ sequenceDiagram
     API-->>Web: Display pending approval status
     Web-->>GMA: Show event awaiting approval
 
-    CBS->>Admin: Notify pending event approval
-    Admin->>Web: Review event details
+    CBS->>GM: Notify pending event approval
+    GM->>Web: Review event details
     Web->>API: Request event details
     API->>CBS: Get event information
     CBS->>DB: Retrieve event data
     DB-->>CBS: Return event details
     CBS-->>API: Return event information
     API-->>Web: Display event details
-    Web-->>Admin: Show event for approval
+    Web-->>GM: Show event for approval
 
-    Admin->>Web: Approve event
+    GM->>Web: Approve event
     Web->>API: Submit approval decision
     API->>CBS: Approve event
     CBS->>DB: Update event status to approved
@@ -69,7 +69,7 @@ sequenceDiagram
     DB-->>CBS: Confirm problems stored
     CBS-->>API: Event approved and ready
     API-->>Web: Display approval confirmation
-    Web-->>Admin: Show event approved
+    Web-->>GM: Show event approved
 
     Note over GMA, DB: Phase 2: Event Setup & Guild Registration
 

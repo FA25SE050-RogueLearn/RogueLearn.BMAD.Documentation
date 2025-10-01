@@ -50,10 +50,10 @@
     - **Academic Route Mapping**: System maps curriculum to supported academic routes:
       - Software Engineering programs
       - Computer Science degrees
-      - Information Technology curricula
+      - Information Technology programs
       - Data Science programs
     - **Confidence Scoring**: Each curriculum analysis includes confidence score (0-100%); scores <80% trigger manual review
-    - **Supported Curriculum Formats**: PDF syllabi, structured course catalogs, academic program descriptions
+    - **Supported Curriculum Formats**: PDF syllabus, structured course catalogs, academic program descriptions
 5.  **FR4A (AI):** The system's AI must perform gap analysis between the selected curriculum and roadmap.sh career specialization to generate supplementary quests that bridge academic learning with industry requirements.
     
     **Business Logic Specifications:**
@@ -94,7 +94,7 @@
 7.  **FR7 (AI):** The system's AI must use the uploaded academic data (GPA, transcripts, schedules) to influence the character's initial stats.
     
     **Business Logic Specifications:**
-    - **GPA Conversion**: GPA (0-4.0 scale) maps to base stats using formula: Base Stat = (GPA/4.0) × 100, minimum 25 points
+    - **GPA Conversion**: GPA (1-10 scale) maps to base stats using formula: Base Stat = (GPA/10.0) × 100, minimum 25 points
     - **Transcript Analysis**: Completed courses contribute +5 points per course to related skill categories (max 200 points per category)
     - **Grade Weighting**: A grades = +10 points, B grades = +7 points, C grades = +4 points, D/F grades = +1 point to relevant skills
     - **Stat Categories**: Intelligence (academic performance), Experience (completed courses), Potential (GPA trend analysis)
@@ -366,16 +366,20 @@
     - **Monitoring Dashboard**: Real-time event oversight, participant tracking, issue resolution tools
     - **Analytics & Reporting**: Event performance metrics, participant feedback collection, outcome analysis
 
-47. **FR47 (System):** The system must implement a multi-level approval workflow for event management ensuring educational quality and platform integrity through administrative oversight.
+47. **FR47 (System):** The system must implement a streamlined approval workflow for event management ensuring educational quality and platform integrity through Game Master administrative oversight.
     
     **Approval Workflow Features:**
-    - **Multi-tier Approval**: Guild Master review → Platform Administrator approval → Event activation
-    - **Quality Assurance**: Automated content validation, educational standard compliance checking
-    - **Review Dashboard**: Administrative interface for pending approvals, batch processing capabilities
+    - **Game Master Authority**: Game Masters have the highest administrative authority and can create events with automatic approval for all event types
+    - **Streamlined Approval Process**: 
+      - Game Master Created Events: Direct creation and activation with full administrative authority
+      - Guild Master Event Requests: Require Game Master approval for quality assurance and educational oversight
+    - **Game Master Permissions**: Full event lifecycle management including creation, modification, deletion, and approval authority over all platform events
+    - **Quality Assurance**: Automated content validation, educational standard compliance checking for all event requests
+    - **Review Dashboard**: Administrative interface for Game Masters to review Guild Master event requests with batch processing capabilities
     - **Approval Criteria**: Educational value assessment, technical feasibility validation, resource availability check
-    - **Feedback System**: Rejection reasoning, improvement suggestions, resubmission workflows
+    - **Feedback System**: Rejection reasoning, improvement suggestions, resubmission workflows for Guild Master requests
     - **Audit Trail**: Complete approval history, decision tracking, accountability logging
-    - **Emergency Controls**: Rapid event suspension, real-time moderation, incident response protocols
+    - **Administrative Controls**: Game Masters can suspend events, moderate content, and respond to incidents with full authority
 
 
 

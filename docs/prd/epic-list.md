@@ -98,17 +98,17 @@
 
 ### **Epic 3: Event Management & Administration Platform**
 **Functional Requirements:** FR48, FR49
-**Description:** Comprehensive event creation and management system enabling educators and guild masters to organize, schedule, and administer competitive learning events. Provides administrative oversight, approval workflows, and event lifecycle management for maintaining educational quality and platform integrity.
+**Description:** Comprehensive event creation and management system enabling educators and guild masters to organize, schedule, and administer competitive learning events. Provides Game Master administrative oversight with highest authority, streamlined approval workflows, and event lifecycle management for maintaining educational quality and platform integrity.
 
 **Key Features:**
 *   Event creation wizard with templates and customization options
-*   Multi-level approval workflow (Guild Master → Platform Admin)
+*   Streamlined approval workflow (Guild Master → Game Master) with Game Master highest authority
 *   Event scheduling and calendar integration
 *   Participant registration and capacity management
 *   Event monitoring and real-time administration tools
 *   Post-event analytics and performance reporting
 *   Event archival and historical tracking
-*   Administrative dashboard for platform oversight
+*   Game Master administrative dashboard for platform oversight
 
 *Note: Advanced educator features (AI-assisted quest generation, complex analytics, skill tree overlays, and comprehensive game master tools) have been moved to post-MVP to focus on core student experience validation.*
 

@@ -10,6 +10,13 @@ This document outlines the key user roles and actors within the RogueLearn ecosy
 
 *   **Admin (Game Master):** A privileged user responsible for the technical oversight and educational content management of the RogueLearn platform. They create curriculum-aligned foundational content for competitive **Events** (like academic assessments and career readiness challenges), manage curriculum-career integration systems, and oversee the platform's educational effectiveness.
 
+**Event Creation Privileges:**
+- Create platform-wide events with standard templates (auto-approved)
+- Create custom events (subject to peer review)
+- Approve/reject Guild Master event requests
+- Override event parameters for educational quality assurance
+- Access to event analytics and performance monitoring tools
+
 **Special Status: Verified Lecturer**
 
 To signify academic credibility and curriculum expertise, a user can apply to receive a "Verified Lecturer" status through an enhanced academic credential validation process. This includes:

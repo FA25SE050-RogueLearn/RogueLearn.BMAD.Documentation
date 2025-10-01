@@ -581,17 +581,17 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   Integration with external calendar systems and notification platforms
 
 #### **Story: Multi-tier Approval Workflow System**
-**As a** system administrator, **I want** a configurable approval workflow for events, **so that** I can ensure quality control and proper resource allocation while maintaining efficient processing times.
+**As a** Game Master, **I want** a streamlined approval workflow for Guild Master event requests, **so that** I can ensure quality control and proper resource allocation while maintaining efficient processing times with my highest administrative authority.
 
 *   **Acceptance Criteria:**
-    *   Configurable approval tiers with customizable criteria and reviewer assignments
+    *   Game Master approval interface with customizable criteria and review assignments
     *   Automated validation checks for event feasibility, resource availability, and policy compliance
-    *   Real-time notification system for approval requests and status updates
+    *   Real-time notification system for Guild Master event requests and approval status updates
     *   Detailed review interface with commenting, revision requests, and approval tracking
-    *   Escalation mechanisms for complex or disputed approval cases
+    *   Direct Game Master event creation with automatic approval for all event types
     *   Audit trail maintaining complete history of approval decisions and modifications
-    *   Bulk approval capabilities for routine or pre-approved event types
-    *   Integration with administrative dashboards and reporting systems
+    *   Bulk approval capabilities for routine or pre-approved Guild Master event types
+    *   Integration with Game Master administrative dashboards and reporting systems
 
 #### **Story: Advanced Event Lifecycle Management**
 **As an** event organizer, **I want** comprehensive tools to manage events throughout their entire lifecycle, **so that** I can ensure smooth execution and optimal participant experience.
@@ -756,15 +756,18 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   Data export capabilities for detailed analysis and reporting
 
 #### **Story: Global Event Management**
-**As a** Game Master, **I want** to create and trigger global events, **so that** I can enhance user engagement across the platform.
+**As a** Game Master, **I want** to create and trigger global events with highest administrative authority, **so that** I can enhance user engagement across the platform.
 
 *   **Acceptance Criteria:**
-    *   Event creation tools for platform-wide challenges and competitions
-    *   Scheduling system for timed events with automatic triggers
-    *   Reward distribution system for event participants
-    *   Event performance tracking and analytics
-    *   Communication tools for event announcements and updates
-    *   Integration with user progression systems for seamless experience
+    *   Event creation tools for platform-wide challenges and competitions with Game Master highest authority
+    *   Game Master approval workflow for Guild Master created events with streamlined review process
+    *   Automatic approval system for all Game Master created events (standard and custom)
+    *   Game Master dashboard for managing Guild Master event approval queue and platform oversight
+    *   Scheduling system for timed events with automatic triggers and Game Master override capabilities
+    *   Reward distribution system for event participants with Game Master administrative control
+    *   Event performance tracking and analytics with comprehensive Game Master reporting
+    *   Communication tools for event announcements and updates with Game Master broadcast authority
+    *   Integration with user progression systems for seamless experience under Game Master oversight
 
 ---
 

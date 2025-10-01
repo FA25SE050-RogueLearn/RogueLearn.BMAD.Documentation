@@ -218,14 +218,14 @@ The comprehensive competitive programming system that enables Guild Masters and 
   - Database (Data persistence layer)
 
 ### **Enhanced Process**
-1. **Event Creation & Multi-Tier Approval Phase:**
-   - Admin imports code problems into Code Battle Service with difficulty levels, test cases, and solution templates
+1. **Event Creation & Streamlined Approval Phase:**
+   - Game Master imports code problems into Code Battle Service with difficulty levels, test cases, and solution templates
    - Guild Master A initiates event creation through enhanced Event Management Service interface
    - **Event Configuration Wizard**: Template-based setup with customizable parameters (event type, scoring rules, time limits, guild eligibility criteria)
    - Event Management Service validates configuration and creates draft event with unique identifier
-   - **Multi-tier Approval Workflow**: Guild Master review → Platform Administrator approval → Event activation
-   - **Approval Dashboard**: Admins review events with automated validation checks and manual oversight capabilities
-   - **Emergency Controls**: Rapid event suspension protocols and real-time moderation tools
+   - **Streamlined Approval Workflow**: Guild Master event requests → Game Master approval with highest administrative authority
+   - **Game Master Dashboard**: Game Masters review Guild Master events with automated validation checks and administrative oversight capabilities
+   - **Emergency Controls**: Rapid event suspension protocols and real-time moderation tools under Game Master authority
    - Upon approval, Event Management Service coordinates with Room Assignment Service for guild member distribution
 
 2. **Enhanced Event Setup & Registration:**
@@ -269,7 +269,7 @@ The comprehensive competitive programming system that enables Guild Masters and 
 
 ### **Enhanced Success Criteria**
 - **Event Creation Efficiency**: Average event setup time reduced to <15 minutes with 95% success rate using configuration wizard
-- **Approval Workflow Performance**: Multi-tier approval completion within 24 hours with 100% automated validation accuracy
+- **Approval Workflow Performance**: Streamlined Game Master approval completion within 12 hours with 100% automated validation accuracy
 - **Competition Participation**: 70% of active guild members participate in monthly competitions with <10% drop-off rate
 - **Real-time System Performance**: Support for 100+ concurrent participants with <2s code execution latency and 99.9% uptime
 - **Spectator Engagement**: Average of 50+ spectators per major event with <500ms update latency and 85% retention rate

@@ -295,32 +295,36 @@ flowchart TD
 
 ---
 
-## UC-011: Guild-based Event System
+## UC-011: Event Management with Game Master Approval
 
 | **Field** | **Details** |
 |-----------|-------------|
-| **Use Case Name** | Guild-based Event Creation and Management |
-| **Description** | Guild Masters and Verified Lecturers create system-wide guild events with room assignments and competitive learning activities |
-| **Actor(s)** | Primary: **Guild Master**, **Verified Lecturer**<br>Secondary: **Students**, Room Assignment Service |
-| **Preconditions** | User has event creation privileges and guild management access |
-| **Postconditions (Success Guarantee)** | Event created, guilds registered, room assignments completed, and competitive activities conducted |
-| **Related Requirements** | **FRs:** FR43 (Event Management), FR44 (Code Battle System), FR47 (Guild-based Events)<br>**NFRs:** NFR15 (Microservices), NFR21 (Scalability) |
-| **Main Success Scenario** | 1. Event organizer accesses event creation wizard<br>2. User selects event type (code battle, hackathon, study competition, skill assessment)<br>3. System configures event parameters, rules, and guild participation requirements<br>4. Event organizer sets up automated room assignment criteria and capacity limits<br>5. System opens guild registration with prerequisite checking<br>6. Guilds register for event participation<br>7. System automatically assigns guilds to rooms based on criteria and balancing<br>8. Event proceeds with real-time guild ranking and performance tracking<br>9. System concludes event with guild-based rewards and recognition |
-| **Alternative Flows** | **A1:** Multi-phase events - System manages complex event structures with multiple rounds<br>**A2:** Cross-guild collaboration - Events requiring inter-guild cooperation<br>**A3:** Spectator access - Non-participating users can observe and learn |
-| **Exception Flows** | **E1:** Room assignment conflicts - System provides manual override tools<br>**E2:** Guild withdrawal - System rebalances room assignments automatically<br>**E3:** Technical issues - System provides backup event management tools |
+| **Use Case Name** | Event Management with Game Master Authority |
+| **Description** | Game Masters have the highest administrative authority for creating, managing, and executing platform-wide events, with Guild Masters able to create event requests that require Game Master approval for quality assurance and educational oversight |
+| **Actor(s)** | Primary: **Game Master**, **Guild Master**<br>Secondary: **Students**, **Verified Lecturers**, Room Assignment Service, Quality Assurance System |
+| **Preconditions** | User has appropriate role-based event creation privileges and system access |
+| **Postconditions (Success Guarantee)** | Event created through proper approval workflow, quality assured, guilds registered, room assignments completed, and activities conducted with full audit trail |
+| **Related Requirements** | **FRs:** FR43 (Event Management), FR44 (Code Battle System), FR47 (Enhanced Approval Workflow), FR47A (Game Master Event Creation)<br>**NFRs:** NFR15 (Microservices), NFR21 (Scalability), NFR13 (Security) |
+| **Main Success Scenario** | 1. **Event Creation Phase**: Game Master accesses event creation wizard with enhanced toolkit<br>2. **Event Configuration**: User selects event type and configures parameters (standard events auto-approved, custom events flagged for review)<br>3. **Quality Assurance**: System performs automated quality checks and content validation<br>4. **Approval Workflow**: Event follows streamlined approval (Guild Master requests require Game Master approval for quality assurance)<br>5. **Event Setup**: Approved event configured with room assignments, participation criteria, and guild requirements<br>6. **Registration Phase**: System opens guild registration with prerequisite checking and capacity management<br>7. **Event Execution**: Event proceeds with real-time monitoring, guild ranking, and performance tracking<br>8. **Post-Event**: System generates comprehensive analytics, audit trail, and distributes rewards<br>9. **Review Dashboard**: All stakeholders access review dashboard for event performance and feedback |
+| **Alternative Flows** | **A1:** Game Master Direct Creation - Game Masters can create and activate events directly with their administrative authority<br>**A2:** Guild Master Event Request - Guild Masters submit event requests that require Game Master approval for quality assurance<br>**A3:** Custom Event Review - Manual peer review process for innovative or complex event designs<br>**A4:** Cross-guild Collaborative Events - Multi-guild events requiring enhanced coordination and approval<br>**A5:** Recurring Event Series - Streamlined approval for recurring educational event patterns |
+| **Exception Flows** | **E1:** Approval rejection - System provides detailed feedback and revision guidance for resubmission<br>**E2:** Quality assurance failure - System flags content issues and provides improvement recommendations<br>**E3:** Capacity overflow - System manages waiting lists and provides alternative event scheduling<br>**E4:** Technical issues during approval - System maintains approval state and provides recovery mechanisms |
 
 ### **Main Success Scenario Flowchart**
 
 ```mermaid
 flowchart TD
-    A[Organizer creates event] --> B[Select event type]
-    B --> C[Configure parameters]
-    C --> D[Set up room assignment]
-    D --> E[Open guild registration]
-    E --> F[Guilds register]
-    F --> G[System assigns rooms]
-    G --> H[Event with guild ranking]
-    H --> I[Conclude with rewards]
+    A[Game Master accesses event creation wizard] --> B[Configure event type and parameters]
+    B --> C[System performs quality assurance checks]
+    C --> D{Event Creator?}
+    D -->|Game Master| E[Direct creation and activation with administrative authority]
+    D -->|Guild Master| F[Event request submission]
+    F --> G[Game Master review and approval]
+    G --> H[Event setup with room assignments]
+    E --> H
+    H --> I[Guild registration opens]
+    I --> J[Event execution with monitoring]
+    J --> K[Post-event analytics and audit trail]
+    K --> L[Review dashboard access for stakeholders]
 ```
 
 ---
