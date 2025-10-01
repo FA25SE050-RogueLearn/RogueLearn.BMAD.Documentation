@@ -21,18 +21,24 @@
       - Mobile Developer
     - **Step 3 - Skill-based Roadmap**: System generates integrated learning path combining curriculum requirements with roadmap.sh career specialization
     - **Curriculum-First Approach**: Academic curriculum forms the primary quest line structure, with roadmap.sh providing supplementary career-focused content
-2.  **FR2 (User):** During character creation or from their profile, users may optionally upload academic documents to enhance their skill tree visualization and arsenal management features.
+2.  **FR2 (User):** During character creation or from their profile, users may optionally upload academic documents to enhance their skill tree visualization and arsenal management features, with specialized FPTU student verification capabilities.
     
     **Business Logic Specifications:**
-    - **Limited Scope**: Document upload is restricted to skill tree and arsenal management enhancement only
-    - **Supported Documents**: Course completion certificates, project portfolios, coding achievements, competition results
+    - **Enhanced Scope**: Document upload supports both skill enhancement and FPTU student verification
+    - **Supported Documents**: 
+      - General: Course completion certificates, project portfolios, coding achievements, competition results
+      - FPTU-Specific: Student ID cards, transcripts, enrollment certificates, semester schedules
     - **Enhanced Features**: Uploaded documents provide:
       - More detailed skill tree node completion tracking
       - Personalized arsenal item unlocks based on demonstrated competencies
       - Achievement badges and progress indicators
-    - **No Quest Generation Impact**: User documents do not influence main quest line generation (curriculum-driven)
+      - **FPTU Student Status Verification**: Automatic validation of FPTU enrollment and academic standing
+    - **Quest Generation Impact**: 
+      - General documents: Limited impact on skill tree and arsenal only
+      - **FPTU Documents**: Direct influence on quest generation, academic calendar integration, and semester-based progression
     - **Skill Tree Enhancement**: Documents help populate and validate skill progression within the curriculum framework
     - **Arsenal Personalization**: Documents unlock specialized tools, resources, and achievements in user's personal arsenal
+    - **FPTU Integration**: Verified FPTU students gain access to university-specific quest flows and academic calendar synchronization
 3.  **FR3 (System):** The system must maintain a comprehensive database of predefined curriculum and syllabus content for all supported academic routes and subjects, with optional document upload capability for enhanced personalization.
 4.  **FR4 (AI):** The system's AI must analyze the selected curriculum to identify the user's academic route and structure the primary quest line based on curriculum requirements and academic progression.
     
@@ -106,13 +112,22 @@
     - **Prerequisite Chain Recognition**: System identifies course prerequisites and creates skill dependencies (e.g., Calculus I → Calculus II → Differential Equations)
     - **Knowledge Decay**: Skills not reinforced within 12 months decrease by 10% per semester (minimum level 20% of original)
     - **Cross-Skill Synergies**: Related skills provide +5% bonus when multiple skills in same domain exceed level 50
-9.  **FR9 (AI):** The AI must automatically create quest lines organized into quest chapters (semesters) with structured quests based on course syllabus.
+9.  **FR9 (AI):** The AI must automatically create quest lines organized into quest chapters (semesters) with structured quests based on course syllabus and FPTU academic calendar integration.
     
     **Business Logic Specifications:**
     - **Quest Chapter Structure**: Each semester (4 months) = 1 quest chapter containing exactly 10 quests representing the first 10 weeks of study
     - **Quest Generation Timeline**: 
       - Standard subjects (4-month duration): 10 quests covering full semester content
       - Short subjects (2-month duration): 10 quests total, but objectives only generated for first 5 quests of that specific subject
+    - **FPTU Integration**: Quest generation incorporates:
+      - Real-time FPTU academic calendar synchronization
+      - University-specific course schedules and deadlines
+      - FPTU grading system and assessment timeline alignment
+      - Automatic adjustment for university holidays and exam periods
+    - **Adaptive Quest Logic**: System implements different quest generation approaches:
+      - **1st Time Students**: Fresh quest generation based on curriculum and FPTU portal data
+      - **Returning Students**: Quest memory system references previous semester performance and learning patterns
+      - **Failed Course Students**: Specialized remediation quests targeting specific knowledge gaps from FR51
     - **Objective Creation**: Each quest contains smaller objectives for each enrolled subject, generated from course syllabus content
     - **Manual Assignment Integration**: 
       - Users manually input assignments and in-class progress tests
@@ -122,7 +137,8 @@
     - **Semester Timing**: 
       - Weeks 1-10: Active quest period with learning objectives
       - Weeks 11-12 (Month 3): Exam preparation period
-      - Month 4: Retake period for failed courses (no new quests generated)
+      - Month 4: Retake period for failed courses (specialized recovery quests generated via FR51)
+    - **Quest Memory Integration**: System leverages FR49 quest history to ensure continuity and avoid repetitive content across semesters
 10. **FR10 (User):** Users must have a personal dashboard ("Character Sheet") that displays their progress, stats (influenced by academic data), a dynamic and interconnected skill tree, and the generated quest line.
 11. **FR11 (System):** The skill tree must be visualized as an interconnected mind map with nodes representing individual skills.
     
@@ -212,9 +228,67 @@
 ### **Functional - Phase 2: Social & Extension MVP**
 *Focus: Introduce multiplayer and external integration features.*
 
-22. **FR22 (Browser Extension):** The system must provide a browser extension to scan and extract academic documents and information (e.g., syllabus, GPA, timetables, exams, curriculum) from university portals and other web pages.
-23. **FR23 (Browser Extension):** The browser extension must automatically organize extracted information and web content into the user's "Arsenal" (notes), categorizing it appropriately.
-24. **FR24 (Browser Extension):** When a user highlights text on a webpage, the extension must trigger a popup that displays relevant notes from their "Arsenal" based on the highlighted keywords.
+22. **FR22 (Browser Extension):** The system must provide a browser extension with comprehensive FPTU portal integration to scan, extract, and synchronize academic documents and information for automated quest generation and academic tracking.
+    
+    **Business Logic Specifications:**
+    - **FPTU Portal Integration**: Extension specifically integrates with FPTU systems to extract:
+      - Student enrollment status and academic standing verification
+      - Course schedules, syllabus, and assignment deadlines
+      - Grade postings and academic performance data
+      - University calendar events and examination schedules
+    - **Academic Document Processing**: Extension processes and validates:
+      - Student ID verification and enrollment certificates
+      - Transcript data for academic history and performance patterns
+      - Course completion records and failure tracking
+      - GPA calculations and academic probation status
+    - **Real-time Synchronization**: Extension provides:
+      - Live updates on academic status changes
+      - Automatic quest deadline adjustments based on university calendar
+      - Immediate notification of grade postings and course updates
+      - Semester transition and registration period monitoring
+    - **Quest Generation Support**: Extracted data directly feeds into:
+      - Adaptive quest generation based on current enrollment
+      - Academic performance-driven difficulty adjustment
+      - Failed course recovery quest creation
+      - Semester-specific quest chapter organization
+
+23. **FR23 (Browser Extension):** The browser extension must automatically organize extracted FPTU academic information and web content into the user's "Arsenal" (notes), with intelligent categorization based on academic context and quest relevance.
+    
+    **Business Logic Specifications:**
+    - **Academic Content Organization**: Extension categorizes content by:
+      - Course-specific materials linked to active quests
+      - Semester-based organization following academic calendar
+      - Subject matter classification aligned with curriculum structure
+      - Priority levels based on upcoming deadlines and exam schedules
+    - **Quest Integration**: Organized content automatically:
+      - Links to relevant quest objectives and learning goals
+      - Updates quest progress based on completed academic activities
+      - Provides contextual study materials for active quests
+      - Suggests supplementary resources based on performance gaps
+    - **FPTU-Specific Features**: Extension handles university-specific content:
+      - Course syllabus integration with quest objective mapping
+      - Assignment tracking with automatic quest milestone creation
+      - Exam schedule synchronization with boss fight preparation quests
+      - Academic advisor communications and guidance integration
+
+24. **FR24 (Browser Extension):** When a user highlights text on a webpage, the extension must trigger an intelligent popup that displays relevant notes from their "Arsenal" and suggests quest-related actions based on the highlighted content and current academic context.
+    
+    **Business Logic Specifications:**
+    - **Contextual Content Analysis**: Extension analyzes highlighted text for:
+      - Academic subject matter relevance to current courses
+      - Alignment with active quest objectives and learning goals
+      - Connection to previously studied concepts and skill tree nodes
+      - Potential knowledge gaps or prerequisite requirements
+    - **Smart Suggestions**: Popup provides:
+      - Related Arsenal notes filtered by academic relevance
+      - Suggested quest actions based on highlighted content
+      - Study recommendations aligned with current semester goals
+      - Links to relevant skill tree nodes and progression paths
+    - **FPTU Academic Context**: Extension considers:
+      - Current semester enrollment and course load
+      - Upcoming assignment deadlines and exam schedules
+      - Academic performance patterns and learning preferences
+      - University-specific resources and support materials
 25. **FR25 (User):** A user must be able to create a "Party" (study group) with configurable rules and permissions.
     
     **Business Logic Specifications:**
@@ -380,6 +454,86 @@
     - **Feedback System**: Rejection reasoning, improvement suggestions, resubmission workflows for Guild Master requests
     - **Audit Trail**: Complete approval history, decision tracking, accountability logging
     - **Administrative Controls**: Game Masters can suspend events, moderate content, and respond to incidents with full authority
+
+48. **FR48 (System/AI):** The system must implement FPTU student verification through academic document analysis and university portal integration to validate student status and academic standing.
+    
+    **Business Logic Specifications:**
+    - **Student Verification Process**: System validates FPTU student status through:
+      - Academic document verification (student ID, transcripts, enrollment certificates)
+      - University portal integration for real-time enrollment status
+      - Semester registration validation and academic calendar synchronization
+    - **Academic Standing Tracking**: System monitors and tracks:
+      - Current semester enrollment status
+      - Academic probation or suspension status
+      - Course completion and failure tracking
+      - GPA and academic performance metrics
+    - **Quest Generation Impact**: Verified academic status influences:
+      - Quest difficulty and complexity based on academic performance
+      - Semester-based quest chapter organization
+      - Failed course recovery quest generation
+      - Academic calendar-aligned quest scheduling
+
+49. **FR49 (AI/System):** The system must implement quest memory and history tracking to maintain continuity across semesters and academic periods.
+    
+    **Business Logic Specifications:**
+    - **Quest History Database**: System maintains comprehensive records of:
+      - Previously generated quests and completion status
+      - Student performance patterns and learning preferences
+      - Failed quest attempts and remediation strategies
+      - Semester-to-semester progress tracking
+    - **Memory-Driven Generation**: AI uses historical data to:
+      - Avoid repetitive quest content across semesters
+      - Build upon previously mastered concepts
+      - Identify knowledge gaps from failed attempts
+      - Personalize quest difficulty based on past performance
+    - **Continuity Management**: System ensures:
+      - Smooth transitions between academic periods
+      - Progressive skill building across semesters
+      - Consistent character development and progression
+      - Long-term learning objective alignment
+
+50. **FR50 (System/Browser Extension):** The browser extension must implement comprehensive FPTU portal integration for automated academic data extraction and quest synchronization.
+    
+    **Business Logic Specifications:**
+    - **Portal Integration Scope**: Extension integrates with FPTU systems for:
+      - Course enrollment and schedule extraction
+      - Assignment and exam deadline synchronization
+      - Grade and performance data collection
+      - Academic calendar and semester timeline tracking
+    - **Automated Quest Synchronization**: System automatically:
+      - Updates quest deadlines based on academic calendar
+      - Generates assignment-specific micro-quests
+      - Adjusts quest priorities based on upcoming exams
+      - Synchronizes course materials with quest content
+    - **Real-time Academic Monitoring**: Extension provides:
+      - Live updates on academic status changes
+      - Automatic detection of course additions/drops
+      - Grade posting notifications and quest impact analysis
+      - Academic milestone tracking and celebration
+
+51. **FR51 (AI/System):** The system must implement adaptive quest generation for students who fail semesters, providing specialized recovery and remediation pathways.
+    
+    **Business Logic Specifications:**
+    - **Failure Detection and Analysis**: System identifies and analyzes:
+      - Failed courses and specific knowledge gaps
+      - Performance patterns leading to academic failure
+      - Learning style mismatches and adaptation needs
+      - External factors affecting academic performance
+    - **Recovery Quest Generation**: AI creates specialized quests for:
+      - Targeted remediation of failed course concepts
+      - Study skill development and academic strategy improvement
+      - Motivation and engagement recovery through gamification
+      - Prerequisite knowledge reinforcement for course retakes
+    - **Adaptive Learning Pathways**: System provides:
+      - Personalized pacing based on individual recovery needs
+      - Alternative learning approaches for different learning styles
+      - Peer support integration through study groups and mentorship
+      - Progress monitoring with early intervention triggers
+    - **Reintegration Support**: System facilitates:
+      - Smooth transition back to regular academic progression
+      - Confidence building through achievable milestone quests
+      - Long-term success tracking and relapse prevention
+      - Academic advisor integration for holistic support
 
 
 

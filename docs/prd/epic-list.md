@@ -6,8 +6,9 @@
 ### **Epic: User Onboarding & Profile Management**
 *Goal: Create a seamless and engaging entry point for new users, allowing them to set up their curriculum-based learning journey and career specialization.*
 *   **FR1:** User account creation and curriculum-based onboarding ("Character Creation") with Route (Curriculum) and Class (Roadmap.sh) selection.
-*   **FR2:** Optional upload of academic documents for skill tree and arsenal enhancement only.
+*   **FR2:** Enhanced academic document upload with FPTU student verification and academic calendar integration for verified students.
 *   **FR3:** Personal dashboard ("Character Sheet") displaying curriculum progress and career specialization alignment.
+*   **FR48:** FPTU Student Verification System for enhanced academic integration and personalized quest generation.
 
 ### **Epic: Core AI & Quest Generation**
 *Goal: Leverage AI to transform curriculum content into personalized learning paths and bridge academic-industry gaps through roadmap.sh integration.*
@@ -17,9 +18,11 @@
 *   **FR6:** AI analysis of curriculum structure, prerequisites, and learning objectives.
 *   **FR7:** AI generation of skill tree from curriculum topics and career specialization requirements.
 *   **FR8:** AI influence on character stats from academic performance data.
-*   **FR9:** AI creation of integrated learning paths combining curriculum and industry requirements.
+*   **FR9:** Enhanced AI creation of integrated learning paths with FPTU-specific quest memory (FR49) and adaptive generation for failed students (FR51).
 *   **FR10:** Dynamic, AI-driven updates to quest lines based on curriculum changes and industry trends.
 *   **FR11:** Notification system for quest changes, curriculum updates, and new supplementary learning paths.
+*   **FR49:** Quest Memory & Continuity System for maintaining learning progress across semesters.
+*   **FR51:** Adaptive Quest Generation for Failed Students with personalized recovery pathways.
 
 ### **Epic: Core Business Logic & Scoring Systems**
 *Goal: Implement the fundamental business rules, algorithms, and scoring mechanisms that drive the gamification experience.*
@@ -53,7 +56,7 @@
 ---
 
 ## **Phase 2: Social & Extension MVP**
-*Focus: Introduce multiplayer and external integration features.*
+*Focus: Introduce multiplayer and external integration features with enhanced FPTU capabilities.*
 
 ### **Epic: Social & Collaboration (Parties)**
 *Goal: Transform learning from an isolated activity into a collaborative, team-based effort.*
@@ -66,9 +69,11 @@
 *   **FR26:** Collaborative study session coordination
 
 ### **Epic: Browser Extension**
+*   Enhanced FPTU portal integration with real-time academic data synchronization (FR50).
 *   Scan and extract academic documents from web pages.
 *   Automatic organization of extracted information into "Arsenal".
 *   Contextual note display on text highlight.
+*   Real-time academic calendar and grade monitoring for FPTU students.
 
 ---
 

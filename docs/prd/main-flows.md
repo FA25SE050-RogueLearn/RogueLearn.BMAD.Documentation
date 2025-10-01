@@ -5,14 +5,14 @@ This document outlines the critical main flows for the RogueLearn platform, focu
 
 ---
 
-## **Flow 1: Player Onboarding & Character Creation**
+## **Flow 1: Enhanced Player Onboarding & Character Creation with FPTU Integration**
 
 ### **Description**
-The foundational flow where new users create their academic gaming profile and establish their learning journey within the RogueLearn ecosystem.
+The foundational flow where new users create their academic gaming profile and establish their learning journey within the RogueLearn ecosystem, with specialized FPTU student verification and academic integration capabilities.
 
 ### **Actors**
-- **Primary:** New Player User
-- **Secondary:** AI System, User Service
+- **Primary:** New Player User (FPTU Student or General User)
+- **Secondary:** AI System, User Service, FPTU Portal Integration Service
 
 ### **Process**
 1. User accesses RogueLearn platform
@@ -20,73 +20,108 @@ The foundational flow where new users create their academic gaming profile and e
 3. System presents "Character Creation" interface
 4. User selects their "Route" (academic curriculum - e.g., Software Engineering curriculum, Computer Science program)
 5. User selects their "Class" (career specialization from roadmap.sh - e.g., Full-Stack Developer, DevOps Engineer)
-6. User optionally uploads academic documents for skill tree and arsenal enhancement only
-7. AI System performs gap analysis between selected curriculum and career specialization
-8. System generates curriculum-based quest line with supplementary roadmap.sh content
-9. User completes profile setup and receives curriculum-aligned welcome quest
+6. **FPTU Student Verification Path** (if applicable):
+   - User uploads FPTU-specific documents (Student ID, transcripts, enrollment certificates)
+   - System validates FPTU student status through FR48 verification process
+   - System integrates with FPTU portal for real-time academic standing verification
+   - Academic calendar synchronization and semester timeline integration
+7. **General User Path** (if not FPTU student):
+   - User optionally uploads academic documents for skill tree and arsenal enhancement only
+8. AI System performs gap analysis between selected curriculum and career specialization
+9. **FPTU-Enhanced Quest Generation** (for verified FPTU students):
+   - System generates curriculum-based quest line with FPTU academic calendar integration
+   - Quest chapters align with FPTU semester structure and university deadlines
+   - Academic standing influences quest difficulty and recovery pathways
+10. **Standard Quest Generation** (for general users):
+    - System generates curriculum-based quest line with supplementary roadmap.sh content
+11. User completes profile setup and receives curriculum-aligned welcome quest
 
 ### **Outputs**
 - Fully configured user account with curriculum-career profile
-- Curriculum-based quest line structure with roadmap.sh supplements
+- **FPTU Students**: University-verified academic status and calendar-synchronized quest structure
+- **General Users**: Curriculum-based quest line structure with roadmap.sh supplements
 - Gap analysis results identifying industry skill gaps
 - Enhanced skill tree visualization (if documents uploaded)
 - Personal dashboard ("Character Sheet") with Route/Class integration
-- Welcome quest aligned with curriculum progression
+- **FPTU Integration**: Real-time academic status monitoring and quest synchronization
+- Welcome quest aligned with curriculum progression and academic calendar (FPTU students)
 
 ### **Success Criteria**
 - User successfully creates account within 10 minutes
 - Curriculum and career specialization are properly selected and integrated
+- **FPTU Students**: Academic verification completes successfully with >95% accuracy
 - Gap analysis identifies relevant industry skills missing from curriculum
 - Enhanced skill tree reflects academic background (if documents uploaded)
+- **FPTU Students**: Quest generation aligns with university calendar and academic standing
 - User receives first curriculum-aligned quest within the onboarding flow
 
 ---
 
-## **Flow 2: The Core AI Learning Loop (Ingestion, Generation & Adaptation)**
+## **Flow 2: FPTU-Integrated AI Learning Loop (Enhanced Quest Generation & Academic Synchronization)**
 
 ### **Description**
-This is the central, dynamic engine of the RogueLearn platform. It combines curriculum-based quest generation with roadmap.sh integration, AI-powered gap analysis, and a continuous adaptive feedback loop that refines the learning experience based on user progress and industry alignment.
+This is the central, dynamic engine of the RogueLearn platform enhanced with FPTU-specific capabilities. It combines curriculum-based quest generation with roadmap.sh integration, AI-powered gap analysis, quest memory systems, and real-time FPTU academic synchronization for a comprehensive adaptive learning experience.
 
 ### **Actors**
-- **Primary:** Player User, AI Adaptation Engine
-- **Secondary:** Quest Service, Gap Analysis Engine, Curriculum Parser
+- **Primary:** Player User (FPTU Student or General User), AI Adaptation Engine
+- **Secondary:** Quest Service, Gap Analysis Engine, Curriculum Parser, FPTU Portal Integration Service, Quest Memory System
 
 ### **Process**
-1.  **Curriculum-First Generation**: The primary quest generation process:
+1.  **Enhanced Curriculum-First Generation**: The primary quest generation process with FPTU integration:
     *   System analyzes the selected academic curriculum structure
+    *   **FPTU Students**: AI integrates real-time FPTU academic calendar and course schedules
+    *   **FPTU Students**: System leverages FR49 quest memory to reference previous semester performance
     *   AI generates main quest line based on curriculum progression and requirements
     *   Course sequences, prerequisites, and academic milestones are mapped to quest dependencies
+    *   **FPTU Students**: Quest chapters align with university semester structure (10 quests per semester)
     *   Primary skill tree is established from curriculum learning objectives
-2.  **Gap Analysis & Roadmap Integration**: Supplementary content generation:
+2.  **FPTU-Enhanced Gap Analysis & Roadmap Integration**: Supplementary content generation:
     *   AI performs gap analysis between curriculum and selected roadmap.sh career specialization
+    *   **FPTU Students**: Analysis incorporates university-specific course content and academic performance data
     *   Missing industry skills, technologies, and competencies are identified
     *   Supplementary quests are generated from roadmap.sh content to fill identified gaps
-    *   Integration strategy balances curriculum requirements with career preparation
-3.  **Optional Document Enhancement**: If user uploads academic documents:
-    *   Documents enhance skill tree visualization and arsenal management only
+    *   **FPTU Students**: Integration strategy balances university requirements with career preparation
+    *   **FPTU Students**: Failed course recovery quests generated via FR51 adaptive pathways
+3.  **Enhanced Document Processing & Academic Verification**: Multi-tier document handling:
+    *   **FPTU Students**: Documents undergo FR48 verification for academic status validation
+    *   **FPTU Students**: Verified documents directly influence quest generation and academic calendar sync
+    *   **General Users**: Documents enhance skill tree visualization and arsenal management only
+    *   **FPTU Students**: Real-time portal integration via FR50 for automated data extraction
     *   Personal academic progress is reflected in character progression
-    *   Documents do not impact quest generation or curriculum structure
-4.  **Continuous Adaptation (Feedback Loop)**: Dynamic optimization process:
+4.  **Advanced Continuous Adaptation (Feedback Loop)**: Dynamic optimization with memory:
+    *   **FPTU Students**: System maintains comprehensive quest history via FR49 for semester continuity
     *   Monitors user interactions, performance, and engagement across curriculum and career tracks
+    *   **FPTU Students**: Tracks academic standing changes and adjusts quest difficulty accordingly
     *   Identifies learning patterns and areas requiring additional support
+    *   **FPTU Students**: Adaptive Engine provides specialized recovery pathways for failed courses
     *   Adaptive Engine adjusts quest difficulty and refines gap analysis accuracy
     *   Real-time updates to skill tree visualization and progress tracking
+    *   **FPTU Students**: Automated synchronization with university deadlines and exam schedules
     *   Personalized recommendations balance academic success with career readiness
 
 ### **Outputs**
-- Curriculum-based main quest line with clear academic progression
+- **FPTU Students**: University-synchronized quest line with real-time academic calendar integration
+- **General Users**: Curriculum-based main quest line with clear academic progression
+- **FPTU Students**: Quest memory continuity across semesters with performance-based adaptation
 - Gap analysis results identifying industry skill deficiencies
+- **FPTU Students**: Specialized recovery quests for failed courses and academic remediation
 - Supplementary quest content from roadmap.sh integration
 - Enhanced skill tree visualization (with optional document integration)
+- **FPTU Students**: Real-time academic status monitoring and automatic quest adjustments
 - Real-time progress tracking across academic and career preparation tracks
-- Automated notifications for curriculum milestones and career skill development
+- **FPTU Students**: Automated notifications for university deadlines and academic milestones
 - Continuously optimized learning experience balancing academic and industry requirements
 
 ### **Success Criteria**
 - Curriculum analysis accurately maps 95%+ of academic requirements to quest structure
+- **FPTU Students**: Academic calendar synchronization maintains >98% accuracy with university systems
+- **FPTU Students**: Quest memory system provides seamless semester transitions with <5% content repetition
 - Gap analysis identifies relevant industry skills with 90%+ accuracy
+- **FPTU Students**: Failed course recovery quests demonstrate >80% success rate in academic remediation
 - Supplementary roadmap.sh content integrates seamlessly with curriculum progression
+- **FPTU Students**: Real-time portal integration updates academic data within 24 hours of university changes
 - Document enhancement (when used) improves skill tree visualization without disrupting quest generation
+- **FPTU Students**: Academic standing verification maintains >95% accuracy with university records
 - Adaptive adjustments demonstrate measurable improvement in both academic performance and career readiness
 
 ---

@@ -213,7 +213,7 @@ This document provides detailed user stories for each epic, aligned with the pha
 ---
 
 ### **Epic: Core AI & Quest Generation**
-*Goal: Leverage AI to transform academic curriculum into personalized learning paths with career specialization integration through gap analysis and roadmap.sh enhancement.*
+*Goal: Leverage AI to transform academic curriculum into personalized learning paths with career specialization integration through gap analysis and roadmap.sh enhancement, enhanced with FPTU-specific capabilities for verified students.*
 
 #### **Story: AI Curriculum Processing & Quest Generation**
 **As a** student, **I want** the system to process my academic curriculum with AI, **so that** a comprehensive learning path is created with career specialization integration.
@@ -225,6 +225,42 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Prerequisites and dependencies are automatically identified from curriculum structure
     *   Generated quests include clear learning objectives tied to academic outcomes
     *   AI processing status is communicated with progress indicators for curriculum analysis
+
+#### **Story: FPTU Student Verification Engine**
+**As an** FPTU student, **I want** the system to verify my academic status and documents, **so that** I receive university-specific quest generation and academic calendar integration.
+
+*   **Acceptance Criteria:**
+    *   System implements FR48 verification process for FPTU student documents (Student ID, transcripts, enrollment certificates)
+    *   Document verification uses OCR and pattern recognition to validate FPTU-specific formats
+    *   Verified status unlocks FPTU-specific features: academic calendar sync, quest memory, portal integration
+    *   Verification failure provides clear feedback and alternative verification methods
+    *   Academic standing (current semester, GPA, failed courses) is extracted and stored securely
+    *   Verification status influences quest generation algorithms and difficulty adjustments
+    *   System maintains verification audit trail for compliance and debugging
+
+#### **Story: Quest Memory & Continuity System**
+**As an** FPTU student, **I want** the system to remember my quest history across semesters, **so that** I have continuity in my learning progression and avoid repetitive content.
+
+*   **Acceptance Criteria:**
+    *   System implements FR49 quest memory to track completed quests, performance patterns, and learning preferences
+    *   Quest history includes: completion status, performance scores, time spent, difficulty preferences, help usage
+    *   Semester transitions maintain quest continuity with <5% content repetition
+    *   Memory system influences future quest generation to avoid redundancy and build on previous learning
+    *   Students can review their complete quest history with performance analytics and progress trends
+    *   Quest memory integrates with academic calendar to align with university semester structure
+    *   System provides semester-based progress reports showing quest completion and skill development
+
+#### **Story: Academic Calendar Integration**
+**As an** FPTU student, **I want** my quest generation to align with the university academic calendar, **so that** my learning path synchronizes with course schedules and exam periods.
+
+*   **Acceptance Criteria:**
+    *   System integrates with FPTU academic calendar to extract semester dates, exam periods, and course schedules
+    *   Quest generation aligns with university timeline: 10 quests per semester, paced according to course progression
+    *   Exam preparation quests are automatically generated 2-3 weeks before official exam dates
+    *   System adjusts quest difficulty and pacing during exam periods and academic breaks
+    *   Academic milestones (midterms, finals, project deadlines) trigger specialized quest types
+    *   Calendar integration updates automatically when university schedules change
+    *   Students receive notifications for upcoming academic deadlines with related quest recommendations
 
 #### **Story: AI-Powered Gap Analysis & Roadmap Integration**
 **As a** student, **I want** the system to analyze gaps between my curriculum and career specialization, **so that** supplementary quests from roadmap.sh enhance my learning path.
@@ -470,7 +506,7 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 ---
 
 ### **Epic: Browser Extension**
-*Goal: Integrate the learning experience directly into the student's existing web-based academic workflow.*
+*Goal: Integrate the learning experience directly into the student's existing web-based academic workflow, with enhanced FPTU portal integration for verified students.*
 
 #### **Story: Extension for Document Extraction**
 **As a** student, **I want** a browser extension that can extract academic info from my university portal, **so that** I can easily import it into RogueLearn.
@@ -482,6 +518,32 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   Support for major Learning Management Systems (Canvas, Blackboard, Moodle)
     *   Manual extraction tools for unsupported systems
     *   Data validation and preview before import to platform
+
+#### **Story: FPTU Portal Integration**
+**As an** FPTU student, **I want** the browser extension to automatically extract and synchronize my academic data from the FPTU portal, **so that** my quest generation stays current with my university enrollment and performance.
+
+*   **Acceptance Criteria:**
+    *   Extension implements FR50 comprehensive FPTU portal integration with automated data extraction
+    *   Real-time synchronization of course enrollments, grades, schedules, and academic standing
+    *   Automatic detection of FPTU portal pages and seamless data extraction without manual intervention
+    *   Secure authentication integration with FPTU portal login credentials
+    *   Data extraction includes: current semester courses, completed courses, GPA, failed courses, upcoming exams
+    *   Extracted data directly feeds into quest generation algorithms and academic calendar integration
+    *   Synchronization occurs within 24 hours of university data updates
+    *   Extension provides status indicators for sync success/failure and data freshness
+
+#### **Story: Real-time Academic Data Sync**
+**As an** FPTU student, **I want** the browser extension to continuously monitor my FPTU portal for changes, **so that** my RogueLearn experience automatically adapts to my current academic situation.
+
+*   **Acceptance Criteria:**
+    *   Extension monitors FPTU portal for academic changes: new course registrations, grade updates, schedule modifications
+    *   Automatic quest line adjustments when course enrollments change (add/drop courses)
+    *   Real-time academic standing updates trigger appropriate quest difficulty and recovery pathway adjustments
+    *   Failed course detection automatically initiates FR51 adaptive recovery quest generation
+    *   Extension maintains sync history and provides detailed logs of all academic data changes
+    *   Background synchronization operates without disrupting normal browsing activities
+    *   Sync conflicts are resolved with user notification and manual override options
+    *   Integration with quest memory system ensures academic changes don't disrupt learning continuity
 
 #### **Story: Contextual Note Access**
 **As a** student, **I want** the extension to show me my relevant notes when I highlight text on a webpage, **so that** I can quickly access my knowledge.
