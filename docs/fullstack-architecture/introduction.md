@@ -10,7 +10,7 @@ The project will be built **from scratch** following a **multi-repo, microservic
 
 *   **Frontend**: A standalone Next.js 14+ application using Tailwind CSS and Shadcn/UI.
 *   **Game Client**: A standalone Unity 2022.3 LTS project for interactive "Boss Fights".
-*   **Backend**: A series of independent microservices built with **.NET 8** and **Go**.
+*   **Backend**: A series of independent microservices built with **.NET 9** and **Go**.
 
 This approach provides maximum flexibility, clear separation of concerns, and allows us to use the best language for each service's specific task.
 
