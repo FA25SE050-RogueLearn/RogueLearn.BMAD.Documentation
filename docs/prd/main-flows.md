@@ -12,74 +12,82 @@ The foundational flow where new users create their academic gaming profile and e
 
 ### **Actors**
 - **Primary:** New Student User
-- **Secondary:** AI System, Authentication Service
+- **Secondary:** AI System, User Service
 
 ### **Process**
 1. User accesses RogueLearn platform
 2. User initiates account creation process
 3. System presents "Character Creation" interface
-4. User selects their "Class" (career goal - e.g., Full-Stack Developer, Data Scientist)
-5. User selects their "Route" (current academic path - e.g., Software Engineering, Computer Science)
-6. User uploads academic documents (GPA, transcripts, timetable, examination schedule)
-7. AI System processes uploaded documents to influence character stats
-8. System generates initial skill tree based on academic data
-9. User completes profile setup and receives welcome quest
+4. User selects their "Route" (academic curriculum - e.g., Software Engineering curriculum, Computer Science program)
+5. User selects their "Class" (career specialization from roadmap.sh - e.g., Full-Stack Developer, DevOps Engineer)
+6. User optionally uploads academic documents for skill tree and arsenal enhancement only
+7. AI System performs gap analysis between selected curriculum and career specialization
+8. System generates curriculum-based quest line with supplementary roadmap.sh content
+9. User completes profile setup and receives curriculum-aligned welcome quest
 
 ### **Outputs**
-- Fully configured user account with academic profile
-- Personalized character stats influenced by real academic performance
-- Initial skill tree populated with existing knowledge
-- Welcome quest line generated
-- Personal dashboard ("Character Sheet") ready for use
+- Fully configured user account with curriculum-career profile
+- Curriculum-based quest line structure with roadmap.sh supplements
+- Gap analysis results identifying industry skill gaps
+- Enhanced skill tree visualization (if documents uploaded)
+- Personal dashboard ("Character Sheet") with Route/Class integration
+- Welcome quest aligned with curriculum progression
 
 ### **Success Criteria**
 - User successfully creates account within 10 minutes
-- Academic documents are properly parsed and integrated
-- Initial skill tree reflects user's academic background
-- User receives first quest within the onboarding flow
+- Curriculum and career specialization are properly selected and integrated
+- Gap analysis identifies relevant industry skills missing from curriculum
+- Enhanced skill tree reflects academic background (if documents uploaded)
+- User receives first curriculum-aligned quest within the onboarding flow
 
 ---
 
 ## **Flow 2: The Core AI Learning Loop (Ingestion, Generation & Adaptation)**
 
 ### **Description**
-This is the central, dynamic engine of the RogueLearn platform. It combines content ingestion (from either file uploads or a browser extension), AI-powered generation of personalized learning paths, and a continuous, adaptive feedback loop that refines the experience based on user progress.
+This is the central, dynamic engine of the RogueLearn platform. It combines curriculum-based quest generation with roadmap.sh integration, AI-powered gap analysis, and a continuous adaptive feedback loop that refines the learning experience based on user progress and industry alignment.
 
 ### **Actors**
 - **Primary:** Student User, AI Adaptation Engine
-- **Secondary:** Syllabus Processing Service, Quest Generation Engine, Browser Extension, Progress Analytics, Notification System
+- **Secondary:** Quest Service, Gap Analysis Engine, Curriculum Parser
 
 ### **Process**
-1.  **Content Ingestion (Triggers)**: The loop is initiated in one of two ways:
-    *   **File Upload**: A user uploads a course syllabus or other academic document (PDF, DOCX).
-    *   **Browser Extension**: A user captures educational content from a university portal or academic website.
-2.  **AI-Powered Generation**: The backend begins an asynchronous process to:
-    *   Ingest and parse the document content.
-    *   Identify the course structure, key topics, and learning objectives.
-    *   Generate an interconnected skill tree based on the content.
-    *   Create a personalized "main quest line" aligned with the learning objectives.
-    *   Establish prerequisites and dependencies between skills and quests.
-    *   Populate the user's "Arsenal" with the processed content and notify the user of completion.
-3.  **Continuous Adaptation (Feedback Loop)**: Once the user begins interacting with the generated quests and content, the system continuously:
-    *   Monitors user interactions, performance, and engagement across all features.
-    *   Identifies patterns, including areas of struggle or accelerated learning.
-    *   The Adaptive Engine dynamically adjusts quest difficulty and modifies learning paths.
-    *   The Skill Tree visualization is updated in real-time to reflect progress.
-    *   Personalized recommendations for improvement or new challenges are generated.
-    *   The feedback loop constantly refines the personalization algorithms to optimize the learning journey.
+1.  **Curriculum-First Generation**: The primary quest generation process:
+    *   System analyzes the selected academic curriculum structure
+    *   AI generates main quest line based on curriculum progression and requirements
+    *   Course sequences, prerequisites, and academic milestones are mapped to quest dependencies
+    *   Primary skill tree is established from curriculum learning objectives
+2.  **Gap Analysis & Roadmap Integration**: Supplementary content generation:
+    *   AI performs gap analysis between curriculum and selected roadmap.sh career specialization
+    *   Missing industry skills, technologies, and competencies are identified
+    *   Supplementary quests are generated from roadmap.sh content to fill identified gaps
+    *   Integration strategy balances curriculum requirements with career preparation
+3.  **Optional Document Enhancement**: If user uploads academic documents:
+    *   Documents enhance skill tree visualization and arsenal management only
+    *   Personal academic progress is reflected in character progression
+    *   Documents do not impact quest generation or curriculum structure
+4.  **Continuous Adaptation (Feedback Loop)**: Dynamic optimization process:
+    *   Monitors user interactions, performance, and engagement across curriculum and career tracks
+    *   Identifies learning patterns and areas requiring additional support
+    *   Adaptive Engine adjusts quest difficulty and refines gap analysis accuracy
+    *   Real-time updates to skill tree visualization and progress tracking
+    *   Personalized recommendations balance academic success with career readiness
 
 ### **Outputs**
-- A dynamic, interconnected skill tree that evolves with the user.
-- A personalized quest line that adapts to the user's performance.
-- Real-time progress visualization and analytics.
-- Automated notifications for quest updates, achievements, and recommendations.
-- A continuously optimized and personalized learning experience.
+- Curriculum-based main quest line with clear academic progression
+- Gap analysis results identifying industry skill deficiencies
+- Supplementary quest content from roadmap.sh integration
+- Enhanced skill tree visualization (with optional document integration)
+- Real-time progress tracking across academic and career preparation tracks
+- Automated notifications for curriculum milestones and career skill development
+- Continuously optimized learning experience balancing academic and industry requirements
 
 ### **Success Criteria**
-- Content ingestion (upload or capture) is accurately parsed over 95% of the time.
-- The initial generated skill tree and quest line cover 90%+ of the source material's topics.
-- Adaptive adjustments demonstrate a measurable improvement in user learning outcomes and engagement.
-- The entire loop feels seamless to the user, from content input to personalized feedback.
+- Curriculum analysis accurately maps 95%+ of academic requirements to quest structure
+- Gap analysis identifies relevant industry skills with 90%+ accuracy
+- Supplementary roadmap.sh content integrates seamlessly with curriculum progression
+- Document enhancement (when used) improves skill tree visualization without disrupting quest generation
+- Adaptive adjustments demonstrate measurable improvement in both academic performance and career readiness
 
 ---
 
@@ -90,7 +98,7 @@ The interactive assessment system that transforms traditional exams into engagin
 
 ### **Actors**
 - **Primary:** Student User
-- **Secondary:** Unity WebGL Engine, Assessment System, Scoring Algorithm
+- **Secondary:** Unity WebGL Engine, Quest Service
 
 ### **Process**
 1. User accesses upcoming exam preparation from quest line
@@ -126,7 +134,7 @@ The collaborative learning system that enables students to form study groups ("P
 
 ### **Actors**
 - **Primary:** Party Leader, Party Members
-- **Secondary:** Meeting Recording System, AI Summary Generator, Notification Service
+- **Secondary:** Meeting Service
 
 ### **Process**
 1. User creates a new "Party" (study group) with configurable settings
@@ -163,7 +171,7 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 
 ### **Actors**
 - **Primary:** Guild Master
-- **Secondary:** Student Players (Guild Members), Analytics Engine, Content Management System
+- **Secondary:** Student Players (Guild Members), Social Service
 
 ### **Process**
 1. Guild Master creates a new Guild with a specific subject focus.
@@ -189,77 +197,89 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 
 ---
 
-## **Flow 6: Event Management & Code Battle Competition**
+## **Flow 6: Enhanced Event Management & Code Battle Competition**
 
 ### **Description**
-The competitive programming system that enables Guild Masters and System Admins to create code battle events where guilds compete against each other. This flow manages event creation, approval workflows, participant registration, and real-time competitive coding battles with comprehensive scoring and leaderboards.
+The comprehensive competitive programming system that enables Guild Masters and System Admins to create, manage, and execute system-wide code battle events where participating guilds compete through room-based assignments. This enhanced flow includes advanced event lifecycle management, multi-tier approval workflows, real-time spectator capabilities, and guild-based ranking systems with detailed analytics and post-event reporting.
 
 ### **Actors**
 - **Primary:** 
   - Guild Master A (Event Creator)
   - User (Student) - Guild members participating in competitions
   - Guild Master B (Participating Guild Leader)
-  - Admin (Event Approver)
+  - Admin (Event Approver & Platform Overseer)
+  - **Spectators** - Non-participating users watching live competitions
 - **Secondary:** 
   - Web Interface (User interaction layer)
   - API Gateway (Request routing and authentication)
-  - Code Battle Service (Manages events, rooms, code problems, judging)
-  - Social Service (Manages guild information and membership)
+  - **Event Service** (Event lifecycle and approval workflows)
+  - **Social Service** (Manages guild information and membership)
+  - **Real-time Communication Service** (Live updates and spectator features)
   - Database (Data persistence layer)
 
-### **Process**
-1. **Event Creation & Approval Phase:**
-   - Admin imports code problems into Code Battle Service with difficulty levels and test cases
-   - Guild Master A initiates event creation through the Web Interface
-   - API Gateway routes request to Code Battle Service for event configuration
-   - Code Battle Service presents event configuration options (number of easy/medium/hard questions, points per question, start/end times, participation rules)
-   - Guild Master A configures event parameters and submits event creation request
-   - Code Battle Service stores event data and notifies Admin of pending approval request
-   - Admin reviews event configuration through Web Interface and approves or rejects the request
-   - Upon approval, Code Battle Service finalizes event creation and makes it available for registration
+### **Enhanced Process**
+1. **Event Creation & Multi-Tier Approval Phase:**
+   - Admin imports code problems into Code Battle Service with difficulty levels, test cases, and solution templates
+   - Guild Master A initiates event creation through enhanced Event Management Service interface
+   - **Event Configuration Wizard**: Template-based setup with customizable parameters (event type, scoring rules, time limits, guild eligibility criteria)
+   - Event Management Service validates configuration and creates draft event with unique identifier
+   - **Multi-tier Approval Workflow**: Guild Master review → Platform Administrator approval → Event activation
+   - **Approval Dashboard**: Admins review events with automated validation checks and manual oversight capabilities
+   - **Emergency Controls**: Rapid event suspension protocols and real-time moderation tools
+   - Upon approval, Event Management Service coordinates with Room Assignment Service for guild member distribution
 
-2. **Event Setup & Guild Registration:**
-   - Code Battle Service randomly selects code problems based on Guild Master A's configured difficulty distribution
-   - Code Battle Service creates event infrastructure and prepares judging environment
-   - System broadcasts approved event announcement to all eligible guilds through Social Service
-   - Guild Master B (and other guild leaders) review available events through Web Interface
-   - Guild Master B registers their guild for participation in the approved event
-   - Code Battle Service validates guild eligibility by querying Social Service for guild information
-   - Social Service provides guild membership data, verification status, and member counts to Code Battle Service
-   - Code Battle Service confirms registration and creates event-guild participation records
+2. **Enhanced Event Setup & Registration:**
+   - Room Assignment Service prepares room allocation system for participating guild members
+   - Event Management Service broadcasts approved events with rich metadata and preview capabilities
+   - **Guild Registration**: Entire guilds register for system-wide events with member eligibility validation
+   - **Calendar Integration**: Automatic scheduling with timezone management and conflict detection
+   - **Pre-event Preparation**: Practice rounds, guild coordination tools, and strategy planning interfaces
 
-3. **Competition Execution:**
-   - Code Battle Service initializes real-time battle rooms for all registered guilds
-   - System distributes the randomly selected code problems to all participants simultaneously
-   - Users (Students) from participating guilds submit code solutions through the Web Interface
-   - API Gateway routes submissions to Code Battle Service for evaluation
-   - Code Battle Service evaluates submissions against test cases in real-time
-   - Code Battle Service updates individual participant leaderboards and guild aggregate scores
-   - Real-time notifications keep all participants informed of current standings and progress
+3. **Real-time Competition Execution:**
+   - Room Assignment Service distributes guild members across available battle rooms for balanced competition
+   - Code Battle Service initializes secure, containerized execution environments for all participants
+   - **Live Spectator Mode**: Real-time viewing capabilities with commentary support and audience interaction
+   - **Multi-language Support**: Comprehensive programming language options with standardized testing frameworks
+   - **Real-time Guild Rankings**: Live ranking updates based on total points accumulated by all guild members
+   - **Collaborative Features**: Guild coordination tools with communication channels and shared progress tracking
+   - **Performance Monitoring**: System health tracking with automatic scaling and load balancing
 
-4. **Results & Analytics:**
-   - Code Battle Service calculates final individual and guild rankings based on scoring algorithm
-   - Code Battle Service queries Social Service to update guild reputation scores and member achievements
-   - Social Service processes guild performance data and updates guild statistics
-   - Final results are published to all participating guild dashboards through Social Service integration
-   - Post-event analysis provides insights and recommendations for future events
+4. **Guild Performance & Management:**
+   - Room Assignment Service manages room transitions and member redistribution as needed
+   - **Live Broadcasting**: Event streaming with integrated commentary and guild-focused analysis features
+   - **Dynamic Scoring**: Guild ranking calculations based on cumulative member performance across all rooms
+   - **Intervention Tools**: Real-time moderation, technical support, and dispute resolution capabilities
 
-### **Outputs**
-- Configured competitive events with approved code problems
-- Real-time battle environments with secure code execution
-- Individual participant leaderboards with detailed scoring
-- Guild-based leaderboards showing collective performance
-- Performance analytics and achievement tracking
-- Event history and statistical reports
+5. **Comprehensive Results & Analytics:**
+   - **Advanced Analytics**: Detailed performance statistics, participation tracking, and engagement metrics
+   - **Post-event Reporting**: Comprehensive outcome analysis with actionable insights and recommendations
+   - **Achievement System**: Automated badge and reward distribution based on performance and participation
+   - **Knowledge Sharing**: Post-battle code review sessions and solution explanation features
+   - **Feedback Collection**: Participant and spectator feedback with sentiment analysis and improvement suggestions
 
-### **Success Criteria**
-- Event creation and approval process completed within 24 hours
-- Code problem selection accurately reflects configured difficulty distribution
-- Real-time battle system supports concurrent participants without performance degradation
-- Scoring algorithm provides fair and accurate ranking based on solution correctness and speed
-- Guild leaderboards accurately aggregate member performance
-- System maintains 99.9% uptime during active competitions
-- Post-event analytics provide actionable insights for participants and organizers
+### **Enhanced Outputs**
+- **Comprehensive Event Management**: End-to-end event lifecycle with automated workflows and approval processes
+- **Guild-based Event Systems**: System-wide events with room assignment management and guild ranking calculations
+- **Real-time Competition Environments**: Secure, scalable code execution with live monitoring and performance tracking
+- **Enhanced Guild Rankings**: Multi-dimensional guild ranking systems with collective performance tracking and analytics
+- **Live Spectator Experience**: Real-time viewing capabilities with commentary, analysis, and audience interaction features
+- **Detailed Analytics & Reporting**: Comprehensive performance metrics, engagement tracking, and actionable insights
+- **Achievement & Recognition Systems**: Automated badge distribution and skill validation through competitive performance
+- **Knowledge Sharing Platforms**: Post-event code review, solution explanations, and collaborative learning opportunities
+
+### **Enhanced Success Criteria**
+- **Event Creation Efficiency**: Average event setup time reduced to <15 minutes with 95% success rate using configuration wizard
+- **Approval Workflow Performance**: Multi-tier approval completion within 24 hours with 100% automated validation accuracy
+- **Competition Participation**: 70% of active guild members participate in monthly competitions with <10% drop-off rate
+- **Real-time System Performance**: Support for 100+ concurrent participants with <2s code execution latency and 99.9% uptime
+- **Spectator Engagement**: Average of 50+ spectators per major event with <500ms update latency and 85% retention rate
+- **Learning Outcomes**: 40% improvement in problem-solving skills measured through pre/post competition assessments
+- **Community Building**: 60% increase in guild activity and collaboration following competitive events
+- **User Satisfaction**: >4.2/5.0 satisfaction score for competition experience with detailed feedback analysis
+- **Knowledge Sharing**: 80% of participants engage with post-event learning materials and code reviews
+- **Room Assignment Efficiency**: Automated room distribution with 99.9% accuracy and balanced guild member allocation
+- **Analytics Utilization**: 90% of Guild Masters use competition analytics for member development planning
+- **Security Compliance**: Zero critical security incidents in code execution environment with comprehensive audit trails
 
 ---
 
@@ -270,16 +290,19 @@ The competitive programming system that enables Guild Masters and System Admins 
 - **Core AI Loop → Assessment:** The generated quest line includes and leads to "Boss Fight" assessments.
 - **Assessment → Core AI Loop:** Assessment results feed back into the adaptive learning part of the loop.
 - **Social Learning → Guild Management:** Party activities can contribute to Guild analytics and community health.
-- **Guild Management → Event Management:** Guild Masters can create competitive events for their communities.
-- **Event Management → Assessment:** Code battle competitions provide alternative assessment mechanisms.
-- **Event Management → Social Learning:** Competitive events foster guild collaboration and peer learning.
+- **Guild Management → Enhanced Event Management:** Guild Masters can create comprehensive competitive events with advanced configuration options.
+- **Enhanced Event Management → Assessment:** Code battle competitions provide alternative assessment mechanisms with real-time skill validation.
+- **Enhanced Event Management → Social Learning:** Competitive events foster guild collaboration, peer learning, and knowledge sharing through post-event analysis.
+- **Enhanced Event Management → Core AI Loop:** Competition performance data feeds into personalized learning recommendations and skill gap analysis.
 
-### **Data Flow Architecture**
-- **User Profile Service:** Central repository for character data and preferences.
-- **AI Processing Pipeline:** Handles all content ingestion and adaptive generation.
-- **Real-time Synchronization:** Ensures consistent state across all user interactions.
-- **Analytics Engine:** Processes data from all flows for insights and recommendations.
-- **Notification Hub:** Coordinates alerts and updates across all system components.
+### **Enhanced Data Flow Architecture**
+- **User Profile Service:** Central repository for character data, preferences, and competitive performance history.
+- **AI Processing Pipeline:** Handles all content ingestion, adaptive generation, and competition-based learning insights.
+- **Real-time Synchronization:** Ensures consistent state across all user interactions, including live competition updates.
+- **Analytics Engine:** Processes data from all flows for insights, recommendations, and competitive performance analysis.
+- **Notification Hub:** Coordinates alerts and updates across all system components, including real-time competition notifications.
+- **Event Management Pipeline:** Orchestrates event lifecycle, approval workflows, and tournament coordination.
+- **Competition Analytics Service:** Specialized processing for competitive performance metrics and skill validation.
 
 ---
 

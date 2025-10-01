@@ -1,32 +1,47 @@
 # **Epic List**
 
 ## **Phase 1: Core Student MVP**
-*Focus: Establish the fundamental single-player experience.* 
+*Focus: Establish the fundamental single-player experience.*
 
 ### **Epic: User Onboarding & Profile Management**
-*   **FR1:** User account creation and onboarding ("Character Creation").
-*   **FR2:** Manual upload of academic documents.
-*   **FR3:** Personal dashboard ("Character Sheet").
+*Goal: Create a seamless and engaging entry point for new users, allowing them to set up their curriculum-based learning journey and career specialization.*
+*   **FR1:** User account creation and curriculum-based onboarding ("Character Creation") with Route (Curriculum) and Class (Roadmap.sh) selection.
+*   **FR2:** Optional upload of academic documents for skill tree and arsenal enhancement only.
+*   **FR3:** Personal dashboard ("Character Sheet") displaying curriculum progress and career specialization alignment.
 
 ### **Epic: Core AI & Quest Generation**
-*   **FR4:** Ingest syllabus documents.
-*   **FR5:** AI-powered personalized "main quest line" generation from syllabus.
-*   **FR6:** AI analysis of syllabus structure and content.
-*   **FR7:** AI generation of skill tree from syllabus topics.
-*   **FR8:** AI influence on character stats from academic data.
-*   **FR9:** AI creation of personalized learning paths.
-*   **FR10:** Dynamic, AI-driven changes to the main quest line.
-*   **FR11:** Notification system for quest changes and new learning paths.
+*Goal: Leverage AI to transform curriculum content into personalized learning paths and bridge academic-industry gaps through roadmap.sh integration.*
+*   **FR4:** Curriculum analysis and academic route identification for primary quest line generation.
+*   **FR4A:** Gap analysis between curriculum and roadmap.sh career specialization with supplementary quest generation.
+*   **FR5:** AI-powered curriculum-based "main quest line" generation following academic progression.
+*   **FR6:** AI analysis of curriculum structure, prerequisites, and learning objectives.
+*   **FR7:** AI generation of skill tree from curriculum topics and career specialization requirements.
+*   **FR8:** AI influence on character stats from academic performance data.
+*   **FR9:** AI creation of integrated learning paths combining curriculum and industry requirements.
+*   **FR10:** Dynamic, AI-driven updates to quest lines based on curriculum changes and industry trends.
+*   **FR11:** Notification system for quest changes, curriculum updates, and new supplementary learning paths.
+
+### **Epic: Core Business Logic & Scoring Systems**
+*Goal: Implement the fundamental business rules, algorithms, and scoring mechanisms that drive the gamification experience.*
+
+*   **FR3:** Skill point calculation algorithm: `skill_points = (difficulty_level × base_points × performance_multiplier)`
+*   **FR6:** XP conversion system: `xp_gained = skill_points × 10`
+*   **FR7:** Boss Fight scoring algorithm: `score = (correct_answers / total_questions) × time_bonus × difficulty_multiplier`
+*   **FR8:** Dynamic difficulty adjustment based on performance patterns
+*   **FR9:** Leaderboard ranking algorithms (weekly/monthly/category-specific)
+*   **FR10:** Achievement and milestone calculation systems
 
 ### **Epic: Skill Tree & Knowledge Management**
-*   **FR12:** Dynamic and interconnected skill tree.
-*   **FR13:** Rich text editor for study notes ("Arsenal").
-*   **FR14:** Linking skill tree nodes to notes in "Arsenal".
-*   **FR15:** Skill tree node completion tracking.
-*   **FR16:** Prerequisites and dependencies between skill nodes.
-*   **FR17:** Visual progress indicators for skill mastery.
+*Goal: Provide tools for students to organize their knowledge, visualize academic progress, and manage personal learning resources enhanced by user documents.*
+*   **FR12:** Dynamic and interconnected skill tree based on curriculum structure and career specialization.
+*   **FR13:** Rich text editor for study notes and personal learning resources ("Arsenal").
+*   **FR14:** Linking skill tree nodes to notes in "Arsenal" with user document integration.
+*   **FR15:** Skill tree node completion tracking enhanced by uploaded achievement documents.
+*   **FR16:** Prerequisites and dependencies between skill nodes following curriculum progression.
+*   **FR17:** Visual progress indicators for skill mastery with personalized achievements from user documents.
 
 ### **Epic: Gamification & Assessment**
+*Goal: Make learning engaging and measurable through Unity-based interactive challenges and progress tracking.*
 *   **FR18:** Gamified mock exams ("Boss Fights").
 *   **FR19:** Leaderboards.
 *   **FR20:** Simplified Guild Creation for Verified Lecturers.
@@ -41,16 +56,14 @@
 *Focus: Introduce multiplayer and external integration features.*
 
 ### **Epic: Social & Collaboration (Parties)**
-*   Create "Party" (study group).
-*   Party invitation and joining options.
-*   Party leader can invite users.
-*   Shared resource space ("Party Stash").
-*   Schedule, organize, and manage study meetings within parties.
-*   System provides built-in meeting recording capabilities to capture participant discussions, shared resources, and key decisions. The browser extension is used only for external web resource capture, not meeting recording.
-*   AI-generated comprehensive meeting summaries and action items.
-*   Party member role management and permissions.
-*   Real-time collaboration tools within parties.
-*   Party-specific communication channels.
+*Goal: Transform learning from an isolated activity into a collaborative, team-based effort.*
+
+*   **FR21:** Party creation and management system (2-8 members per party)
+*   **FR22:** Party leadership and role management with transfer protocols
+*   **FR23:** Shared resource space ("Party Stash") with permission controls
+*   **FR24:** Meeting scheduling and organization tools
+*   **FR25:** AI-powered meeting summaries and action item extraction
+*   **FR26:** Collaborative study session coordination
 
 ### **Epic: Browser Extension**
 *   Scan and extract academic documents from web pages.
@@ -59,7 +72,7 @@
 
 ---
 
-## **Phase 3: Simplified Educator Toolkit**
+## **Phase 3: Simplified Educator Toolkit & Competition Platform**
 
 ### **Epic 3.1: Basic Guild Management**
 **Functional Requirements:** FR21-FR24
@@ -69,22 +82,40 @@
 **Functional Requirements:** FR18, FR19, FR20
 **Description:** Academic credential verification system that enables enhanced guild creation privileges and credibility indicators for qualified educators, maintaining educational quality while keeping the system simple and focused.
 
+### **Epic 3: Advanced Social Learning & Code Battle Competition**
+**Functional Requirements:** FR19 (Enhanced), FR45, FR46, FR47
+**Description:** Comprehensive competitive learning platform featuring real-time code battles, guild-based events, and advanced social learning mechanics. Includes live coding competitions, peer-to-peer challenges, leaderboard systems, and collaborative problem-solving environments that transform learning into engaging competitive experiences.
+
+**Key Features:**
+*   Real-time code battle execution and judging system
+*   Guild-based competitive events with room assignment systems
+*   Live peer-to-peer coding challenges and knowledge duels
+*   Advanced party management with competitive coordination
+*   Global and guild-specific leaderboards with ranking systems
+*   Collaborative problem-solving and team-based competitions
+*   Real-time spectator mode for educational observation
+*   Performance analytics and skill progression tracking
+
+### **Epic 3: Event Management & Administration Platform**
+**Functional Requirements:** FR48, FR49
+**Description:** Comprehensive event creation and management system enabling educators and guild masters to organize, schedule, and administer competitive learning events. Provides administrative oversight, approval workflows, and event lifecycle management for maintaining educational quality and platform integrity.
+
+**Key Features:**
+*   Event creation wizard with templates and customization options
+*   Multi-level approval workflow (Guild Master → Platform Admin)
+*   Event scheduling and calendar integration
+*   Participant registration and capacity management
+*   Event monitoring and real-time administration tools
+*   Post-event analytics and performance reporting
+*   Event archival and historical tracking
+*   Administrative dashboard for platform oversight
+
 *Note: Advanced educator features (AI-assisted quest generation, complex analytics, skill tree overlays, and comprehensive game master tools) have been moved to post-MVP to focus on core student experience validation.*
 
 ---
 
-## **Phase 4: Advanced Social & Collaboration Features**
-*Focus: Enhanced social learning and competitive features.*
-
-### **Epic: Advanced Social Learning & Competition**
-*   Advanced party management and collaboration tools
-*   Real-time study session coordination
-*   Peer-to-peer learning and knowledge sharing
-*   Competitive learning challenges and tournaments
-*   Knowledge duels between party members
-*   Peer teaching and mentorship systems
-*   Global leaderboards and seasonal events
-*   Advanced social features for enhanced collaboration
+## **Phase 4: Enhanced Browser Extension Integration**
+*Focus: Advanced web integration and content management.*
 
 ### **Epic: Enhanced Browser Extension Integration**
 *   Web content extraction and organization

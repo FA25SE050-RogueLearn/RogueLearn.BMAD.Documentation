@@ -9,9 +9,9 @@ A student's personal knowledge repository containing all their notes, documents,
 
 ### **Character Creation**
 The onboarding process where new users define their academic identity by selecting:
-- **Class**: Career goal or professional aspiration (e.g., Full-Stack Developer, Data Scientist)
-- **Route**: Academic path or field of study (e.g., Computer Science, Software Engineering)
-- **Smaller Major**: Specialized track within their route (detected by AI from uploaded documents)
+- **Route (Curriculum)**: Academic curriculum that serves as the foundational quest line (e.g., Software Engineering curriculum, Computer Science program)
+- **Class (Career Specialization)**: Career-focused specialization from roadmap.sh that complements the curriculum (e.g., Full-Stack Developer, DevOps Engineer)
+- **Skill-based Roadmap**: Integrated learning path combining curriculum requirements with career specialization
 
 ### **Experience Points (XP)**
 Points awarded for completing learning activities, quests, and achievements. XP accumulates to increase the user's level and unlock new features or content.
@@ -41,7 +41,19 @@ A learning task or objective generated from academic documents (syllabus, schedu
 - **Schedule Quests**: Time-based academic events
 
 ### **Quest Line**
-A sequence of related quests that form a complete learning path, typically generated from a course syllabus or academic schedule. Represents the main storyline of a student's academic journey.
+A sequence of related quests that form a complete learning path, primarily generated from curriculum content and academic progression. Represents the main storyline of a student's academic journey, supplemented with career-focused content from roadmap.sh.
+
+### **Route (Curriculum)**
+The academic curriculum selected by the student that serves as the foundational quest line structure. The Route defines the primary learning path based on university program requirements, course sequences, and academic milestones.
+
+### **Class (Career Specialization)**
+A career-focused specialization from roadmap.sh that complements the student's curriculum. The Class provides supplementary quests and content to bridge gaps between academic learning and industry requirements.
+
+### **Gap Analysis**
+An AI-driven process that compares the student's selected curriculum (Route) with their chosen career specialization (Class) to identify missing industry-standard skills, technologies, and competencies not covered in academic coursework.
+
+### **Curriculum-First Quest Generation**
+The primary quest generation methodology where the academic curriculum forms the main quest line structure, with supplementary quests from roadmap.sh integration filling identified gaps between academic and industry requirements.
 
 ### **Skill**
 A specific knowledge area or competency within a student's field of study. Skills are:
