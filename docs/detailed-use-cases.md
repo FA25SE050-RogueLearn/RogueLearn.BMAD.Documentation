@@ -10,7 +10,7 @@ This document provides comprehensive use case specifications for the RogueLearn 
 |-----------|-------------|
 | **Use Case Name** | User Registration and Route/Class Character Creation |
 | **Description** | New users create accounts and complete the curriculum-first character creation process to establish their academic-career gaming profile with Route (curriculum) and Class (career specialization) integration |
-| **Actor(s)** | Primary: **New Student**<br>Secondary: AI System, Supabase Authentication, Roadmap.sh Integration |
+| **Actor(s)** | Primary: **New Player**<br>Secondary: AI System, Supabase Authentication, Roadmap.sh Integration |
 | **Preconditions** | User has access to the platform and curriculum information |
 | **Postconditions (Success Guarantee)** | User account created with curriculum-based character profile, gap analysis completed, and integrated skill tree with career enhancement |
 | **Related Requirements** | **FRs:** FR1 (Route-Class Creation), FR2 (Curriculum Processing), FR4 (Gap Analysis), FR4A (Roadmap.sh Integration), FR10 (Character Dashboard)<br>**NFRs:** NFR2 (Supabase Auth), NFR13 (Security), NFR14 (Data Privacy) |
@@ -40,11 +40,11 @@ flowchart TD
 |-----------|-------------|
 | **Use Case Name** | Academic Document Upload for Skill Tree Enhancement |
 | **Description** | Students optionally upload academic documents to enhance their curriculum-based skill tree visualization and arsenal management, not for quest generation |
-| **Actor(s)** | Primary: **Student**<br>Secondary: AI Processing System |
+| **Actor(s)** | Primary: **Player**<br>Secondary: AI Processing System |
 | **Preconditions** | User has completed Route/Class setup and has academic documents available |
 | **Postconditions (Success Guarantee)** | Document processed and integrated to enhance skill tree visualization and arsenal organization |
 | **Related Requirements** | **FRs:** FR2 (Document Enhancement), FR8 (Skill Tree Enhancement), FR16 (Arsenal Management)<br>**NFRs:** NFR6 (Supabase Storage), NFR9 (Performance), NFR20 (Content Management) |
-| **Main Success Scenario** | 1. Student selects "Enhance Skill Tree" from dashboard<br>2. Student uploads academic document (PDF, DOCX, TXT) for skill tree enhancement<br>3. System validates file format, size, and academic content relevance<br>4. AI analyzes document to identify skill connections and knowledge areas<br>5. Student monitors processing progress via real-time updates<br>6. AI enhances existing curriculum-based skill tree with document insights<br>7. System improves skill tree visualization with document-derived connections<br>8. Document content is organized in Arsenal for enhanced knowledge management<br>9. Skill tree displays enhanced visualization with academic document integration |
+| **Main Success Scenario** | 1. Player selects "Enhance Skill Tree" from dashboard<br>2. Player uploads academic document (PDF, DOCX, TXT) for skill tree enhancement<br>3. System validates file format, size, and academic content relevance<br>4. AI analyzes document to identify skill connections and knowledge areas<br>5. Player monitors processing progress via real-time updates<br>6. AI enhances existing curriculum-based skill tree with document insights<br>7. System improves skill tree visualization with document-derived connections<br>8. Document content is organized in Arsenal for enhanced knowledge management<br>9. Skill tree displays enhanced visualization with academic document integration |
 | **Alternative Flows** | **A1:** Multiple document enhancement - System processes documents to improve skill tree comprehensively<br>**A2:** Document categorization - System organizes documents by curriculum topics and career areas<br>**A3:** Skill connection mapping - AI identifies and visualizes connections between document content and curriculum skills |
 | **Exception Flows** | **E1:** Irrelevant document content - System provides feedback on document relevance to curriculum<br>**E2:** Enhancement processing fails - System maintains original curriculum-based skill tree<br>**E3:** Document too large - System suggests content extraction for skill tree enhancement |
 
@@ -52,10 +52,10 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[Student selects Enhance Skill Tree] --> B[Student uploads academic document]
+    A[Player selects Enhance Skill Tree] --> B[Player uploads academic document]
     B --> C[System validates academic relevance]
     C --> D[AI analyzes for skill connections]
-    D --> E[Student monitors enhancement progress]
+    D --> E[Player monitors enhancement progress]
     E --> F[AI enhances curriculum skill tree]
     F --> G[Document organized in Arsenal]
     G --> H[Enhanced skill tree visualization]
@@ -69,7 +69,7 @@ flowchart TD
 |-----------|-------------|
 | **Use Case Name** | Curriculum-Career Skill Tree Visualization and Navigation |
 | **Description** | Students interact with their curriculum-based skill tree enhanced with career specialization to track academic progress and navigate Route/Class learning pathways |
-| **Actor(s)** | Primary: **Student**<br>Secondary: System, Gap Analysis Engine |
+| **Actor(s)** | Primary: **Player**<br>Secondary: System, Gap Analysis Engine |
 | **Preconditions** | User has completed Route/Class setup and has curriculum-based skill tree data |
 | **Postconditions (Success Guarantee)** | User successfully navigates curriculum-career integrated skill tree and understands academic-career progression |
 | **Related Requirements** | **FRs:** FR8 (Curriculum Skill Tree), FR4A (Career Integration), FR10 (Route/Class Dashboard)<br>**NFRs:** NFR1 (Responsiveness), NFR5 (Next.js Frontend) |
@@ -97,7 +97,7 @@ flowchart TD
 |-----------|-------------|
 | **Use Case Name** | AI-Powered Curriculum Quest Generation and Career Enhancement |
 | **Description** | System uses AI to analyze selected curriculum (Route) and career specialization (Class) to generate personalized learning quests with gap analysis and roadmap.sh integration for comprehensive academic and career development |
-| **Actor(s)** | Primary: AI Quest Engine<br>Secondary: **Student**, System, Roadmap.sh API |
+| **Actor(s)** | Primary: AI Quest Engine<br>Secondary: **Player**, System, Roadmap.sh API |
 | **Preconditions** | User has completed curriculum-career onboarding with Route/Class selection |
 | **Postconditions (Success Guarantee)** | Curriculum-based quests generated with career enhancement integration, gap analysis completed, and progress tracking enabled for both academic and career tracks |
 | **Related Requirements** | **FRs:** FR9 (Quest Generation), FR11 (Quest Completion), FR20 (Quest Modification), FR4 (Gap Analysis), FR4A (Roadmap.sh Integration)<br>**NFRs:** NFR8 (Golang Backend), NFR9 (Performance) |
@@ -128,22 +128,22 @@ flowchart TD
 |-----------|-------------|
 | **Use Case Name** | Curriculum-Based Party Creation and Career Collaboration |
 | **Description** | Students form learning parties based on shared curriculum (Route) and complementary career specializations (Class) for collaborative academic and career development |
-| **Actor(s)** | Primary: **Student** (Party Leader)<br>Secondary: **Students** (Party Members), Party Management System |
+| **Actor(s)** | Primary: **Player** (Party Leader)<br>Secondary: **Players** (Party Members), Party Management System |
 | **Preconditions** | User has completed curriculum-career onboarding and has active quest progression |
 | **Postconditions (Success Guarantee)** | Learning party created with curriculum alignment, career diversity, shared resources, and collaborative progress tracking |
 | **Related Requirements** | **FRs:** FR12 (Party Creation), FR13 (Party Stash), FR14 (Meeting Management), FR15 (Collaborative Learning)<br>**NFRs:** NFR11 (Real-time Updates), NFR12 (Social Features) |
-| **Main Success Scenario** | 1. Student accesses party creation interface from curriculum dashboard<br>2. System suggests potential party members based on Route compatibility and Class diversity<br>3. User sets party parameters (curriculum focus, career goals, collaboration preferences)<br>4. System sends invitations to selected students with curriculum/career alignment details<br>5. Invited students review party goals and curriculum-career fit<br>6. System creates party with shared curriculum quests and career enhancement activities<br>7. Party establishes shared Party Stash for curriculum resources and career development materials<br>8. System enables collaborative features for both academic and career progression tracking |
-| **Alternative Flows** | **A1:** Cross-curriculum parties - Students from different Routes collaborate on interdisciplinary projects<br>**A2:** Career-focused parties - Emphasis on Class-based skill development and industry preparation<br>**A3:** Study group conversion - Existing study groups upgrade to full party status with gamification |
+| **Main Success Scenario** | 1. Player accesses party creation interface from curriculum dashboard<br>2. System suggests potential party members based on Route compatibility and Class diversity<br>3. User sets party parameters (curriculum focus, career goals, collaboration preferences)<br>4. System sends invitations to selected players with curriculum/career alignment details<br>5. Invited players review party goals and curriculum-career fit<br>6. System creates party with shared curriculum quests and career enhancement activities<br>7. Party establishes shared Party Stash for curriculum resources and career development materials<br>8. System enables collaborative features for both academic and career progression tracking |
+| **Alternative Flows** | **A1:** Cross-curriculum parties - Players from different Routes collaborate on interdisciplinary projects<br>**A2:** Career-focused parties - Emphasis on Class-based skill development and industry preparation<br>**A3:** Study group conversion - Existing study groups upgrade to full party status with gamification |
 | **Exception Flows** | **E1:** No compatible members - System suggests broader search criteria or solo progression options<br>**E2:** Party size limits - System manages waiting lists and suggests alternative parties<br>**E3:** Curriculum conflicts - System provides mediation tools for different academic schedules |
 
 ### **Main Success Scenario Flowchart**
 
 ```mermaid
 flowchart TD
-    A[Student accesses party creation] --> B[System suggests compatible members]
+    A[Player accesses party creation] --> B[System suggests compatible members]
     B --> C[Set curriculum/career parameters]
     C --> D[Send invitations with alignment details]
-    D --> E[Students review fit]
+    D --> E[Players review fit]
     E --> F[Create party with shared quests]
     F --> G[Establish Party Stash]
     G --> H[Enable collaborative tracking]
@@ -186,7 +186,7 @@ flowchart TD
 |-----------|-------------|
 | **Use Case Name** | Browser Extension Content Extraction |
 | **Description** | Students use browser extension to extract and organize academic content from web pages into their Arsenal knowledge base |
-| **Actor(s)** | Primary: **Student**<br>Secondary: Browser Extension, System |
+| **Actor(s)** | Primary: **Player**<br>Secondary: Browser Extension, System |
 | **Preconditions** | User has browser extension installed and is authenticated |
 | **Postconditions (Success Guarantee)** | Web content extracted, organized in Arsenal, and available for contextual assistance |
 | **Related Requirements** | **FRs:** FR22 (Browser Extension), FR23 (Content Organization), FR24 (Contextual Notes)<br>**NFRs:** NFR19 (Integration Capabilities), NFR20 (Content Management) |
@@ -214,7 +214,7 @@ flowchart TD
 |-----------|-------------|
 | **Use Case Name** | Guild Management and Educational Content Delivery |
 | **Description** | Guild Masters manage educational guilds with member oversight, content sharing, and progress monitoring capabilities |
-| **Actor(s)** | Primary: **Guild Master**<br>Secondary: **Students** (Guild Members), **Verified Lecturers** |
+| **Actor(s)** | Primary: **Guild Master**<br>Secondary: **Players** (Guild Members), **Verified Lecturers** |
 | **Preconditions** | User has guild creation privileges or verified lecturer status |
 | **Postconditions (Success Guarantee)** | Guild created with active member management, content sharing, and educational oversight |
 | **Related Requirements** | **FRs:** FR35 (Guild Creation), FR36 (Verified Lecturer Process), FR37 (Guild Materials), FR38 (Guild Dashboard)<br>**NFRs:** NFR15 (Microservices), NFR13 (Security) |
@@ -243,11 +243,11 @@ flowchart TD
 |-----------|-------------|
 | **Use Case Name** | Curriculum-Career Boss Fight Assessment System |
 | **Description** | Students engage in gamified assessments through Unity WebGL boss fight experiences that evaluate both curriculum mastery and career readiness with adaptive difficulty and integrated progression tracking |
-| **Actor(s)** | Primary: **Student**<br>Secondary: Unity WebGL System, Assessment Engine, Career Evaluation System |
+| **Actor(s)** | Primary: **Player**<br>Secondary: Unity WebGL System, Assessment Engine, Career Evaluation System |
 | **Preconditions** | User has completed prerequisite curriculum quests and career enhancement activities |
 | **Postconditions (Success Guarantee)** | Assessment completed with performance evaluation for both academic curriculum and career specialization progression |
 | **Related Requirements** | **FRs:** FR16 (Boss Fight System), FR17 (Unity WebGL Integration), FR18 (Career Assessment)<br>**NFRs:** NFR10 (Unity WebGL), NFR9 (Performance) |
-| **Main Success Scenario** | 1. Student encounters boss fight trigger based on curriculum milestone or career checkpoint<br>2. System launches Unity WebGL boss fight interface with Route/Class-specific challenges<br>3. Student engages with curriculum-based questions and career scenario challenges<br>4. System provides real-time visual feedback for both academic and career performance<br>5. Boss fight adapts difficulty based on Route requirements and Class specialization<br>6. Student completes assessment demonstrating curriculum mastery and career readiness<br>7. System updates character stats for both academic progression and career specialization<br>8. Student receives rewards aligned with Route advancement and Class development |
+| **Main Success Scenario** | 1. Player encounters boss fight trigger based on curriculum milestone or career checkpoint<br>2. System launches Unity WebGL boss fight interface with Route/Class-specific challenges<br>3. Player engages with curriculum-based questions and career scenario challenges<br>4. System provides real-time visual feedback for both academic and career performance<br>5. Boss fight adapts difficulty based on Route requirements and Class specialization<br>6. Player completes assessment demonstrating curriculum mastery and career readiness<br>7. System updates character stats for both academic progression and career specialization<br>8. Player receives rewards aligned with Route advancement and Class development |
 | **Alternative Flows** | **A1:** Curriculum-focused boss fights - Emphasis on academic content mastery<br>**A2:** Career-specialized challenges - Industry-specific scenarios based on Class selection<br>**A3:** Collaborative boss fights - Party members tackle curriculum and career challenges together |
 | **Exception Flows** | **E1:** Unity WebGL loading failure - System provides alternative assessment format maintaining Route/Class evaluation<br>**E2:** Performance issues - System adjusts graphics while preserving curriculum-career assessment integrity<br>**E3:** Network interruption - System saves progress separately for academic and career tracks |
 
@@ -392,8 +392,8 @@ flowchart TD
 | **Field** | **Details** |
 |-----------|-------------|
 | **Use Case Name** | Comprehensive Analytics and Performance Monitoring |
-| **Description** | System administrators and Guild Masters access detailed analytics to monitor platform health, user engagement, and educational outcomes |
-| **Actor(s)** | Primary: **System Administrator**, **Guild Master**<br>Secondary: **Verified Lecturers**, Analytics System |
+| **Description** | Game Masters (Admins) and Guild Masters access detailed analytics to monitor platform health, user engagement, and educational outcomes |
+| **Actor(s)** | Primary: **Game Master (Admin)**, **Guild Master**<br>Secondary: **Verified Lecturers**, Analytics System |
 | **Preconditions** | User has appropriate administrative privileges and analytics data is available |
 | **Postconditions (Success Guarantee)** | Analytics dashboard provides actionable insights with comprehensive reporting and monitoring capabilities |
 | **Related Requirements** | **FRs:** FR40 (Performance Monitoring), FR41 (Data Architecture), FR42 (Content Delivery)<br>**NFRs:** NFR23 (Analytics & Monitoring), NFR9 (Performance) |
@@ -421,13 +421,13 @@ flowchart TD
 | **Field** | **Details** |
 |-----------|-------------|
 | **Use Case Name** | External System Integration and API Management |
-| **Description** | System administrators manage external integrations, API access controls, and system configurations to ensure platform functionality and security |
-| **Actor(s)** | Primary: **System Administrator**<br>Secondary: External Systems, API Clients |
-| **Preconditions** | Administrator has system-level access and integration requirements are defined |
+| **Description** | Game Masters (Admins) manage external integrations, API access controls, and system configurations to ensure platform functionality and security |
+| **Actor(s)** | Primary: **Game Master (Admin)**<br>Secondary: External Systems, API Clients |
+| **Preconditions** | Game Master has system-level access and integration requirements are defined |
 | **Postconditions (Success Guarantee)** | Integrations configured and functional with proper security controls and monitoring |
 | **Related Requirements** | **FRs:** FR42 (Content Delivery), FR41 (Data Architecture)<br>**NFRs:** NFR13 (Security), NFR21 (Integration Capabilities), NFR19 (Integration Capabilities) |
-| **Main Success Scenario** | 1. Administrator accesses system integration management dashboard<br>2. Administrator configures external service connections (LMS, calendar systems, university portals)<br>3. System validates integration credentials, permissions, and security requirements<br>4. Administrator sets up API access controls, rate limiting, and usage monitoring<br>5. System tests integration functionality and reports connection status<br>6. Administrator monitors integration health, performance metrics, and error rates<br>7. System logs all integration activities for security audit and compliance<br>8. Administrator receives automated alerts for integration issues and performance degradation |
-| **Alternative Flows** | **A1:** Bulk integration setup - Administrator configures multiple services simultaneously<br>**A2:** Custom API development - Administrator creates specialized integration endpoints<br>**A3:** Integration migration - Administrator updates existing integrations to new versions |
+| **Main Success Scenario** | 1. Game Master accesses system integration management dashboard<br>2. Game Master configures external service connections (LMS, calendar systems, university portals)<br>3. System validates integration credentials, permissions, and security requirements<br>4. Game Master sets up API access controls, rate limiting, and usage monitoring<br>5. System tests integration functionality and reports connection status<br>6. Game Master monitors integration health, performance metrics, and error rates<br>7. System logs all integration activities for security audit and compliance<br>8. Game Master receives automated alerts for integration issues and performance degradation |
+| **Alternative Flows** | **A1:** Bulk integration setup - Game Master configures multiple services simultaneously<br>**A2:** Custom API development - Game Master creates specialized integration endpoints<br>**A3:** Integration migration - Game Master updates existing integrations to new versions |
 | **Exception Flows** | **E1:** Authentication failure - System provides troubleshooting guidance and fallback options<br>**E2:** Rate limits exceeded - System implements intelligent queuing and retry logic<br>**E3:** External service unavailable - System activates fallback procedures and user notifications |
 
 ### **Main Success Scenario Flowchart**
