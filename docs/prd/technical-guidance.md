@@ -8,20 +8,28 @@
 - **Documentation Repo:** Centralized documentation repository (`roguelearn-docs`)
 - **Extension Repo:** Separate repository for browser extension (`roguelearn-extension`)
 
-#### **Service Architecture (Simplified for MVP)**
+#### **Service Architecture (Enhanced for Phase 3)**
 - **Frontend:** Next.js 14+ with App Router, TypeScript, Tailwind CSS
-- **Backend:** .NET 9 Web API with Clean Architecture pattern
+- **Backend Core:** .NET 9 Web API with Clean Architecture pattern
 - **Database:** PostgreSQL 15+ with Entity Framework Core
 - **Cache:** Redis for session management and API response caching
 - **File Storage:** Local file system for MVP (Supabase Storage for production)
 - **AI Services:** Gemini API via internal AI Proxy service (simplified quest generation only)
 
+**Phase 3 Enhanced Services:**
+- **Event Management Service:** .NET 9 microservice for event creation, scheduling, and lifecycle management
+- **Code Battle Service:** Go microservice with Docker containerization for secure code execution
+- **Tournament Service:** Go microservice for bracket management and competitive tournament coordination
+- **Real-time Communication Service:** SignalR hubs for live event updates, spectator mode, and real-time notifications
+- **Approval Workflow Service:** Go microservice for multi-tier event approval and administrative oversight
+
 **Unity Game Client & Multiplayer:**
 - Unity 2022 LTS; Netcode for GameObjects (NGO)
 - Primary client: WebGL; optional Windows/macOS desktop for debugging
 - Multiplayer P2: Unity Lobby + Relay (WSS) join-code flow; client-hosted sessions
-- Optional P3: Dedicated headless server (Linux); switchable transport (Relay or direct WSS/WebSocket transport)
+- **Phase 3 Enhancement**: Dedicated headless server (Linux) for code battle execution and tournament management
 - Unity-to-web communication for progress/state UI and telemetry
+- **Code Battle Integration**: Real-time code execution environment with live spectator capabilities
 
 #### **Technology Stack Constraints (MVP Focused)**
 - **Node.js:** Version 18+ (LTS) for frontend development
@@ -45,10 +53,12 @@
   - Deliverables: Anonymous Auth, Lobby create/join (join-code), Relay allocation/join (WSS), NGO gameplay with ServerRpc/ClientRpc and NetworkVariables for small, high-read fields; error handling + retry
   - Capacity target: Small-group co-op; start with ≤12 players to validate stability on WebGL + Relay
   - Exit criteria: Join flow reliability (>95%), stable 30 Hz sim with 15–20 Hz network send, acceptable jitter/packet loss handling, host migration plan documented
-- Phase 3 (Dedicated Headless Server): Authoritative Linux server for fairness and larger matches
+- Phase 3 (Enhanced Competition & Event Platform): Authoritative Linux server with code battle and event management
   - Deliverables: Headless build (Dockerized), TLS/WSS via reverse proxy, authoritative simulation + reconciliation, interest management, metrics/observability
-  - Capacity target: Up to 20 players (Guild vs Guild) with fairness and anti-exploit guarantees
-  - Exit criteria: Load test at 20 concurrent players per match with target tick stability, automated deploy + health checks, backfill/match-recovery flows
+  - **Code Battle Integration**: Real-time code execution environment, live spectator mode, tournament bracket management
+  - **Event Management**: Scheduled event coordination, multi-tier approval workflows, guild-based competitions
+  - Capacity target: Up to 20 players (Guild vs Guild) with fairness and anti-exploit guarantees, plus unlimited spectators
+  - Exit criteria: Load test at 20 concurrent players per match with target tick stability, automated deploy + health checks, backfill/match-recovery flows, successful code battle execution with <2s latency
 
 ### **Technical Decision Framework**
 
@@ -83,6 +93,25 @@ All significant technical decisions will be evaluated against the following crit
   - Dependency injection with built-in .NET DI container
   - AutoMapper for object-to-object mapping
   - FluentValidation for request validation
+
+**Phase 3 Enhanced Backend Services:**
+- **Event Management Service Architecture:**
+  - Domain-driven design with event sourcing for audit trails
+  - Saga pattern for complex event lifecycle orchestration
+  - Background services for scheduled event processing
+  - Integration with external calendar systems (Google Calendar, Outlook)
+
+- **Code Battle Service Architecture:**
+  - Containerized execution environment with Docker isolation
+  - Queue-based job processing with Hangfire for code execution
+  - Real-time WebSocket connections for live code battle updates
+  - Security sandboxing with resource limits and timeout controls
+
+- **Tournament Service Architecture:**
+  - Bracket generation algorithms with single/double elimination support
+  - Real-time tournament state management with SignalR
+  - Integration with leaderboard systems for ranking updates
+  - Automated tournament progression and result processing
 
 #### **API Design Standards**
 - **RESTful API:** Following REST principles with proper HTTP verbs

@@ -1,11 +1,16 @@
 ### **Functional - Phase 1: Core Student MVP**
 *Focus: Establish the fundamental single-player experience.*
 
-1.  **FR1 (User):** The system must allow a new user to create an account and onboard via a 3-step "Character Creation" flow: (1) Route selection, (2) Class selection, and (3) Skill-based roadmap selection.
+1.  **FR1 (User):** The system must allow a new user to create an account and onboard via a 3-step "Character Creation" flow: (1) Route selection (Curriculum), (2) Class selection (Roadmap.sh specialization), and (3) Skill-based roadmap selection.
     
     **Business Logic Specifications:**
-    - **Step 1 - Route Selection**: Currently limited to "Software Engineering" as the primary academic route
-    - **Step 2 - Class Selection**: Role-based roadmaps integrated from roadmap.sh including:
+    - **Step 1 - Route Selection (Curriculum)**: User selects their academic curriculum which serves as the foundational quest line, including:
+      - Software Engineering curriculum
+      - Computer Science curriculum  
+      - Information Technology curriculum
+      - Data Science curriculum
+      - Other supported university programs
+    - **Step 2 - Class Selection (Roadmap.sh Specialization)**: Career-focused specializations from roadmap.sh that complement and fill gaps in the curriculum:
       - Backend Developer
       - Frontend Developer  
       - Full-Stack Developer
@@ -14,34 +19,64 @@
       - AI Engineer
       - Game Developer
       - Mobile Developer
-    - **Step 3 - Skill-based Roadmap**: System suggests specific skill roadmaps based on combination of selected Route's smaller major and chosen Class role
-    - **Roadmap Integration**: Direct integration with roadmap.sh API for up-to-date career path guidance
-2.  **FR2 (User):** During character creation or from their profile, users may optionally upload academic documents such as their GPA and transcripts to enhance their character stats and skill tree initialization.
+    - **Step 3 - Skill-based Roadmap**: System generates integrated learning path combining curriculum requirements with roadmap.sh career specialization
+    - **Curriculum-First Approach**: Academic curriculum forms the primary quest line structure, with roadmap.sh providing supplementary career-focused content
+2.  **FR2 (User):** During character creation or from their profile, users may optionally upload academic documents to enhance their skill tree visualization and arsenal management features.
     
     **Business Logic Specifications:**
-    - **Optional Upload**: Document upload is not required for account creation or system functionality
-    - **Supported Documents**: GPA records, academic transcripts, course completion certificates
-    - **Enhanced Features**: Uploaded documents provide more accurate initial character stats and skill tree population
-    - **Predefined Content**: System contains predefined curriculum and syllabus data for each subject, eliminating mandatory document requirements
-    - **Enhanced Document Upload**: During character creation or profile management, users must be able to upload academic credentials including transcripts, certifications, and teaching qualifications, with secure storage and verification workflows
+    - **Limited Scope**: Document upload is restricted to skill tree and arsenal management enhancement only
+    - **Supported Documents**: Course completion certificates, project portfolios, coding achievements, competition results
+    - **Enhanced Features**: Uploaded documents provide:
+      - More detailed skill tree node completion tracking
+      - Personalized arsenal item unlocks based on demonstrated competencies
+      - Achievement badges and progress indicators
+    - **No Quest Generation Impact**: User documents do not influence main quest line generation (curriculum-driven)
+    - **Skill Tree Enhancement**: Documents help populate and validate skill progression within the curriculum framework
+    - **Arsenal Personalization**: Documents unlock specialized tools, resources, and achievements in user's personal arsenal
 3.  **FR3 (System):** The system must maintain a comprehensive database of predefined curriculum and syllabus content for all supported academic routes and subjects, with optional document upload capability for enhanced personalization.
-4.  **FR4 (AI):** The system's AI must parse the uploaded curriculum to identify the user's chosen route and detect potential smaller majors within the curriculum based on predefined specializations.
+4.  **FR4 (AI):** The system's AI must analyze the selected curriculum to identify the user's academic route and structure the primary quest line based on curriculum requirements and academic progression.
     
     **Business Logic Specifications:**
-    - **Route Identification**: AI analyzes course codes, titles, and descriptions using keyword matching against predefined route patterns (minimum 60% confidence threshold)
-    - **Smaller Major Detection**: System identifies specializations from the following predefined smaller majors within Software Engineering:
-      - **Japanese Bridge Engineer**: Focus on Japan-specific software development practices and cultural integration
-      - **ReactJS/NodeJS**: Full-stack JavaScript development specialization
-      - **IC Design**: Integrated Circuit design and embedded systems development
-      - **Intensive Java**: Enterprise Java development and frameworks specialization
-      - **DevSecOps for Cloud**: Cloud security and DevOps automation specialization
-      - **Game Development**: Game engine programming and interactive media development
-      - **.NET Programming**: Microsoft .NET ecosystem and enterprise application development
-    - **Detection Criteria**: System identifies specializations when ≥40% of courses align with specific smaller major keywords and technology stacks
-    - **Confidence Scoring**: Each detection includes confidence score (0-100%); scores <70% trigger user confirmation prompts
-    - **Fallback Mechanism**: If AI confidence <50%, system presents top 3 detected options for user selection
-    - **Supported Document Formats**: PDF, DOCX, TXT with OCR capability for scanned documents
-5.  **FR5 (AI):** The AI must calculate user skill points on a 1-10 scale based on FPT University scoring system and convert academic performance into relevant skill categories.
+    - **Curriculum Analysis**: AI processes selected academic curriculum to extract:
+      - Core subject requirements and prerequisites
+      - Semester/term progression structure
+      - Learning objectives and competency frameworks
+      - Assessment and milestone requirements
+    - **Quest Line Generation**: System creates primary quest structure directly from curriculum:
+      - Course-based quest objectives aligned with syllabus content
+      - Sequential progression following academic calendar
+      - Prerequisite-based quest unlocking system
+      - Assessment-driven milestone achievements
+    - **Academic Route Mapping**: System maps curriculum to supported academic routes:
+      - Software Engineering programs
+      - Computer Science degrees
+      - Information Technology curricula
+      - Data Science programs
+    - **Confidence Scoring**: Each curriculum analysis includes confidence score (0-100%); scores <80% trigger manual review
+    - **Supported Curriculum Formats**: PDF syllabi, structured course catalogs, academic program descriptions
+5.  **FR4A (AI):** The system's AI must perform gap analysis between the selected curriculum and roadmap.sh career specialization to generate supplementary quests that bridge academic learning with industry requirements.
+    
+    **Business Logic Specifications:**
+    - **Gap Identification**: AI compares curriculum content against selected roadmap.sh career path to identify:
+      - Missing industry-standard technologies and frameworks
+      - Practical skills not covered in academic coursework
+      - Current industry trends and emerging technologies
+      - Professional development competencies
+    - **Supplementary Quest Generation**: System creates additional quests to fill identified gaps:
+      - Technology-specific learning modules (e.g., React, Docker, AWS)
+      - Industry best practices and methodologies
+      - Professional certification preparation
+      - Real-world project simulations
+    - **Integration Strategy**: Supplementary quests are woven into curriculum timeline:
+      - Aligned with relevant academic courses when possible
+      - Scheduled during academic breaks or lighter course loads
+      - Prioritized based on career path relevance and industry demand
+    - **Dynamic Updates**: Gap analysis refreshes quarterly to incorporate:
+      - Updated roadmap.sh content and industry trends
+      - User progress and demonstrated competencies
+      - Employer feedback and job market requirements
+    - **Confidence Thresholds**: Gap analysis requires ≥85% confidence in curriculum mapping and ≥90% confidence in roadmap.sh alignment
+6.  **FR5 (AI):** The AI must calculate user skill points on a 1-10 scale based on FPT University scoring system and convert academic performance into relevant skill categories.
     
     **Business Logic Specifications:**
     - **FPT Scoring Integration**: Direct mapping from FPT University's 1-10 grading scale to skill point calculations
@@ -77,7 +112,7 @@
     - **Quest Chapter Structure**: Each semester (4 months) = 1 quest chapter containing exactly 10 quests representing the first 10 weeks of study
     - **Quest Generation Timeline**: 
       - Standard subjects (4-month duration): 10 quests covering full semester content
-      - Short subjects (2-month duration): 10 quests total, but objectives only generated for first 4 quests of that specific subject
+      - Short subjects (2-month duration): 10 quests total, but objectives only generated for first 5 quests of that specific subject
     - **Objective Creation**: Each quest contains smaller objectives for each enrolled subject, generated from course syllabus content
     - **Manual Assignment Integration**: 
       - Users manually input assignments and in-class progress tests
@@ -133,7 +168,7 @@
       - Consecutive wins: +5% per consecutive victory (max +25%)
     - **Skill Level Progression**: Each skill level requires exponentially more XP: Level N requires (N × 100) XP points
     - **Cross-Skill Synergies**: Completing Boss Fights in related subjects provides +10% XP bonus to connected skill nodes
-19. **FR19 (System):** The system must feature leaderboards that display player rankings, both within specific "Classes", for PvP events, and overall.
+19. **FR19 (System):** The system must feature comprehensive leaderboards that display player rankings, both within specific "Classes", for competitive events including real-time code battles, and overall platform performance.
     
     **Business Logic Specifications:**
     - **Ranking Algorithm**: Overall rank = (40% Quest Completion Score + 30% Skill Tree Progress + 20% Boss Fight Performance + 10% Social Contribution)
@@ -147,7 +182,15 @@
       - Class-Specific: Users within same role-based roadmap (Backend, Frontend, etc.)
       - Major-Specific: Users within same smaller major (ReactJS/NodeJS, Game Development, etc.)
       - Guild/Party: Rankings within specific social groups
+      - **Event-Specific**: Real-time rankings for active code battles and guild-based competitive events
+      - **Guild Events**: Guild rankings based on total points accumulated by all guild members in system-wide events
+    - **Code Battle Integration**:
+      - Real-time score updates during active competitions
+      - Performance metrics including solution efficiency, code quality, and completion time
+      - Head-to-head comparison displays for direct competitions
+      - Historical performance tracking across multiple battle types
     - **Ranking Tiers**: Bronze (0-999), Silver (1000-2499), Gold (2500-4999), Platinum (5000-7499), Diamond (7500+)
+    - **Real-time Updates**: Leaderboard positions update within 5 seconds of score changes during active events
     - **Update Frequency**: Real-time for Boss Fights, daily batch updates for Quest/Skill progress, weekly for Social Contribution
     - **Seasonal Resets**: Quarterly leaderboard resets with legacy achievement preservation
 20. **FR20 (AI):** The main quest line must be dynamic, allowing for AI-driven changes to uncompleted tasks based on user preferences or new information.
@@ -270,10 +313,69 @@
 ### **Cross-Cutting Requirements (All Phases)**
 *Focus: Core system capabilities that support all phases.*
 
-25. **FR25 (System):** The system must implement basic in-app notifications for quest updates and system announcements.
-26. **FR26 (System):** The system must implement structured logging for debugging and basic performance monitoring.
-27. **FR27 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
-28. **FR28 (System):** The platform must support scalable content delivery with optimized asset loading.
+39. **FR39 (System):** The system must implement basic in-app notifications for quest updates and system announcements.
+40. **FR40 (System):** The system must implement structured logging for debugging and basic performance monitoring.
+41. **FR41 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
+42. **FR42 (System):** The platform must support scalable content delivery with optimized asset loading.
+
+### **Phase 3: Event Management & Code Battle Requirements**
+*Focus: Competitive learning platform with comprehensive event management.*
+
+43. **FR43 (System):** The system must provide a real-time code battle execution environment supporting multiple programming languages with automated testing, scoring, and live spectator capabilities.
+    
+    **Technical Specifications:**
+    - **Supported Languages**: JavaScript, Python, Java, C#, Go, TypeScript (extensible architecture)
+    - **Execution Environment**: Secure sandboxed containers with resource limits (CPU: 2 cores, Memory: 512MB, Timeout: 30s)
+    - **Real-time Features**: Live code sharing, real-time compilation feedback, instant test result updates
+    - **Judging System**: Automated test case execution with correctness, efficiency, and code quality scoring
+    - **Spectator Mode**: Real-time viewing of competitor progress with syntax highlighting and execution status
+    - **Battle Types**: Head-to-head duels, team competitions, time-based challenges, algorithmic problem solving
+    - **Performance Metrics**: Solution correctness (40%), execution efficiency (30%), code quality (20%), completion time (10%)
+
+44. **FR44 (System):** The system must support system-wide guild-based competitive events with room assignment management, guild ranking calculations, and comprehensive event lifecycle management.
+    
+    **Guild Event Features:**
+    - **Event Structure**: System-wide events exclusively for participating guilds with no bracket tournaments
+    - **Guild Participation**: Guild-based registration, member assignment to battle rooms, cross-guild competitions
+    - **Room Management**: Automated room assignment for guild members, balanced distribution across battle rooms
+    - **Ranking System**: Final rankings calculated based on total points accumulated by all guild members
+    - **Scheduling System**: Flexible time slot management, timezone handling, automated reminders
+    - **Prize System**: Guild-based rewards, collective XP bonuses, achievement unlocks, guild leaderboard recognition
+    - **Event Analytics**: Guild performance statistics, member participation tracking, engagement metrics
+    - **Live Broadcasting**: Event streaming capabilities with guild-focused commentary and audience interaction
+
+45. **FR45 (System):** The system must implement advanced social learning mechanics including peer-to-peer challenges, collaborative problem-solving, and mentorship integration within competitive environments.
+    
+    **Social Learning Features:**
+    - **Peer Challenges**: Direct challenge system between users with customizable problem sets
+    - **Collaborative Battles**: Team-based coding challenges requiring coordination and communication
+    - **Mentorship Integration**: Mentor-student pairing for guided competitive learning experiences
+    - **Knowledge Sharing**: Post-battle code review sessions, solution explanation features
+    - **Study Groups**: Competitive study sessions with shared objectives and group scoring
+    - **Skill Matching**: Intelligent pairing based on skill levels, learning objectives, and compatibility
+    - **Progress Tracking**: Individual and group progress analytics with improvement recommendations
+
+46. **FR46 (System):** The system must provide comprehensive event creation and management tools enabling educators and guild masters to design, schedule, and administer competitive learning events.
+    
+    **Event Management Capabilities:**
+    - **Event Creation Wizard**: Template-based event setup with customizable parameters and rules
+    - **Event Types**: Code battles, hackathons, study competitions, skill assessments, collaborative projects
+    - **Scheduling Tools**: Calendar integration, recurring event support, timezone management, conflict detection
+    - **Participant Management**: Registration systems, capacity limits, prerequisite checking, team formation
+    - **Content Management**: Problem set creation, test case definition, resource allocation, difficulty scaling
+    - **Monitoring Dashboard**: Real-time event oversight, participant tracking, issue resolution tools
+    - **Analytics & Reporting**: Event performance metrics, participant feedback collection, outcome analysis
+
+47. **FR47 (System):** The system must implement a multi-level approval workflow for event management ensuring educational quality and platform integrity through administrative oversight.
+    
+    **Approval Workflow Features:**
+    - **Multi-tier Approval**: Guild Master review → Platform Administrator approval → Event activation
+    - **Quality Assurance**: Automated content validation, educational standard compliance checking
+    - **Review Dashboard**: Administrative interface for pending approvals, batch processing capabilities
+    - **Approval Criteria**: Educational value assessment, technical feasibility validation, resource availability check
+    - **Feedback System**: Rejection reasoning, improvement suggestions, resubmission workflows
+    - **Audit Trail**: Complete approval history, decision tracking, accountability logging
+    - **Emergency Controls**: Rapid event suspension, real-time moderation, incident response protocols
 
 
 

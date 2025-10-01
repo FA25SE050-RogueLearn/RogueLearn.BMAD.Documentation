@@ -73,7 +73,7 @@ This document provides detailed user stories for each epic, aligned with the pha
 *Focus: Establish the fundamental single-player experience.*
 
 ### **Epic: User Onboarding & Profile Management**
-*Goal: Create a seamless and engaging entry point for new users, allowing them to set up their accounts and profiles.*
+*Goal: Create a seamless and engaging entry point for new users, allowing them to set up their curriculum-based learning profiles with career specialization integration.*
 
 #### **Story: Project Infrastructure Setup**
 **As a** Developer, **I want** to establish the foundational project infrastructure with proper CI/CD pipelines, **so that** we have a reliable development and deployment foundation.
@@ -154,124 +154,137 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Profile completeness score is calculated and displayed
 
 #### **Story: Character Class Selection**
-**As a** new user, **I want** to choose my character class based on career goals, **so that** my learning path aligns with my professional aspirations.
+**As a** new user, **I want** to choose my career specialization (Class) from roadmap.sh options, **so that** my learning path includes industry-relevant skills that complement my academic curriculum.
 
 *   **Acceptance Criteria:**
-    *   Predefined class options are presented with detailed descriptions and career paths
-    *   Class selection includes associated skills, strengths, and typical quest types
-    *   Custom class creation option for unique career goals
-    *   Class selection impacts initial skill tree structure and available quests
+    *   Career specialization options are sourced from roadmap.sh with detailed descriptions
+    *   Class selection includes associated industry skills, technologies, and career progression paths
+    *   Each specialization shows gap analysis preview with curriculum integration benefits
+    *   Class selection impacts supplementary quest generation and skill tree enhancement
     *   Class information is stored in user profile with modification capability
-    *   Class-specific onboarding tips and resources are provided
+    *   Class-specific career guidance and industry insights are provided
 
 #### **Story: Academic Route Configuration**
-**As a** new user, **I want** to define my academic route and learning preferences, **so that** the system can customize my educational journey.
+**As a** new user, **I want** to select my academic curriculum (Route) and learning preferences, **so that** the system can generate my primary quest line based on curriculum requirements.
 
 *   **Acceptance Criteria:**
-    *   Route selection includes academic focus areas and specializations
+    *   Curriculum selection includes university programs, course sequences, and academic milestones
     *   Learning pace preferences (intensive, moderate, relaxed) are configurable
     *   Study schedule preferences (morning, afternoon, evening, weekend) are captured
-    *   Difficulty preference and challenge level are selectable
-    *   Route configuration affects quest generation and skill tree progression
-    *   Route can be modified later with impact assessment provided
+    *   Academic difficulty preference and challenge level are selectable
+    *   Route configuration drives primary quest generation and curriculum-based skill tree
+    *   Route can be modified later with impact assessment on quest progression provided
 
 #### **Story: Document Upload and Validation**
-**As a** new user, **I want** to upload my course syllabus and academic documents, **so that** the AI can create my personalized learning path.
+**As a** new user, **I want** to optionally upload my academic documents for skill tree and arsenal enhancement, **so that** my learning visualization is personalized without affecting quest generation.
 
 *   **Acceptance Criteria:**
-    *   File upload supports PDF, DOCX, TXT formats with 10MB size limit
+    *   File upload supports PDF, DOCX, TXT formats with 10MB size limit for academic documents only
     *   Drag-and-drop interface with progress indicators and error handling
-    *   Document validation checks for academic content and readability
-    *   Multiple document upload capability for different courses
+    *   Document validation checks for academic content relevance (transcripts, schedules, assignments)
+    *   Multiple document upload capability for different courses and academic records
     *   Secure file storage with encryption and access controls
     *   Upload status tracking with retry capability for failed uploads
-    *   Document processing queue with estimated completion times
+    *   Clear messaging that documents enhance visualization only, not quest generation
+    *   Document processing focuses on skill tree enhancement and arsenal management features
 
 #### **Story: Initial Character Sheet Generation**
-**As a** new user, **I want** to see my personalized character sheet after onboarding completion, **so that** I can visualize my learning persona and initial stats.
+**As a** new user, **I want** to see my personalized character sheet after onboarding completion, **so that** I can visualize my curriculum-career learning persona with Route/Class integration.
 
 *   **Acceptance Criteria:**
-    *   Character sheet displays user name, selected class, and academic route
-    *   Initial stats are calculated based on profile information and assessments
+    *   Character sheet displays user name, selected Class (career specialization), and Route (curriculum)
+    *   Initial stats are calculated based on curriculum requirements and career specialization alignment
     *   Character avatar/image is generated or selected during onboarding
-    *   Skill tree structure is initialized with locked/unlocked nodes
-    *   Character sheet includes progress tracking elements (XP, level, achievements)
-    *   Character sheet is accessible from main dashboard with edit capabilities
+    *   Skill tree structure is initialized with curriculum-based progression and career enhancement nodes
+    *   Character sheet includes progress tracking elements (XP, level, achievements) for both academic and career tracks
+    *   Character sheet is accessible from main dashboard with edit capabilities for Route/Class modifications
 
 #### **Story: Onboarding Completion and Dashboard Transition**
-**As a** new user, **I want** to smoothly transition from onboarding to the main dashboard, **so that** I can begin my learning journey immediately.
+**As a** new user, **I want** to smoothly transition from onboarding to the main dashboard, **so that** I can begin my curriculum-based learning journey with career specialization integration.
 
 *   **Acceptance Criteria:**
     *   Onboarding completion celebration/animation provides positive reinforcement
-    *   Dashboard tutorial highlights key features and navigation elements
-    *   Initial quest recommendations are generated based on uploaded documents
-    *   Quick start guide is accessible for immediate learning activities
-    *   Onboarding can be revisited to modify profile settings
-    *   User feedback collection on onboarding experience for continuous improvement
+    *   Dashboard tutorial highlights curriculum progression and career skill development features
+    *   Initial quest recommendations are generated based on selected curriculum and gap analysis results
+    *   Quick start guide is accessible for immediate curriculum-aligned learning activities
+    *   Onboarding can be revisited to modify Route/Class settings with impact assessment
+    *   User feedback collection on curriculum-career integration experience for continuous improvement
 
 ---
 
 ### **Epic: Core AI & Quest Generation**
-*Goal: Leverage AI to transform academic documents into a personalized and dynamic learning path.*
+*Goal: Leverage AI to transform academic curriculum into personalized learning paths with career specialization integration through gap analysis and roadmap.sh enhancement.*
 
-#### **Story: AI Syllabus Processing & Quest Generation**
-**As a** student, **I want** the system to process my syllabus with an AI service, **so that** a meaningful learning path is created.
-
-*   **Acceptance Criteria:**
-    *   AI service processes uploaded syllabus documents to extract course structure
-    *   System generates quest chapters aligned with course modules and learning objectives
-    *   Quest difficulty progression follows academic curriculum pacing
-    *   Prerequisites and dependencies are automatically identified and configured
-    *   Generated quests include clear learning objectives and success criteria
-    *   AI processing status is communicated to users with progress indicators
-
-#### **Story: AI-Powered Curriculum Transformation**
-**As a** Student, **I want** the system to automatically generate a new chapter in my Main Quest from each of my FPT course syllabi, **so that** my academic requirements are transformed into a structured learning path.
+#### **Story: AI Curriculum Processing & Quest Generation**
+**As a** student, **I want** the system to process my academic curriculum with AI, **so that** a comprehensive learning path is created with career specialization integration.
 
 *   **Acceptance Criteria:**
-    *   When a syllabus is processed, a new "Quest Chapter" is created and added to the user's Main Quest Line.
-    *   The AI correctly parses key topics, assignments, and deadlines from the syllabus to generate individual `Quests`.
-    *   Each generated `Quest` is linked to one or more `Skills` on the user's Skill Tree.
-    *   The system establishes the correct prerequisite dependencies between quests based on the curriculum's structure.
+    *   AI service processes selected curriculum (Route) to extract course structure and learning objectives
+    *   System generates curriculum-based quest chapters aligned with academic modules and progression
+    *   Quest difficulty progression follows academic curriculum pacing and requirements
+    *   Prerequisites and dependencies are automatically identified from curriculum structure
+    *   Generated quests include clear learning objectives tied to academic outcomes
+    *   AI processing status is communicated with progress indicators for curriculum analysis
 
-#### **Story: Dynamic Quest Adaptation**
-**As a** student, **I want** the system to adapt quest difficulty and content based on my performance, **so that** my learning experience remains challenging but achievable.
+#### **Story: AI-Powered Gap Analysis & Roadmap Integration**
+**As a** student, **I want** the system to analyze gaps between my curriculum and career specialization, **so that** supplementary quests from roadmap.sh enhance my learning path.
 
 *   **Acceptance Criteria:**
-    *   AI analyzes performance patterns to identify strengths and weaknesses
-    *   Quest difficulty automatically adjusts based on success rates and completion times
-    *   Additional practice quests are generated for struggling areas
-    *   Advanced challenges are unlocked for mastered topics
-    *   Learning path modifications are explained to users with reasoning
-    *   Performance analytics inform ongoing quest generation and refinement
+    *   AI performs gap analysis between selected Route (curriculum) and Class (career specialization)
+    *   System identifies missing industry skills not covered in academic curriculum
+    *   Roadmap.sh content is integrated to fill identified gaps with relevant career skills
+    *   Supplementary quests are generated from roadmap.sh to complement curriculum-based learning
+    *   Gap analysis results are visualized showing curriculum coverage vs. industry requirements
+    *   Integration maintains academic priority while enhancing career readiness
+
+#### **Story: Dynamic Quest Adaptation with Curriculum Focus**
+**As a** student, **I want** the system to adapt quest difficulty based on curriculum requirements and my performance, **so that** my learning experience aligns with academic goals while building career skills.
+
+*   **Acceptance Criteria:**
+    *   AI analyzes performance patterns within curriculum-based quest progression
+    *   Quest difficulty adjusts based on academic requirements and individual performance
+    *   Additional practice quests are generated for curriculum topics requiring reinforcement
+    *   Career enhancement quests from roadmap.sh are unlocked based on curriculum mastery
+    *   Learning path modifications prioritize curriculum completion with career skill integration
+    *   Performance analytics inform ongoing curriculum-focused quest generation and career enhancement
 
 ---
 
 ### **Epic: Skill Tree & Knowledge Management**
-*Goal: Provide tools for students to organize their knowledge and visualize their academic progress.*
+*Goal: Provide tools for students to visualize curriculum-based progression and organize knowledge with career specialization enhancement through optional document integration.*
 
-#### **Story: The 'Arsenal' - Note Management**
-**As a** student, **I want** to create, import, and organize my study notes, **so that** I have a centralized 'arsenal' of knowledge.
-
-*   **Acceptance Criteria:**
-    *   Rich text editor supports formatting, links, images, and code snippets
-    *   Note organization system with folders, tags, and search capabilities
-    *   Import functionality for existing notes from common formats
-    *   Note linking system connects content to skill tree nodes
-    *   Collaborative sharing options for study groups and parties
-    *   Version history and backup functionality for note preservation
-
-#### **Story: Building the Knowledge Arsenal**
-**As a** Student, **I want** to create and link my personal study notes ("Arsenal") to the concepts I'm learning, **so that** I can build a centralized, interconnected knowledge base for my career.
+#### **Story: The 'Arsenal' - Enhanced Note Management**
+**As a** student, **I want** to create, import, and organize my study notes to enhance my skill tree visualization, **so that** I have a centralized 'arsenal' of knowledge that complements my curriculum-career learning path.
 
 *   **Acceptance Criteria:**
-    *   The "Arsenal" provides a rich text editor for creating and organizing study materials.
-    *   Users can create a link from any note to one or more nodes on their Skill Tree.
-    *   When viewing a Skill Tree node, the user can easily see and access all linked Arsenal notes.
-    *   The content within these notes is used by the AI as the source material for generating quiz questions and "Boss Fight" challenges.
+    *   Rich text editor supports formatting, links, images, and code snippets for comprehensive note-taking
+    *   Note organization system with folders, tags, and search capabilities for efficient knowledge management
+    *   Import functionality for existing notes from common formats to enhance skill tree nodes
+    *   Note linking system connects content to curriculum-based skill tree nodes and career enhancement areas
+    *   Collaborative sharing options for study groups and parties within curriculum context
+    *   Version history and backup functionality for note preservation and academic continuity
 
-#### **Story: Skill Tree Visualization & Navigation**
-**As a** student, **I want** to visualize my skill progression through an interactive skill tree, **so that** I can understand my learning path and progress.
+#### **Story: Building the Knowledge Arsenal with Curriculum Integration**
+**As a** student, **I want** to create and link my personal study notes ("Arsenal") to curriculum concepts and career skills, **so that** I can build a centralized knowledge base that enhances my Route/Class learning progression.
+
+*   **Acceptance Criteria:**
+    *   The "Arsenal" provides a rich text editor for creating notes that enhance curriculum understanding
+    *   Users can link notes to curriculum-based skill tree nodes and career specialization areas
+    *   When viewing a skill tree node, users can access all linked Arsenal notes for enhanced learning
+    *   Arsenal content enhances AI-generated quiz questions and "Boss Fight" challenges based on curriculum
+    *   Note organization reflects Route (curriculum) and Class (career) structure for better navigation
+    *   Arsenal integration supports both academic requirements and career skill development
+
+#### **Story: Curriculum-Based Skill Tree Visualization & Navigation**
+**As a** student, **I want** to visualize my curriculum progression and career skill development through an interactive skill tree, **so that** I can understand my Route/Class learning path and academic progress.
+
+*   **Acceptance Criteria:**
+    *   Interactive skill tree displays curriculum-based nodes with clear academic progression states
+    *   Navigation allows filtering by Route (curriculum) requirements and Class (career) enhancements
+    *   Each node shows associated curriculum quests, career supplements, and learning outcomes
+    *   Skill tree reflects gap analysis results with curriculum coverage and career enhancement areas
+    *   Visual indicators distinguish between curriculum requirements and career specialization content
+    *   Progress tracking shows both academic achievement and career readiness development
 
 *   **Acceptance Criteria:**
     *   Interactive skill tree displays nodes with clear visual states (locked, available, completed)
@@ -281,13 +294,16 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Skill tree updates in real-time as quests are completed
     *   Mobile-responsive design ensures accessibility across devices
 
-#### **Story: Visualizing Skill Progression**
-**As a** Student, **I want** to see my Skill Tree update in real-time as I complete quests, **so that** I get immediate visual feedback on my progress toward my career goal.
+#### **Story: Visualizing Curriculum-Career Skill Progression**
+**As a** student, **I want** to see my skill tree update in real-time as I complete curriculum quests and career enhancement activities, **so that** I get immediate visual feedback on my Route/Class progression toward academic and career goals.
 
 *   **Acceptance Criteria:**
-    *   Completing a quest that awards a skill visually updates the corresponding node on the Skill Tree.
-    *   Unlocking a prerequisite skill makes the next skill in the dependency chain available to be learned.
-    *   The user interface clearly shows the pathway from completed foundational skills towards the more advanced skills required for their chosen career Class.
+    *   Completing curriculum-based quests visually updates corresponding academic skill nodes
+    *   Career enhancement activities from roadmap.sh update career specialization nodes
+    *   Unlocking prerequisite skills makes next curriculum skills available following academic progression
+    *   User interface clearly shows pathway from curriculum foundations to career specialization skills
+    *   Gap analysis results are reflected in skill tree with curriculum coverage and career enhancement indicators
+    *   Progress visualization distinguishes between academic requirements and career development achievements
 
 ---
 
@@ -327,14 +343,16 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Results are synchronized with backend for skill tree and leaderboard updates
     *   Achievement unlocks and badges are displayed for milestone completions
 
-#### **Story: Engaging with Core Quests and Assessments**
-**As a** Student, **I want** to complete my academic quests through a variety of interactive challenges, including gamified "Boss Fights", **so that** I can master foundational knowledge in a motivating way.
+#### **Story: Engaging with Curriculum Quests and Career Assessments**
+**As a** student, **I want** to complete my curriculum-based quests through interactive challenges, including gamified "Boss Fights", **so that** I can master academic knowledge while building career skills in a motivating way.
 
 *   **Acceptance Criteria:**
-    *   Users can select and start quests directly from their dashboard or Skill Tree.
-    *   Quests for theoretical knowledge include gamified quizzes ("knowledge checks").
-    *   Major milestones or topics are validated with interactive "Boss Fights" (Unity-based assessments).
-    *   The Unity WebGL client is successfully integrated and can be launched from a quest.
+    *   Users can select and start curriculum quests directly from their dashboard or skill tree
+    *   Curriculum quests include gamified quizzes based on academic content ("knowledge checks")
+    *   Major curriculum milestones are validated with interactive "Boss Fights" (Unity-based assessments)
+    *   Career enhancement quests from roadmap.sh integration provide industry-focused challenges
+    *   Unity WebGL client launches seamlessly from curriculum and career quest contexts
+    *   Quest completion updates both academic progress and career specialization advancement
     *   The "Boss Fight" includes a 2D boss character, multiple-choice questions generated by the AI, real-time visual feedback, and a scoring mechanism that affects the boss's health.
     *   Successfully completing quests and boss fights awards Experience Points (XP).
 
@@ -485,47 +503,121 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 
 ---
 
-## **Phase 3: Specialization & Career Preparation**
-*Focus: Advanced curriculum, portfolio development, and career readiness.*
+## **Phase 3: Simplified Educator Toolkit & Competition Platform**
+*Focus: Enhanced social learning, competitive programming, and comprehensive event management.*
 
-### **Epic: The Specialization Chapter**
-*Goal: Enable the student to commit to a specific career path by choosing a Specialization Track and mastering an advanced, industry-aligned curriculum that includes collaborative project work.*
+### **Epic 3: Advanced Social Learning & Code Battle Competition**
+*Goal: Create a comprehensive competitive programming environment with real-time code battles, guild-based events with room assignments, and advanced social learning mechanics that enhance student engagement and skill development.*
 
-#### **Story: Choosing the Specialization Track**
-**As a** Student entering my senior years, **I want** to be presented with a clear choice of Specialization Tracks, **so that** I can formally commit to the advanced chapters of my main career quest.
-
-*   **Acceptance Criteria:**
-    *   Upon completing the core curriculum quests (Phase 1), the user is presented with a "Choose Your Specialization" interface.
-    *   The system offers a curated list of available tracks (e.g., ".NET Development," "React Frontend Development," "Azure DevOps").
-    *   Each track displays a summary of the key skills they will learn, potential job titles, and a preview of the advanced quests.
-    *   The user's choice appends the corresponding advanced quest chapters to their existing "Main Quest Line."
-    *   This choice is visually represented on their Skill Tree, unlocking the advanced branches related to their chosen track.
-
-#### **Story: Mastering the Specialization Curriculum**
-**As a** Student on a Specialization Track, **I want** my new quests to be a blend of my advanced FPT curriculum and industry best practices, **so that** I am learning skills that are directly relevant to the job market.
+#### **Story: Real-time Code Battle Environment**
+**As a** student, **I want** to participate in real-time code battles with secure execution environments, **so that** I can compete with peers while solving programming challenges in a fair and monitored setting.
 
 *   **Acceptance Criteria:**
-    *   Quests within this epic are generated from a combination of the student's advanced FPT syllabus and the corresponding roadmap from roadmap.sh.
-    *   These quests are more complex and application-focused than those in Phase 1.
-    *   Assessments ("Boss Fights") for this epic are more challenging and mimic real-world technical problems.
+    *   Real-time code battle system supports multiple programming languages (Python, JavaScript, Java, C#)
+    *   Secure containerized execution environment prevents malicious code and ensures fair play
+    *   Live code editor with syntax highlighting and basic debugging capabilities
+    *   Real-time synchronization shows opponent progress and submission status
+    *   Automated test case validation with immediate feedback on solution correctness
+    *   Battle timer with countdown display and automatic submission at time expiry
+    *   Performance metrics tracking including execution time and memory usage
+    *   Anti-cheat mechanisms including code similarity detection and execution monitoring
 
-#### **Story: The First Portfolio Project Quest**
-**As a** Student on a Specialization Track, **I want** to be guided through building my first complete portfolio project, **so that** I have a tangible asset to showcase to potential employers.
-
-*   **Acceptance Criteria:**
-    *   The system provides a "Project Quest" with a clear brief and a set of requirements for a small but complete application (e.g., "Build a To-Do List API using .NET").
-    *   The quest is structured as a checklist of professional tasks: setting up a Git repository, structuring the project, implementing core features, writing unit tests, and creating a `README.md`.
-    *   To complete the quest, the user must submit the public URL to their finished project on GitHub.
-    *   The system validates that a valid GitHub URL has been provided to mark the quest as "Complete." (Note: Automated code grading is out of scope for this story).
-
-#### **Story: Advanced Algorithmic Challenges (Code Battles)**
-**As a** Student preparing for my career, **I want** to tackle interview-style algorithmic challenges relevant to my specialization, **so that** I can build my problem-solving profile.
+#### **Story: Guild-based Event System**
+**As a** Guild Master, **I want** to organize system-wide competitive events for participating guilds, **so that** I can foster healthy competition between guilds and identify top-performing guild communities.
 
 *   **Acceptance Criteria:**
-    *   The platform's "Code Battles" feature is integrated as a core quest type within Specialization Tracks.
-    *   These quests present LeetCode-style problems that are relevant to the user's chosen career (e.g., array manipulation for game dev, string parsing for web dev).
-    *   The user submits their code, which is automatically judged against a set of test cases.
-    *   Successful completion of these challenges contributes to a visible "Problem-Solving" stat on the user's public profile, similar to a LeetCode profile.
+    *   Event creation wizard for system-wide guild competitions with customizable parameters
+    *   Guild registration system allowing entire guilds to participate in events
+    *   Automated room assignment system distributing guild members across battle rooms
+    *   Real-time guild ranking system calculating total points from all guild members
+    *   Flexible scheduling system with timezone support and automated reminders
+    *   Spectator mode allowing guild members to watch their teammates' battles
+    *   Guild analytics dashboard showing member participation and collective performance
+    *   Automated prize distribution system with guild-based rewards and recognition
+    *   Integration with guild leaderboards and collective achievement systems
+
+#### **Story: Enhanced Social Learning Mechanics**
+**As a** student, **I want** advanced social learning features that help me learn from competitions, **so that** I can improve my skills through peer interaction and collaborative analysis.
+
+*   **Acceptance Criteria:**
+    *   Post-battle code review system with peer commenting and rating capabilities
+    *   Solution explanation feature allowing winners to share their approach
+    *   Collaborative problem-solving sessions with shared whiteboards and real-time editing
+    *   Mentorship matching system connecting experienced students with beginners
+    *   Study group formation tools based on skill level and learning objectives
+    *   Knowledge sharing forums with topic-based discussions and expert contributions
+    *   Peer tutoring scheduling system with integrated video conferencing
+    *   Achievement badges for teaching, mentoring, and community contribution activities
+
+#### **Story: Advanced Competition Analytics**
+**As a** student, **I want** detailed analytics on my competitive performance, **so that** I can identify areas for improvement and track my skill development over time.
+
+*   **Acceptance Criteria:**
+    *   Comprehensive performance dashboard showing win/loss ratios, skill progression, and ranking trends
+    *   Detailed battle history with code submissions, execution metrics, and opponent analysis
+    *   Skill assessment reports identifying strengths and weaknesses across different problem types
+    *   Comparative analysis showing performance relative to peers and historical data
+    *   Learning path recommendations based on competition results and skill gaps
+    *   Progress tracking with visual charts and milestone celebrations
+    *   Export capabilities for portfolio development and academic record keeping
+    *   Integration with external platforms (GitHub, LinkedIn) for professional profile enhancement
+
+---
+
+### **Epic 3: Event Management & Administration Platform**
+*Goal: Provide comprehensive event management capabilities with multi-tier approval workflows, automated scheduling, and advanced administrative tools for creating, managing, and analyzing competitive programming events and educational activities.*
+
+#### **Story: Comprehensive Event Creation Wizard**
+**As a** Guild Master, **I want** an intuitive event creation wizard with advanced configuration options, **so that** I can efficiently set up complex competitive events with detailed specifications and requirements.
+
+*   **Acceptance Criteria:**
+    *   Step-by-step wizard interface guides users through event configuration process
+    *   Event type selection supports multiple formats (tournaments, workshops, lectures, code battles)
+    *   Advanced scheduling system with timezone support, recurring events, and conflict detection
+    *   Customizable participant criteria including skill level, guild membership, and prerequisites
+    *   Problem set configuration with difficulty distribution and topic selection
+    *   Prize and reward system setup with automated distribution rules
+    *   Registration management with capacity limits, waitlists, and approval requirements
+    *   Integration with external calendar systems and notification platforms
+
+#### **Story: Multi-tier Approval Workflow System**
+**As a** system administrator, **I want** a configurable approval workflow for events, **so that** I can ensure quality control and proper resource allocation while maintaining efficient processing times.
+
+*   **Acceptance Criteria:**
+    *   Configurable approval tiers with customizable criteria and reviewer assignments
+    *   Automated validation checks for event feasibility, resource availability, and policy compliance
+    *   Real-time notification system for approval requests and status updates
+    *   Detailed review interface with commenting, revision requests, and approval tracking
+    *   Escalation mechanisms for complex or disputed approval cases
+    *   Audit trail maintaining complete history of approval decisions and modifications
+    *   Bulk approval capabilities for routine or pre-approved event types
+    *   Integration with administrative dashboards and reporting systems
+
+#### **Story: Advanced Event Lifecycle Management**
+**As an** event organizer, **I want** comprehensive tools to manage events throughout their entire lifecycle, **so that** I can ensure smooth execution and optimal participant experience.
+
+*   **Acceptance Criteria:**
+    *   Pre-event preparation tools including participant communication and resource allocation
+    *   Real-time event monitoring with live participant tracking and system performance metrics
+    *   Dynamic event modification capabilities for schedule changes and emergency adjustments
+    *   Automated participant management including check-in, progress tracking, and support escalation
+    *   Live spectator management with viewing permissions and engagement features
+    *   Post-event processing including result compilation, feedback collection, and analytics generation
+    *   Event archival system with searchable history and performance benchmarking
+    *   Integration with learning management systems for academic credit and progress tracking
+
+#### **Story: Comprehensive Analytics & Reporting Dashboard**
+**As a** Guild Master, **I want** detailed analytics and reporting capabilities for my events, **so that** I can measure success, identify improvement opportunities, and demonstrate educational value.
+
+*   **Acceptance Criteria:**
+    *   Real-time event analytics dashboard showing participation rates, engagement metrics, and performance trends
+    *   Detailed participant analysis including skill development tracking and learning outcome assessment
+    *   Comparative reporting across multiple events with trend identification and benchmarking
+    *   Customizable report generation with export capabilities for academic and administrative purposes
+    *   Automated insight generation highlighting key findings and recommendations
+    *   Integration with institutional reporting systems and accreditation requirements
+    *   Predictive analytics for event planning and resource optimization
+    *   ROI analysis demonstrating educational impact and resource utilization efficiency
 
 ---
 
@@ -578,8 +670,49 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 
 ---
 
-## **Phase 4: Educator & Admin Toolkit**
-*Focus: Empower educators and administrators with tools to manage and enhance the learning experience.*
+## **Phase 4: Specialization & Career Preparation**
+*Focus: Advanced curriculum, portfolio development, and career readiness.*
+
+### **Epic: The Specialization Chapter**
+*Goal: Enable the student to commit to a specific career path by choosing a Specialization Track and mastering an advanced, industry-aligned curriculum that includes collaborative project work.*
+
+#### **Story: Choosing the Specialization Track**
+**As a** Student entering my senior years, **I want** to be presented with a clear choice of Specialization Tracks, **so that** I can formally commit to the advanced chapters of my main career quest.
+
+*   **Acceptance Criteria:**
+    *   Upon completing the core curriculum quests (Phase 1), the user is presented with a "Choose Your Specialization" interface.
+    *   The system offers a curated list of available tracks (e.g., ".NET Development," "React Frontend Development," "Azure DevOps").
+    *   Each track displays a summary of the key skills they will learn, potential job titles, and a preview of the advanced quests.
+    *   The user's choice appends the corresponding advanced quest chapters to their existing "Main Quest Line."
+    *   This choice is visually represented on their Skill Tree, unlocking the advanced branches related to their chosen track.
+
+#### **Story: Mastering the Specialization Curriculum**
+**As a** Student on a Specialization Track, **I want** my new quests to be a blend of my advanced FPT curriculum and industry best practices, **so that** I am learning skills that are directly relevant to the job market.
+
+*   **Acceptance Criteria:**
+    *   Quests within this epic are generated from a combination of the student's advanced FPT syllabus and the corresponding roadmap from roadmap.sh.
+    *   These quests are more complex and application-focused than those in Phase 1.
+    *   Assessments ("Boss Fights") for this epic are more challenging and mimic real-world technical problems.
+
+#### **Story: The First Portfolio Project Quest**
+**As a** Student on a Specialization Track, **I want** to be guided through building my first complete portfolio project, **so that** I have a tangible asset to showcase to potential employers.
+
+*   **Acceptance Criteria:**
+    *   The system provides a "Project Quest" with a clear brief and a set of requirements for a small but complete application (e.g., "Build a To-Do List API using .NET").
+    *   The quest is structured as a checklist of professional tasks: setting up a Git repository, structuring the project, implementing core features, writing unit tests, and creating a `README.md`.
+    *   To complete the quest, the user must submit the public URL to their finished project on GitHub.
+    *   The system validates that a valid GitHub URL has been provided to mark the quest as "Complete." (Note: Automated code grading is out of scope for this story).
+
+#### **Story: Advanced Algorithmic Challenges (Code Battles)**
+**As a** Student preparing for my career, **I want** to tackle interview-style algorithmic challenges relevant to my specialization, **so that** I can build my problem-solving profile.
+
+*   **Acceptance Criteria:**
+    *   The platform's "Code Battles" feature is integrated as a core quest type within Specialization Tracks.
+    *   These quests present LeetCode-style problems that are relevant to the user's chosen career (e.g., array manipulation for game dev, string parsing for web dev).
+    *   The user submits their code, which is automatically judged against a set of test cases.
+    *   Successful completion of these challenges contributes to a visible "Problem-Solving" stat on the user's public profile, similar to a LeetCode profile.
+
+---
 
 ### **Epic: Guild Master Toolkit**
 *Goal: Provide educators with tools to create, manage, and enhance courses as interactive "Guilds".*
