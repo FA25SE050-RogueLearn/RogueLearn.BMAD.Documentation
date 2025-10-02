@@ -20,8 +20,8 @@ graph TD
         FPTU5 -- No --> FPTU6[Manual Verification Process];
         FPTU6 --> FPTU7[Academic Advisor Review];
         FPTU7 --> FPTU5;
-        FPTU5 -- Yes --> D[Select Route (Academic Curriculum)];
-        D --> D1[Select Class (Career Specialization)];
+        FPTU5 -- Yes --> D[Select Route - Academic Curriculum];
+        D --> D1[Select Class - Career Specialization];
         D1 --> AI1[AI Gap Analysis: Curriculum vs Career];
         AI1 --> QUEST1{Student Status Check};
         QUEST1 -- First Time --> AI2[Generate Fresh Quest Line from Curriculum];
@@ -114,7 +114,6 @@ graph TD
         Z1 --> Z2[Academic Calendar Synchronization];
         Z2 --> Z3[Quest Memory System Updates];
     end
-```
 ```
 
 ## Guild Master Flow (Player or Verified FPTU Lecturer)
