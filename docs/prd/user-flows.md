@@ -14,8 +14,8 @@ graph TD
         D --> D1{Verified?}
         D1 -- Yes --> E[Unlock University-Aligned Features]
         D1 -- No --> E
-        E --> R[Select Route (Curriculum)]
-        R --> S[Select Class (Career Focus)]
+        E --> R[Select Route - Curriculum]
+        R --> S[Select Class - Career Focus]
         S --> T[AI Gap Analysis]
         T --> U[Generate Quest Line]
         U --> V[Create Integrated Skill Tree]
