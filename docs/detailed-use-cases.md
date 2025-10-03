@@ -385,7 +385,7 @@ flowchart TD
 | **Preconditions** | User is Party Leader with active party members |
 | **Postconditions (Success Guarantee)** | Meeting scheduled, conducted, and comprehensive summary generated with actionable insights |
 | **Related Requirements** | **FRs:** FR14 (Meeting Management), FR15 (Meeting Recording)<br>**NFRs:** NFR17 (Real-time Communication), NFR11 (Real-time Updates) |
-| **Main Success Scenario** | 1. Party Leader accesses meeting scheduling interface<br>2. User sets meeting details (title, description, type, participants)<br>3. System sends invitations and manages RSVPs<br>4. Party Leader conducts meeting with content capture options<br>5. System records meeting content via multiple methods (manual, audio, browser extension)<br>6. AI processes captured content and generates comprehensive summary<br>7. System provides structured summary options (executive summary, action items, key points)<br>8. Party Leader shares results with party members |
+| **Main Success Scenario** | 1. Party Leader accesses meeting scheduling interface<br>2. User sets meeting details (title, description, type, participants)<br>3. System sends invitations and manages RSVPs<br>4. Party Leader conducts meeting with content capture options<br>5. System records meeting content via multiple methods (manual, audio)<br>6. AI processes captured content and generates comprehensive summary<br>7. System provides structured summary options (executive summary, action items, key points)<br>8. Party Leader shares results with party members |
 | **Alternative Flows** | **A1:** Recurring meetings - System schedules series with templates<br>**A2:** External participant invites - System manages non-party member access<br>**A3:** Meeting recording - System provides playback and transcript features |
 | **Exception Flows** | **E1:** Audio processing failure - System falls back to manual summary tools<br>**E2:** Network interruption - System saves partial content with recovery options<br>**E3:** AI summary error - System provides manual editing tools |
 
@@ -403,10 +403,8 @@ flowchart TD
     F --> G{Content capture method?}
     G -->|Manual notes| H[Leader inputs key points manually]
     G -->|Audio recording| I[System captures audio for processing]
-    G -->|Browser extension| J[System captures screen/browser content]
     H --> K[AI processes captured content]
     I --> K
-    J --> K
     K --> L{AI processing successful?}
     L -->|Yes| M[AI generates comprehensive summary]
     M --> N[System provides structured summary options]
@@ -616,9 +614,6 @@ flowchart TD
     class J,K,M,V,X,Y,Z,AA,BB,DD,EE,FF excFlow
     class B,H,L,W,CC decision
 ```
-
----
-
 
 ---
 
