@@ -9,7 +9,7 @@
 - To empower students to enhance their learning journey by uploading achievement documents and project portfolios, which will dynamically influence their skill tree visualization and personal arsenal management.
 - To allow students to select their curriculum ("Route") and career specialization ("Class") to generate a curriculum-based main quest line supplemented with industry-relevant content from roadmap.sh.
 - To enable peer-to-peer collaborative study through an intuitive "Party" system.
-- To validate a multi-tiered subscription model for future monetization.
+ - Post-MVP: Validate a multi-tiered subscription model for future monetization (explicitly excluded from MVP scope).
 
 ### **Background Context**
 
@@ -40,7 +40,7 @@ To ensure RogueLearn addresses real user needs, we will conduct comprehensive us
 - **Problem-Solution Fit:** 70%+ of interviewed students express strong interest in gamified learning approach
 - **Feature Prioritization:** Validate which core features (skill tree, quest system, social features) resonate most
 - **Usability Preferences:** Understand preferred interaction patterns and UI expectations
-- **Pricing Sensitivity:** Gauge willingness to pay for premium features
+ - **Pricing Sensitivity (Post-MVP):** Gauge willingness to pay for premium features (for post-MVP planning; not an MVP validation goal)
 
 **Ongoing Validation (During Development):**
 - **Weekly User Testing:** Test core features with 3-5 users every 2 weeks during development

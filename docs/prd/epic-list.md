@@ -141,3 +141,14 @@
 - Virtual currency and trading systems
 
 *These features will be considered for future development phases after successful MVP validation and user feedback.*
+### **Epic 3.3: Admin-Owned Educational Governance**
+**Functional Requirements:** FR52, FR53
+**Description:** Centralized educational governance owned by Game Master (System Admin) to ensure quality and consistency across elective content and official curriculum. Includes curated elective library management and university curriculum import/administration with strict RBAC-controlled publication.
+
+**Key Features:**
+* Elective library curation and approval workflow (draft → review → approved → published)
+* Tagging, versioning, and visibility controls aligned to skill nodes
+* Curated elective packs with institutional/public visibility options
+* University curriculum import with mapping, validation, and version activation
+* Scheduled imports, rollback capabilities, and audit-logged governance actions
+* Read-only reporting for Guild Masters; publication authority restricted to Admin

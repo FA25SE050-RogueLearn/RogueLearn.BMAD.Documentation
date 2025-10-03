@@ -50,7 +50,7 @@ The primary goal of the MVP is to validate the core user loop: **Select Curricul
 
 *   **Advanced AI Features**: Proactive learning assistance, predictive analytics, and AI-powered content curation
 *   **Enterprise Integration**: LMS integration, institutional analytics, and administrative dashboards
-*   **Marketplace & Economy**: User-generated content, creator economy, and monetization features
+*   **Marketplace & Economy**: User-generated content, creator economy, and monetization features (explicitly deferred to post-MVP)
 *   **Advanced Collaboration**: Cross-institutional parties, international study groups, and industry mentorship
 
 **Rationale**: The curriculum-first MVP validates the core educational value proposition and career readiness integration, while advanced features can be developed based on user feedback and institutional partnerships.

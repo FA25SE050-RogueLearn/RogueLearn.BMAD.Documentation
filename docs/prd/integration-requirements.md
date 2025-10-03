@@ -63,17 +63,17 @@ This document outlines the comprehensive integration requirements for RogueLearn
   - Backup strategy: Daily automated backups with 30-day retention
   - Geographic replication for disaster recovery
 
-### Payment Processing Integration
+### Payment Processing Integration (Post-MVP – explicitly excluded from MVP)
 
-**Stripe Integration**
+**Stripe Integration (Future Phase)**
 - **Service**: Stripe Payment Platform
-- **Purpose**: Subscription management and payment processing
-- **Integration Scope**:
+- **Purpose**: Subscription management and payment processing (post-MVP only)
+- **Integration Scope (Future)**:
   - Subscription tiers and billing cycles
   - One-time payments for marketplace purchases
   - Webhook handling for payment events
   - Tax calculation and compliance
-- **API Endpoints**:
+- **API Endpoints (Future)**:
   - `/api/payments/subscribe` - Subscription creation
   - `/api/payments/webhook` - Stripe webhook handler
   - `/api/payments/portal` - Customer portal access

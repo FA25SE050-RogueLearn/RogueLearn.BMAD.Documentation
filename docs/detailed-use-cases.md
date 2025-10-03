@@ -237,6 +237,9 @@ flowchart TD
 
 ---
 
+
+---
+
 ## UC-009: Curriculum-Career Boss Fight Assessment System
 
 | **Field** | **Details** |
@@ -441,6 +444,71 @@ flowchart TD
     E --> F[Monitor health/performance]
     F --> G[Log activities for audit]
     G --> H[Receive integration alerts]
+```
+
+---
+
+## UC-016: Elective Library Curation & Approval (Admin-Owned)
+
+| **Field** | **Details** |
+|-----------|-------------|
+| **Use Case Name** | Elective Library Curation & Approval (Admin-Owned) |
+| **Description** | Game Masters curate and approve elective courses within the University's educational ecosystem, ensuring quality standards and alignment with educational objectives |
+| **Actor(s)** | Primary: **Game Master (Admin)**<br>Secondary: Faculty, Content Providers |
+| **Preconditions** | Game Master has administrative privileges; elective content is submitted and pending review |
+| **Postconditions (Success Guarantee)** | Elective library updated with approved courses, categorized and available for student selection |
+| **Related Requirements** | **FRs:** FR52 (Elective Library Curation)<br>**NFRs:** NFR13 (Security), NFR15 (Microservices) |
+| **Main Success Scenario** | 1. Game Master accesses elective library dashboard<br>2. System lists pending elective submissions<br>3. Game Master reviews content, metadata, and alignment with standards<br>4. System provides approve/reject workflow with feedback<br>5. Game Master categorizes approved electives (subject, level, prerequisites)<br>6. System publishes approved electives to catalog<br>7. Game Master monitors performance and engagement metrics<br>8. System generates curation reports |
+| **Alternative Flows** | **A1:** Bulk approvals for multiple electives<br>**A2:** Conditional approval with required modifications<br>**A3:** Faculty collaboration in review |
+| **Exception Flows** | **E1:** Content quality issues - rejected with recommendations<br>**E2:** Duplicate electives flagged for consolidation<br>**E3:** Workflow failure - retain pending status and alert admin |
+
+### **Main Success Scenario Flowchart**
+
+```mermaid
+flowchart TD
+    A[Access elective dashboard] --> B[Review pending submissions]
+    B --> C[Evaluate content quality]
+    C --> D{Approve?}
+    D -->|Yes| E[Categorize elective]
+    D -->|No| F[Provide feedback]
+    E --> G[Publish to catalog]
+    F --> H[Notify provider]
+    G --> I[Monitor performance]
+    H --> B
+    I --> J[Generate reports]
+```
+
+---
+
+## UC-017: University Curriculum Import & Administration (Admin-Owned)
+
+| **Field** | **Details** |
+|-----------|-------------|
+| **Use Case Name** | University Curriculum Import & Administration (Admin-Owned) |
+| **Description** | Game Masters import, configure, and administer university curricula, mapping programs to platform structures and ensuring academic integrity |
+| **Actor(s)** | Primary: **Game Master (Admin)**<br>Secondary: University Registrar, Academic Departments |
+| **Preconditions** | Administrative access granted; curriculum data available |
+| **Postconditions (Success Guarantee)** | Curriculum imported, mapped to Route/Class, and available for student selection with accurate requirements |
+| **Related Requirements** | **FRs:** FR53 (University Curriculum Import)<br>**NFRs:** NFR13 (Security), NFR8 (Backend Performance) |
+| **Main Success Scenario** | 1. Game Master initiates import from university sources<br>2. System validates structure, prerequisites, relationships<br>3. Game Master maps curriculum to Route/Class<br>4. System generates skill trees and pathways<br>5. Game Master configures assessments and progression rules<br>6. System integrates with quests and assessments<br>7. Game Master tests student progression flows<br>8. System publishes curriculum to route selection |
+| **Alternative Flows** | **A1:** Incremental curriculum updates<br>**A2:** Multi-university management<br>**A3:** Custom program creation |
+| **Exception Flows** | **E1:** Data validation failure<br>**E2:** Import interruption with recovery<br>**E3:** Mapping conflicts requiring resolution |
+
+### **Main Success Scenario Flowchart**
+
+```mermaid
+flowchart TD
+    A[Initiate curriculum import] --> B[Validate data]
+    B --> C[Map to Route/Class]
+    C --> D[Generate skill trees]
+    D --> E[Configure assessments]
+    E --> F[Integrate with platform]
+    F --> G[Test flows]
+    G --> H{Pass?}
+    H -->|Yes| I[Publish]
+    H -->|No| J[Fix issues]
+    J --> G
+    I --> K[Monitor performance]
 ```
 
 ---

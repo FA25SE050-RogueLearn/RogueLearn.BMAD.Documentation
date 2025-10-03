@@ -155,6 +155,24 @@ System administrators who:
 - Handle technical support and system maintenance
 - Monitor platform security and performance
 
+### **Admin-Owned Educational Governance**
+Administrative scope owned by Game Masters to ensure quality and consistency across academic features, including:
+- **Elective Library Curation & Approval**: Vetting, tagging, versioning, and publishing elective content from trusted sources
+- **University Curriculum Import & Administration**: Scheduled curriculum imports, versioning, activation windows, and reporting
+- **Audit & Compliance**: Reviewer attribution, decision logs, and activation audit trails
+
+### **Elective Source**
+An external or faculty-submitted resource proposed for inclusion in the Elective Library. Tracked with status: `Pending`, `Approved`, `Rejected`.
+
+### **Elective Pack**
+An admin-approved, versioned collection of elective content aligned to subjects or curriculum versions. Supports `source_type` (Set, Seed) and metadata.
+
+### **Curriculum Import Job**
+An administrative job that ingests curriculum catalogs via file or API for a given program code, with status lifecycle: `Pending`, `Processing`, `Completed`, `Failed`.
+
+### **Curriculum Version Activation**
+An administrative activation record that schedules curriculum version changes with effective dates and audit trails (approved by, notes).
+
 ### **Verified Lecturer**
 A special status (not a separate role) that can be applied to Players, indicating:
 - Completed platform verification process

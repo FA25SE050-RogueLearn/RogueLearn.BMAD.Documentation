@@ -154,7 +154,7 @@ This document specifies the operational requirements for the RogueLearn platform
 - **Email Support**: support@roguelearn.com with automated ticket routing
 - **Knowledge Base**: Self-service documentation and FAQs
 - **Community Forum**: Peer-to-peer support with moderated discussions
-- **Live Chat**: Available during business hours (9 AM - 6 PM UTC) for premium users
+- **Live Chat**: Available during business hours (9 AM - 6 PM UTC) during pilot; no premium tier distinctions in MVP
 - **Emergency Hotline**: Critical issues only, 24/7 availability
 
 #### **Support Tier Structure**
@@ -162,7 +162,7 @@ This document specifies the operational requirements for the RogueLearn platform
 - **Scope**: Account issues, basic navigation, common technical problems
 - **Staff**: 2 support agents during business hours, 1 after-hours
 - **Tools**: Zendesk or similar ticketing system, user account lookup, basic troubleshooting scripts
-- **Escalation Criteria**: Technical issues requiring code changes, billing disputes >$100, security concerns
+- **Escalation Criteria**: Technical issues requiring code changes and security concerns (billing disputes are post-MVP)
 
 **Tier 2: Technical Support**
 - **Scope**: Complex technical issues, integration problems, data recovery requests

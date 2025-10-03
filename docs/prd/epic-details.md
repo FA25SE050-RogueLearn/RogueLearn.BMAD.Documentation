@@ -888,3 +888,22 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   Duel history and statistics tracking
     *   Spectator mode for other students to watch
     *   Ranking system is implemented based on duel performance.
+#### **Story: Elective Library Curation & Approval (Admin-Owned)**
+**As a** Game Master (System Admin), **I want** to curate, vet, and approve elective content before publication, **so that** the Elective Library maintains academic quality and aligns with the skill-tree.
+
+*   **Acceptance Criteria:**
+    *   Multi-source intake (faculty submissions, trusted repos, community proposals)
+    *   Review workflow with audit logs and role-based approvals
+    *   Tagging and versioning aligned to curriculum routes and skill nodes
+    *   Publication queue with rollback capability
+    *   Guild Masters and Verified Lecturers can request elective additions but cannot publish directly
+
+#### **Story: University Curriculum Import & Administration (Admin-Owned)**
+**As a** Game Master (System Admin), **I want** to manage curriculum imports, versions, and mappings, **so that** platform quests and routes remain synchronized with official academic structures.
+
+*   **Acceptance Criteria:**
+    *   Scheduled imports (e.g., per semester) with supported formats (CSV/API)
+    *   Version management with effective dates and archival
+    *   Route/program mapping with prerequisite validation
+    *   Reporting exports (CSV/PDF) for academic oversight
+    *   Change logs with approval controls

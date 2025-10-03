@@ -25,6 +25,17 @@ erDiagram
     UserProfile ||--o{ UserQuestProgress : tracks
     UserProfile ||--o{ UserAchievement : earns
     Achievement ||--o{ UserAchievement : awarded_as
+
+    %% Admin-Owned Educational Governance
+    UserProfile ||--o{ ElectiveSource : submits
+    ElectiveSource ||--o{ ElectivePack : curated_into
+    Subject ||--o{ ElectivePack : relates_to
+    CurriculumVersion ||--o{ ElectivePack : aligned_with
+    UserProfile ||--o{ ElectivePack : approved_by
+    UserProfile ||--o{ CurriculumImportJob : creates
+    CurriculumProgram ||--o{ CurriculumImportJob : imports_for
+    CurriculumVersion ||--o{ CurriculumVersionActivation : has_activations
+    UserProfile ||--o{ CurriculumVersionActivation : activates
 ```
 
 ## Key Features
@@ -63,3 +74,9 @@ erDiagram
 - Unique constraints on usernames and emails
 - Foreign key relationships maintain referential integrity
 - Enhanced curriculum structure supports versioning and academic flexibility
+
+### Admin-Owned Educational Governance
+- **ElectiveSource**: Faculty/community submissions proposed for elective content library
+- **ElectivePack**: Versioned elective collections aligned to subjects or curriculum versions
+- **CurriculumImportJob**: Administrative job to import curriculum catalogs (file/API) per program
+- **CurriculumVersionActivation**: Scheduled activation records with audit for curriculum version changes

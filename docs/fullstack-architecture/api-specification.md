@@ -595,12 +595,12 @@ paths:
       requestBody:
         content:
           application/json:
-            schema:
-              type: object
-              required: [chunk_number, summary_text]
-              properties:
-                chunk_number: { type: integer }
-                summary_text: { type: string }
+              schema:
+                type: object
+                required: [chunk_number, summary_text]
+                properties:
+                  chunk_number: { type: integer }
+                  summary_text: { type: string }
       responses:
         '201':
           description: Summary chunk added
@@ -608,6 +608,155 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SummaryChunk'
+
+  # Admin-Owned Educational Governance Endpoints
+  /admin/electives/sources:
+    get:
+      summary: List elective content sources pending review (Admin-Only)
+      tags: [Admin, Electives]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of elective sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    source_id: { type: string, format: uuid }
+                    title: { type: string }
+                    status: { type: string, enum: [Pending, Approved, Rejected] }
+                    submitted_by: { type: string, format: uuid }
+                    submitted_at: { type: string, format: date-time }
+    post:
+      summary: Submit new elective source for admin vetting
+      tags: [Admin, Electives]
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, url]
+              properties:
+                title: { type: string }
+                url: { type: string }
+                description: { type: string, nullable: true }
+      responses:
+        '202':
+          description: Source submitted for vetting
+
+  /admin/electives/packs:
+    get:
+      summary: List elective packs (Admin-Only)
+      tags: [Admin, Electives]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of elective packs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CurriculumPack'
+    post:
+      summary: Create or update elective pack (Admin-Only)
+      tags: [Admin, Electives]
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CurriculumPack'
+      responses:
+        '201':
+          description: Elective pack created or updated
+
+  /admin/electives/packs/{packId}/approve:
+    post:
+      summary: Approve elective pack for publication (Admin-Only)
+      tags: [Admin, Electives]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: packId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Pack approved and published
+
+  /admin/curriculum/import:
+    post:
+      summary: Import university curriculum version (Admin-Only)
+      tags: [Admin, Curriculum]
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                source_type: { type: string, enum: [file, api] }
+                program_code: { type: string }
+      responses:
+        '202':
+          description: Import scheduled for processing
+
+  /admin/curriculum/versions:
+    get:
+      summary: List curriculum versions (Admin-Only)
+      tags: [Admin, Curriculum]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of curriculum versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string, format: uuid }
+                    program_id: { type: string, format: uuid }
+                    version_code: { type: string }
+                    effective_year: { type: integer }
+                    is_active: { type: boolean }
+
+  /admin/curriculum/versions/{versionId}/activate:
+    post:
+      summary: Activate curriculum version for effective year (Admin-Only)
+      tags: [Admin, Curriculum]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: versionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [effective_year]
+              properties:
+                effective_year: { type: integer }
+      responses:
+        '200':
+          description: Curriculum version activated
 
   /meetings/{meetingId}/summary:
     get:

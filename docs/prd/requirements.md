@@ -333,7 +333,7 @@
 ### **Functional - Phase 3: Educator & Game Master Toolkit**
 *Focus: Empower educators and administrators with tools.*
 
-36. **FR36 (Guild Master):** Any user (Player or Verified Lecturer) can create a "Guild." Verified Lecturers receive additional features and capabilities within the system.
+36. **FR36 (Guild Master):** Any user (Player or Verified Lecturer) can create a "Guild." Verified Lecturers receive additional features and capabilities within the system. Administrative publishing and educational governance (e.g., elective curation, curriculum imports) are owned by the **Game Master (System Admin)**.
     
     **Business Logic Specifications:**
     - **Guild Creation Requirements**:
@@ -363,7 +363,7 @@
     - **Verified Lecturer Process**: The system must provide a verification process for Guild Masters to become "Verified Lecturers" through academic credential validation, enabling enhanced guild creation privileges and credibility indicators
     - **Streamlined Guild Creation**: Verified Lecturers must be able to create guilds with streamlined processes, basic document sharing capabilities, and simple member management tools focused on educational content delivery
 37. **FR37 (Player):** Players (Students) in a Guild must be able to use Guild Master-uploaded materials to adjust or supplement their personal quest lines.
-38. **FR38 (Guild Master):** A Guild Master must have a basic dashboard to view aggregated, anonymized progress for all Players in their course ("Guild").
+38. **FR38 (Guild Master):** A Guild Master must have a basic dashboard to view aggregated, anonymized progress for all Players in their course ("Guild"). Administrative governance flows (elective publication, curriculum imports) are not included and are owned by the **Game Master (System Admin)**.
     
     **Business Logic Specifications:**
     - **Dashboard Features**: The dashboard must highlight topics or 'boss fights' where a significant percentage of the class is struggling
@@ -536,6 +536,30 @@
       - Academic advisor integration for holistic support
 
 
+
+52. **FR52 (Admin):** The Game Master (System Admin) owns Elective Library curation and approval, including multi-source intake, audit-logged review workflows, tagging/versioning aligned to skill nodes, and controlled publication.
+    **Business Logic Specifications:**
+    - **Intake Sources:** Allow creation of `ElectiveSource` entries with fields `name`, `type` (`rss`, `lms`, `manual`), `base_url`, `auth_method`, `sync_frequency` (cron-like), and `status` (`active`, `paused`).
+    - **Curation Workflow:** New electives enter `draft` → `review` → `approved` → `published`. Only `GameMaster` role can transition to `approved/published`. All transitions create immutable audit logs with `actor_id`, `timestamp`, `from_state`, `to_state`, `reason`.
+    - **Tagging & Alignment:** Electives must tag to ≥1 `SkillNode` and optionally `Subject`; enforce at least one tag and capture `difficulty_level` and `estimated_time_minutes`.
+    - **Versioning:** Each elective change creates a new `version` with `version_number`, `changelog`, `created_by`, and `effective_at`. Latest approved version is what gets published.
+    - **Elective Packs:** Curated bundles (`ElectivePack`) require `title`, `description`, `source_ids[]` (optional), `skill_node_ids[]`, `visibility` (`private`, `institution`, `public`), and `approval_state` (`pending`, `approved`, `rejected`).
+    - **Publication Controls:** Publishing requires `approved` state and sets `published_at`; visibility gates read access; unpublish sets `published_at=null` and `visibility=private`.
+    - **Search & Browse:** Support filter by `skill_node`, `difficulty`, `estimated_time`, `source`, `approval_state`, `visibility`; default sort by `updated_at` desc.
+    - **Metrics & SLAs:** Review turnaround P95 < 72 hours; audit log completeness 100%; curation rejection reason mandatory.
+    - **Permissions:** `GameMaster` full access; `GuildMaster` propose electives (create `draft`) but cannot approve; `Player` browse published only.
+
+53. **FR53 (Admin):** The Game Master (System Admin) owns University Curriculum import and administration, including scheduled imports, version management with effective dates, route/program mappings, and reporting exports.
+    **Business Logic Specifications:**
+    - **Import Jobs:** Create `CurriculumImportJob` with `source_name`, `source_url`, `format` (`csv`, `json`, `xml`, `api`), `started_at`, `status` (`queued`, `running`, `failed`, `completed`), and `errors[]`.
+    - **Mapping & Validation:** Map incoming subjects to `curriculum_programs` and `subjects`; validate uniqueness of `subject_code` per program and require `credits` and `semester` fields.
+    - **Versioning:** On import completion, create `CurriculumVersion` with `version_number`, `effective_start_date`, optional `effective_end_date`, and `change_summary`. Maintain immutable diff of structure changes.
+    - **Activation:** `CurriculumVersionActivation` records activation with `activated_by`, `activated_at`, and `notes`; only one active version per program at a time.
+    - **Scheduling:** Support cron-like schedules for periodic imports; missed runs auto-queue next window; manual runs allowed by `GameMaster`.
+    - **Rollback:** Allow deactivation (set `effective_end_date`) and re-activation of previous version with full audit trail.
+    - **Exports & Reporting:** Provide CSV/JSON exports of current and upcoming versions and mapping reports (subjects added/removed/changed).
+    - **Permissions:** `GameMaster` manage imports and activations; `GuildMaster` read-only reporting; `Player` no access.
+    - **SLAs:** Import success rate >95%; validation errors must be listed with actionable messages; activation changes broadcast to affected students via notifications.
 
 ### **Success Metrics (KPIs) with Specific Targets**
 
@@ -719,7 +743,7 @@ To validate the RogueLearn MVP, we will use a combination of qualitative and qua
 5.  **NFR5 (Frontend Technology):** The system must use Next.js (version 14 or later) for the frontend application to enable server-side rendering and a fast user experience.
 6.  **NFR6 (Data Storage):** The system must use Supabase for database and file storage, configured for scalability and reliability.
 7.  **NFR7 (Unity Integration):** Boss Fight interactive experiences must be implemented using Unity WebGL to ensure rich interactive gameplay while maintaining browser compatibility.
-8.  **NFR8 (Payment Integration):** The system must integrate with Stripe for future subscription and payment processing, with the initial implementation being a placeholder or a lightweight integration.
+8.  **NFR8 (Payment Integration - Post-MVP):** Payment and subscription capabilities are explicitly excluded from MVP. A lightweight, non-user-exposed placeholder may be prepared for technical exploration but will not be enabled or validated during MVP.
 9.  **NFR9 (Performance):** Core API endpoints (including user authentication, quest generation, and data retrieval) must respond in under 500ms under a normal load of 100 concurrent users.
 10. **NFR10 (Frontend Performance):** The web application's core pages (Dashboard, Skill Tree, Quest Log) must achieve a Google Lighthouse performance score of 85 or higher on both mobile and desktop.
 11. **NFR11 (Availability):** The system shall be designed to maintain at least 99.5% uptime, excluding scheduled maintenance windows. Maintenance windows will be limited to a maximum of 4 hours per month and scheduled outside of peak usage times (9 AM - 9 PM local time).

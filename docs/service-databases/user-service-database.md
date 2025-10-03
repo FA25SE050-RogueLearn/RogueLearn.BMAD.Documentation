@@ -167,6 +167,73 @@ CREATE TABLE syllabus_versions (
 );
 ```
 
+### Admin-Owned Educational Governance
+
+#### elective_sources
+Elective content source submissions tracked for admin vetting
+```sql
+CREATE TABLE elective_sources (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    url TEXT NOT NULL,
+    description TEXT,
+    submitted_by UUID REFERENCES user_profiles(auth_user_id),
+    status VARCHAR(20) NOT NULL DEFAULT 'Pending', -- Pending, Approved, Rejected
+    submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    reviewed_at TIMESTAMPTZ,
+    reviewer_id UUID REFERENCES user_profiles(auth_user_id),
+    notes TEXT
+);
+```
+
+#### elective_packs
+Versioned elective packs created and approved by admin
+```sql
+CREATE TABLE elective_packs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    version VARCHAR(50) NOT NULL,
+    source_type VARCHAR(20) NOT NULL, -- Set, Seed
+    subject_id UUID REFERENCES subjects(id),
+    curriculum_version_id UUID REFERENCES curriculum_versions(id),
+    metadata JSONB,
+    approved_by UUID REFERENCES user_profiles(auth_user_id),
+    approved_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (version, subject_id, curriculum_version_id)
+);
+```
+
+#### curriculum_import_jobs
+Administrative jobs for importing curriculum catalogs
+```sql
+CREATE TABLE curriculum_import_jobs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    source_type VARCHAR(20) NOT NULL, -- file, api
+    program_code VARCHAR(50) NOT NULL,
+    file_url TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'Pending', -- Pending, Processing, Completed, Failed
+    error_message TEXT,
+    created_by UUID REFERENCES user_profiles(auth_user_id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    completed_at TIMESTAMPTZ
+);
+```
+
+#### curriculum_version_activations
+Activation plan and audit for curriculum versions
+```sql
+CREATE TABLE curriculum_version_activations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
+    effective_year INTEGER NOT NULL,
+    activated_by UUID REFERENCES user_profiles(auth_user_id),
+    activated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    notes TEXT,
+    UNIQUE (curriculum_version_id, effective_year)
+);
+```
+
 #### student_enrollments
 Links students to specific curriculum versions with enrollment tracking
 ```sql
@@ -327,6 +394,12 @@ CREATE INDEX idx_notifications_auth_user_id ON notifications(auth_user_id);
 CREATE INDEX idx_notifications_type ON notifications(type);
 CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+
+-- Admin governance indexes
+CREATE INDEX idx_elective_sources_status ON elective_sources(status);
+CREATE INDEX idx_elective_packs_curriculum_version_id ON elective_packs(curriculum_version_id);
+CREATE INDEX idx_curriculum_import_jobs_status ON curriculum_import_jobs(status);
+CREATE INDEX idx_curriculum_version_activations_version_id ON curriculum_version_activations(curriculum_version_id);
 ```
 
 ## Service Responsibilities

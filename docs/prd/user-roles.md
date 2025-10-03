@@ -38,3 +38,24 @@ To signify academic credibility and curriculum expertise, a user can apply to re
 - Ability to create curriculum-verified quest content and assessments
 
 **Benefits:** Verified Lecturers' guilds become authoritative sources for Route-specific learning, providing students with curriculum-aligned, academically rigorous learning experiences while maintaining the platform's focus on gamified academic progression with career enhancement.
+
+---
+
+### **Ownership Update: Elective Library & University Administration**
+
+Per scope decisions, the **Game Master (System Admin)** owns the following flows to ensure platform-wide consistency, quality control, and governance:
+
+- **Elective Library Curation & Approval**
+  - Source vetting (faculty-submitted content, trusted repositories, community proposals)
+  - Review and approval workflow with audit logging
+  - Tagging, versioning, and alignment to skill-tree nodes
+  - Publication to the Elective Library after approval
+  - Guild Masters and Verified Lecturers can consume approved content; they cannot publish unvetted items
+
+- **University Curriculum Import & Administration**
+  - Curriculum import cadence (e.g., per semester) and approved formats (CSV/API)
+  - Version management and effective date tracking
+  - Schedule/calendar alignment and program/route mapping
+  - Reporting and export capabilities for academic oversight
+
+This consolidates administrative responsibilities under the Game Master for quality assurance. Guild Masters and Verified Lecturers retain educational engagement capabilities but do not own these administrative workflows.
