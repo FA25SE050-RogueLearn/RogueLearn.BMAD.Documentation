@@ -37,7 +37,15 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
 ### 🔄 User Experience & Flows
 6. [User Flows & Wireframes](./user-flows-wireframes.md)
    - Core User Journey: New Student Onboarding
-   - Quest Completion Flow
+   - Quest System Flows (Completion & AI-Driven Questlines)
+   - Arsenal Management System Flows
+   - Code Battle System Flows (Free-for-All Events)
+   - Guild System Flows (Discovery & Management)
+   - Party System Flows (Creation & Study Sessions)
+   - Social Features Flows (Mentorship & Peer Challenges)
+   - Knowledge Sharing Hub Flow
+   - Event Management Flow
+   - Mobile Navigation Flow
 
 7. [Low-Fidelity Wireframes](./low-fidelity-wireframes.md)
    - Main Dashboard
