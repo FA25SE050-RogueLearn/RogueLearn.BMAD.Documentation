@@ -44,7 +44,8 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
    - Character Creation Wizard
    - Quest Log Interface
    - Skill Tree Visualization
-   - Boss Fight Arena
+   - AI-Driven Questline System
+   - Arsenal Management (Personal Study Notes)
 
 ### 📱 Phase 2: Social & Collaboration Features
 8. [Phase 2 Social Wireframes](./phase2-social-wireframes.md)
@@ -58,9 +59,10 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
    - Guild Activities & Events
 
 10. [Code Battle Wireframes](./code-battle-wireframes.md)
-    - Tournament System
-    - Live Coding Battles
-    - Competition Management
+    - Free-for-All Guild Events
+    - Live Coding Competitions
+    - Guild & Individual Leaderboards
+    - Real-time Event Management
 
 11. [Browser Extension Wireframes](./browser-extension-wireframes.md)
     - Content Extraction
@@ -145,6 +147,8 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
 ### Core Platform Features
 - ✅ User Authentication & Onboarding
 - ✅ Quest System & Gamification
+- ✅ AI-Driven Questline System
+- ✅ Arsenal Management (Personal Study Notes)
 - ✅ Skill Trees & Progress Tracking
 - ✅ Boss Fights & Assessments
 
@@ -155,7 +159,8 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
 - ✅ Real-time Collaboration Tools
 
 ### Advanced Features
-- ✅ Code Battle Competitions
+- ✅ Free-for-All Code Battle Events
+- ✅ Guild & Individual Leaderboards
 - ✅ Peer Challenge System
 - ✅ Mentorship Pairing
 - ✅ Knowledge Sharing Hub

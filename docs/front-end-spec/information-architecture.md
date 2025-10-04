@@ -16,15 +16,19 @@ graph TD
     D --> H[Party Management]
     D --> I[Guild Discovery]
     D --> J[Boss Fights]
+    D --> K[Code Battles]
     
     E --> E1[Quest Details]
     E --> E2[Quest Progress]
+    E --> E3[AI-Driven Questlines]
     
     F --> F1[Skill Node Details]
     F --> F2[Learning Resources]
     
     G --> G1[Note Editor]
     G --> G2[Document Upload]
+    G --> G3[Study Material Library]
+    G --> G4[Personal Knowledge Base]
     
     H --> H1[Create Party]
     H --> H2[Party Dashboard]
@@ -32,14 +36,22 @@ graph TD
     
     I --> I1[Guild Details]
     I --> I2[Join Guild]
+    I --> I3[Guild Leaderboards]
     
     J --> J1[Boss Fight Arena]
     J --> J2[Results & Rewards]
     
-    D --> K[Settings]
-    K --> K1[Profile Management]
-    K --> K2[Notifications]
-    K --> K3[Privacy Controls]
+    K --> K1[Live Free-for-All Events]
+    K --> K2[Guild Leaderboards]
+    K --> K3[Individual Rankings]
+    K --> K4[Event History]
+    K --> K5[Live Event Dashboard]
+    K --> K6[Post-Event Analytics]
+    
+    D --> L[Settings]
+    L --> L1[Profile Management]
+    L --> L2[Notifications]
+    L --> L3[Privacy Controls]
 ```
 
 ## Navigation Structure
@@ -47,7 +59,7 @@ graph TD
 **Primary Navigation:** 
 - Fixed top navigation bar with RogueLearn logo, notification bell, user avatar, and settings gear
 - Main dashboard accessible from logo click
-- Quick access to core features: Quest Log, Skill Tree, Arsenal, Party, Guilds
+- Quick access to core features: Quest Log, Skill Tree, Arsenal, Party, Guilds, Code Battles
 
 **Secondary Navigation:**
 - Contextual navigation within each major section
