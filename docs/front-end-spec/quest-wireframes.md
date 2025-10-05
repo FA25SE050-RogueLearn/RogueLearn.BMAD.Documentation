@@ -4,16 +4,19 @@ This document contains all wireframes and interface designs related to the quest
 
 ## Table of Contents
 
-1. [Quest Log Interface](#quest-log-interface)
-2. [AI-Driven Questline System](#ai-driven-questline-system)
-3. [Adaptive Quest Logic](#adaptive-quest-logic-student-types)
-4. [Manual Assignment Integration](#manual-assignments)
-5. [AI Quest Matching](#ai-quest-matching)
-6. [Quest Objective Preview](#quest-objective-preview)
-7. [Quest Memory System & Continuity](#quest-memory-system--continuity)
-8. [Arsenal Quest Integration](#arsenal-quest-integration)
-9. [Quest Integration & Smart Suggestions](#quest-integration--smart-suggestions)
-10. [Boss Fight Arena](#boss-fight-arena)
+- [Quest System Wireframes](#quest-system-wireframes)
+  - [Table of Contents](#table-of-contents)
+  - [Quest Log Interface](#quest-log-interface)
+  - [AI-Driven Questline System](#ai-driven-questline-system)
+    - [Quest Chapter Overview](#quest-chapter-overview)
+    - [AI Quest Generation Interface](#ai-quest-generation-interface)
+  - [Adaptive Quest Logic (Student Types)](#adaptive-quest-logic-student-types)
+  - [Manual Assignments](#manual-assignments)
+    - [ADD ASSIGNMENT TO QUEST SYSTEM](#add-assignment-to-quest-system)
+  - [AI Quest Matching](#ai-quest-matching)
+  - [Boss Fight Arena](#boss-fight-arena)
+  - [Related Files](#related-files)
+  - [Quest Integration \& Smart Suggestions](#quest-integration--smart-suggestions)
 
 ---
 
@@ -93,235 +96,23 @@ This document contains all wireframes and interface designs related to the quest
 
 ## AI-Driven Questline System
 
+Note: This AI-focused section is now maintained in a dedicated document for clarity.
+
+➡️ View the full details in [AI Quest Wireframes](./ai-quest-wireframes.md#ai-driven-questline-system).
+
 ### Quest Chapter Overview
 
-```
-┌─────────────────────────────────────────────────────┐
-│ ☰ RogueLearn > Quest Designer          🔔 👤 ⚙️    │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│ 🎯 QUESTLINE: Data Structures & Algorithms          │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 📖 CHAPTER PROGRESSION                              │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ Chapter 1: Foundations ✅                       │ │
-│ │ ├─ Quest 1.1: Array Basics ✅                   │ │
-│ │ ├─ Quest 1.2: String Manipulation ✅            │ │
-│ │ └─ Quest 1.3: Basic Sorting ✅                  │ │
-│ │ Completion: 100% • XP Earned: 450               │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ Chapter 2: Linear Data Structures 🔄           │ │
-│ │ ├─ Quest 2.1: Linked Lists ✅                   │ │
-│ │ ├─ Quest 2.2: Stacks & Queues ⏳               │ │
-│ │ └─ Quest 2.3: Dynamic Arrays ⏳                │ │
-│ │ Completion: 33% • XP Progress: 150/450          │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ Chapter 3: Trees & Graphs 🔒                   │ │
-│ │ ├─ Quest 3.1: Binary Trees 🔒                  │ │
-│ │ ├─ Quest 3.2: Graph Traversal 🔒               │ │
-│ │ └─ Quest 3.3: Advanced Trees 🔒                │ │
-│ │ Unlock Requirement: Complete Chapter 2          │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 🤖 AI QUEST GENERATION                              │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🧠 Intelligent Quest Creation                   │ │
-│ │                                                 │ │
-│ │ Based on your progress and learning patterns:   │ │
-│ │                                                 │ │
-│ │ 📊 Strengths Identified:                        │ │
-│ │ • Array manipulation (95% accuracy)            │ │
-│ │ • Basic algorithms (88% accuracy)              │ │
-│ │                                                 │ │
-│ │ 🎯 Areas for Improvement:                       │ │
-│ │ • Recursion concepts (65% accuracy)            │ │
-│ │ • Time complexity analysis (70% accuracy)      │ │
-│ │                                                 │ │
-│ │ 💡 Recommended Next Quest:                      │ │
-│ │ "Recursive Problem Solving"                     │ │
-│ │ • Difficulty: Adaptive (Medium → Hard)         │ │
-│ │ • Focus: Recursion + Complexity Analysis       │ │
-│ │ • Estimated Time: 3-5 days                     │ │
-│ │                                                 │ │
-│ │ [🎯 Generate Quest] [⚙️ Customize Parameters]   │ │
-│ └─────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
-```
+Content moved to the dedicated AI document.
 
 ### AI Quest Generation Interface
 
-```
-┌─────────────────────────────────────────────────────┐
-│ ☰ Quest Generator > Custom Quest       🔔 👤 ⚙️    │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│ 🤖 AI-POWERED QUEST CREATION                        │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 📋 QUEST PARAMETERS                                 │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🎯 Learning Objectives                          │ │
-│ │ [Understand binary search algorithms     ]      │ │
-│ │                                                 │ │
-│ │ 📚 Subject Area                                 │ │
-│ │ [Data Structures & Algorithms ▼]               │ │
-│ │                                                 │ │
-│ │ 📊 Difficulty Level                             │ │
-│ │ ○ Beginner  ◉ Intermediate  ○ Advanced         │ │
-│ │                                                 │ │
-│ │ ⏱️ Time Commitment                              │ │
-│ │ [2-3 hours ▼]                                   │ │
-│ │                                                 │ │
-│ │ 🎮 Quest Type                                   │ │
-│ │ ☑️ Coding Challenge                             │ │
-│ │ ☑️ Theory Questions                             │ │
-│ │ ☐ Project-based                                │ │
-│ │ ☐ Peer Collaboration                           │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 🧠 AI ANALYSIS & SUGGESTIONS                        │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 📊 Your Learning Profile Analysis:              │ │
-│ │                                                 │ │
-│ │ • Strong in: Arrays, Basic Sorting             │ │
-│ │ • Improving: Recursion, Tree Structures        │ │
-│ │ • Needs Work: Graph Algorithms, DP             │ │
-│ │                                                 │ │
-│ │ 💡 AI Recommendations:                          │ │
-│ │ "Based on your binary search interest and       │ │
-│ │ current skill level, I suggest including:      │ │
-│ │                                                 │ │
-│ │ • Iterative vs Recursive implementations       │ │
-│ │ • Edge case handling                           │ │
-│ │ • Time complexity analysis                     │ │
-│ │ • Real-world applications                      │ │
-│ │                                                 │ │
-│ │ Estimated completion time: 2.5 hours"          │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 🎯 GENERATED QUEST PREVIEW                          │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🔍 "Binary Search Mastery Challenge"            │ │
-│ │                                                 │ │
-│ │ 📋 Quest Objectives:                            │ │
-│ │ 1. Implement iterative binary search           │ │
-│ │ 2. Implement recursive binary search           │ │
-│ │ 3. Handle edge cases (empty array, not found)  │ │
-│ │ 4. Analyze time/space complexity               │ │
-│ │ 5. Apply to real-world search problem          │ │
-│ │                                                 │ │
-│ │ 🎁 Rewards:                                     │ │
-│ │ • 200 XP                                        │ │
-│ │ • "Search Algorithm Expert" badge              │ │
-│ │ • Unlock: Advanced Search Algorithms           │ │
-│ │                                                 │ │
-│ │ 📊 Success Criteria:                            │ │
-│ │ • All test cases pass (Required)               │ │
-│ │ • Code efficiency score ≥ 80%                  │ │
-│ │ • Complexity analysis accuracy ≥ 90%           │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-│ [🎯 Create Quest] [🔄 Regenerate] [⚙️ Fine-tune]    │
-└─────────────────────────────────────────────────────┘
-```
+Content moved to the dedicated AI document.
 
 ---
 
 ## Adaptive Quest Logic (Student Types)
 
-```
-┌─────────────────────────────────────────────────────┐
-│ ☰ Quest System > Adaptive Logic        🔔 👤 ⚙️    │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│ 🧠 STUDENT TYPE ANALYSIS                            │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 👤 CURRENT STUDENT PROFILE                          │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🎯 Alex Chen - Learning Profile                 │ │
-│ │                                                 │ │
-│ │ 📊 Dominant Learning Style: Visual Learner      │ │
-│ │ ├─ Prefers: Diagrams, flowcharts, visual aids  │ │
-│ │ ├─ Strength: Pattern recognition                │ │
-│ │ └─ Challenge: Abstract concepts without visuals │ │
-│ │                                                 │ │
-│ │ 🎮 Engagement Pattern: Achievement-Oriented      │ │
-│ │ ├─ Motivated by: Badges, leaderboards, XP      │ │
-│ │ ├─ Prefers: Clear goals, measurable progress   │ │
-│ │ └─ Responds to: Competitive elements            │ │
-│ │                                                 │ │
-│ │ ⏱️ Study Behavior: Consistent Short Sessions    │ │
-│ │ ├─ Optimal: 25-45 minute sessions              │ │
-│ │ ├─ Peak times: 2-4 PM, 7-9 PM                 │ │
-│ │ └─ Completion rate: 87% for <1 hour quests     │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 🎯 ADAPTIVE QUEST CUSTOMIZATION                     │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🔄 Current Quest: "Binary Search Trees"         │ │
-│ │                                                 │ │
-│ │ 📊 Adaptations Applied:                         │ │
-│ │                                                 │ │
-│ │ 🎨 Visual Learning Enhancements:                │ │
-│ │ ✅ Interactive tree visualization               │ │
-│ │ ✅ Step-by-step animation for insertions       │ │
-│ │ ✅ Color-coded node relationships               │ │
-│ │ ✅ Flowchart for algorithm logic                │ │
-│ │                                                 │ │
-│ │ 🏆 Achievement-Oriented Elements:                │ │
-│ │ ✅ Progress bar for each sub-objective          │ │
-│ │ ✅ Immediate feedback on code submissions       │ │
-│ │ ✅ Bonus XP for optimal solutions               │ │
-│ │ ✅ "Tree Master" badge milestone at 80%        │ │
-│ │                                                 │ │
-│ │ ⏱️ Session Structure Optimization:              │ │
-│ │ ✅ Quest broken into 4 × 30-minute segments    │ │
-│ │ ✅ Natural break points with save functionality │ │
-│ │ ✅ Optional extended sessions for flow state    │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 🔬 LEARNING ANALYTICS                               │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 📈 Performance Trends                           │ │
-│ │                                                 │ │
-│ │ 📊 Recent Quest Completion Rates:               │ │
-│ │ • Visual-heavy quests: 92% completion          │ │
-│ │ • Text-only quests: 73% completion             │ │
-│ │ • Collaborative quests: 85% completion         │ │
-│ │                                                 │ │
-│ │ ⏱️ Engagement Patterns:                         │ │
-│ │ • Average session: 38 minutes                  │ │
-│ │ • Preferred difficulty: Intermediate           │ │
-│ │ • Drop-off point: After 1 hour                 │ │
-│ │                                                 │ │
-│ │ 🎯 Recommendation Engine Output:                │ │
-│ │ "Increase visual elements by 25%, add more     │ │
-│ │ intermediate checkpoints, consider gamification │ │
-│ │ elements for motivation maintenance."           │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-│ [📊 View Full Analytics] [⚙️ Adjust Preferences]    │
-└─────────────────────────────────────────────────────┘
-```
+Content moved to the dedicated AI document.
 
 ---
 
@@ -329,144 +120,17 @@ This document contains all wireframes and interface designs related to the quest
 
 ### ADD ASSIGNMENT TO QUEST SYSTEM
 
-```
-┌─────────────────────────────────────────────────────┐
-│ ☰ Instructor Panel > Quest Creator     🔔 👤 ⚙️    │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│ 📝 CONVERT ASSIGNMENT TO QUEST                      │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 📋 ASSIGNMENT DETAILS                               │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ Assignment Title:                               │ │
-│ │ [Data Structure Implementation Project]         │ │
-│ │                                                 │ │
-│ │ Course: [PRF192 - Programming Fundamentals ▼]   │ │
-│ │ Due Date: [December 20, 2024]                   │ │
-│ │ Points: [100 points]                            │ │
-│ │                                                 │ │
-│ │ Description:                                    │ │
-│ │ ┌─────────────────────────────────────────────┐ │ │
-│ │ │ Students will implement a complete binary   │ │ │
-│ │ │ search tree with insertion, deletion,      │ │ │
-│ │ │ search, and traversal methods. The         │ │ │
-│ │ │ implementation should handle edge cases     │ │ │
-│ │ │ and include comprehensive testing.          │ │ │
-│ │ └─────────────────────────────────────────────┘ │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 🎮 GAMIFICATION SETTINGS                            │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🎯 Quest Transformation                         │ │
-│ │                                                 │ │
-│ │ Quest Name:                                     │ │
-│ │ [🌳 Tree Master Challenge]                      │ │
-│ │                                                 │ │
-│ │ Difficulty Level:                               │ │
-│ │ ○ Novice  ○ Apprentice  ◉ Expert  ○ Master     │ │
-│ │                                                 │ │
-│ │ XP Reward: [300 XP] (Auto-calculated)          │ │
-│ │                                                 │ │
-│ │ Achievement Badges:                             │ │
-│ │ ☑️ "Tree Architect" - Complete implementation  │ │
-│ │ ☑️ "Bug Hunter" - Pass all test cases          │ │
-│ │ ☑️ "Code Craftsman" - Clean, documented code   │ │
-│ │ ☐ "Speed Demon" - Submit early (bonus)         │ │
-│ │                                                 │ │
-│ │ Quest Type:                                     │ │
-│ │ ◉ Individual Challenge                          │ │
-│ │ ○ Team Quest (2-4 players)                     │ │
-│ │ ○ Guild Competition                             │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 📊 QUEST STRUCTURE                                  │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🎯 Auto-Generated Sub-Objectives:               │ │
-│ │                                                 │ │
-│ │ ✅ Phase 1: Design & Planning (20 XP)           │ │
-│ │ ├─ Create UML class diagram                     │ │
-│ │ ├─ Define method signatures                     │ │
-│ │ └─ Plan test cases                              │ │
-│ │                                                 │ │
-│ │ ⏳ Phase 2: Core Implementation (100 XP)        │ │
-│ │ ├─ Implement Node structure                     │ │
-│ │ ├─ Create insertion method                      │ │
-│ │ ├─ Create search method                         │ │
-│ │ └─ Implement traversal methods                  │ │
-│ │                                                 │ │
-│ │ ⏳ Phase 3: Advanced Features (80 XP)           │ │
-│ │ ├─ Implement deletion method                    │ │
-│ │ ├─ Handle edge cases                            │ │
-│ │ └─ Add tree balancing (bonus)                   │ │
-│ │                                                 │ │
-│ │ ⏳ Phase 4: Testing & Documentation (100 XP)    │ │
-│ │ ├─ Write comprehensive tests                    │ │
-│ │ ├─ Add code documentation                       │ │
-│ │ └─ Performance analysis                         │ │
-│ │                                                 │ │
-│ │ [✏️ Edit Phases] [🔄 Auto-Generate More]        │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 🎁 REWARD SYSTEM                                    │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🏆 Completion Rewards:                          │ │
-│ │ • Base XP: 300                                  │ │
-│ │ • Grade Points: 100 (maps to assignment grade) │ │
-│ │ • Achievement Badges: Up to 4 badges           │ │
-│ │                                                 │ │
-│ │ 🌟 Bonus Opportunities:                         │ │
-│ │ • Early Submission: +50 XP                     │ │
-│ │ • Perfect Test Score: +25 XP                   │ │
-│ │ • Code Quality Excellence: +25 XP              │ │
-│ │ • Help Classmates: +10 XP per help             │ │
-│ │                                                 │ │
-│ │ 🔓 Unlocks:                                     │ │
-│ │ • Advanced Data Structures questline           │ │
-│ │ • Algorithm Optimization challenges             │ │
-│ │ • Peer Code Review opportunities                │ │
-│ └─────────────────────────────────────────────────┘ │
-│                                                     │
-│ [🎯 Create Quest] [👁️ Preview] [💾 Save Draft]      │
-└─────────────────────────────────────────────────────┘
-```
+Content moved to the dedicated AI document.
 
 ---
 
 ## AI Quest Matching
 
-```
-┌─────────────────────────────────────────────────────┐
-│ ☰ RogueLearn > Quest Recommendations   🔔 👤 ⚙️    │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│ 🤖 AI QUEST MATCHING SYSTEM                         │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 🎯 PERSONALIZED QUEST SUGGESTIONS                   │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🔥 HIGHLY RECOMMENDED FOR YOU                   │ │
-│ │                                                 │ │
-│ │ ┌─────────────────────────────────────────────┐ │ │
-│ │ │ 🧮 "Advanced Recursion Mastery"             │ │ │
-│ │ │ Match Score: 94% 🎯                         │ │ │
-│ │ │                                             │ │ │
-│ │ │ Why this quest?                             │ │ │
-│ │ │ • Builds on your strong array skills       │ │ │
-│ │ │ • Addresses recursion knowledge gap        │ │ │
-│ │ │ • Matches your preferred difficulty        │ │ │
-│ │ │ • Aligns with upcoming exam topics         │ │ │
-│ │ │                                             │ │ │
-│ │ │ 📊 Difficulty: ⭐⭐⭐⭐☆                   │ │ │
-│ │ │ ⏱️ Time: 4-6 hours                          │ │ │
+Note: This matching system has moved to the dedicated AI wireframes.
+
+➡️ See [AI Quest Matching](./ai-quest-wireframes.md#ai-quest-matching).
+
+Content moved to the dedicated AI document.
 
 
 ## Boss Fight Arena
@@ -578,6 +242,18 @@ This document contains all wireframes and interface designs related to the quest
 │ └─────────────────────────────────────────────────┘ │
 │                                                     │
 │ [⚔️ Continue Battle] [🛡️ Use Item] [🏃 Retreat]     │
+│                                                     │
+│ 📜 Battle Log & Hints                               │
+│ [💡 Request Hint] [📜 View Log] [🔁 Retry Phase]     │
+│                                                     │
+│ 🎒 Items & Abilities                                │
+│ [🧪 Potion] [🛡️ Shield] [⚡ Burst] [🧰 Toolkit]       │
+│                                                     │
+│ 📈 Combo Meter: ███░░ • Damage Multiplier x1.5      │
+│                                                     │
+│ 🧭 Practice Mode [On/Off] • Timer: 00:25:42         │
+│                                                     │
+│ 🏆 Leaderboard [📊 Global] [👥 Guild] [👤 Personal]   │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -1025,28 +701,6 @@ This document contains all wireframes and interface designs related to the quest
 
 ## Quest Integration & Smart Suggestions
 
-```
-┌─────────────────────────────────────────────────────┐
-│ ☰ Arsenal > Quest Integration           🔔 👤 ⚙️    │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│ 🤖 AI QUEST MATCHING SYSTEM                         │ │
-├─────────────────────────────────────────────────────┤
-│ 🎯 PERSONALIZED QUEST SUGGESTIONS                   │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 🔥 HIGHLY RECOMMENDED FOR YOU                   │ │
-│ │                                                 │ │
-│ │ ┌─────────────────────────────────────────────┐ │ │
-│ │ │ 🧮 "Advanced Recursion Mastery"             │ │ │
-│ │ │ Match Score: 94% 🎯                         │ │ │
-│ │ │                                             │ │ │
-│ │ │ Why this quest?                             │ │ │
-│ │ │ • Builds on your strong array skills       │ │ │
-│ │ │ • Addresses recursion knowledge gap        │ │ │
-│ │ │ • Matches your preferred difficulty        │ │ │
-│ │ │ • Aligns with upcoming exam topics         │ │ │
-│ │ │                                             │ │ │
-│ │ │ 📊 Difficulty: ⭐⭐⭐⭐☆                   │ │ │
-│ │ │ ⏱️ Time: 4-6 hours                          │ │ │
-│ │ │
+Note: Consolidated under the AI quest wireframes for better focus.
+
+➡️ Explore [Quest Integration & Smart Suggestions](./ai-quest-wireframes.md#quest-integration--smart-suggestions).

@@ -55,9 +55,9 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
 
 8. [Quest System Wireframes](./quest-wireframes.md)
    - Quest Log Interface
-   - AI-Driven Questline System
    - Adaptive Quest Logic
    - Quest Memory System & Continuity
+   - See also: [AI Quest Wireframes](./ai-quest-wireframes.md)
 
 ### 📱 Phase 2: Social & Collaboration Features
 9. [Phase 2 Social Wireframes](./phase2-social-wireframes.md)
