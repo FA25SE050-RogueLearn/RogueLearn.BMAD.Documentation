@@ -8,7 +8,7 @@
 ├─────────────────────────────────────────┤
 │                                         │
 │ 👤 Alex Chen                   Level 12 │
-│ 🎯 Current Quest: React Hooks           │
+│ 📚 Current Focus: React Hooks           │
 │ ⚡ XP: 2,340/3,000                      │
 │                                         │
 ├─────────────────────────────────────────┤
@@ -26,17 +26,17 @@
 │ └─────────────────────────────────────┘ │
 │                                         │
 │ ┌─────────────────────────────────────┐ │
-│ │ 🎯 Add to Current Quest             │ │
-│ │ Link this resource to your active   │ │
-│ │ React Hooks quest                   │ │
-│ │                      [Add Link] ───►│ │
-│ └─────────────────────────────────────┘ │
+ │ │ 📚 Add to Current Learning Path     │ │
+ │ │ Link this resource to your active   │ │
+ │ │ React Hooks learning path           │ │
+ │ │                      [Add Link] ───►│ │
+ │ └─────────────────────────────────────┘ │
 │                                         │
 ├─────────────────────────────────────────┤
 │ 🔍 QUICK ACTIONS                        │
 │                                         │
 │ [📝 Quick Note] [🔖 Bookmark]           │
-│ [📤 Share to Party] [🎯 Create Quest]   │
+ │ [📤 Share to Party] [📚 Create Learning Path] │
 │                                         │
 ├─────────────────────────────────────────┤
 │ 📚 RECENT ARSENAL ITEMS                 │
@@ -84,8 +84,8 @@
 │ │ ☑ Code Examples  ☑ Images  ☑ Links            │ │
 │ │ ☐ Comments       ☐ Related Articles            │ │
 │ │                                                 │ │
-│ │ 🎯 Link to Quest:                               │ │
-│ │ [Master React Hooks ▼] [+ Create New Quest]    │ │
+│ │ 📚 Link to Learning Path:                       │ │
+ │ │ [Master React Hooks ▼] [+ Create New Path]     │ │
 │ └─────────────────────────────────────────────────┘ │
 │                                                     │
 │ ┌─────────────────────────────────────────────────┐ │
@@ -145,8 +145,8 @@
 │ │ PRF192 - Assignment 3: 8.5/10 ⬆️ (+0.5)        │ │
 │ │ PRO192 - Lab Exercise 5: 9.0/10 ⬆️ (+1.0)      │ │
 │ │                                                 │ │
-│ │ 🎯 Quest Impact Analysis:                        │ │
-│ │ • "Java Fundamentals" quest progress: +15%      │ │
+│ │ 📚 Learning Progress Analysis:                   │ │
+ │ │ • "Java Fundamentals" progress: +15%            │ │
 │ │ • Skill points earned: +25 points              │ │
 │ │ • New achievement unlocked: "Code Warrior"     │ │
 │ │                                                 │ │
@@ -164,8 +164,8 @@
 │ │ ☑ MAS291_Assignment_LinearAlgebra.pdf           │ │
 │ │ ☐ SSG104_Presentation_Guidelines.pptx           │ │
 │ │                                                 │ │
-│ │ 🎯 Auto-categorization:                          │ │
-│ │ • Programming materials → "Code Quests"        │ │
+│ │ 📚 Auto-categorization:                          │ │
+ │ │ • Programming materials → "Code Learning"       │ │
 │ │ • Math materials → "Logic & Algorithms"        │ │
 │ │ • Soft skills → "Professional Development"     │ │
 │ │                                                 │ │
@@ -199,15 +199,15 @@
 │ 📚 YOUR NOTES ON THIS TOPIC                         │
 │                                                     │
 │ ┌─────────────────────────────────────────────────┐ │
-│ │ 💡 From "React Hooks Mastery" Quest             │ │
-│ │                                                 │ │
-│ │ "useState is the most basic Hook - remember:    │ │
-│ │ 1. Always returns [value, setter]               │ │
-│ │ 2. Setter function triggers re-render           │ │
-│ │ 3. Initial value can be function for lazy init" │ │
-│ │                                                 │ │
-│ │ 📅 Added: 3 days ago                            │ │
-│ │ 🎯 Quest: React Hooks Mastery                   │ │
+│ │ 💡 From "React Hooks Mastery" Learning Path     │ │
+ │ │                                                 │ │
+ │ │ "useState is the most basic Hook - remember:    │ │
+ │ │ 1. Always returns [value, setter]               │ │
+ │ │ 2. Setter function triggers re-render           │ │
+ │ │ 3. Initial value can be function for lazy init" │ │
+ │ │                                                 │ │
+ │ │ 📅 Added: 3 days ago                            │ │
+ │ │ 📚 Learning Path: React Hooks Mastery           │ │
 │ └─────────────────────────────────────────────────┘ │
 │                                                     │
 │ ┌─────────────────────────────────────────────────┐ │
@@ -232,7 +232,7 @@
 │                                                     │
 │ 🏷️ Tags: [#useState] [#hooks] [#react] [+Add]      │
 │                                                     │
-│ 🎯 Link to Quest: [React Hooks Mastery ▼]          │
+│ 📚 Link to Learning Path: [React Hooks Mastery ▼]  │
 │                                                     │
 │ ┌─────────────────┐ ┌─────────────────┐           │
 │ │   [Cancel]      │ │   [Save Note]   │           │
@@ -272,7 +272,7 @@
 │                                                     │
 │ Auto-categorization:                                │
 │ ☑ Enable AI-powered content categorization         │
-│ ☑ Suggest relevant quests for extracted content    │
+│ ☑ Suggest relevant learning paths for extracted content │
 │ ☑ Auto-tag content based on skill tree topics     │
 │                                                     │
 ├─────────────────────────────────────────────────────┤
@@ -299,7 +299,7 @@
 │ 🔔 NOTIFICATIONS                                    │
 │                                                     │
 │ Browser notifications for:                          │
-│ ☑ New quest assignments                            │
+│ ☑ New learning assignments                         │
 │ ☑ Party meeting reminders                         │
 │ ☑ Achievement unlocks                              │
 │ ☑ Grade updates from FPTU                         │
@@ -308,7 +308,7 @@
 │ Contextual note display:                            │
 │ ☑ Show notes when highlighting text                │
 │ ☑ Auto-suggest related Arsenal items               │
-│ ☑ Display quest relevance indicators               │
+│ ☑ Display learning path relevance indicators       │
 │                                                     │
 ├─────────────────────────────────────────────────────┤
 │ 🎨 APPEARANCE                                       │
@@ -380,8 +380,8 @@
 │ Tags (comma-separated):                             │
 │ [useState, hooks, react, array-destructuring]       │
 │                                                     │
-│ 🎯 Link to Quest:                                   │
-│ [Master React Hooks ▼] [+ Create New Quest]        │
+│ 📚 Link to Learning Path:                           │
+ │ [Master React Hooks ▼] [+ Create New Path]         │
 │                                                     │
 │ Priority Level:                                     │
 │ ○ Low  ● Medium  ○ High  ○ Critical                │

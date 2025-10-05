@@ -5,7 +5,7 @@
 **Layout:** Single-column mobile, three-column desktop
 **Key Components:**
 - User avatar and level progress (top section)
-- Current quest card with prominent CTA
+- Current learning module card with prominent CTA
 - Quick access tiles for core features
 - Upcoming events timeline
 - Recent achievements/notifications
@@ -18,7 +18,7 @@
 
 **Responsive Behavior:**
 - Stack components vertically on mobile
-- Expand quest card to full width on small screens
+- Expand learning module card to full width on small screens
 - Collapse secondary information into expandable sections
 
 ## 2. Character Creation Wizard
@@ -28,7 +28,7 @@
 1. Route Selection (Academic Curriculum)
 2. Class Selection (Career Path)
 3. Document Upload (Optional)
-4. Confirmation & Quest Generation
+4. Confirmation & Learning Path Generation
 
 **Key Features:**
 - Clear progress indicator (1 of 4, 2 of 4, etc.)
@@ -37,25 +37,25 @@
 - Real-time validation and feedback
 - Skip options for optional steps
 
-## 3. Quest Log Interface
+## 3. Learning Progress Interface
 
 **Layout:** List view with filtering sidebar (desktop), stacked cards (mobile)
 **Sections:**
-- Active Quests (priority display)
-- Upcoming Quests (locked with prerequisites)
-- Completed Quests (collapsible history)
+- Active Learning Modules (priority display)
+- Upcoming Learning Modules (locked with prerequisites)
+- Completed Learning Modules (collapsible history)
 
 **Filtering Options:**
 - By difficulty level
 - By subject area
-- By quest type (learning, assessment, boss fight)
+- By module type (learning, assessment, challenge)
 - By time commitment
 
 **Visual Indicators:**
 - Difficulty stars (1-5)
 - Progress bars
 - Lock icons for prerequisites
-- Color coding by quest type
+- Color coding by module type
 
 ## 4. Skill Tree Visualization
 

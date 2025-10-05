@@ -10,7 +10,7 @@ graph TD
     B --> D[Dashboard - Character Sheet]
     C --> D
     
-    D --> E[Quest Log]
+    D --> E[Learning Progress]
     D --> F[Skill Tree]
     D --> G[Arsenal - Notes]
     D --> H[Party Management]
@@ -18,9 +18,9 @@ graph TD
     D --> J[Boss Fights]
     D --> K[Code Battles]
     
-    E --> E1[Quest Details]
-    E --> E2[Quest Progress]
-    E --> E3[AI-Driven Questlines]
+    E --> E1[Learning Module Details]
+    E --> E2[Learning Progress Tracking]
+    E --> E3[AI-Driven Learning Paths]
     
     F --> F1[Skill Node Details]
     F --> F2[Learning Resources]
@@ -59,14 +59,14 @@ graph TD
 **Primary Navigation:** 
 - Fixed top navigation bar with RogueLearn logo, notification bell, user avatar, and settings gear
 - Main dashboard accessible from logo click
-- Quick access to core features: Quest Log, Skill Tree, Arsenal, Party, Guilds, Code Battles
+- Quick access to core features: Learning Progress, Skill Tree, Arsenal, Party, Guilds, Code Battles
 
 **Secondary Navigation:**
 - Contextual navigation within each major section
 - Breadcrumb navigation for deep content areas
-- Quick action buttons for common tasks (Continue Quest, Create Party, etc.)
+- Quick action buttons for common tasks (Continue Learning, Create Party, etc.)
 
 **Mobile Navigation:**
 - Collapsible hamburger menu for primary navigation
 - Bottom tab bar for core features on mobile
-- Swipe gestures for quest progression and skill tree navigation
+- Swipe gestures for learning progression and skill tree navigation

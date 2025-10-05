@@ -20,34 +20,34 @@ sequenceDiagram
     S->>U: Character Creation - Step 2 (Class Selection)
     U->>S: Selects career path from roadmap.sh
     S->>AI: Process curriculum + career selection
-    AI->>S: Generate personalized quest line
+    AI->>S: Generate personalized learning path
     S->>U: Character Creation - Step 3 (Arsenal Setup)
     U->>S: Creates initial study notes or skips
     S->>U: Character Creation - Step 4 (Document Upload - Optional)
     U->>S: Uploads academic documents or skips
-    S->>U: Shows personalized dashboard with first quest
-    U->>S: Clicks "Start First Quest"
-    S->>U: Quest interface with learning materials
+    S->>U: Shows personalized dashboard with first learning module
+    U->>S: Clicks "Start First Module"
+    S->>U: Learning interface with learning materials
 ```
 
-## 2. Quest System Flows
+## 2. Learning System Flows
 
-### 2.1 Quest Completion Flow
+### 2.1 Learning Module Completion Flow
 
 ```mermaid
 graph TD
-    A[View Quest Log] --> B[Select Active Quest]
-    B --> C[Quest Details Page]
-    C --> D{Quest Type?}
+    A[View Learning Progress] --> B[Select Active Module]
+    B --> C[Module Details Page]
+    C --> D{Module Type?}
     
-    D -->|Learning Quest| E[Study Materials]
-    D -->|Assessment Quest| F[Quiz/Test Interface]
-    D -->|Boss Fight| G[Boss Fight Arena]
-    D -->|AI-Driven Quest| H[Dynamic Learning Path]
+    D -->|Learning Module| E[Study Materials]
+    D -->|Assessment Module| F[Quiz/Test Interface]
+    D -->|Challenge Module| G[Challenge Arena]
+    D -->|AI-Driven Module| H[Dynamic Learning Path]
     
     E --> I[Mark as Complete]
     F --> J[Submit Answers]
-    G --> K[Battle Results]
+    G --> K[Challenge Results]
     H --> L[AI Feedback & Next Steps]
     
     I --> M[Update Progress]
@@ -57,34 +57,34 @@ graph TD
     
     M --> N[Skill Tree Update]
     M --> O[XP Gained Animation]
-    M --> P[Next Quest Unlocked]
+    M --> P[Next Module Unlocked]
     
     N --> Q[Return to Dashboard]
     O --> Q
     P --> Q
 ```
 
-### 2.2 AI-Driven Questline Flow
+### 2.2 AI-Driven Learning Path Flow
 
 ```mermaid
 graph TD
-    A[User Completes Quest] --> B[AI Analyzes Performance]
+    A[User Completes Module] --> B[AI Analyzes Performance]
     B --> C{Performance Level?}
     
     C -->|Struggling| D[Generate Remedial Content]
-    C -->|On Track| E[Generate Next Standard Quest]
+    C -->|On Track| E[Generate Next Standard Module]
     C -->|Excelling| F[Generate Advanced Challenge]
     
     D --> G[Adaptive Learning Materials]
-    E --> H[Progressive Difficulty Quest]
-    F --> I[Bonus Challenge Quest]
+    E --> H[Progressive Difficulty Module]
+    F --> I[Bonus Challenge Module]
     
     G --> J[Present to User]
     H --> J
     I --> J
     
-    J --> K[User Accepts Quest]
-    K --> L[Begin New Quest]
+    J --> K[User Accepts Module]
+    K --> L[Begin New Module]
 ```
 
 ## 3. Arsenal Management System Flows
@@ -522,21 +522,21 @@ graph TD
     
     B --> C{Selected Tab?}
     C -->|Dashboard| D[Dashboard View]
-    C -->|Quests| E[Quest Log]
+    C -->|Learning Progress| E[Learning Progress Log]
     C -->|Arsenal| F[Arsenal Mobile]
     C -->|Social| G[Social Hub]
     C -->|Profile| H[User Profile]
     
     D --> I[Swipe Gestures]
     I --> J{Swipe Direction?}
-    J -->|Left| K[Next Quest Preview]
+    J -->|Left| K[Next Module Preview]
     J -->|Right| L[Skill Tree Quick View]
     J -->|Up| M[Notifications Panel]
     J -->|Down| N[Quick Actions Menu]
     
-    E --> O[Quest Cards]
+    E --> O[Learning Module Cards]
     O --> P[Tap to Expand]
-    P --> Q[Quest Details Modal]
+    P --> Q[Module Details Modal]
     
     F --> R[Note Quick Access]
     R --> S[Voice Note Recording]

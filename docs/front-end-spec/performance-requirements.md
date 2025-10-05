@@ -3,7 +3,7 @@
 ## Loading Performance
 - Initial page load under 3 seconds
 - Subsequent navigation under 1 second
-- Progressive loading for large datasets (skill trees, quest logs)
+- Progressive loading for large datasets (skill trees, learning progress)
 - Optimized images and assets
 
 ## Unity WebGL Optimization

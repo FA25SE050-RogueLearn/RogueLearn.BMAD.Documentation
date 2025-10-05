@@ -150,7 +150,7 @@ This report provides a comprehensive review and validation of all wireframes cre
 - ✅ Feature discovery and tutorial integration
 
 **Core Learning Flows**:
-- ✅ Quest selection and progression tracking
+- ✅ Learning module selection and progression tracking
 - ✅ Arsenal content management
 - ✅ Social interaction and collaboration
 - ✅ Assessment and evaluation processes

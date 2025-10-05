@@ -47,7 +47,7 @@
 
 ### Cards
 - **Standard:** White background, subtle shadow, rounded corners
-- **Quest Card:** Enhanced with progress indicators and action buttons
+- **Learning Card:** Enhanced with progress indicators and action buttons
 - **Achievement Card:** Gold accent border, celebration animations
 
 ### Form Elements

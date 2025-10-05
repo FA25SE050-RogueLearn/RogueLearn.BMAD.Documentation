@@ -14,7 +14,7 @@
 
 ### Usability Goals
 
-1. **Immediate Engagement:** New users can complete character creation and start their first quest within 10 minutes
+1. **Immediate Engagement:** New users can complete character creation and start their first learning module within 10 minutes
 2. **Learning Efficiency:** Students can access relevant study materials and track progress with minimal navigation
 3. **Social Coordination:** Party creation and study session scheduling can be completed in under 5 clicks
 4. **Progress Clarity:** Users always understand their current position in their learning journey and next steps

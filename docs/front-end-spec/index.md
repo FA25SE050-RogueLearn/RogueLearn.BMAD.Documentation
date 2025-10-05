@@ -50,92 +50,96 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
 7. [Low-Fidelity Wireframes](./low-fidelity-wireframes.md)
    - Main Dashboard
    - Character Creation Wizard
-   - Quest Log Interface
    - Skill Tree Visualization
-   - AI-Driven Questline System
    - Arsenal Management (Personal Study Notes)
 
+8. [Quest System Wireframes](./quest-wireframes.md)
+   - Quest Log Interface
+   - AI-Driven Questline System
+   - Adaptive Quest Logic
+   - Quest Memory System & Continuity
+
 ### 📱 Phase 2: Social & Collaboration Features
-8. [Phase 2 Social Wireframes](./phase2-social-wireframes.md)
+9. [Phase 2 Social Wireframes](./phase2-social-wireframes.md)
    - Party Creation & Management
    - Meeting Scheduler
    - Social Learning Features
 
-9. [Guild Management Wireframes](./guild-management-wireframes.md)
-   - Guild Master Dashboard
-   - Member Management
-   - Guild Activities & Events
+10. [Guild Management Wireframes](./guild-management-wireframes.md)
+    - Guild Master Dashboard
+    - Member Management
+    - Guild Activities & Events
 
-10. [Code Battle Wireframes](./code-battle-wireframes.md)
+11. [Code Battle Wireframes](./code-battle-wireframes.md)
     - Free-for-All Guild Events
     - Live Coding Competitions
     - Guild & Individual Leaderboards
     - Real-time Event Management
 
-11. [Browser Extension Wireframes](./browser-extension-wireframes.md)
+12. [Browser Extension Wireframes](./browser-extension-wireframes.md)
     - Content Extraction
     - Quick Actions
     - Integration Features
 
 ### 🚀 Phase 3: Advanced Features
-12. [Advanced Social Wireframes](./advanced-social-wireframes.md)
+13. [Advanced Social Wireframes](./advanced-social-wireframes.md)
     - Peer Challenge System
     - Mentorship Pairing
     - Collaborative Battles
     - Knowledge Sharing Hub
 
-13. [Real-time Collaboration Wireframes](./realtime-collaboration-wireframes.md)
+14. [Real-time Collaboration Wireframes](./realtime-collaboration-wireframes.md)
     - Live Study Sessions
     - Synchronized Note-Taking
     - Real-time Progress Sharing
 
-14. [Event Management Wireframes](./event-management-wireframes.md)
+15. [Event Management Wireframes](./event-management-wireframes.md)
     - Event Creation Wizard
     - Event Approval Dashboard
     - Event Participation Interface
 
 ### 📱 Mobile & Cross-Platform
-15. [Mobile Responsive Wireframes](./mobile-responsive-wireframes.md)
+16. [Mobile Responsive Wireframes](./mobile-responsive-wireframes.md)
     - Mobile-First Design for All Features
     - Touch-Optimized Interfaces
     - Cross-Platform Compatibility
 
 ### 🔧 Technical Implementation
-16. [Technical Specifications](./technical-specifications.md)
+17. [Technical Specifications](./technical-specifications.md)
     - Frontend Architecture
     - Technology Stack
     - Component Implementation Guide
     - Performance Optimization
     - Security Guidelines
 
-17. [Screen Specifications](./screen-specifications.md)
+18. [Screen Specifications](./screen-specifications.md)
     - Detailed specifications for all core screens
     - Layout, components, interactions, and responsive behavior
 
-18. [Technical Considerations](./technical-considerations.md)
+19. [Technical Considerations](./technical-considerations.md)
     - Browser Support
     - Framework Recommendations
     - API Integration
 
 ### ♿ Quality & Standards
-19. [Accessibility Requirements](./accessibility-requirements.md)
+20. [Accessibility Requirements](./accessibility-requirements.md)
     - WCAG 2.1 AA Compliance
     - Inclusive Design Features
     - Gamification Accessibility
 
-20. [Performance Requirements](./performance-requirements.md)
+21. [Performance Requirements](./performance-requirements.md)
     - Loading Performance
     - Unity WebGL Optimization
     - Mobile Performance
 
-21. [Wireframe Review Report](./wireframe-review-report.md)
+22. [Wireframe Review Report](./wireframe-review-report.md)
     - Comprehensive Validation Report
     - Consistency Analysis
     - Quality Assurance Checklist
     - Development Readiness Assessment
 
 ### 🔮 Future Planning
-22. [Future Enhancements](./future-enhancements.md)
+23. [Future Enhancements](./future-enhancements.md)
     - Phase 4+ Considerations
     - Scalability Planning
     - Design Handoff Checklist
