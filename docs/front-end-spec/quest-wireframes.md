@@ -4,48 +4,300 @@
 
 This document outlines the wireframes for the quest system interface, focusing on the core user experience for quest discovery, tracking, and completion. The quest system integrates with the skill tree and provides structured learning paths for students.
 
+## Quest Line Interface
+
+The Quest Line Interface provides a visual progression path through structured learning chapters, showing the student's journey from foundational concepts to advanced mastery.
+
+```
+┌─────────────────────────────────────────────────────┐
+│ ☰ RogueLearn > Questline               🔔 👤 ⚙️    │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ 📚 Data Structures & Algorithms - Chapter 1     │ │
+│ │ ─────────────────────────────────────────────── │ │
+│ │ 🔥 7-day streak  📈 3/10 quests  ⭐ 2,450 XP   │ │
+│ │ 🎯 Current: Arrays & Sorting     ⏱️ 2h 15m     │ │
+│ │ 💡 "Master the fundamentals before complexity"  │ │
+│ └─────────────────────────────────────────────────┘ │
+│                                                     │
+│                Quest Line Interface                 │
+│                                                     │
+│              ┌─────────────────────┐                │
+│              │                     │                │
+│              │    Quest Chapter 1  │                │
+│              │    (Semester 1)     │                │
+│              │                     │                │
+│              └─────────────────────┘                │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │    1    │ ←── progress ring    │
+│                    │   ✓✓✓   │     (completed)      │
+│                    └─────────┘                      │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │    2    │                      │
+│                    │   ✓✓○   │                      │
+│                    └─────────┘                      │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │    3    │                      │
+│                    │   ✓○○   │                      │
+│                    └─────────┘                      │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │    4    │                      │
+│                    │   ○○○   │                      │
+│                    └─────────┘                      │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │    5    │                      │
+│                    │   ○○○   │                      │
+│                    └─────────┘                      │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │    6    │                      │
+│                    │   ○○○   │                      │
+│                    └─────────┘                      │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │    7    │                      │
+│                    │   ○○○   │                      │
+│                    └─────────┘                      │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │    8    │                      │
+│                    │   ○○○   │                      │
+│                    └─────────┘                      │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │    9    │                      │
+│                    │   ○○○   │                      │
+│                    └─────────┘                      │
+│                         │                           │
+│                    ┌─────────┐                      │
+│                    │   10    │                      │
+│                    │   ○○○   │                      │
+│                    └─────────┘                      │
+│                         │                           │
+│              ┌─────────────────────┐                │
+│              │                     │                │
+│              │    Quest Chapter 2  │                │
+│              │    (Semester 2)     │                │
+│              │                     │                │
+│              └─────────────────────┘                │
+│                                                     │
+│ Legend:                                             │
+│ ✓ = Completed Quest    ○ = Locked Quest             │
+│ 🔄 = Current Quest     ⏳ = Available Quest         │
+│                                                     │
+│ [📊 Progress Overview] [🎯 Jump to Current]         │
+└─────────────────────────────────────────────────────┘
+```
+
+### Quest Line Features
+
+**Chapter Recap Section:**
+- **Chapter Title:** Current learning module with clear academic context
+- **Streak Counter:** Visual fire emoji with consecutive days of activity
+- **Progress Metrics:** Quest completion ratio and total XP earned
+- **Current Focus:** Active quest or learning topic with time invested
+- **Motivational Quote:** Contextual learning wisdom or encouragement
+- **Visual Design:** Contained card with subtle borders and organized layout
+
+**Visual Progress Tracking:**
+- Circular quest nodes numbered sequentially (1-10 per chapter)
+- Progress indicators within each node (✓✓✓, ✓✓○, ✓○○, ○○○)
+- Clear visual connection between sequential quests
+- Chapter separators for semester/course boundaries
+
+**Interactive Elements:**
+- Tap/click any unlocked quest to view details
+- Progress ring animation for current quest
+- Smooth scrolling between chapters
+- Quick navigation to current active quest
+
+**Quest States:**
+- **Completed (✓✓✓):** All objectives finished, full XP earned
+- **In Progress (✓✓○):** Some objectives completed
+- **Available (✓○○):** Prerequisites met, ready to start
+- **Locked (○○○):** Prerequisites not yet completed
+
+**Chapter Organization:**
+- Each chapter represents a semester or major learning module
+- 10 quests per chapter (adjustable based on curriculum)
+- Clear visual separation between academic periods
+- Chapter titles indicate the learning focus or time period
+
 ## Quest Log Interface
 
 The main quest dashboard where students can view and manage their learning quests.
 
 ## Quest Detail View
 
-Detailed view of an individual quest showing objectives, progress, and related resources with full Arsenal integration.
+Detailed view of an individual quest showing multiple subjects, their objectives, progress, and related resources with full Arsenal integration. Features an **Enhanced Knowledge Graph System** that dynamically generates micro-objectives based on relationship types (is_alternative_to, complements, is_foundation_for, is_applied_as) to bridge curriculum gaps with industry-relevant skills.
+
+### Key Features:
+- **🧩 Connect the Dots**: Complementary technologies that work together
+- **🧭 Expand Your Horizons**: Alternative technologies and broader concepts  
+- **🚀 Level Up**: Practical applications of learned concepts
+- **🎮 Knowledge Graph System**: AI-driven objective generation with clear progression logic
+- **🚀 Mission Control**: Full-screen workspace for Local Project and IDE Assignment objectives
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ ← Back to Quest Log    🎯 Master Array Algorithms   │
+│ ← Back to Quest Log    🎯 Data Structures Mastery   │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
-│ 📚 PRF192 • 🏆 75 XP • ⏱️ Due: Dec 15, 2024       │
-│ ████████░░ 80% Complete • 4/5 Objectives           │
+│ 📚 Quest 3 • 🏆 150 XP • ⏱️ Due: Dec 20, 2024     │
+│ ████████░░ 75% Complete • 9/12 Objectives           │
 │                                                     │
 ├─────────────────────────────────────────────────────┤
-│ 📋 QUEST OBJECTIVES                                 │
+│ 📋 QUEST SUBJECTS & OBJECTIVES                      │
 │                                                     │
-│ ✅ 1. Understand array data structure               │
+│ 📘 Subject 1: Array Algorithms (PRF192)            │
+│ ████████░░ 80% • 4/5 objectives                     │
+│                                                     │
+│ ✅ 1.1 Understand array data structure              │
 │    💡 Completed: Dec 8 • 🏆 15 XP earned           │
+│    👤 Manual objective                              │
 │                                                     │
-│ ✅ 2. Learn linear search algorithm                 │
+│ ✅ 1.2 Learn linear search algorithm                │
 │    💡 Completed: Dec 9 • 🏆 15 XP earned           │
+│    🤖 AI-generated from curriculum analysis        │
 │                                                     │
-│ ✅ 3. Implement binary search                       │
+│ ✅ 1.3 Implement binary search                      │
 │    💡 Completed: Dec 10 • 🏆 20 XP earned          │
+│    🤖 AI-generated from curriculum analysis        │
 │                                                     │
-│ ✅ 4. Master selection sort                         │
+│ ✅ 1.4 Master selection sort                        │
 │    💡 Completed: Dec 12 • 🏆 15 XP earned          │
+│    👤 Manual objective                              │
 │                                                     │
-│ 🎯 5. Implement bubble sort algorithm               │
-│    📍 Current objective • 🏆 10 XP pending          │
-│    📝 Write bubble sort in C with time complexity  │
+│ 🎯 1.5 Implement bubble sort algorithm              │
+│    📍 Current objective • 🏆 25 XP pending          │
+│    📝 Write bubble sort in C with complexity        │
 │    ⏱️ Estimated time: 45 minutes                   │
+│    🤖 AI-generated from gap analysis               │
 │    [⚡ Start Now] [📚 Study Materials]             │
+│                                                     │
+│ ─────────────────────────────────────────────────── │
+│                                                     │
+│ 📗 Subject 2: Data Structure Theory (MAD101)       │
+│ ██████████ 100% • 4/4 objectives                   │
+│                                                     │
+│ ✅ 2.1 Define abstract data types                   │
+│    💡 Completed: Dec 5 • 🏆 20 XP earned           │
+│    👤 Manual objective                              │
+│                                                     │
+│ ✅ 2.2 Compare array vs linked list                 │
+│    💡 Completed: Dec 6 • 🏆 20 XP earned           │
+│    🤖 AI-generated from curriculum analysis        │
+│                                                     │
+│ ✅ 2.3 Analyze time complexity                      │
+│    💡 Completed: Dec 7 • 🏆 25 XP earned           │
+│    🤖 AI-generated from curriculum analysis        │
+│                                                     │
+│ ✅ 2.4 Document performance trade-offs              │
+│    💡 Completed: Dec 8 • 🏆 15 XP earned           │
+│    👤 Manual objective                              │
+│                                                     │
+│ ─────────────────────────────────────────────────── │
+│                                                     │
+│ 📘 Subject 3: Web API Project (PRN212)             │
+│ ░░░░░░░░░░ 0% • 0/3 objectives                      │
+│                                                     │
+│ 🚀 3.1 Build REST API with 3 endpoints              │
+│    📍 Local Project • 🏆 250 XP pending            │
+│    📝 Create Web API following assignment specs     │
+│    ⏱️ Estimated time: 8-12 hours                   │
+│    🎯 IDE Assignment (Visual Studio required)       │
+│    [🚀 Launch Mission Control] [📚 Resources]      │
+│                                                     │
+│ 📝 3.2 Document API architecture                    │
+│    📍 Note-Taking Objective • 🏆 50 XP pending     │
+│    📝 Create comprehensive notes on MVC pattern     │
+│    ⏱️ Estimated time: 2 hours                      │
+│    🎯 Knowledge Documentation Required              │
+│    [🚀 Launch Mission Control] [📝 Start Notes]    │
+│                                                     │
+│ 🧪 3.3 Write unit tests for endpoints               │
+│    📍 Local Project • 🏆 100 XP pending            │
+│    📝 Implement comprehensive test coverage         │
+│    ⏱️ Estimated time: 4-6 hours                    │
+│    🎯 IDE Assignment (Testing framework required)   │
+│    [🚀 Launch Mission Control] [📚 Testing Guide]  │
+│                                                     │
+│ ─────────────────────────────────────────────────── │
+│                                                     │
+│ ✨ YOUR NEXT STEPS (Recommended based on progress) │
+│ ─────────────────────────────────────────────────── │
+│                                                     │
+│ 🧩 CONNECT THE DOTS                                │
+│ You learned about Microservices. Now learn how     │
+│ they are deployed in the real world.               │
+│                                                     │
+│ [System Objective] 🔲 What is a container?         │
+│    🤖 Knowledge Graph: microservices → complements │
+│    ⏱️ Est: 10 min read • 🏆 5 XP                   │
+│    📚 Relationship: is_foundation_for → Docker     │
+│                                                     │
+│ [System Objective] 🔲 Install Docker on your machine│
+│    🤖 Knowledge Graph: containers → is_applied_as  │
+│    ⏱️ Est: 15 min setup • 🏆 10 XP                 │
+│    📚 Relationship: is_applied_as → containerization│
+│                                                     │
+│ ─────────────────────────────────────────────────── │
+│                                                     │
+│ 🧭 EXPAND YOUR HORIZONS                            │
+│ You've mastered SQL. See what other database       │
+│ types are used in modern applications.             │
+│                                                     │
+│ [System Objective] 🔲 Document vs Key-Value DBs    │
+│    🤖 Knowledge Graph: sql → is_alternative_to     │
+│    ⏱️ Est: 15 min read • 🏆 8 XP                   │
+│    📚 Relationship: sql-databases → nosql-databases│
+│                                                     │
+│ [System Objective] 🔲 Learn about CAP Theorem      │
+│    🤖 Knowledge Graph: databases → is_foundation_for│
+│    ⏱️ Est: 20 min read • 🏆 12 XP                  │
+│    📚 Relationship: is_foundation_for → distributed│
+│                                                     │
+│ ─────────────────────────────────────────────────── │
+│                                                     │
+│ 🚀 LEVEL UP                                        │
+│ Apply your sorting knowledge to solve real         │
+│ programming challenges.                             │
+│                                                     │
+│ [System Objective] 🔲 Build a "Hello World" API    │
+│    🤖 Knowledge Graph: algorithms → is_applied_as  │
+│    ⏱️ Est: 30 min coding • 🏆 15 XP                │
+│    📚 Relationship: theory → practical-application │
+│                                                     │
+│ ─────────────────────────────────────────────────── │
+│                                                     │
+│ 🎮 KNOWLEDGE GRAPH SYSTEM                          │
+│ How these objectives are generated:                 │
+│                                                     │
+│ 1️⃣ Trigger: You completed "Microservice Architecture"│
+│ 2️⃣ Graph Traversal: System finds microservices node│
+│ 3️⃣ Rule Application (Priority Order):              │
+│    • Priority 1: Find Complements → Containerization│
+│    • Priority 2: Find Alternatives → Event-Driven  │
+│    • Priority 3: Find Applications → API Building  │
+│ 4️⃣ Filtering: Cross-reference with Backend roadmap │
+│ 5️⃣ Micro-Generation: Create introductory objectives│
+│                                                     │
+│ 🔄 Dynamic Updates: New objectives appear as you   │
+│ complete current ones, building your knowledge web. │
+│                                                     │
+│ [🧠 View Full Graph] [⚙️ Customize Priorities]     │
 │                                                     │
 ├─────────────────────────────────────────────────────┤
 │ 🎯 CURRENT FOCUS                                    │
 │                                                     │
 │ ┌─────────────────────────────────────────────────┐ │
-│ │ 🔥 Implement Bubble Sort                        │ │
+│ │ 🔥 Active: Bubble Sort Implementation (1.5)     │ │
 │ │                                                 │ │
 │ │ 📝 Task: Create a bubble sort function that:   │ │
 │ │ • Takes an array of integers as input          │ │
@@ -59,6 +311,22 @@ Detailed view of an individual quest showing objectives, progress, and related r
 │ │                                                 │ │
 │ │ [💻 Open Code Editor] [💡 Get Hint]            │ │
 │ │ [📖 Algorithm Guide] [🧪 Run Tests]            │ │
+│ └─────────────────────────────────────────────────┘ │
+│                                                     │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ 📋 Also Due: Supplementary Quest Plan (3.2)    │ │
+│ │                                                 │ │
+│ │ 📊 Task: Bridge curriculum-industry gaps:      │ │
+│ │ • Compare CS curriculum vs Backend roadmap.sh  │ │
+│ │ • Identify missing industry technologies       │ │
+│ │ • Create supplementary learning modules        │ │
+│ │ • Align with career specialization goals       │ │
+│ │                                                 │ │
+│ │ 📈 Progress: Curriculum gap analysis complete  │ │
+│ │ 🎯 Next: Generate industry-focused quests      │ │
+│ │                                                 │ │
+│ │ [📝 Open Planner] [📊 View Roadmap.sh]         │ │
+│ │ [🛠️ Industry Tools] [⏰ Set Milestones]        │ │
 │ └─────────────────────────────────────────────────┘ │
 │                                                     │
 ├─────────────────────────────────────────────────────┤
@@ -105,16 +373,36 @@ Detailed view of an individual quest showing objectives, progress, and related r
 │ ┌─────────────────────────────────────────────────┐ │
 │ │ 🎯 Create Quest-Specific Note                   │ │
 │ │                                                 │ │
-│ │ Template: [📋 Quest Summary ▼]                  │ │
-│ │ • Quest Summary Template                        │ │
-│ │ • Problem-Solution Template                     │ │
-│ │ • Code Implementation Template                  │ │
-│ │ • Study Guide Template                          │ │
+│ │ Template: [📋 AI Gap Analysis Report ▼]        │ │
+│ │ • Curriculum vs Industry Gap Template          │ │
+│ │ • Technology Stack Comparison                   │ │
+│ │ • Supplementary Quest Planning                  │ │
+│ │ • Career Roadmap Alignment                      │ │
 │ │                                                 │ │
-│ │ Auto-tags: 🎯 quest-8, 🟡 algorithms           │ │
-│ │ Auto-link: ✅ Link to current quest             │ │
+│ │ 🤖 AI-Generated Objective Examples:            │ │
+│ │ ┌─────────────────────────────────────────────┐ │ │
+│ │ │ "Master Docker Containerization"            │ │ │
+│ │ │ 📚 Bridge: CS Theory → Industry Practice   │ │ │
+│ │ │ 🎯 Skills: Container orchestration, DevOps │ │ │
+│ │ │ 📈 XP: 20 • ⏱️ Est: 3 hours               │ │ │
+│ │ └─────────────────────────────────────────────┘ │ │
+│ │ ┌─────────────────────────────────────────────┐ │ │
+│ │ │ "Build REST API with Express.js"            │ │ │
+│ │ │ 📚 Bridge: Database Theory → Web APIs      │ │ │
+│ │ │ 🎯 Skills: Node.js, HTTP protocols, JSON   │ │ │
+│ │ │ 📈 XP: 25 • ⏱️ Est: 4 hours               │ │ │
+│ │ └─────────────────────────────────────────────┘ │ │
 │ │                                                 │ │
-│ │ [📝 Create Note] [❌ Cancel]                    │ │
+│ │ Gap Analysis Criteria:                          │ │
+│ │ 🔧 Missing: Docker, Kubernetes, AWS            │ │
+│ │ 📱 Missing: React, Vue.js, TypeScript          │ │
+│ │ 🔄 Missing: CI/CD, Git workflows, Testing      │ │
+│ │ 📊 Missing: Agile, Scrum, Project management   │ │
+│ │                                                 │ │
+│ │ Auto-tags: 🎯 gap-analysis, 🤖 ai-generated    │ │
+│ │ Auto-link: ✅ Link to roadmap.sh specialization │ │
+│ │                                                 │ │
+│ │ [🤖 Generate More] [📝 Create Report] [❌ Cancel] │ │
 │ └─────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────┘
 ```
@@ -461,6 +749,148 @@ The quest system maintains comprehensive learning continuity across semesters an
 │ • "Recursive Problem Set" (maintains recursion skills)         │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+## Mission Control Dashboard (Local IDE Projects)
+
+For complex university projects that require a local IDE (Visual Studio, IntelliJ, VS Code), RogueLearn provides a **Mission Control Dashboard** - a persistent, full-screen workspace that keeps users anchored to the platform while working in their local development environment.
+
+### When Mission Control Activates:
+- **Local Project** objectives (coding assignments, software projects)
+- **IDE Assignment** objectives (complex development tasks)
+- **Note-Taking** objectives (knowledge documentation requirements)
+
+### Mission Control Layout:
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│ 🚀 Mission: PRN212 Assignment 1 - Web API Project                          │
+├──────────────────────────────────────┬─────────────────────────────────────┤
+│                                      │                                     │
+│   🎯 OBJECTIVE TRACKER               │   📚 ARSENAL - CONTEXT NOTES          │
+│   --------------------------------   │   ----------------------------      │
+│                                      │                                     │
+│   [Status: In Progress ⏳]           │   [+] Create New Note               │
+│                                      │                                     │
+│   THE TASK:                          │   Your Notes on "API Controllers":  │
+│   Build a 3-endpoint Web API         │    - A controller handles HTTP      │
+│   following the requirements in      │      requests.                      │
+│   the provided PDF.                  │    - Use [HttpGet], [HttpPost]...   │
+│                                      │                                     │
+│   RESOURCES:                         │   Your Notes on "Dependency Inj...":│
+│   - [🔗 Assignment1.pdf]             │    - Services are registered in     │
+│   - [🔗 Microsoft Docs: Controllers] │      Program.cs.                    │
+│                                      │                                     │
+│   REWARDS:                           │   [Search all notes...]             │
+│   - +250 XP                          │                                     │
+│   - +50 in `ASP.NET Core`            │                                     │
+│                                      │                                     │
+├──────────────────────────────────────┴─────────────────────────────────────┤
+│                                                                            │
+│   ✅ SUBMISSION & VERIFICATION                                             │
+│   --------------------------------                                         │
+│   Once your assignment is complete and pushed, submit it for verification. │
+│                                                                            │
+│   [Link to your GitHub Repository for this assignment] [__________________] │
+│                                                                            │
+│   (Optional) Or upload your project zip file: [Browse...]                  │
+│                                                                            │
+│   ┌────────────────────────┐                                               │
+│   │  SUBMIT FOR COMPLETION │                                               │
+│   └────────────────────────┘                                               │
+│                                                                            │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Mission Control Features:
+
+#### 🎯 Objective Tracker (Left Panel)
+- **Persistent Goal Visibility**: Task description, requirements, and rewards always visible
+- **Resource Integration**: Direct links to assignment PDFs, documentation, tutorials
+- **Progress Indicators**: Real-time status updates and completion tracking
+- **Reward Preview**: XP and skill points to be earned upon completion
+
+#### 📚 Arsenal - Context Notes (Right Panel)
+- **Personal Knowledge Base**: Create, edit, and organize notes while coding
+- **Contextual Note-Taking**: Add insights, code snippets, and learning points
+- **Search Functionality**: Quickly find relevant notes across all subjects
+- **Knowledge Retention**: Notes become part of permanent learning arsenal
+
+#### ✅ Submission & Verification (Bottom Panel)
+- **Smart Submission**: GitHub repository links or file uploads
+- **AI-Powered Verification**: Automated project structure and code analysis
+- **Intelligent Feedback**: Specific guidance when verification fails
+- **Completion Automation**: Automatic objective completion when verification passes
+
+### AI Verification Process:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 🤖 VERIFICATION IN PROGRESS...                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ ✅ Repository cloned successfully                               │
+│ ✅ Project structure validated                                  │
+│ ✅ Required files found: Controllers/, Models/, Program.cs      │
+│ ✅ Code analysis: API endpoints detected (3/3)                  │
+│ ✅ Dependency injection implementation found                    │
+│ ⏳ Running basic functionality tests...                         │
+│                                                                 │
+│ 📊 Verification Score: 85/100                                  │
+│                                                                 │
+│ ⚠️  Minor Issues Found:                                         │
+│ • Missing XML documentation on ProductsController              │
+│ • Consider adding error handling in GetProduct method          │
+│                                                                 │
+│ [✅ Accept Completion] [🔄 Fix Issues First]                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Note Verification System
+
+For knowledge objectives requiring note creation, Mission Control includes intelligent note verification:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ 📝 NOTE VERIFICATION: "Understanding MVC Pattern"              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ 🎯 Objective: Create comprehensive notes on MVC architecture    │
+│                                                                 │
+│ ✅ Content Analysis:                                            │
+│ • Key concepts covered: Model, View, Controller (3/3)          │
+│ • Examples provided: 2 code snippets found                     │
+│ • Depth score: 78/100 (Good understanding demonstrated)        │
+│ • Personal insights: 3 reflection points identified            │
+│                                                                 │
+│ 📊 Note Quality Metrics:                                       │
+│ • Completeness: ████████░░ 80%                                 │
+│ • Clarity: ██████████ 100%                                     │
+│ • Examples: ██████░░░░ 60%                                      │
+│ • Personal Connection: ████████░░ 80%                          │
+│                                                                 │
+│ 💡 Suggestions for Improvement:                                │
+│ • Add one more practical example                               │
+│ • Include a diagram or visual representation                   │
+│                                                                 │
+│ [✅ Accept Notes] [📝 Improve First] [💡 Get Suggestions]       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Mission Control Benefits:
+
+1. **Ecosystem Retention**: Users never feel like they've left RogueLearn
+2. **Contextual Learning**: Notes and resources available during development
+3. **Automated Verification**: Reduces manual grading while ensuring quality
+4. **Persistent Motivation**: Rewards and progress always visible
+5. **Knowledge Integration**: Learning becomes part of the development workflow
+
+### Technical Implementation Notes:
+
+- **Responsive Design**: Optimized for second monitor or split-screen usage
+- **Real-time Sync**: Notes and progress sync across devices
+- **Offline Capability**: Core functionality available without internet
+- **IDE Integration**: Optional browser extension for deeper IDE integration
+- **Security**: Secure handling of repository access and file uploads
 
 ---
 

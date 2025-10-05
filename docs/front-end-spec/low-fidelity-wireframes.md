@@ -824,46 +824,140 @@
 
 ## 6. Boss Fight Arena
 
+### Phase 1: The Preparation Screen ("The Antechamber")
+
+This is the screen the player sees when they select a "Boss Fight" quest from their quest log. It's designed to set the stage and provide critical information.
+
+**Visual Theme:** An imposing, magical gate, a summoning circle, or a grand arena entrance. The boss is visible as a large, stylized, and perhaps shadowy figure in the background to build hype.
+
 ```
-┌─────────────────────────────────────────────────────┐
-│ ☰ RogueLearn > Boss Fight              🔔 👤 ⚙️    │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│           🏰 THE REACT TEMPLE CHALLENGE             │
-│                                                     │
-│  👤 Alex Chen (Lv.12)        VS        🐉 React    │
-│  Full-Stack Developer                   Dragon      │
-│  HP: ████████████ 100%                 HP: ███████ │
-│  Ready: ⚡ 85%                         Lv. 15      │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 📋 BATTLE OBJECTIVES                                │
-│                                                     │
-│ ✅ Complete React Hooks Learning Module (Done)     │
-│ ⚡ Score 80%+ on Practice Tests (85% - Ready!)     │
-│ 🔒 Form a Party (Optional - Bonus XP)              │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ 🎁 VICTORY REWARDS                                  │
-│                                                     │
-│ • 500 XP + Level Up Bonus                          │
-│ • "React Master" Achievement Badge                  │
-│ • Unlock: Advanced React Patterns Learning Module  │
-│ • Unlock: Next Boss Fight (Node.js Kraken)         │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│ ⚔️ BATTLE ACTIONS                                   │
-│                                                     │
-│ ┌─────────────────┐ ┌─────────────────┐           │
-│ │  [ENTER BATTLE] │ │ [STUDY MORE]    │           │
-│ │   ⚡ Ready!     │ │  📚 Improve     │           │
-│ └─────────────────┘ └─────────────────┘           │
-│                                                     │
-│ ┌─────────────────┐ ┌─────────────────┐           │
-│ │ [FIND PARTY]    │ │ [POSTPONE]      │           │
-│ │  👥 Team Up     │ │  ⏰ Later       │           │
-│ └─────────────────┘ └─────────────────┘           │
-│                                                     │
-│ 💡 Tip: Team battles provide bonus XP and support! │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│ ⚔️ BOSS FIGHT: THE KEEPER OF ALGORITHMS                           │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│                 [Large, Stylized Image of the Boss]              │
+│                                                                  │
+│ ---------------------------------------------------------------- │
+│                                                                  │
+│  YOUR READINESS: 85% [██████████████▓▓▓] Recommended: 80%         │
+│                                                                  │
+│  🔥 REQUIRED SKILLS:             📚 STUDY MORE:                  │
+│   - Big O Notation (Lv. 5)        [Go to Arsenal Notes]          │
+│   - Sorting Algorithms (Lv. 4)    [Review Skill Tree]            │
+│   - Data Structures (Lv. 4)                                      │
+│                                                                  │
+│  🏆 REWARDS FOR VICTORY:                                          │
+│   - 1500 XP                                                      │
+│   - Unlock: Quest Chapter 5                                      │
+│   - Achievement: 'Algorithm Slayer'                              │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │                    BEGIN BATTLE (→)                        │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
 ```
+
+**Key Design Elements:**
+- **Boss Identity:** Give the exam a persona. Instead of "CS101 Midterm," it's "The Keeper of Algorithms." The boss's "abilities" are the topics on the exam.
+- **Knowledge Readiness Score:** This is a crucial, actionable metric. The system calculates this by comparing the player's current level in the Required Skills against a recommended level. This tells the player if they are prepared.
+- **"Study More" Links:** This is the core learning loop. If a player sees their "Sorting Algorithms" skill is low, they can click a link that takes them directly to their notes on that topic in their Arsenal, or to that node on the Skill Tree. This turns anxiety into a clear action plan.
+- **Clear Rewards:** Explicitly state the XP, progress, and achievements they will earn. This provides powerful motivation.
+- **The "Begin Battle" Button:** This is the point of no return. It should be large, visually prominent, and have a satisfying hover effect. When clicked, the screen fades to black and the Unity WebGL instance loads.
+
+### Phase 2: The Live Battle Interface (The Arena - Unity UI)
+
+This is the core game loop. The interface is built within Unity and is designed to feel like a turn-based RPG battle.
+
+**Visual Theme:** A dynamic arena. The player's avatar is on one side, the boss on the other. Attacks are visualized as magical spells or energy blasts.
+
+**In-Game HUD (Heads-Up Display):**
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                                                                  │
+│  [Boss Health Bar] 👹 Keeper of Algorithms [████████████▓▓▓▓] 8/10│
+│                                                                  │
+│                                                                  │
+│                       [Boss Animation]                           │
+│                                                                  │
+│                                                                  │
+│  [Player Health/Resolve Bar] 👤 Alex [██████████] 5/5 Hearts     │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│ ❓ The Keeper attacks! What is the time complexity of Bubble Sort? │
+│ ⏱️ Time Remaining: 15s [OOOOOOOOOOO-------]                       │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  A) O(n)             B) O(log n)                                 │
+│                                                                  │
+│  C) O(n^2)           D) O(1)                                     │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Core Mechanics & Feedback:**
+- **Boss Health Bar:** Represents the number of questions. Each correct answer deals "damage."
+- **Player "Health" Bar:** Represents the number of mistakes allowed. It could be called "Resolve" or "Focus." Each incorrect answer deals damage to the player. The fight is lost if it reaches zero.
+- **The "Attack":** The boss's attack animation is followed by the question appearing in a clean, readable panel.
+- **The "Counter-Attack":** The player selects an answer from the options.
+
+**On Correct Answer:**
+- **Visual:** The player's avatar animates a powerful spell hitting the boss. The boss recoils.
+- **Audio:** A satisfying "hit" sound effect.
+- **Feedback:** A temporary "CORRECT!" message appears. The boss's health bar depletes.
+
+**On Incorrect Answer:**
+- **Visual:** The boss's attack animation hits the player, whose avatar flinches or a shield effect shatters.
+- **Audio:** A "miss" or "damage" sound effect.
+- **Feedback:** A "WRONG!" message appears, and crucially, the correct answer is briefly highlighted before the next question. This is essential for learning. The player's health bar depletes.
+
+**Timer:** Adds a sense of urgency and pressure, simulating real exam conditions in a controlled way.
+
+### Phase 3: The Post-Battle Results Screen ("Victory/Defeat")
+
+This screen appears after the boss is defeated or the player's health runs out. It focuses on summarizing performance and providing actionable feedback.
+
+**Visual Theme:** A triumphant pose for victory, or a "down but not out" screen for defeat. The UI is clean, positive, and focused on learning.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                   🎉 VICTORY! (or 💔 TRY AGAIN)                    │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Final Score: 8/10 (80%)                                         │
+│  Grade: B+                                                       │
+│                                                                  │
+│  + 1200 XP Gained!                                               │
+│  [XP Bar animates and fills up, possibly leveling up]            │
+│                                                                  │
+│  🏆 Achievement Unlocked: 'Algorithm Slayer'                      │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│ 💡 BATTLE REPORT                                                 │
+│                                                                  │
+│  ✅ AREAS OF STRENGTH:                                           │
+│   - Big O Notation                                               │
+│   - Data Structures                                              │
+│                                                                  │
+│  ❌ GAPS IDENTIFIED:                                             │
+│  - Sorting Algorithms (You missed 2/3 questions)                 │
+│    [🔗 Review Your Notes on Sorting]                             │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  [Return to Dashboard]   [Challenge Again]   [Review Answers]    │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Key Design Elements:**
+- **Clear Outcome:** A big, celebratory title for a win, or an encouraging one for a loss.
+- **The Scorecard:** Clearly display the final score, the equivalent grade, XP gained, and any achievements. The animating XP bar is a critical piece of satisfying feedback.
+- **The Battle Report:** This is the most important module for learning.
+  - It reinforces what the player did well ("Areas of Strength").
+  - It clearly and non-judgmentally points out where they struggled ("Gaps Identified").
+  - Crucially, it provides a direct, clickable link to their own notes on that specific topic, immediately closing the feedback loop and encouraging review.
+- **Next Actions:** Provide clear buttons for the next logical steps: go back to the dashboard, try the fight again (perhaps with different questions), or do a detailed review of every question and answer from the attempt.

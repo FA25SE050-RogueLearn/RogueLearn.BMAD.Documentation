@@ -52,11 +52,17 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
    - Character Creation Wizard
    - Skill Tree Visualization
    - Arsenal Management (Personal Study Notes)
+   - Boss Arena Design (3-Phase System)
+     - Phase 1: The Preparation Screen (The Antechamber)
+     - Phase 2: The Live Battle Interface (Unity UI)
+     - Phase 3: The Post-Battle Results Screen
 
 8. [Quest System Wireframes](./quest-wireframes.md)
    - Quest Log Interface
    - Adaptive Quest Logic
    - Quest Memory System & Continuity
+   - Mission Control Dashboard (Local IDE Projects & Note-Taking)
+   - AI-Powered Verification System
    - See also: [AI Quest Wireframes](./ai-quest-wireframes.md)
 
 ### 📱 Phase 2: Social & Collaboration Features
