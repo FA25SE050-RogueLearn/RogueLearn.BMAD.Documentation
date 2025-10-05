@@ -1,4 +1,4 @@
-markdownExploder: true
+markdownExploder: false
 prd:
   prdFile: docs/prd.md
   prdVersion: v4
