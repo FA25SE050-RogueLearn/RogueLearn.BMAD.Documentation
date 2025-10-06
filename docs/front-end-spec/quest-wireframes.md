@@ -892,6 +892,44 @@ For knowledge objectives requiring note creation, Mission Control includes intel
 - **IDE Integration**: Optional browser extension for deeper IDE integration
 - **Security**: Secure handling of repository access and file uploads
 
+## Code Arena Interface (Coding Challenges)
+
+The **Code Arena** is a focused, in-browser workspace for `CodingChallenge` objectives. It streamlines problem-solving with integrated test execution and real-time feedback.
+
+### Layout
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│ ⚔️ Code Arena: Two Sum (Easy)                              [🔙 Back] [📚] │
+├──────────────────────────────┬──────────────────────────────┬─────────────┤
+│ 📜 PROBLEM                   │ 👨‍💻 CODE EDITOR             │ 🧪 TESTS     │
+│ ---------------------------  │ ---------------------------  │ ----------- │
+│ Description, constraints,    │ Language selector, editor    │ Test cases  │
+│ examples with I/O           │ with run/submit buttons      │ and console │
+│                             │                              │ output      │
+├──────────────────────────────┴──────────────────────────────┴─────────────┤
+│ 🏆 Rewards: 150 XP • +2 Skill Points • Unlocks: Next Challenge             │
+│ [▶ Run Tests] [✅ Submit] [💾 Save]                                        │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Key Features
+- **Problem Panel**: Clear problem statement, constraints, and sample I/O
+- **Editor**: Multi-language support, autosave, themes, and keyboard shortcuts
+- **Test Runner**: Executes predefined test cases; shows pass/fail and logs
+- **Submission**: Sends code to Code Battle Service for authoritative evaluation
+- **Rewards**: Displays XP, Skill Points, and potential unlocks on success
+- **Persistence**: Retains code drafts and progress across sessions
+
+### Completion Logic
+- Automatic completion when all predefined test cases pass for the objective’s problem
+- Integrates with Objective Completion Criteria (see PRD FR55)
+
+### Technical Notes
+- **Sandboxing**: Secure code execution via remote service
+- **Latency**: Aim for <2s local run, <5s authoritative submit
+- **Accessibility**: Keyboard navigation and ARIA roles for editor controls
+
 ---
 
 *Note: For AI-driven quest generation and matching features, see [AI Quest Wireframes](./ai-quest-wireframes.md).*

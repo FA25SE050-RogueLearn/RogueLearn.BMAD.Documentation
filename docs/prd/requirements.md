@@ -113,7 +113,7 @@
     - **Knowledge Decay**: Skills not reinforced within 12 months decrease by 10% per semester (minimum level 20% of original)
     - **Cross-Skill Synergies**: Related skills provide +5% bonus when multiple skills in same domain exceed level 50
 9.  **FR9 (AI):** The AI must automatically create quest lines organized into quest chapters (semesters) with structured quests based on course syllabus and FPTU academic calendar integration.
-    
+
     **Business Logic Specifications:**
     - **Quest Chapter Structure**: Each semester (4 months) = 1 quest chapter containing exactly 10 quests representing the first 10 weeks of study
     - **Quest Generation Timeline**: 
@@ -139,6 +139,12 @@
       - Weeks 11-12 (Month 3): Exam preparation period
       - Month 4: Retake period for failed courses (specialized recovery quests generated via FR51)
     - **Quest Memory Integration**: System leverages FR49 quest history to ensure continuity and avoid repetitive content across semesters
+    - **Real-time Micro-Objective Generation**: Upon completing a foundational objective, the AI must generate a follow-up micro-objective within the current quest context
+      - **Trigger**: Objective completion events for types tagged as `Foundational`
+      - **Selection Logic**: Choose from the Skill Knowledge Graph using relationship types `complements` or `is_alternative_to`
+      - **Latency Target**: Suggestion must be generated and surfaced to the user within 5 seconds
+      - **Placement**: Append as a new objective under the active quest, tagged as `Follow-up`
+      - **Notification**: Send in-app notification and highlight the suggestion in the Quest Detail view
 10. **FR10 (User):** Users must have a personal dashboard ("Character Sheet") that displays their progress, stats (influenced by academic data), a dynamic and interconnected skill tree, and the generated quest line.
 11. **FR11 (System):** The skill tree must be visualized as an interconnected mind map with nodes representing individual skills.
     
@@ -210,7 +216,7 @@
     - **Update Frequency**: Real-time for Boss Fights, daily batch updates for Quest/Skill progress, weekly for Social Contribution
     - **Seasonal Resets**: Quarterly leaderboard resets with legacy achievement preservation
 20. **FR20 (AI):** The main quest line must be dynamic, allowing for AI-driven changes to uncompleted tasks based on user preferences or new information.
-    
+
     **Business Logic Specifications:**
     - **Dynamic Adjustment Triggers**: 
       - Performance-based: <60% completion rate triggers easier alternatives
@@ -223,6 +229,7 @@
       - Completed quests: Immutable but can influence future quest generation
     - **AI Learning**: System tracks user completion patterns and adjusts future quest generation accordingly
     - **Rollback Protection**: Users can revert quest changes within 24 hours of modification
+    - **Micro-Objective Triggers**: Completion of foundational objectives automatically adds complementary or alternative micro-objectives to the current quest using the Skill Knowledge Graph
 21. **FR21 (System):** The system must have a notification system to inform users of changes to their quest line and suggest new learning paths.
 
 ### **Functional - Phase 2: Social & Extension MVP**
@@ -560,6 +567,88 @@
     - **Exports & Reporting:** Provide CSV/JSON exports of current and upcoming versions and mapping reports (subjects added/removed/changed).
     - **Permissions:** `GameMaster` manage imports and activations; `GuildMaster` read-only reporting; `Player` no access.
     - **SLAs:** Import success rate >95%; validation errors must be listed with actionable messages; activation changes broadcast to affected students via notifications.
+
+54. **FR54 (System): Objective Categorization**
+
+    The system must categorize each objective with a `type` that dictates the UI workspace and completion logic.
+
+    **Business Logic Specifications:**
+    - **Supported Types (MVP)**: `Reading`, `Study`, `CodingChallenge`, `LocalProject`
+    - **UI Mapping**:
+      - `LocalProject` → Mission Control Dashboard (full-screen workspace)
+      - `CodingChallenge` → Code Arena interface (in-browser coding)
+      - `Reading`/`Study` → Lightweight objective panel with notes integration
+    - **Data Model**: Objective includes `type`, `verification_policy`, and `completion_policy`
+
+55. **FR55 (System): Objective Completion Criteria (Adjusted)**
+
+    Completion criteria must be conditional based on objective `type`.
+
+    **Business Logic Specifications:**
+    - **Reading / Study**: Manual checkbox completion with optional note attachment
+    - **CodingChallenge**: Automatic completion when code passes all predefined test cases via Code Battle Service
+      - Integration: Submit code to Code Battle Service; receive pass/fail per test case
+      - Threshold: Completion requires 100% test case pass for the selected problem
+    - **LocalProject**: Requires successful verification step (see FR56)
+      - Completion toggled automatically upon verification success
+      - Manual override by `GuildMaster` or `Lecturer` allowed with audit trail
+
+56. **FR56 (AI/System): Automated Project Verification (New)**
+
+    For `LocalProject` objectives, the system must verify user submissions (e.g., GitHub repo URL or .zip file) using an automated process.
+
+    **Business Logic Specifications (MVP):**
+    - **Existence Check**: Validate repository or file presence and accessibility
+    - **Structure Scan**: Detect required file names/paths (e.g., `Controllers/`, `ProductsController.cs`, `Program.cs`)
+    - **Keyword/Pattern Check**: Search for specific annotations or code patterns (e.g., `[ApiController]`, `app.MapGet`)
+    - **Verification Score**: Compute score based on checks; define pass threshold (e.g., ≥80/100)
+    - **Feedback**: Provide actionable messages for missing files or patterns
+
+    **Business Logic Specifications (Post-MVP):**
+    - **Clone & Build**: Clone repository and attempt build
+    - **Run Unit Tests**: Execute predefined test suites; aggregate pass rate
+    - **Runtime Smoke Tests**: Basic HTTP endpoint checks for web projects
+
+57. **FR57 (AI/System): Skill Knowledge Graph (New)**
+
+    The system must create and maintain a knowledge graph defining relationships between skills to enable intelligent micro-objective suggestions.
+
+    **Business Logic Specifications:**
+    - **Nodes**: Skill entities aligned to curriculum topics and competencies
+    - **Relationships**: `is_alternative_to`, `complements`, `prerequisite_of`, `applies_to`
+    - **Usage**: AI selects next micro-objectives using relationship context and user progress
+    - **Storage**: Persisted graph with versioning; lightweight query API for suggestion generation
+    - **Updates**: Graph evolves with imported curricula and lecturer curation (see FR52/FR53)
+
+58. **FR58 (System): Reward Cascade (New)**
+
+    A single objective completion event must trigger a sequence of distinct rewards processed as separate but related events.
+
+    **Business Logic Specifications:**
+    - **Event Pipeline**: `ObjectiveCompleted` → emit `XPGranted`, `SkillPointsGranted`, `ChallengeUnlocked`
+    - **Ordering**: XP first, Skill Points second, Unlocks last to avoid gating conflicts
+    - **Visual Feedback**: Staggered animations and notifications for each reward type
+    - **Audit Trail**: Persist individual reward events with correlation IDs
+
+59. **FR59 (System): Contextual Unlocks (New)**
+
+    Completion of a `Foundational` objective must unlock a `Practical` objective linked by the knowledge graph.
+
+    **Business Logic Specifications:**
+    - **Link Rule**: Foundational → Practical via `applies_to` or `complements`
+    - **Eligibility**: Practical objective becomes `Available` when foundational completion is confirmed
+    - **Unlock Effects**: Display unlock banner and add to current quest or next quest chapter
+    - **Controls**: User can defer unlock; system retains in backlog with reminder
+
+60. **FR60 (Frontend): Workspace-Specific Interfaces (New)**
+
+    Provide distinct, full-screen UI workspaces based on objective `type`.
+
+    **Business Logic Specifications:**
+    - **Mission Control (LocalProject)**: Integrated objective tracker, context-aware notes, smart submission & verification panel
+    - **Code Arena (CodingChallenge)**: Problem description panel, in-browser code editor, test case/console panel; integrates with Code Battle Service
+    - **Consistency**: Workspaces preserve progress context and reward visibility
+    - **Navigation**: Clear entry points from Quest Detail with `Launch Workspace` actions
 
 ### **Success Metrics (KPIs) with Specific Targets**
 

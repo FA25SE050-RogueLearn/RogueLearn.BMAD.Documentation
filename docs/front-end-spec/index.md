@@ -62,6 +62,7 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
    - Adaptive Quest Logic
    - Quest Memory System & Continuity
    - Mission Control Dashboard (Local IDE Projects & Note-Taking)
+   - Code Arena Interface (Coding Challenges)
    - AI-Powered Verification System
    - See also: [AI Quest Wireframes](./ai-quest-wireframes.md)
 
