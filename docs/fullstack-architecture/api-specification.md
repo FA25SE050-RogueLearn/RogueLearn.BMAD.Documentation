@@ -9,11 +9,16 @@ This document presents RogueLearn’s feature-level API overview and points to t
 
 ## **Common Conventions**
 - API standard: OpenAPI `3.0.0` across all service specs.
-- Authentication: `BearerAuth` (JWT from Supabase). All endpoints requiring auth declare `BearerAuth`.
+- Authentication: All endpoints assume `BearerAuth` with a JWT from Supabase unless explicitly noted otherwise.
 - Error model: `Error { code, message }` returned on failure.
-- IDs: UUIDs for resource identifiers (e.g., `user_id`, `meeting_id`, `guild_id`).
+- IDs: All resource identifiers (e.g., `userId`, `questId`, `partyId`) are UUIDs.
 - Versioning: External base URL versioning (e.g., `https://api.roguelearn.com/v1`); internal service evolution uses additive changes.
 - Pagination: Cursor or limit/offset where applicable; see each service spec for details.
+
+## **Role-Based Access Control (RBAC)**
+- Admin scope: Endpoints prefixed with `/admin` require the `Game Master` role and will be denied for non-admin users.
+- Standard users: Access is limited to their own resources unless otherwise delegated by party/guild roles.
+- Service-local roles: Each service defines local roles (e.g., Party Leader, Guild Master, Meeting Organizer) which gate specific actions.
 
 ## **Feature → Service Mapping**
 

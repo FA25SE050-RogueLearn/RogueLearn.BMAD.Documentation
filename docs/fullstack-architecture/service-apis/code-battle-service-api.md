@@ -157,6 +157,29 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CodeProblem'
+  /admin/problems:
+    post:
+      summary: Import a new code problem
+      description: Admin only. Includes test cases and language details.
+      tags: [Problems]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                problem_statement: { type: string }
+                difficulty: { type: integer }
+                tags: { type: array, items: { type: string } }
+                language_details: { type: array, items: { $ref: '#/components/schemas/CodeProblemLanguageDetails' } }
+                test_cases: { type: array, items: { $ref: '#/components/schemas/TestCase' } }
+      responses:
+        '201':
+          description: Problem imported
   /test-cases:
     get:
       summary: List test cases
@@ -187,6 +210,48 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Submission'
+    post:
+      summary: Submit a code solution
+      description: Queue for secure execution and judging.
+      tags: [Submissions]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roomId: { type: string, format: uuid }
+                problemId: { type: string, format: uuid }
+                languageId: { type: string, format: uuid }
+                sourceCode: { type: string }
+      responses:
+        '201':
+          description: Submission created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+  /submissions/{submissionId}:
+    get:
+      summary: Poll submission result
+      tags: [Submissions]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Submission status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
   /rooms:
     get:
       summary: List rooms
@@ -202,6 +267,48 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Room'
+  /events/{eventId}/rooms:
+    get:
+      summary: List rooms for event
+      tags: [Rooms]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Event rooms list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+  /events/{eventId}/rooms/join:
+    post:
+      summary: Join a room for event
+      tags: [Rooms]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferredRoomId: { type: string, format: uuid, nullable: true }
+      responses:
+        '200':
+          description: Joined room
   /leaderboards:
     get:
       summary: List leaderboards
@@ -217,6 +324,33 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LeaderboardEntry'
+  /leaderboards/events/{eventId}:
+    get:
+      summary: Get event leaderboards
+      tags: [Leaderboards]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Individual and guild leaderboards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  individual:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LeaderboardEntry'
+                  guild:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GuildLeaderboardEntry'
   /duels/challenge:
     post:
       summary: Challenge a User to a Duel
@@ -231,6 +365,7 @@ paths:
               properties:
                 opponentId:
                   type: string
+                  format: uuid
       responses:
         '202':
           description: Challenge sent.

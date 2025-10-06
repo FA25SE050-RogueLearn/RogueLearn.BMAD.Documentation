@@ -81,10 +81,15 @@ components:
 paths:
   /meetings:
     get:
-      summary: List meetings for current user
+      summary: List meetings for current user or party
       tags: [Meetings]
       security:
         - BearerAuth: []
+      parameters:
+        - in: query
+          name: partyId
+          schema: { type: string, format: uuid }
+          description: Filter meetings for a party.
       responses:
         '200':
           description: Meetings list
@@ -95,7 +100,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Meeting'
     post:
-      summary: Create a meeting
+      summary: Schedule a meeting for a party
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -104,7 +109,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Meeting'
+              type: object
+              properties:
+                partyId: { type: string, format: uuid }
+                title: { type: string }
+                scheduledStartTime: { type: string, format: date-time }
       responses:
         '201':
           description: Meeting created
@@ -128,6 +137,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Meeting'
+    post:
+      summary: Meeting lifecycle actions
+      description: Use subroutes for start and end.
+      tags: [Meetings]
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '405':
+          description: Use /start or /end subroutes.
+  /meetings/{meetingId}/start:
+    post:
+      summary: Start a scheduled meeting
+      tags: [Meetings]
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Meeting started
+  /meetings/{meetingId}/end:
+    post:
+      summary: End an ongoing meeting and trigger AI summary processing
+      tags: [Meetings]
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Meeting ended; summary processing triggered
   /meetings/{meetingId}/participants:
     get:
       summary: List participants
