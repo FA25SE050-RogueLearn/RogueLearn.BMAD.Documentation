@@ -297,20 +297,27 @@ CREATE INDEX idx_quest_analytics_date_recorded ON quest_analytics(date_recorded)
 - Assessment and validation systems
 - Skill-based quest recommendations
 - Curriculum-aligned learning activities
+- Publish reward events (XP, Skill Points, Unlocks) per PRD FR58
 
 ### Cross-Service Integration
-- **User Service**: Retrieves user profiles, academic context, and skill levels
+- **User Service**: Retrieves user profiles, academic context, and skill levels; publishes Reward Cascade events (`XPGranted`, `SkillPointsGranted`, `ChallengeUnlocked`) with correlation IDs to User Service for authoritative ledgering (`user_skill_rewards`) and skill progression updates (`user_skills`)
 - **Social Service**: Provides quest completion data for party/guild activities
 - **Meeting Service**: Integrates collaborative quests with meeting sessions
 - **Code Battle Service**: Links coding challenges to quest progression
 
 ### Data Access Patterns
 - **Read/Write Access**: All tables within Quests Service domain
-- **External References**: User profiles, subjects, and curriculum data from User Service
+- **External References**: User profiles, subjects, curriculum data, and Skill Catalog (skills, dependencies) from User Service
 - **API Integration**: Exposes quest data and progress tracking via REST APIs
-- **Event Publishing**: Publishes quest completion events for achievement system
+- **Event Publishing**: Publishes quest completion and objective events for achievement system and Reward Cascade; sends `XPGranted` and related reward events to User Service for ledgering per FR58
 
 ### Vector Database Integration
 - **Qdrant Collections**: Stores quest content embeddings for semantic search and recommendations
 - **Content Indexing**: Quest descriptions, step content, and resource materials
 - **Recommendation Engine**: Skill-based and progress-based quest suggestions
+
+## Ownership and Integration Notes
+
+- **Rewards Ledger Non-Ownership**: Although quests define `experience_points_reward` and track earned XP within attempts/progress for analytics, the Quests Service does not own the authoritative XP ledger. All reward events are published to the User Service, which persists them in `user_skill_rewards` and applies progression to `user_skills`.
+- **Reward Cascade Compliance (FR58)**: Objective completion triggers a pipeline of events: `XPGranted`, `SkillPointsGranted`, `ChallengeUnlocked`. Events must include correlation IDs to ensure auditability and ordering. Quests Service emits these events; User Service ingests and persists them.
+- **Skill Tree Catalog Non-Ownership**: Quests Service consumes the Skill Catalog (skills and dependencies) maintained by the User Service to tag quests (`skill_tags`), generate objectives, and perform recommendations. It does not define or own `skills` or `skill_dependencies` tables.

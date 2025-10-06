@@ -269,6 +269,35 @@ CREATE TABLE student_term_subjects (
 );
 ```
 
+### Skill Catalog
+
+#### skills
+Core skill catalog used to build the system-wide Skill Tree
+```sql
+CREATE TABLE skills (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL UNIQUE,
+    domain VARCHAR(100), -- e.g., Programming, Mathematics, Design
+    tier INTEGER NOT NULL DEFAULT 1, -- 1=Foundation, 2=Intermediate, 3=Advanced, 4=Expert
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### skill_dependencies
+Relationships among skills to form the Skill Tree graph
+```sql
+CREATE TABLE skill_dependencies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    prerequisite_skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    relationship_type VARCHAR(30) NOT NULL DEFAULT 'Prerequisite', -- Prerequisite, Complements, Alternative
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (skill_id, prerequisite_skill_id, relationship_type)
+);
+```
+
 ### Skills and Progress Tracking
 
 #### user_skills
@@ -296,6 +325,22 @@ CREATE TABLE user_quest_progress (
     completed_at TIMESTAMPTZ,
     last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (auth_user_id, quest_id)
+);
+```
+
+#### user_skill_rewards
+Event-sourced ledger of XP rewards applied to user skills
+```sql
+CREATE TABLE user_skill_rewards (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    source_service VARCHAR(100) NOT NULL, -- e.g., QuestsService, CodeBattleService, MeetingService
+    source_type VARCHAR(50) NOT NULL, -- e.g., QuestComplete, BossFight, PartyActivity
+    source_id UUID, -- Optional reference to the originating entity
+    skill_name VARCHAR(255) NOT NULL, -- Name from skills catalog
+    points_awarded INTEGER NOT NULL,
+    reason TEXT, -- Optional human-readable context
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ```
 
@@ -384,6 +429,14 @@ CREATE INDEX idx_student_term_subjects_enrollment_id ON student_term_subjects(en
 CREATE INDEX idx_user_skills_auth_user_id ON user_skills(auth_user_id);
 CREATE INDEX idx_user_quest_progress_auth_user_id ON user_quest_progress(auth_user_id);
 CREATE INDEX idx_user_quest_progress_quest_id ON user_quest_progress(quest_id);
+CREATE INDEX idx_skills_name ON skills(name);
+CREATE INDEX idx_skills_domain ON skills(domain);
+CREATE INDEX idx_skill_dependencies_skill_id ON skill_dependencies(skill_id);
+CREATE INDEX idx_skill_dependencies_prereq_id ON skill_dependencies(prerequisite_skill_id);
+CREATE INDEX idx_user_skill_rewards_auth_user_id ON user_skill_rewards(auth_user_id);
+CREATE INDEX idx_user_skill_rewards_skill_name ON user_skill_rewards(skill_name);
+CREATE INDEX idx_user_skill_rewards_source_service ON user_skill_rewards(source_service);
+CREATE INDEX idx_user_skill_rewards_created_at ON user_skill_rewards(created_at);
 
 -- Achievement indexes
 CREATE INDEX idx_user_achievements_auth_user_id ON user_achievements(auth_user_id);
@@ -412,6 +465,8 @@ CREATE INDEX idx_curriculum_version_activations_version_id ON curriculum_version
 - Achievement system coordination
 - Cross-service user context provision
 - Notification system management
+- Skill Tree catalog ownership and graph relationships
+- Reward event ingestion and XP ledger management
 
 ### Cross-Service Integration
 - Provides user context to all other services

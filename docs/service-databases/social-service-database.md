@@ -375,11 +375,16 @@ CREATE INDEX idx_event_participants_auth_user_id ON event_participants(auth_user
 
 ### Data Access Patterns
 - **Read/Write Access**: All tables within Social Service domain
-- **External References**: User profiles, subjects, and classes from User Service
+- **External References**: User profiles, subjects, classes, and Skill Catalog from User Service
 - **API Integration**: Exposes social features via REST APIs and WebSocket connections
-- **Event Publishing**: Publishes social events for achievement and notification systems
+- **Event Publishing**: Publishes social events for achievement and notification systems; emits Reward Cascade events (e.g., XP for party activities via `party_activities.experience_points_earned`) to User Service for authoritative ledgering in `user_skill_rewards` per PRD FR58
 
 ### Real-time Features
 - **WebSocket Integration**: Real-time messaging, party updates, and event notifications
 - **Live Updates**: Party member status, guild activities, and social interactions
 - **Notification System**: Social invitations, friend requests, and event reminders
+
+## Ownership and Integration Notes
+
+- **Rewards Ledger Non-Ownership**: Social Service may calculate or accumulate experience for party/guild activities but does not own the authoritative XP ledger. All reward events are published to the User Service and persisted in `user_skill_rewards` with correlation IDs.
+- **Skill Tree Catalog Non-Ownership**: Social Service does not own or define skill catalog tables; it consumes the Skill Catalog from User Service for tagging activities and recommendations.

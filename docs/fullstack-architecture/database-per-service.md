@@ -20,14 +20,17 @@ This document outlines which database tables and collections are used by each mi
 - `syllabus_versions` - Versioned syllabus for each subject
 - `student_enrollments` - Links students to specific curriculum versions with enrollment tracking
 - `student_term_subjects` - Comprehensive academic term tracking with status (Enrolled, Completed, Failed, Withdrawn)
+- `skills` - Skill Catalog of named competencies with domain/tier metadata
+- `skill_dependencies` - Skill Tree graph relationships among skills (prerequisites, complements)
 - `user_skills` - User skill progression tracking with experience points
 - `user_quest_progress` - Summary of user progress on quests for quick reference and cross-service sync
+- `user_skill_rewards` - Event-sourced ledger of XP rewards applied to user skills
 - `achievements` - Central catalog of all possible achievements with type categorization
 - `user_achievements` - Links users to earned achievements with context and timestamps
 - `notifications` - User notification system with type-based categorization
 
 ### **Quests Service** (`roguelearn-quests-service`)
-**Purpose**: Manages quest lines, quests, skill trees, game sessions, and learning content with comprehensive progress tracking
+**Purpose**: Manages quest lines, quests, game sessions, and learning content with comprehensive progress tracking. Consumes the Skill Catalog from User Service for tagging, recommendations, and progression logic.
 
 **PostgreSQL Tables**:
 - `learning_paths` - Structured sequences of quests for comprehensive learning
@@ -35,10 +38,6 @@ This document outlines which database tables and collections are used by each mi
 - `quest_steps` - Individual steps within a quest for structured progression
 - `learning_path_quests` - Junction table linking quests to learning paths with sequencing
 - `quest_assessments` - Assessment configurations for quests requiring evaluation
-- `skill_trees` - Skill tree structures and hierarchies for different domains
-- `skills` - Individual skill definitions with experience requirements and level progression
-- `quest_skills` - Links quests to skill development with experience point rewards
-- `skill_dependencies` - Skill prerequisite relationships for progressive mastery
 - `user_quest_attempts` - Tracks user attempts and progress on quests
 - `user_quest_step_progress` - Detailed tracking of individual step completion
 - `user_learning_path_progress` - Tracks user progress through learning paths
@@ -105,8 +104,8 @@ This document outlines which database tables and collections are used by each mi
 ### **Cross-Service Data Access**
 Some services may need to read data from other services' primary tables:
 
-- **User Service** provides user profile data to all other services
-- **Quests Service** quest and skill data is referenced by Social Service for achievements
+- **User Service** provides user profile data to all other services, and owns the Skill Catalog (skills and dependencies) and rewards ledger (`user_skill_rewards`)
+- **Quests Service** quest data is referenced by Social Service for achievements; publishes reward events (XP, Skill Points, Unlocks) to User Service for authoritative ledgering
 - **Social Service** party and guild data is used by Meeting Service for scheduling
 - **Code Battle Service** may reference user profiles for submission tracking
 
