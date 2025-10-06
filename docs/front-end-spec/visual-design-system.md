@@ -2,20 +2,22 @@
 
 ## Color Palette
 
+**Primary Theme: "Baldur's Gate 3 Inspired" Dark Theme**
+The visual identity of RogueLearn is built on a dark, immersive theme inspired by rich fantasy aesthetics. It evokes the feeling of a magical scribe's journal, using warm, earthy tones, aged parchment colors, and a vibrant magical gold for highlights.
+
 **Primary Colors:**
-- Magical Purple: #6B46C1 (primary actions, progress)
-- Adventure Gold: #F59E0B (achievements, rewards)
-- Mystic Blue: #3B82F6 (information, links)
+- **Background:** Deep Earthy Brown (`#2A241F`) - A rich, dark brown that sets a moody, scholarly tone.
+- **Foreground:** Warm Parchment (`#E3DBCD`) - Used for all primary body text, ensuring comfortable readability.
+- **Cards & Surfaces:** Rich Leather/Wood (`#3C332A`) - A slightly lighter brown to create a sense of depth and layering for UI elements.
 
-**Secondary Colors:**
-- Forest Green: #10B981 (success, completed)
-- Dragon Red: #EF4444 (warnings, boss fights)
-- Sage Gray: #6B7280 (text, borders)
+**Accent & Action Colors:**
+- **Primary (Active State):** Deep Amber-Brown (`#5A4A3C`) - A saturated warm brown for selected or active UI elements.
+- **Secondary:** Warm Reddish-Brown (`#5A3C38`) - Used for secondary panels and information sections.
+- **Accent (Call to Action):** Vibrant Gold (`#FAD25A`) - The key highlight color used for primary buttons, important stats, and progress bars to guide the user's attention.
 
-**Background Colors:**
-- Parchment White: #FEFBF3 (main background)
-- Scroll Cream: #F9F7F4 (card backgrounds)
-- Shadow Gray: #F3F4F6 (subtle sections)
+**Semantic Colors:**
+- **Destructive:** Warm Red (`#C74242`) - For error messages, warnings, and destructive actions.
+- **Success:** Subtle Green Glow (`#5A9E6E`) - For success notifications and positive feedback.
 
 ## Typography
 
@@ -40,17 +42,17 @@
 ## Component Library
 
 ### Buttons
-- **Primary:** Purple background, white text, rounded corners
-- **Secondary:** White background, purple border and text
-- **Danger:** Red background, white text
-- **Ghost:** Transparent background, colored text
+- **Primary:** Gold background, dark brown text, rounded corners.
+- **Secondary:** Reddish-brown background with parchment text.
+- **Destructive:** Warm red background, parchment text.
+- **Ghost:** Transparent background, gold text on hover.
 
 ### Cards
-- **Standard:** White background, subtle shadow, rounded corners
-- **Learning Card:** Enhanced with progress indicators and action buttons
-- **Achievement Card:** Gold accent border, celebration animations
+- **Standard:** Rich leather-brown background, subtle shadow, rounded corners.
+- **Learning Card:** Enhanced with progress indicators and a primary gold action button.
+- **Achievement Card:** Gold accent border to signify importance.
 
 ### Form Elements
-- **Input Fields:** Clean borders, focus states, validation styling
-- **Dropdowns:** Custom styling matching overall theme
-- **File Upload:** Drag-and-drop area with visual feedback
+- **Input Fields:** Clean, subtle borders with a gold focus ring.
+- **Dropdowns:** Custom styling matching the overall theme.
+- **File Upload:** Drag-and-drop area with visual feedback.
