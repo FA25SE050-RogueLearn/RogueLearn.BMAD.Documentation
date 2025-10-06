@@ -1,0 +1,207 @@
+{
+  "syllabusId": 12223,
+  "syllabusName": "Programming Fundamentals_Cơ sở lập trình",
+  "syllabusEnglish": "Programming Fundamentals",
+  "subjectCode": "PRF192",
+  "noCredit": 3,
+  "degreeLevel": "Bachelor",
+  "timeAllocation": {
+    "studyHours": 150,
+    "contactHours": 45,
+    "finalExamHours": 1,
+    "selfStudyHours": 104
+  },
+  "preRequisite": null,
+  "description": "Understand basics computer system and methods of software development, focus on function-oriented programming design, coding, testing and discipline in programming.\nExplain basic concepts of programming, function-oriented programming design, modularity, understand and coding programs using C language.",
+  "studentOutcomes": [
+    {
+      "category": "Knowledge",
+      "reference": "ABET e",
+      "outcomes": [
+        "Explain the way to solve a real problem using computer.",
+        "Understand the basic concepts computer system, and software development.",
+        "Understand the basic concepts of programming, focus on procedure programming, testing and debugging, unit testing."
+      ]
+    },
+    {
+      "category": "Skills in programming",
+      "reference": "ABET k",
+      "outcomes": [
+        "Read and understand the simple C programs;",
+        "Solve real problems using C."
+      ]
+    },
+    {
+      "category": "Apply learning methods effectively",
+      "reference": "ABET i",
+      "outcomes": [
+        "Academic reading.",
+        "Individual and team work behaviors."
+      ]
+    }
+  ],
+  "studentTasks": [
+    "Students must attend at least 80% of contact sessions in order to be accepted to the final examination.",
+    "Student is responsible to do all assigned exercises given by instructor in class or at home and submit on time.",
+    "Use laptop in class only for learning purpose.",
+    "Promptly access to the https://flm.fpt.edu.vn/ for up-to-date course information."
+  ],
+  "tools": [
+    "Internet",
+    "C language utility (ex.DevC++ 6.3)"
+  ],
+  "scoringScale": 10,
+  "decision": {
+    "number": "1286/QĐ-ĐHFPT",
+    "date": "2024-11-22"
+  },
+  "isApproved": true,
+  "note": null,
+  "minAvgMarkToPass": 5,
+  "isActive": true,
+  "approvedDate": "2024-11-22",
+  "materials": [
+    {
+      "description": "Foundations of Programming Using C",
+      "author": "Evan Weaver",
+      "publisher": "Creative Commons Attribution-NonCommercial- ShareAlike 3.0 Unported License",
+      "publishedDate": "2003",
+      "edition": null,
+      "isbn": null,
+      "url": null
+    },
+    {
+      "description": "The C Programming Language",
+      "author": "Brian W. Kernighan, Dennis M. Ritchie",
+      "publisher": "Pearson",
+      "publishedDate": "1988",
+      "edition": "2nd Edition",
+      "isbn": "978-0131103627",
+      "url": null
+    },
+    {
+      "description": "MOOC: Introduction to C Course",
+      "author": "Chris Szalwinsk",
+      "publisher": "Chris Szalwinski and Seneca College.",
+      "publishedDate": null,
+      "edition": "N/A",
+      "isbn": "N/A",
+      "url": "https://intro2c.sdds.ca/"
+    }
+  ],
+  "courseLearningOutcomes": [
+    {
+      "name": "CLO1",
+      "details": "Understand and describe about a program, and the way it works on computer."
+    },
+    {
+      "name": "CLO2",
+      "details": "Demonstrate about variables, expressions and basic operations and illustrate them by program examples."
+    },
+    {
+      "name": "CLO3",
+      "details": "Explain the meaning and use of Logic constructs in C Language. Describe about programming styles."
+    },
+    {
+      "name": "CLO4",
+      "details": "Describe about Modularity and Functions in C programs and their use."
+    },
+    {
+      "name": "CLO5",
+      "details": "Understanding and using pointers in programs."
+    },
+    {
+      "name": "CLO6",
+      "details": "Discuss about C Libraries and their use."
+    },
+    {
+      "name": "CLO7",
+      "details": "Discuss about Arrays, Struct and their use in C programs."
+    },
+    {
+      "name": "CLO8",
+      "details": "Discuss about Strings and their use in C programs."
+    },
+    {
+      "name": "CLO9",
+      "details": "Discuss about Files and their use in C programs."
+    }
+  ],
+  "sessions": [
+    { "session": 1, "topic": "Introduction and installing tools", "learningType": "Offline", "los": ["CLO1"], "itu": "I", "studentMaterials": "Textbook", "downloads": "PRF192_Slides_1", "studentTasks": "Read Textbook, install tools" },
+    { "session": 2, "topic": "Basic concepts computer system; steps to develop a software", "learningType": "Offline", "los": ["CLO1"], "itu": "T", "studentMaterials": "Textbook", "downloads": "PRF192_Slides_2", "studentTasks": "Read Textbook" },
+    { "session": 3, "topic": "Structure of a simple C program; C compiler", "learningType": "Offline", "los": ["CLO1"], "itu": "T", "studentMaterials": "Textbook", "downloads": "PRF192_Slides_3", "studentTasks": "Practice a simple C program" },
+    { "session": 4, "topic": "Variable and constant used in the C programming language", "learningType": "Offline", "los": ["CLO2"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice declaration variable and constant" },
+    { "session": 5, "topic": "Understand what is a data type", "learningType": "Offline", "los": ["CLO2"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 6, "topic": "Basic Memory Operations\nImplement basic input/output functions using scanf, printf", "learningType": "Offline", "los": ["CLO2"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook\nPractice basic input/ ouput" },
+    { "session": 7, "topic": "Expressions: Arithmetic, Relational, Logical, Bit operators, Shorthand Assignment operators", "learningType": "Offline", "los": ["CLO2"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Implement operators" },
+    { "session": 8, "topic": "Expressions: Mixing Data Types, Casting, Precedence", "learningType": "Offline", "los": ["CLO2"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice Mixing data types and Casting" },
+    { "session": 9, "topic": "Structured Programming: Selection (if-else, switch-case)", "learningType": "Offline", "los": ["CLO2"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Implement if-else, switch-case" },
+    { "session": 10, "topic": "Structured Programming: Loop (for, while, do-while)", "learningType": "Offline", "los": ["CLO3"], "itu": "I", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Implement for, while, do-while" },
+    { "session": 11, "topic": "Review: The lecturer reviews the learned content", "learningType": "Offline", "los": ["CLO1", "CLO2", "CLO3"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Answer the Instructor's questions and practice the requirements" },
+    { "session": 12, "topic": "Review (contd): The lecturer reviews the learned content", "learningType": "Offline", "los": ["CLO1", "CLO2", "CLO3"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Answer the Instructor's questions and practice the requirements" },
+    { "session": 13, "topic": "Workshop 1: Practice declaring and initializing values for variables.", "learningType": "Offline", "los": ["CLO1", "CLO2", "CLO3"], "itu": "U", "studentMaterials": "Completed Workshop", "downloads": null, "studentTasks": "Complete Workshop 1" },
+    { "session": 14, "topic": "Workshop 1: Use expressions to perform simple calculations.", "learningType": "Offline", "los": ["CLO1", "CLO2", "CLO3"], "itu": "U", "studentMaterials": "Completed Workshop", "downloads": null, "studentTasks": "Complete Workshop 1" },
+    { "session": 15, "topic": "Workshop 1: Practice techniques to control program structure using conditional and loop structures", "learningType": "Offline", "los": ["CLO1", "CLO2", "CLO3"], "itu": "U", "studentMaterials": "Completed Workshop", "downloads": null, "studentTasks": "Complete Workshop 1" },
+    { "session": 16, "topic": "Modules: What is a module? How to design modules for a program?", "learningType": "Offline", "los": ["CLO4"], "itu": "I", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 17, "topic": "Modules: Characteristics of modules", "learningType": "Offline", "los": ["CLO4"], "itu": "I", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 18, "topic": "Modules: Principles of defining modules", "learningType": "Offline", "los": ["CLO4"], "itu": "I", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 19, "topic": "Functions: Function definitions", "learningType": "Offline", "los": ["CLO4"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice function definitions" },
+    { "session": 20, "topic": "Functions: Use a function. Parameters: Pass by value", "learningType": "Offline", "los": ["CLO4"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice use a function" },
+    { "session": 21, "topic": "Functions: Differentiate Built-in and User-defined functions", "learningType": "Offline", "los": ["CLO4"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 22, "topic": "Functions: Extent and Scope of a Variable", "learningType": "Offline", "los": ["CLO4"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Implement scope of variable" },
+    { "session": 23, "topic": "Review: The lecturer reviews the learned content", "learningType": "Offline", "los": ["CLO4"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Answer the Instructor's questions and practice the requirements" },
+    { "session": 24, "topic": "Review (cont): The lecturer reviews the learned content", "learningType": "Offline", "los": ["CLO4"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Answer the Instructor's questions and practice the requirements" },
+    { "session": 25, "topic": "Workshop 2: Real-world problem analysis techniques for program modularization", "learningType": "Offline", "los": ["CLO4"], "itu": "U", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Complete Workshop 2" },
+    { "session": 26, "topic": "Workshop 2:Practice defining and using functions", "learningType": "Offline", "los": ["CLO4"], "itu": "U", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Complete Workshop 2" },
+    { "session": 27, "topic": "Workshop 2: Build a program in menu form to call functions", "learningType": "Offline", "los": ["CLO4"], "itu": "U", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Complete Workshop 2" },
+    { "session": 28, "topic": "Introduction to Pointers. Where are pointers used?", "learningType": "Offline", "los": ["CLO5"], "itu": "I", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 29, "topic": "Pointer Declarations; Pointer operators", "learningType": "Offline", "los": ["CLO5"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice pointer declarations and Implement pointer operators" },
+    { "session": 30, "topic": "Pointers as parameters of a function. Pass by reference", "learningType": "Offline", "los": ["CLO5"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice pass by reference to parameters of a function" },
+    { "session": 31, "topic": "Pointers: Dynamic Allocated Data", "learningType": "Offline", "los": ["CLO5"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice dynamic allocated data" },
+    { "session": 32, "topic": "Libraries: Standard - stdlib.h; Time - time.h", "learningType": "Offline", "los": ["CLO6"], "itu": "I", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 33, "topic": "Libraries (cond): Math - math.h; Character - ctype.h", "learningType": "Offline", "los": ["CLO6"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 34, "topic": "Input/ Formatted Output", "learningType": "Offline", "los": ["CLO6"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Implement input and formatted output" },
+    { "session": 35, "topic": "Review: The lecturer reviews the learned content", "learningType": "Offline", "los": ["CLO5", "CLO6"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Answer the Instructor's questions and practice the requirements" },
+    { "session": 36, "topic": "Progress Test 1: Evaluate students on the theoretical knowledge they have learned", "learningType": "Offline", "los": ["CLO1", "CLO2", "CLO3", "CLO4", "CLO5", "CLO6"], "itu": "U", "studentMaterials": "Study Materials", "downloads": null, "studentTasks": "Complete Progress Test 1" },
+    { "session": 37, "topic": "Arrays: Conceps One-Dimensional array and Basic Operations on Array", "learningType": "Offline", "los": ["CLO7"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice one-demensional array declarations and basic operations on array: input/ output" },
+    { "session": 38, "topic": "Matrix: Two-Dimensional Arrays; Inputting, Outputting Data for Matrix and other operations", "learningType": "Offline", "los": ["CLO7"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice two-demensional array declarations, input/output, operations" },
+    { "session": 39, "topic": "Arrays: Solve Problems using Arrays (Linear Search and Selection Sort)", "learningType": "Offline", "los": ["CLO7"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice: Search, Sort" },
+    { "session": 40, "topic": "Struct: Using struct to organize complex data", "learningType": "Offline", "los": ["CLO7"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice declaration, use Struct" },
+    { "session": 41, "topic": "Review: The lecturer reviews the learned content", "learningType": "Offline", "los": ["CLO7"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Answer the Instructor's questions and practice the requirements" },
+    { "session": 42, "topic": "Review: Array or structs", "learningType": "Offline", "los": ["CLO7"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice case study" },
+    { "session": 43, "topic": "Workshop 3: Practice basic input/ output and operations of array", "learningType": "Offline", "los": ["CLO7"], "itu": "U", "studentMaterials": "Completed Workshop", "downloads": null, "studentTasks": "Complete Workshop 3" },
+    { "session": 44, "topic": "Workshop 3: Practice with character arrays using library functions in ctype.h", "learningType": "Offline", "los": ["CLO6", "CLO7"], "itu": "U", "studentMaterials": "Completed Workshop", "downloads": null, "studentTasks": "Complete Workshop 3" },
+    { "session": 45, "topic": "Workshop 3: Manage data with an array of struct", "learningType": "Offline", "los": ["CLO7"], "itu": "U", "studentMaterials": "Completed Workshop", "downloads": null, "studentTasks": "Complete Workshop 3" },
+    { "session": 46, "topic": "String: Declare/Initialize a string", "learningType": "Offline", "los": ["CLO8"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice declare/ initialize String" },
+    { "session": 47, "topic": "String: Input/ Output a String using buit-in Functions", "learningType": "Offline", "los": ["CLO8"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice input/ output and operations string" },
+    { "session": 48, "topic": "Array of strings; operations of String (string.h)", "learningType": "Offline", "los": ["CLO8"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Implement Array of string" },
+    { "session": 49, "topic": "Review: The lecturer reviews the learned content", "learningType": "Offline", "los": ["CLO8"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Answer the Instructor's questions and practice the requirements" },
+    { "session": 50, "topic": "Review (contd): The lecturer reviews the learned content", "learningType": "Offline", "los": ["CLO8"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Answer the Instructor's questions and practice the requirements" },
+    { "session": 51, "topic": "Workshop 4: Problem-Solving with String (input/ output/ operations)", "learningType": "Offline", "los": ["CLO6", "CLO7", "CLO8"], "itu": "U", "studentMaterials": "Completed Workshop", "downloads": null, "studentTasks": "Complete Workshop 4" },
+    { "session": 52, "topic": "File: Basic concepts File", "learningType": "Offline", "los": ["CLO9"], "itu": "I", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 53, "topic": "File: File types (Text File, Binary File)", "learningType": "Offline", "los": ["CLO9"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Read Textbook" },
+    { "session": 54, "topic": "File: Ways for accessing files", "learningType": "Offline", "los": ["CLO9"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Implement acessing files" },
+    { "session": 55, "topic": "File: File Functions", "learningType": "Offline", "los": ["CLO9"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Practice file functions" },
+    { "session": 56, "topic": "Review: The lecturer reviews the learned content", "learningType": "Offline", "los": ["CLO9"], "itu": "T", "studentMaterials": "Textbook", "downloads": null, "studentTasks": "Answer the Instructor's questions and practice the requirements" },
+    { "session": 57, "topic": "Workshop 5: Open, read, write, and close files using C file handling functions", "learningType": "Offline", "los": ["CLO9"], "itu": "U", "studentMaterials": "Completed Workshop", "downloads": null, "studentTasks": "Complete Workshop 5" },
+    { "session": 58, "topic": "Progress Test 2", "learningType": "Offline", "los": ["CLO7", "CLO8", "CLO9"], "itu": "U", "studentMaterials": "Study Materials", "downloads": null, "studentTasks": "Complete Progress Test 2" },
+    { "session": 59, "topic": "Assigment", "learningType": "Offline", "los": ["CLO1", "CLO2", "CLO3", "CLO4", "CLO5", "CLO6", "CLO7", "CLO8", "CLO9"], "itu": "U", "studentMaterials": "Completed Assignment", "downloads": null, "studentTasks": "Complete Assignment" },
+    { "session": 60, "topic": "Final Review", "learningType": "Offline", "los": ["CLO1", "CLO2", "CLO3", "CLO4", "CLO5", "CLO6", "CLO7", "CLO8", "CLO9"], "itu": "U", "studentMaterials": "Study Materials", "downloads": null, "studentTasks": "Continue exam preparation" }
+  ],
+  "constructiveQuestions": [
+    { "sessionNo": 1, "name": "CQ1.1", "details": "What is C programming language, and what are its primary uses?" },
+    { "sessionNo": 1, "name": "CQ1.2", "details": "What are the basic structure and syntax of a C program?" },
+    { "sessionNo": 1, "name": "CQ1.3", "details": "What does the #include preprocessor directive do?" },
+    { "sessionNo": 2, "name": "CQ2.1", "details": "What is the purpose of the main() function in a C program?" },
+    { "sessionNo": 2, "name": "CQ2.2", "details": "How do you comment your code in C?" },
+    { "sessionNo": 2, "name": "CQ2.3", "details": "What is the significance of semicolons in C?" }
+  ],
+  "assessments": [
+    { "category": "Assignment", "type": "on-going", "part": 1, "weight": 15.0, "completionCriteria": ">0", "duration": "at home", "clos": ["CLO2", "CLO3", "CLO4", "CLO5", "CLO6", "CLO7", "CLO8", "CLO9"], "questionType": "Option 1: a problem similar to real one; Option 2: Follow lecturer's proposal", "noQuestion": "Option 1: N/A; Option 2: Follow lecturer's proposal", "knowledgeAndSkill": "problem(s) to solve by programming using CLO2 - CLO9", "gradingGuide": "Individual or team work, guided by instructor, submission by a given deadline" },
+    { "category": "Practical Exam", "type": "on-going", "part": 1, "weight": 30.0, "completionCriteria": ">0", "duration": "85'", "clos": ["CLO2", "CLO3", "CLO4", "CLO5", "CLO6", "CLO7", "CLO8"], "questionType": "Preferable to be marked by scripts", "noQuestion": "1-2 problems", "knowledgeAndSkill": "problem(s) to solve by programming using CLO2 - CLO8", "gradingGuide": "supervised by proctor(s) sent by exam board", "note": "Automatic or manual evaluating" },
+    { "category": "Progress test", "type": "on-going", "part": 2, "weight": 15.0, "completionCriteria": ">0", "duration": "20'-40'", "clos": ["CLO1", "CLO5", "CLO6", "CLO9"], "questionType": "Option 1: essay or multiple choice; Option 2: Follow lecturer's proposa", "noQuestion": "Option 1: 15-30 if multiple choice; Option 2: Follow lecturer's proposal", "knowledgeAndSkill": "PT1: CLO1 - CLO5; PT2: CLO6 - CLO9; Number of questions: 3-8 for each CLOx", "gradingGuide": "supervised by instructor", "note": "Progress test must be taken right after the last lectures of required material.\n\nInstructor has responsibility to review the test for students after graded." },
+    { "category": "Workshop", "type": "on-going", "part": 5, "weight": 10.0, "completionCriteria": ">0", "duration": "on class room", "clos": ["CLO1", "CLO2", "CLO3", "CLO4", "CLO5", "CLO6", "CLO7", "CLO8", "CLO9"], "questionType": "Option 1: practical exercises; Option 2: Follow lecturer's proposal", "noQuestion": "Option 1: N/A; Option 2: Follow lecturer's proposal", "knowledgeAndSkill": "W1: CLO1, CLO2, CLO3; W2: LO4; W3: CLO6, CLO7; W4: CLO7, CLO8; W5: CLO9", "gradingGuide": "Teachers support tutorials and students do them by themselves", "note": "A workshop will be evaluated at the beginning of the next lesson" },
+    { "category": "Final exam", "type": "Final exam", "part": 1, "weight": 30.0, "completionCriteria": "4", "duration": "60'", "clos": ["CLO1", "CLO2", "CLO3", "CLO4", "CLO5", "CLO6", "CLO7", "CLO8", "CLO9"], "questionType": "multiple choice", "noQuestion": "50", "knowledgeAndSkill": "questions distribution:CLO1: 2 - 3; CLO2: 5 - 10; CLO3: 8 - 10; CLO4: 8 - 10; CLO5: 5 - 8; CLO6: 5 - 8; CLO7: 5 - 8; CLO8: 2 - 4. More than 70% new questions (for the current semester);", "gradingGuide": "supervised by proctor(s) sent by exam board" }
+  ]
+}

@@ -1,0 +1,430 @@
+{
+  "curriculumCode": "BIT_SE_K19D_K20A",
+  "name": "The Bachelor Program of Information Technology, Software Engineering Major",
+  "englishName": "The Bachelor Program of Information Technology, Software Engineering Major",
+  "decision": {
+    "number": "1025/QD-DHFPT",
+    "date": "2025-12-09"
+  },
+  "trainingObjectives": {
+    "general": {
+      "summary": "To train bachelors in Information Technology, specializing in Software Engineering, with personality and capacity to meet the practical needs of society; to master professional and practical knowledge, to be able to organize, implement and promote creativity in jobs related to the specializations of Software Engineering being trained; to be able to pursue studies and research at higher levels. The training program in Software Engineering is application-oriented.",
+      "aims": [
+        "Equip students with basic knowledge of the information technology industry and the methodologies, fundamental and specialized technologies of the specialization;",
+        "Train students with necessary qualities and skills through a professional working environment, knowing how to apply knowledge of the information technology industry and specialized knowledge to practical work;",
+        "Provide students with a solid foundation in foreign languages, science, culture, society, promoting initiative and creativity in study, work and life."
+      ]
+    },
+    "specific": null
+  },
+  "jobPositionsAfterGraduation": [
+    "Application development programmer",
+    "Business analyst",
+    "Software quality assurance engineer",
+    "Software production process engineer",
+    "Software project administrator"
+  ],
+  "learningOutcomesSummary": "Learning Outcomes for the Software Engineering specialization",
+  "totalKnowledgeVolume": {
+    "credits": 145,
+    "notes": "not including preparatory English, National Defense Education, compulsory and elective training activities."
+  },
+  "admissionSubjects": [
+    "According to the admission regulations for regular universities and colleges of the Ministry of Education and Training.",
+    "According to the admission regulations of FPT University."
+  ],
+  "trainingProcessAndGraduation": "The training process and graduation conditions are regulated according to the current \"Ungraduate Accademic Regulations\" of FPT University.",
+  "assessmentMethod": "The assessment method is regulated according to the current \"Ungraduate Accademic Regulations\" of FPT University.",
+  "programLearningOutcomes": [
+    {
+      "code": "PLO1",
+      "description": "Understand basic knowledge of social sciences, political law, national security and defense, contributing to the formation of a scientific worldview and methodology."
+    },
+    {
+      "code": "PLO2",
+      "description": "Apply solid scientific foundation knowledge in the field of information technology in general and software engineering in particular to understand the professional context and acquire in-depth specialized knowledge of software engineering."
+    },
+    {
+      "code": "PLO3",
+      "description": "Apply in-depth specialized knowledge, new technologies in the field of software engineering, or expanded knowledge (in fields close to software engineering) to work and propose solutions to meet diverse needs from reality."
+    },
+    {
+      "code": "PLO4",
+      "description": "Have basic knowledge of planning and operating, implementing, and supervising the implementation of plans for specialized work in the field of software engineering."
+    },
+    {
+      "code": "PLO5",
+      "description": "Have a mindset about startups and apply startup knowledge and skills to implement a startup project; have creative thinking, research skills, critical thinking and problem solving."
+    },
+    {
+      "code": "PLO6",
+      "description": "Have intermediate English proficiency equivalent to level 4 according to the 6-level foreign language competency framework for Vietnam, and be able to communicate simply in Japanese."
+    },
+    {
+      "code": "PLO7",
+      "description": "Have the ability to communicate and present to clearly state the problem to be solved and convey knowledge and skills when performing specific/complex professional tasks related to software engineering."
+    },
+    {
+      "code": "PLO8",
+      "description": "Have the ability to program and use analysis, design, construction/implementation, and testing tools in the field of software engineering."
+    },
+    {
+      "code": "PLO9",
+      "description": "Have the ability to update and exploit advanced tools and techniques in the field of software engineering in particular and information technology in general."
+    },
+    {
+      "code": "PLO10",
+      "description": "Develop the ability to work independently as well as work effectively in a team in an academic and practical environment; take personal responsibility and responsibility for the team when performing a professional job. Have the spirit of self-study, lifelong learning, adapt to the continuous changes of technology and society."
+    },
+    {
+      "code": "PLO11",
+      "description": "Behave professionally, ethically, socially responsible and have a spirit of serving the community; have professional responsibility and integrity in work."
+    },
+    {
+      "code": "PLO12",
+      "description": "Be mentally and physically strong, demonstrate national identity, and be confident in international integration."
+    },
+    {
+      "code": "PLO13",
+      "description": "Be able to plan, coordinate, and manage resources related to software engineering projects; guide and supervise the implementation of project tasks and at the same time, be able to evaluate the effectiveness of the project and propose feasible and effective solutions for improvement."
+    }
+  ],
+  "subjects": [
+    {
+      "code": "OTP101",
+      "name": "Orientation and General Training Program",
+      "semester": 0,
+      "credits": 0,
+      "prerequisites": null
+    },
+    {
+      "code": "PEN",
+      "name": "Preparation English",
+      "semester": 0,
+      "credits": 0,
+      "prerequisites": null
+    },
+    {
+      "code": "PHE_COM*1",
+      "name": "Physical Education 1",
+      "semester": 0,
+      "credits": 2,
+      "prerequisites": null
+    },
+    {
+      "code": "TMI_ELE",
+      "name": "Traditional musical instrument",
+      "semester": 0,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "CEA201",
+      "name": "Computer Organization and Architecture",
+      "semester": 1,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "CSI106",
+      "name": "Introduction to Computer Science",
+      "semester": 1,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "MAE101",
+      "name": "Mathematics for Engineering",
+      "semester": 1,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "PHE_COM*2",
+      "name": "Physical Education 2",
+      "semester": 1,
+      "credits": 2,
+      "prerequisites": null
+    },
+    {
+      "code": "PRF192",
+      "name": "Programming Fundamentals",
+      "semester": 1,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "SSL101c",
+      "name": "Academic Skills for University Success",
+      "semester": 1,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "MAD101",
+      "name": "Discrete mathematics",
+      "semester": 2,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "NWC204",
+      "name": "Computer Networking",
+      "semester": 2,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "OSG202",
+      "name": "Operating Systems",
+      "semester": 2,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "PHE_COM*3",
+      "name": "Physical Education 3",
+      "semester": 2,
+      "credits": 2,
+      "prerequisites": null
+    },
+    {
+      "code": "PRO192",
+      "name": "Object-Oriented Programming",
+      "semester": 2,
+      "credits": 3,
+      "prerequisites": "Pass PRF192"
+    },
+    {
+      "code": "WED201c",
+      "name": "Web Design",
+      "semester": 2,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "CSD201",
+      "name": "Data Structures and Algorithms",
+      "semester": 3,
+      "credits": 3,
+      "prerequisites": "PRO192"
+    },
+    {
+      "code": "DBI202",
+      "name": "Introduction to Databases",
+      "semester": 3,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "JPD113",
+      "name": "Elementary Japanese 1- A1.1",
+      "semester": 3,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "LAB211",
+      "name": "OOP with Java Lab",
+      "semester": 3,
+      "credits": 3,
+      "prerequisites": "PRO192"
+    },
+    {
+      "code": "MAS291",
+      "name": "Statistics & Probability",
+      "semester": 3,
+      "credits": 3,
+      "prerequisites": "MAE101 or MAC101"
+    },
+    {
+      "code": "IOT102",
+      "name": "Internet of Things",
+      "semester": 4,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "JPD123",
+      "name": "Elementary Japanese 1-A1.2",
+      "semester": 4,
+      "credits": 3,
+      "prerequisites": "JPD113"
+    },
+    {
+      "code": "PRJ301",
+      "name": "Java Web Application Development",
+      "semester": 4,
+      "credits": 3,
+      "prerequisites": "DBI202, PRO192"
+    },
+    {
+      "code": "SSG104",
+      "name": "Communication and In-Group Working Skills",
+      "semester": 4,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "SWE201c",
+      "name": "Introduction to Software Engineering",
+      "semester": 4,
+      "credits": 3,
+      "prerequisites": "PRO192 (not applied to the BIT_AI and BA programs)"
+    },
+    {
+      "code": "SE_COM*1",
+      "name": "Subject 1 of Combo*",
+      "semester": 5,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "SWP391",
+      "name": "Software development project",
+      "semester": 5,
+      "credits": 3,
+      "prerequisites": "PRJ301, SWE201c, LAB211"
+    },
+    {
+      "code": "SWR302",
+      "name": "Software Requirement",
+      "semester": 5,
+      "credits": 3,
+      "prerequisites": "SWE102 or SWE201c"
+    },
+    {
+      "code": "SWT301",
+      "name": "Software Testing",
+      "semester": 5,
+      "credits": 3,
+      "prerequisites": "SWE102 or SWE201c"
+    },
+    {
+      "code": "WDU203c",
+      "name": "UI/UX Design",
+      "semester": 5,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "ENW493c",
+      "name": "Research Methods & Academic Writing Skills",
+      "semester": 6,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "OJT202",
+      "name": "On-The-Job Training",
+      "semester": 6,
+      "credits": 10,
+      "prerequisites": "Students attained 90% of the total credits prior to the OJT term (excluding Physical Education and OTP Programs) Students choosing JS combo (Japanese Bridge Engineer) have to pass JPD133"
+    },
+    {
+      "code": "EXE101",
+      "name": "Experiential Entrepreneurship 1",
+      "semester": 7,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "PMG201c",
+      "name": "Project Management",
+      "semester": 7,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "SE_COM*2",
+      "name": "Subject 2 of Combo*",
+      "semester": 7,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "SE_COM*3",
+      "name": "Subject 3 of Combo*",
+      "semester": 7,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "SWD392",
+      "name": "Software Architecture and Design",
+      "semester": 7,
+      "credits": 3,
+      "prerequisites": "SWE201c, PRO192"
+    },
+    {
+      "code": "EXE201",
+      "name": "Experiential Entrepreneurship 2",
+      "semester": 8,
+      "credits": 3,
+      "prerequisites": "EXE101"
+    },
+    {
+      "code": "ITE302c",
+      "name": "Ethics in IT",
+      "semester": 8,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "MLN111",
+      "name": "Philosophy of Marxism – Leninism",
+      "semester": 8,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "MLN122",
+      "name": "Political economics of Marxism – Leninism",
+      "semester": 8,
+      "credits": 2,
+      "prerequisites": null
+    },
+    {
+      "code": "PRM392",
+      "name": "Mobile Programming",
+      "semester": 8,
+      "credits": 3,
+      "prerequisites": "PRO192"
+    },
+    {
+      "code": "SE_COM*4_ELE",
+      "name": "Module 4 of SE combo",
+      "semester": 8,
+      "credits": 3,
+      "prerequisites": null
+    },
+    {
+      "code": "HCM202",
+      "name": "HCM Ideology",
+      "semester": 9,
+      "credits": 2,
+      "prerequisites": "MLN111, MLN122"
+    },
+    {
+      "code": "MLN131",
+      "name": "Scientific socialism",
+      "semester": 9,
+      "credits": 2,
+      "prerequisites": "MLN111, MLN122"
+    },
+    {
+      "code": "SE_GRA_ELE",
+      "name": "Graduation Elective - Software Engineering",
+      "semester": 9,
+      "credits": 10,
+      "prerequisites": null
+    },
+    {
+      "code": "VNR202",
+      "name": "History of CPV",
+      "semester": 9,
+      "credits": 2,
+      "prerequisites": "MLN111, MLN122"
+    }
+  ]
+}

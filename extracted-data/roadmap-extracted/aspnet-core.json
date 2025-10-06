@@ -1,0 +1,356 @@
+{
+  "title": "ASP.NET Core Roadmap",
+  "source": "roadmap.sh",
+  "legend": {
+    "recommended": "Personal Recommendation / Opinion",
+    "alternative": "Alternative Options",
+    "optional": "Optional / Learn anytime"
+  },
+  "mainPath": [
+    {
+      "title": "Learn the Basics of C#",
+      "children": [
+        { "title": "C#", "type": "recommended" },
+        { "title": ".NET", "type": "recommended" },
+        { "title": ".NET CLI", "type": "recommended" },
+        { "title": "StyleCop Rules", "type": "recommended" }
+      ]
+    },
+    {
+      "title": "General Development Skills",
+      "children": [
+        { "title": "Git - Version Control", "type": "recommended" },
+        { "title": "GitHub, GitLab, BitBucket", "type": "recommended" },
+        { "title": "HTTP / HTTPS Protocol", "type": "recommended" },
+        { "title": "Data Structures and Algorithms", "type": "recommended" }
+      ]
+    },
+    {
+      "title": "ASP.NET Core Basics",
+      "children": [
+        { "title": "MVC", "type": "recommended" },
+        { "title": "REST", "type": "recommended" },
+        { "title": "Minimal APIs", "type": "recommended" },
+        { "title": "Razor Pages", "type": "recommended" },
+        { "title": "Razor Components", "type": "optional" },
+        { "title": "Middlewares", "type": "recommended" },
+        { "title": "Filters and Attributes", "type": "recommended" },
+        { "title": "App Settings and Configs", "type": "recommended" }
+      ]
+    },
+    {
+      "title": "Database Fundamentals",
+      "children": [
+        { "title": "SQL Basics", "type": "recommended" },
+        { "title": "Database Design Basics", "type": "alternative" },
+        { "title": "Stored Procedures", "type": "recommended" },
+        { "title": "Constraints", "type": "recommended" },
+        { "title": "Triggers", "type": "alternative" }
+      ]
+    },
+    {
+      "title": "Object Relational Mapping",
+      "children": [
+        {
+          "title": "Entity Framework Core",
+          "type": "recommended",
+          "children": [
+            { "title": "Framework Basics", "type": "recommended" },
+            { "title": "Code First + Migrations", "type": "recommended" },
+            { "title": "Change Tracker API", "type": "recommended" },
+            { "title": "Lazy, Eager, Explicit Loading", "type": "recommended" }
+          ]
+        },
+        { "title": "Dapper", "type": "alternative" },
+        { "title": "RepoDB", "type": "optional" },
+        { "title": "NHibernate", "type": "recommended" }
+      ]
+    },
+    {
+      "title": "Caching",
+      "children": [
+        { "title": "Memory Cache", "type": "recommended" },
+        {
+          "title": "Distributed Cache",
+          "type": "recommended",
+          "children": [
+            { "title": "Redis", "type": "recommended" },
+            { "title": "Memcached", "type": "alternative" }
+          ]
+        },
+        { "title": "Entity Framework 2nd Level Cache", "type": "alternative" }
+      ]
+    },
+    {
+      "title": "Dependency Injection",
+      "children": [
+        {
+          "title": "DI Containers",
+          "type": "recommended",
+          "children": [
+            { "title": "Microsoft.Extensions", "type": "recommended" },
+            { "title": "AutoFac", "type": "optional" }
+          ]
+        },
+        { "title": "Scrutor", "type": "alternative" },
+        {
+          "title": "Life Cycles",
+          "type": "recommended",
+          "children": [
+            { "title": "Scoped", "type": "recommended" },
+            { "title": "Transient", "type": "recommended" },
+            { "title": "Singleton", "type": "recommended" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Databases",
+      "children": [
+        {
+          "title": "Relational",
+          "type": "recommended",
+          "children": [
+            { "title": "SQL Server", "type": "recommended" },
+            { "title": "PostgreSQL", "type": "recommended" },
+            { "title": "MySQL", "type": "recommended" },
+            { "title": "MariaDB", "type": "optional" }
+          ]
+        },
+        {
+          "title": "NoSQL",
+          "type": "recommended",
+          "children": [
+            { "title": "MongoDB", "type": "recommended" },
+            { "title": "Cassandra", "type": "alternative" },
+            { "title": "LiteDB", "type": "alternative" },
+            { "title": "CouchDB", "type": "alternative" }
+          ]
+        },
+        {
+          "title": "Search Engines",
+          "type": "recommended",
+          "children": [
+            { "title": "Elastic Search", "type": "recommended" },
+            { "title": "Solr", "type": "alternative" },
+            { "title": "Sphinx", "type": "alternative" }
+          ]
+        },
+        {
+          "title": "Cloud",
+          "type": "recommended",
+          "children": [
+            { "title": "Cosmos DB", "type": "alternative" },
+            { "title": "Dynamo DB", "type": "recommended" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Log Frameworks",
+      "children": [
+        { "title": "Serilog", "type": "recommended" },
+        { "title": "NLog", "type": "optional" }
+      ]
+    },
+    {
+      "title": "Real-Time Communication",
+      "children": [
+        { "title": "SignalR Core", "type": "recommended" },
+        { "title": "Web Sockets", "type": "optional" }
+      ]
+    },
+    {
+      "title": "API Clients and Communication",
+      "children": [
+        {
+          "title": "REST",
+          "type": "recommended",
+          "children": [
+            { "title": "Gridlify", "type": "recommended" },
+            { "title": "Odata", "type": "optional" }
+          ]
+        },
+        {
+          "title": "GraphQL",
+          "type": "alternative",
+          "children": [
+            { "title": "HotChocolate", "type": "recommended" },
+            { "title": "GraphQL .NET", "type": "optional" }
+          ]
+        },
+        { "title": "gRPC", "type": "alternative" }
+      ]
+    },
+    {
+      "title": "Object Mapping",
+      "children": [
+        { "title": "Manual Mapping", "type": "recommended" },
+        { "title": "AutoMapper", "type": "alternative" },
+        { "title": "Mapperly", "type": "alternative" }
+      ]
+    },
+    {
+      "title": "Task Scheduling",
+      "children": [
+        { "title": "Native Background Service", "type": "recommended" },
+        { "title": "Hangfire", "type": "recommended" },
+        { "title": "Quartz", "type": "optional" },
+        { "title": "Coravel", "type": "optional" }
+      ]
+    },
+    {
+      "title": "Testing",
+      "children": [
+        {
+          "title": "Unit Testing Frameworks",
+          "children": [
+            { "title": "XUnit", "type": "recommended" },
+            { "title": "NUnit", "type": "alternative" },
+            { "title": "MSTest", "type": "optional" }
+          ]
+        },
+        {
+          "title": "Mocking",
+          "children": [
+            { "title": "NSubstitute", "type": "recommended" },
+            { "title": "Moq", "type": "recommended" },
+            { "title": "FakeItEasy", "type": "optional" }
+          ]
+        },
+        {
+          "title": "Assertions",
+          "children": [
+            { "title": "Shouldly", "type": "recommended" }
+          ]
+        },
+        {
+          "title": "Fake Data Generation",
+          "children": [
+            { "title": "AutoFixture", "type": "recommended" },
+            { "title": "Bogus", "type": "alternative" }
+          ]
+        },
+        {
+          "title": "Behavior Testing",
+          "children": [
+            { "title": "Specflow", "type": "recommended" },
+            { "title": "Light BDD", "type": "alternative" }
+          ]
+        },
+        {
+          "title": "Integration Testing",
+          "children": [
+            { "title": "WebApplicationFactory", "type": "recommended" },
+            { "title": "Test Containers", "type": "recommended" },
+            { "title": ".NET Aspire", "type": "alternative" },
+            { "title": "Respawn", "type": "optional" }
+          ]
+        },
+        {
+          "title": "E2E Testing",
+          "children": [
+            { "title": "Playwright", "type": "recommended" },
+            { "title": "Puppeteer", "type": "alternative" },
+            { "title": "Cypress", "type": "alternative" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Microservices",
+      "children": [
+        {
+          "title": "Message Brokers",
+          "children": [
+            { "title": "RabbitMQ", "type": "recommended" },
+            { "title": "Azure Service Bus", "type": "recommended" },
+            { "title": "Kafka", "type": "alternative" },
+            { "title": "ActiveMQ", "type": "optional" },
+            { "title": "NetMQ", "type": "optional" }
+          ]
+        },
+        {
+          "title": "Message Bus",
+          "children": [
+            { "title": "NServiceBus", "type": "recommended" },
+            { "title": "Mass Transit", "type": "recommended" },
+            { "title": "EasyNetQ", "type": "optional" }
+          ]
+        },
+        {
+          "title": "API Gateway",
+          "children": [
+            { "title": "Ocelot", "type": "recommended" },
+            { "title": "YARP", "type": "recommended" }
+          ]
+        },
+        {
+          "title": "Containerization",
+          "children": [
+            { "title": "Docker", "type": "recommended" },
+            { "title": "Kubernetes", "type": "recommended" }
+          ]
+        },
+        {
+          "title": "Other",
+          "children": [
+            { "title": ".NET Aspire", "type": "recommended" },
+            { "title": "Orleans", "type": "alternative" },
+            { "title": "SteelToe", "type": "alternative" },
+            { "title": "Dapr", "type": "optional" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "CI / CD",
+      "children": [
+        { "title": "GitHub Actions", "type": "recommended" },
+        { "title": "GitLab CI/CD", "type": "recommended" },
+        { "title": "Azure Pipelines", "type": "alternative" },
+        { "title": "Circle CI", "type": "optional" }
+      ]
+    },
+    {
+      "title": "Software Design and Architecture"
+    },
+    {
+      "title": "Client-Side .NET",
+      "children": [
+        {
+          "title": "Template Engines",
+          "children": [
+            { "title": "Razor", "type": "alternative" },
+            { "title": "Scriban", "type": "optional" },
+            { "title": "Fluid", "type": "optional" }
+          ]
+        },
+        {
+          "title": "Frameworks",
+          "children": [
+            { "title": "Blazor", "type": "recommended" },
+            { "title": ".NET MAUI", "type": "alternative" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Good-to-Know Libraries",
+      "children": [
+        { "title": "Scalar", "type": "recommended" },
+        { "title": "MediatR", "type": "recommended" },
+        { "title": "FluentValidation", "type": "recommended" },
+        { "title": "Polly", "type": "alternative" },
+        { "title": "Marten", "type": "alternative" },
+        { "title": "Benchmark.NET", "type": "alternative" },
+        { "title": "Distributed Lock", "type": "alternative" },
+        { "title": "Nuke", "type": "optional" }
+      ]
+    },
+    {
+      "title": "Visit Backend path and see what you missed",
+      "link": "Backend Roadmap"
+    }
+  ]
+}

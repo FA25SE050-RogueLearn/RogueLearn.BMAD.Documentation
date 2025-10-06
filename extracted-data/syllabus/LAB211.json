@@ -1,0 +1,149 @@
+{
+  "syllabusId": 10021,
+  "syllabusName": "OOP with Java Lab_Thực hành OOP với Java",
+  "syllabusEnglish": "OOP with Java Lab",
+  "subjectCode": "LAB211",
+  "noCredit": 3,
+  "degreeLevel": "Bachelor",
+  "timeAllocation": {
+    "totalStudyHours": 150,
+    "contactHours": 45,
+    "selfStudyHours": 105
+  },
+  "preRequisite": "PRO192",
+  "description": "This course focuses on basic problems related to Java programming skills. Students are required to implement all assignments by him/her self in lab rooms.\nEach assignment must be completed continuosly in the defined time.",
+  "studentTasks": [
+    "Students must attend at least 80% of contact slots in order to be accepted to the final results.",
+    "Students are responsible to conform to Lab Room Regulations",
+    "Use desktop computers only in lab room for learning purposes",
+    "Promptly access to the FU LMS at https://flm.fpt.edu.vn/ for up-to-date course information"
+  ],
+  "tools": [
+    "NetBean 8.0.2",
+    "CheckStyle plugin for netbeans",
+    "JAVA DOC",
+    "JDK8",
+    "Tomcat Apache 8",
+    "Microsoft Excel 2007 or above",
+    "Microsoft Word 2007 or above",
+    "Microsoft Powerpoint 2007 or above",
+    "Microsoft Windows XP or above"
+  ],
+  "scoringScale": null,
+  "decision": {
+    "number": "808/QĐ-ĐHFPT",
+    "date": "2023-08-03"
+  },
+  "isApproved": true,
+  "note": null,
+  "minAvgMarkToPass": null,
+  "isActive": true,
+  "approvedDate": "2023-08-03",
+  "materials": [
+    {
+      "description": "Lab Room Regulations (For Students)",
+      "author": null,
+      "publisher": null,
+      "publishedDate": null,
+      "edition": null,
+      "isbn": null,
+      "note": "Bản mềm do FU biên soạn"
+    },
+    {
+      "description": "Mentor guide For Lab (For Mentors only)",
+      "author": null,
+      "publisher": null,
+      "publishedDate": null,
+      "edition": null,
+      "isbn": null,
+      "note": "Bản mềm do FU biên soạn"
+    },
+    {
+      "description": "Evaluation Templates (For Mentors only)",
+      "author": null,
+      "publisher": null,
+      "publishedDate": null,
+      "edition": null,
+      "isbn": null,
+      "note": "Bản mềm do FU biên soạn"
+    }
+  ],
+  "courseLearningOutcomes": [
+    {
+      "name": "CLO1",
+      "details": "Proficency in basic Java skills required in PRO192 Course"
+    },
+    {
+      "name": "CLO2",
+      "details": "Be able to Independently complete small-size assignments"
+    },
+    {
+      "name": "CLO3",
+      "details": "Be able to debug code using common tools"
+    }
+  ],
+  "sessions": [
+    { "session": 1, "topic": "Orientation", "learningType": "Offline", "downloads": "LAB211" },
+    { "session": 2, "topic": "Orientation", "learningType": "Offline", "downloads": "LAB211" },
+    { "session": 3, "topic": "Orientation", "learningType": "Offline" },
+    { "session": 4, "topic": "Orientation", "learningType": "Offline" },
+    { "session": 5, "topic": "Practice", "learningType": "Offline" },
+    { "session": 6, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 7, "topic": "Practice", "learningType": "Offline" },
+    { "session": 8, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 9, "topic": "Practice", "learningType": "Offline" },
+    { "session": 10, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 11, "topic": "Practice", "learningType": "Offline" },
+    { "session": 12, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 13, "topic": "Practice", "learningType": "Offline" },
+    { "session": 14, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 15, "topic": "Practice", "learningType": "Offline" },
+    { "session": 16, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 17, "topic": "Practice", "learningType": "Offline" },
+    { "session": 18, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 19, "topic": "Practice", "learningType": "Offline" },
+    { "session": 20, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 21, "topic": "Practice", "learningType": "Offline" },
+    { "session": 22, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 23, "topic": "Practice", "learningType": "Offline" },
+    { "session": 24, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 25, "topic": "Practice", "learningType": "Offline" },
+    { "session": 26, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 27, "topic": "Practice", "learningType": "Offline" },
+    { "session": 28, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 29, "topic": "Practice", "learningType": "Offline" },
+    { "session": 30, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 31, "topic": "Practice", "learningType": "Offline" },
+    { "session": 32, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 33, "topic": "Practice", "learningType": "Offline" },
+    { "session": 34, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 35, "topic": "Practice", "learningType": "Offline" },
+    { "session": 36, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 37, "topic": "Practice", "learningType": "Offline" },
+    { "session": 38, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 39, "topic": "Practice", "learningType": "Offline" },
+    { "session": 40, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 41, "topic": "Practice", "learningType": "Offline" },
+    { "session": 42, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 43, "topic": "Practice", "learningType": "Offline" },
+    { "session": 44, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 45, "topic": "Practice", "learningType": "Offline" },
+    { "session": 46, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 47, "topic": "Practice", "learningType": "Offline" },
+    { "session": 48, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 49, "topic": "Practice", "learningType": "Offline" },
+    { "session": 50, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 51, "topic": "Practice", "learningType": "Offline" },
+    { "session": 52, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 53, "topic": "Practice", "learningType": "Offline" },
+    { "session": 54, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 55, "topic": "Practice", "learningType": "Offline" },
+    { "session": 56, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 57, "topic": "Practice", "learningType": "Offline" },
+    { "session": 58, "topic": "Mentor review", "learningType": "Offline" },
+    { "session": 59, "topic": "Practice", "learningType": "Offline" },
+    { "session": 60, "topic": "Mentor review", "learningType": "Offline" }
+  ],
+  "constructiveQuestions": [],
+  "assessments": []
+}
