@@ -17,7 +17,7 @@ This document outlines which database tables and collections are used by each mi
 - `curriculum_versions` - Versioned curriculum snapshots (e.g., "K18A", "K18B") with effective year tracking
 - `subjects` - Master list of all subjects with codes and credits
 - `curriculum_structure` - Junction table defining curriculum-subject relationships with term sequencing
-- `syllabus_versions` - Versioned syllabi for each subject
+- `syllabus_versions` - Versioned syllabus for each subject
 - `student_enrollments` - Links students to specific curriculum versions with enrollment tracking
 - `student_term_subjects` - Comprehensive academic term tracking with status (Enrolled, Completed, Failed, Withdrawn)
 - `user_skills` - User skill progression tracking with experience points

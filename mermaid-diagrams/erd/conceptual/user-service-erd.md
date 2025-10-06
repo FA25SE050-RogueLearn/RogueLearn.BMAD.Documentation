@@ -53,7 +53,7 @@ erDiagram
 - **Subjects**: Master list of all subjects with codes and credits
 - **StudentEnrollments**: Links students to specific curriculum versions
 - **StudentTermSubjects**: Tracks actual subject enrollment per academic term
-- **SyllabusVersions**: Versioned syllabi for each subject
+- **SyllabusVersions**: Versioned syllabus for each subject
 
 ### Student Progress Tracking
 - **StudentTermSubjects**: Comprehensive tracking of student academic journey

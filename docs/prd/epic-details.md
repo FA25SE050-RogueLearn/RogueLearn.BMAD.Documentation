@@ -513,7 +513,7 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 
 *   **Acceptance Criteria:**
     *   Extension identifies and extracts structured academic data from supported university portals
-    *   Automated extraction of syllabi, schedules, grades, and assignment information
+    *   Automated extraction of syllabus, schedules, grades, and assignment information
     *   Secure data transmission to RogueLearn platform with user consent
     *   Support for major Learning Management Systems (Canvas, Blackboard, Moodle)
     *   Manual extraction tools for unsupported systems

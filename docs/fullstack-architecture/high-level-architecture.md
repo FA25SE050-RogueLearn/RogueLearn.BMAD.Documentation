@@ -25,7 +25,7 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 *   **`roguelearn-web`**: The Next.js frontend application.
 *   **`roguelearn-unity-games`**: The Unity project containing the "Boss Fight" game client.
 *   **`roguelearn-user-service`**: .NET microservice for user profiles, preferences, and user-related operations (authentication handled by Supabase Auth).
-*   **`roguelearn-quests-service`**: .NET microservice for syllabi, quests, skill trees, and game session logic.
+*   **`roguelearn-quests-service`**: .NET microservice for syllabus, quests, skill trees, and game session logic.
 *   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
 *   **`roguelearn-meeting-service`**: Go microservice for party meetings, scheduling, and meeting-related features.
 *   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code with Qdrant for vector storage.
@@ -34,7 +34,7 @@ As established, we will use a **Multi-Repo Strategy**. This provides the best se
 
 ### **High Level Architecture Diagram**
 
-This diagram illustrates the primary components and data flow of the RogueLearn platform, now reflecting the use of Supabase Authentication.
+This diagram illustrates the primary components and data flow of the RogueLearn platform, updated to integrate Verification into the User Service and move Rewards and Skill Tree (formerly Knowledge Graph) into the Quests Service, with an Event Bus for asynchronous orchestration.
 
 ```mermaid
 graph TD
@@ -58,13 +58,27 @@ graph TD
         RealtimeHub[Real-time Hub WebSockets]
         
         subgraph "Microservices"
-            UserService[.NET User Service]
-            QuestService[.NET Quests Service]
+            subgraph UserService[.NET User Service]
+                UserCore[Profiles, Academic, Achievements]
+                UserVerification[Verification Module]
+                UserRewards[Rewards Module]
+                UserSkillTree[Skill Tree Module]
+            end
+            subgraph QuestService[.NET Quests Service]
+                QuestCore[Syllabus, Quests, Sessions]
+            end
             SocialService[.NET Social Service]
             MeetingService[Go Meeting Service]
             CodeBattleService[Go Code Battle Service]
             AIProxyService[.NET AI Proxy Service]
         end
+    end
+
+    subgraph "Event Bus (Azure Service Bus)"
+        TopicQuestCompleted[topic: quest.completed]
+        TopicVerification[topic: verification.updated]
+        TopicSkillTree[topic: skilltree.updated]
+        TopicRewards[topic: reward.triggered]
     end
 
     subgraph "Data & Asset Layer (Supabase)"
@@ -92,8 +106,15 @@ graph TD
     APIGateway --> CodeBattleService
     APIGateway --> AIProxyService
     
+    %% Internal modules are accessed via the parent services
+    APIGateway --> UserVerification
+    APIGateway --> UserRewards
+    APIGateway --> UserSkillTree
+    
     RealtimeHub --> SocialService
     RealtimeHub --> MeetingService
+    RealtimeHub --> UserVerification
+    RealtimeHub --> UserRewards
 
     UserService -- Sync Trigger --> Database
 
@@ -104,17 +125,31 @@ graph TD
     
     CodeBattleService --> Database
     
+    UserVerification --> Database
+    UserRewards --> Database
+    UserSkillTree --> Database
+    
     AIProxyService --> Gemini
     AIProxyService --> Database
 
     Database <--> FileStorage
     SupabaseAuth <--> Database
+
+    %% Event Bus interactions
+    QuestService -- publish --> TopicQuestCompleted
+    UserVerification -- publish --> TopicVerification
+    UserSkillTree -- subscribe --> TopicQuestCompleted
+    UserSkillTree -- publish --> TopicSkillTree
+    UserRewards -- subscribe --> TopicQuestCompleted
+    UserRewards -- subscribe --> TopicVerification
+    UserRewards -- publish --> TopicRewards
 ```
 
 ### **Architectural and Design Patterns**
 
 *   **Microservices Architecture:** The backend will be composed of small, independent services. *Rationale:* This allows for independent development, deployment, and scaling.
 *   **API Gateway:** A single entry point for synchronous requests. *Rationale:* Simplifies the client, centralizes cross-cutting concerns like auth and rate limiting.
+*   **Event-Driven Orchestration:** Cross-service workflows coordinated via an Event Bus (Azure Service Bus). *Rationale:* Decouples services and enables scalable, resilient processing.
 *   **Clean Architecture (.NET):** Each microservice will separate domain logic, application logic, and infrastructure. *Rationale:* Produces highly testable and maintainable services.
 *   **Component-Based UI (Next.js):** The frontend will be built as a collection of reusable components. *Rationale:* Promotes reusability and faster development.
 *   **Repository Pattern (.NET):** Data access within each microservice will be abstracted. *Rationale:* Decouples business logic from data access implementation.

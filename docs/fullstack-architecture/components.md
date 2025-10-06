@@ -15,13 +15,23 @@ This section details the major logical components of the platform.
 
 ### **User Service (`roguelearn-user-service`)**
 
-*   **Responsibility:** Manages user profiles, preferences, and user-related operations. Handles profile synchronization with Supabase Auth and manages user data across the platform.
+*   **Responsibility:** Manages user profiles, preferences, and user-related operations. Handles profile synchronization with Supabase Auth and manages user data across the platform. Owns Verification workflows.
 *   **Technology Stack:** .NET 9, C#.
+
+#### **User Service Modules**
+
+*   **Verification:** Lecturer verification workflows, document validation, admin review; emits `verification.updated` events.
+*   **Rewards:** Listens to domain events (quest completion, verification changes), computes reward cascades (XP, achievements, badges); emits `reward.triggered` to clients.
+*   **Skill Tree (Knowledge Graph):** Owns the user's current skill tree; updates nodes and relationships based on quest outcomes and verification signals; emits `skilltree.updated`.
 
 ### **Quests Service (`roguelearn-quests-service`)**
 
 *   **Responsibility:** Owns the core learning loop, including Academic Management (Syllabuses, Enrollments), Quests, SkillTrees, and **Game Sessions**.
 *   **Technology Stack:** .NET 9, C#.
+
+#### **Quests Service Modules**
+
+*   (none specific; core quest management)
 
 ### **Social Service (`roguelearn-social-service`)**
 
@@ -53,6 +63,8 @@ This section details the major logical components of the platform.
     *   Performance metrics and scoring algorithms
     *   Integration with events system for competitions
 *   **Technology Stack:** Go, Docker (for sandboxing), WebSocket support for real-time features.
+
+<!-- Folded into User Service as modules above -->
 
 ### **Component Interaction Diagram**
 
@@ -100,9 +112,12 @@ graph TD
     Gateway --> Social
     Gateway --> Meeting
     Gateway --> CodeBattle
+    %% Modules are part of User Service; accessed via User endpoints
 
     Realtime --> Social
     Realtime --> Meeting
+    Realtime --> User
+    Realtime --> Quests
 
     User -- Sync Trigger --> DB
     
@@ -115,7 +130,14 @@ graph TD
     Meeting --> DB
     
     CodeBattle --> DB
+    User --> DB
 
     AIProxy --> Gemini
+
+    %% Event-driven interactions
+    Quests -. publish quest.completed .-> User
+    User -. publish verification.updated .-> User
+    User -. publish reward.triggered .-> WebApp
+    User -. publish skilltree.updated .-> WebApp
 ```
 

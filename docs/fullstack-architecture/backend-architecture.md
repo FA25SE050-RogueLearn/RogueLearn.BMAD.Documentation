@@ -11,7 +11,7 @@ The backend consists of the following microservices:
 
 #### **Core .NET Services**
 *   **User Service** (`roguelearn-user-service`) - Manages user profiles, preferences, and user-related operations
-*   **Quests Service** (`roguelearn-quests-service`) - Handles syllabi, quests, skill trees, and game session logic
+*   **Quests Service** (`roguelearn-quests-service`) - Handles syllabus, quests, skill trees, and game session logic
 *   **Social Service** (`roguelearn-social-service`) - Manages parties, guilds, events, and real-time duels
 *   **AI Proxy Service** (`roguelearn-ai-proxy-service`) - Secure gateway for Gemini API communications
 
@@ -125,6 +125,8 @@ public interface IQuestRepository
 #### **SignalR Hubs**
 *   **Social Hub:** Handles duels, party notifications, guild events
 *   **Code Battle Hub:** Provides live updates during coding competitions
+*   **Verification Hub:** Streams verification status updates to admin and users
+*   **Rewards Hub:** Pushes reward unlocks and XP changes in real time
 
 #### **WebSocket Connections (Go Services)**
 *   **Meeting Hub:** Manages real-time meeting collaboration via WebSocket
@@ -151,6 +153,37 @@ type MeetingHub struct {
 func (h *MeetingHub) JoinMeetingRoom(conn *websocket.Conn, meetingId string) {
     h.rooms[meetingId] = append(h.rooms[meetingId], conn.RemoteAddr().String())
 }
+```
+
+### **Event Bus & Orchestration**
+
+*   **Event Bus:** Azure Service Bus topics are used for asynchronous cross-service orchestration.
+*   **Key Topics:** `quest.completed`, `verification.updated`, `reward.triggered`, `skilltree.updated`.
+*   **Subscriptions:**
+    *   Quests Service Rewards module subscribes to `quest.completed`, `verification.updated`.
+    *   Quests Service Skill Tree module subscribes to `quest.completed` and publishes `skilltree.updated`.
+    *   Quests Service may listen to `skilltree.updated` to adjust recommendations.
+
+```mermaid
+sequenceDiagram
+    participant Q as Quests Service
+    participant U as User Service
+    participant R as User: Rewards Module
+    participant K as User: Skill Tree
+    participant V as User: Verification Module
+    participant B as Event Bus
+
+    Q->>B: Publish quest.completed
+    B-->>R: quest.completed
+    B-->>K: quest.completed
+    R->>R: Calculate rewards
+    R->>B: Publish reward.triggered
+    K->>K: Update skill tree
+    K->>B: Publish skilltree.updated
+    Q-->>Q: Update recommendations
+    V->>B: Publish verification.updated
+    B-->>R: verification.updated
+    R->>R: Recalculate rewards if necessary
 ```
 
 ### **Authentication and Authorization**

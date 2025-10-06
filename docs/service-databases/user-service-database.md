@@ -152,7 +152,7 @@ CREATE TABLE curriculum_structure (
 ```
 
 #### syllabus_versions
-Versioned syllabi for each subject
+Versioned syllabus for each subject
 ```sql
 CREATE TABLE syllabus_versions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

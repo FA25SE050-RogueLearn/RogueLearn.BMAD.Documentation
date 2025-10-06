@@ -9,6 +9,7 @@ This section defines the core data models and entities for the platform.
 export type UserRole = 'Student' | 'Lecturer' | 'Admin';
 export type QuestStatus = 'NotStarted' | 'InProgress' | 'Completed' | 'Failed';
 export type QuestType = 'Theory' | 'Practice' | 'Project' | 'Assessment';
+export type ObjectiveType = 'Challenge' | 'Submission' | 'Verification' | 'Quiz';
 export type SkillLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
 export type AchievementType = 'Quest' | 'Skill' | 'Social' | 'Special';
 export type NotificationType = 'Quest' | 'Achievement' | 'Social' | 'System';
@@ -85,6 +86,56 @@ export interface LecturerVerificationRequest {
   submitted_at: string;
   reviewed_at?: string;
   reviewer_notes?: string;
+}
+```
+
+### **Objective & Progress Events**
+
+**Purpose:** Standardize objective-level progress reporting and event contracts for orchestration.
+
+```typescript
+export interface Objective {
+  id: string;
+  quest_id: string;
+  type: ObjectiveType; // 'Challenge', 'Submission', 'Verification', 'Quiz'
+  title: string;
+  description?: string;
+  weight: number; // contribution to quest completion
+}
+
+export interface ObjectiveProgressEvent {
+  event_id: string;
+  objective_id: string;
+  quest_id: string;
+  auth_user_id: string;
+  status: 'Started' | 'Completed' | 'Failed';
+  score?: number;
+  emitted_at: string; // ISO timestamp
+}
+
+export interface QuestCompletedEvent {
+  event_id: string;
+  quest_id: string;
+  auth_user_id: string;
+  total_score?: number;
+  completed_at: string;
+}
+
+export interface VerificationUpdatedEvent {
+  event_id: string;
+  verification_id: string;
+  auth_user_id: string;
+  status: VerificationStatus;
+  updated_at: string;
+}
+
+export interface RewardTriggeredEvent {
+  event_id: string;
+  auth_user_id: string;
+  context: 'Quest' | 'Verification' | 'Other';
+  context_id: string;
+  rewards: Array<{ type: 'XP' | 'Achievement' | 'Badge'; amount?: number; id?: string }>;
+  emitted_at: string;
 }
 ```
 
@@ -789,7 +840,9 @@ export interface CurriculumPack {
   meta: CurriculumPackMeta;
   items: CurriculumQuestion[]; // Snapshot of served questions/items
 }
-#### BossFightQuestionPack (Specialization)
+```
+
+#### **BossFightQuestionPack (Specialization)**
 
 This is a specialization of CurriculumPack for the Boss Fight loop.
 
@@ -819,7 +872,8 @@ Minimal JSON example used by Unity:
 }
 ```
 
-#### JSON Schema (Draft 2020-12)
+#### **JSON Schema (Draft 2020-12)**
+```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://bmad.local/schemas/curriculum-pack.json",

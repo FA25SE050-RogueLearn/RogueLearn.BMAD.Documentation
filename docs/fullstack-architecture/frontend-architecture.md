@@ -57,6 +57,13 @@ export default QuestItem;
 *   **Library:** **Next.js App Router** will be used for all routing.
 *   **Protected Routes:** A `src/middleware.ts` file will be used to protect routes, integrating with the **Supabase Auth Helpers SDK**.
 
+#### **Workspace Router**
+
+*   **Mission Control:** `/workspace/mission-control` aggregates quest progress, verification statuses, and rewards feed.
+*   **Code Arena:** `/workspace/code-arena` hosts competitive programming rooms and live leaderboards.
+*   **Verification Center:** `/workspace/verification` for lecturer verification requests and admin review.
+*   **Skill Graph:** `/workspace/skill-graph` visualizes personalized skill recommendations.
+
 ### **Unity WebGL Integration**
 
 *   **Strategy:** The Unity game builds will be hosted on Supabase Storage. The Next.js application will embed the game within a dedicated React component.
@@ -120,5 +127,15 @@ apiClient.interceptors.request.use(async (config) => {
 });
 
 export default apiClient;
+
+// Example: Event Bus subscriptions via SignalR
+// src/lib/realtime.ts
+import { HubConnectionBuilder } from '@microsoft/signalr';
+
+export const createRealtimeConnection = () =>
+  new HubConnectionBuilder()
+    .withUrl(`${process.env.NEXT_PUBLIC_API_URL}/hub/rewards`)
+    .withAutomaticReconnect()
+    .build();
 ```
-
+

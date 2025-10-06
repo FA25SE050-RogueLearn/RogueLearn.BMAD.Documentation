@@ -16,7 +16,7 @@ sequenceDiagram
 
     alt Content Ingestion Trigger
         U->>UI: Uploads Syllabus Document
-        UI->>APIGateway: POST /syllabi/upload
+        UI->>APIGateway: POST /syllabus/upload
         APIGateway->>QuestsService: Process Syllabus
     else Browser Extension Capture
         U->>Browser: Finds academic content online

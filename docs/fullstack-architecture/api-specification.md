@@ -356,7 +356,177 @@ paths:
         '202':
           description: Challenge sent.
 
-  # Meeting Endpoints
+  # User Verification Endpoints
+  /users/{authUserId}/verification/requests:
+    get:
+      summary: List verification requests for a user (or admin)
+      tags: [Users]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: authUserId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: A list of verification requests.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LecturerVerificationRequest'
+    post:
+      summary: Create a new verification request
+      tags: [Users]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LecturerVerificationRequest'
+      responses:
+        '201':
+          description: Verification request created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LecturerVerificationRequest'
+
+  /users/{authUserId}/verification/requests/{requestId}:
+    patch:
+      summary: Update verification request status (admin)
+      tags: [Users]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: authUserId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: requestId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [Pending, Approved, Rejected, MoreInfoRequired]
+                reviewer_notes: { type: string, nullable: true }
+      responses:
+        '200':
+          description: Updated verification request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LecturerVerificationRequest'
+
+  # User Rewards Endpoints
+  /users/{authUserId}/rewards/preview:
+    post:
+      summary: Preview rewards for a user in a given context
+      tags: [Users]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: authUserId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context: { type: string, enum: [Quest, Verification, Other] }
+                context_id: { type: string }
+      responses:
+        '200':
+          description: Previewed rewards.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type: { type: string, enum: [XP, Achievement, Badge] }
+                    amount: { type: number, nullable: true }
+                    id: { type: string, nullable: true }
+
+  /users/{authUserId}/rewards/apply:
+    post:
+      summary: Apply rewards for a user in a given context
+      tags: [Users]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: authUserId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context: { type: string, enum: [Quest, Verification, Other] }
+                context_id: { type: string }
+      responses:
+        '202':
+          description: Rewards application queued.
+
+  # User Skill Tree Endpoints
+  /users/{authUserId}/skill-tree:
+    get:
+      summary: Get current skill tree for a user
+      tags: [Users]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: authUserId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Current skill tree nodes and edges for user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nodes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string }
+                        label: { type: string }
+                        level: { type: string, enum: [Beginner, Intermediate, Advanced] }
+                  edges:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        from: { type: string }
+                        to: { type: string }
+                        weight: { type: number }
+
+  # Meeting Endpoints                        
   /meetings:
     get:
       summary: Get meetings for current user
