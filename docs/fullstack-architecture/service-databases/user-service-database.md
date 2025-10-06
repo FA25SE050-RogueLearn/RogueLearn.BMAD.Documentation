@@ -146,6 +146,7 @@ CREATE TABLE curriculum_structure (
     term_number INTEGER NOT NULL,
     is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
     prerequisite_subject_ids UUID[],
+    prerequisites_text TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (curriculum_version_id, subject_id)
 );
