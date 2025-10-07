@@ -19,15 +19,17 @@ CREATE TABLE roles (
 ```
 
 #### classes
-Academic class definitions
+Roadmap.sh specializations (Step 2 of Character Creation flow)
 ```sql
 CREATE TABLE classes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL, -- e.g., "Backend Developer", "Frontend Developer"
     description TEXT,
-    academic_year VARCHAR(10) NOT NULL,
-    semester VARCHAR(20) NOT NULL,
-    lecturer_id UUID, -- Will add FK constraint later
+    roadmap_url TEXT, -- Link to roadmap.sh specialization
+    skill_focus_areas TEXT[], -- Array of primary skill domains
+    difficulty_level INTEGER DEFAULT 1, -- 1=Beginner, 2=Intermediate, 3=Advanced
+    estimated_duration_months INTEGER, -- Expected time to complete roadmap
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -59,8 +61,8 @@ CREATE TABLE user_profiles (
     email VARCHAR(255) NOT NULL UNIQUE,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
-    class_id UUID REFERENCES classes(id),
-    route_id UUID REFERENCES curriculum_programs(id),
+    class_id UUID REFERENCES classes(id), -- Selected roadmap.sh specialization (Step 2)
+    route_id UUID REFERENCES curriculum_programs(id), -- Selected curriculum (Step 1)
     level INTEGER NOT NULL DEFAULT 1,
     experience_points INTEGER NOT NULL DEFAULT 0,
     profile_image_url TEXT,
@@ -97,12 +99,6 @@ CREATE TABLE lecturer_verification_requests (
     reviewer_id UUID REFERENCES user_profiles(auth_user_id),
     notes TEXT
 );
-```
-
--- Add FK constraint to classes table after user_profiles is created
-```sql
-ALTER TABLE classes ADD CONSTRAINT fk_classes_lecturer 
-    FOREIGN KEY (lecturer_id) REFERENCES user_profiles(auth_user_id);
 ```
 
 ### Academic Structure
@@ -146,6 +142,7 @@ CREATE TABLE curriculum_structure (
     term_number INTEGER NOT NULL,
     is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
     prerequisite_subject_ids UUID[],
+    prerequisites_text TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (curriculum_version_id, subject_id)
 );
@@ -418,6 +415,11 @@ CREATE INDEX idx_user_profiles_auth_user_id ON user_profiles(auth_user_id);
 CREATE INDEX idx_user_profiles_username ON user_profiles(username);
 CREATE INDEX idx_user_profiles_email ON user_profiles(email);
 CREATE INDEX idx_user_profiles_class_id ON user_profiles(class_id);
+
+-- Roadmap.sh specialization indexes
+CREATE INDEX idx_classes_name ON classes(name);
+CREATE INDEX idx_classes_is_active ON classes(is_active);
+CREATE INDEX idx_classes_difficulty_level ON classes(difficulty_level);
 
 -- Academic structure indexes
 CREATE INDEX idx_curriculum_structure_curriculum_version_id ON curriculum_structure(curriculum_version_id);
