@@ -1,3 +1,4 @@
+// RougeLearn.BMAD.Documentation/docs/fullstack-architecture/components.md
 # **Components**
 
 This section details the major logical components of the platform.
@@ -26,12 +27,8 @@ This section details the major logical components of the platform.
 
 ### **Quests Service (`roguelearn-quests-service`)**
 
-*   **Responsibility:** Owns the core learning loop, including Academic Management (Syllabuses, Enrollments), Quests, SkillTrees, and **Game Sessions**.
+*   **Responsibility:** Owns the core learning loop, including Academic Management (Syllabuses, Enrollments), Quests, SkillTrees, and **Game Sessions**. Orchestrates the curriculum ingestion pipeline.
 *   **Technology Stack:** .NET 9, C#.
-
-#### **Quests Service Modules**
-
-*   (none specific; core quest management)
 
 ### **Social Service (`roguelearn-social-service`)**
 
@@ -41,28 +38,22 @@ This section details the major logical components of the platform.
 ### **Meeting Service (`roguelearn-meeting-service`)**
 
 *   **Responsibility:** Manages party meetings, scheduling, collaboration features, and real-time meeting interactions. Handles meeting agendas, participant management, note-taking, and meeting status tracking.
-*   **Key Features:**
-    *   Meeting scheduling and lifecycle management
-    *   Real-time participant collaboration
-    *   Meeting agenda and note management
-    *   Integration with party system for seamless collaboration
 *   **Technology Stack:** Go, WebSocket support for real-time features.
 
 ### **AI Proxy Service (`roguelearn-ai-proxy-service`)**
 
-*   **Responsibility:** Acts as a secure, internal gateway for all communications with the Gemini API.
+*   **Responsibility:** Acts as a secure, internal gateway for all communications with the Gemini API. Facilitates complex data structuring and analysis tasks.
 *   **Technology Stack:** .NET 9, C#.
 
 ### **Code Battle Service (`roguelearn-code-battle-service`)**
 
-*   **Responsibility:** Manages competitive programming features including code compilation, execution, and scoring in secure sandboxed environments. Handles real-time code battle rooms, language support, and submission evaluation.
-*   **Key Features:**
-    *   Secure code compilation and execution
-    *   Real-time battle room management
-    *   Multi-language support and evaluation
-    *   Performance metrics and scoring algorithms
-    *   Integration with events system for competitions
+*   **Responsibility:** Manages competitive programming features including code compilation, execution, and scoring in secure sandboxed environments.
 *   **Technology Stack:** Go, Docker (for sandboxing), WebSocket support for real-time features.
+
+### **Scraping Service (`RogueLearn.Scraper`)**
+
+*   **Responsibility:** A specialized service dedicated to extracting raw HTML content from external URLs using web scraping libraries that are difficult to block. It contains no business logic.
+*   **Technology Stack:** Python, FastAPI, Botasaurus.
 
 <!-- Folded into User Service as modules above -->
 
@@ -88,10 +79,12 @@ graph TD
         Meeting["Meeting Service (Go)"]
         CodeBattle["Code Battle Service (Go)"]
         AIProxy["AI Proxy Service<br/><em>Internal Only</em>"]
+        Scraper["Scraping Service (Python)<br/><em>Internal Only</em>"]
     end
 
     subgraph "External Dependencies"
         Gemini["Gemini API"]
+        ExternalWeb[External University Websites]
     end
 
     subgraph "Data & Asset Persistence (Supabase)"
@@ -112,7 +105,7 @@ graph TD
     Gateway --> Social
     Gateway --> Meeting
     Gateway --> CodeBattle
-    %% Modules are part of User Service; accessed via User endpoints
+    Gateway --> AIProxy
 
     Realtime --> Social
     Realtime --> Meeting
@@ -122,6 +115,7 @@ graph TD
     User -- Sync Trigger --> DB
     
     Quests --> AIProxy
+    Quests --> Scraper
     Quests --> DB
     Quests --> Store
     
@@ -133,6 +127,7 @@ graph TD
     User --> DB
 
     AIProxy --> Gemini
+    Scraper --> ExternalWeb
 
     %% Event-driven interactions
     Quests -. publish quest.completed .-> User
@@ -140,4 +135,3 @@ graph TD
     User -. publish reward.triggered .-> WebApp
     User -. publish skilltree.updated .-> WebApp
 ```
-
