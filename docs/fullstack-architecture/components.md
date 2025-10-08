@@ -1,4 +1,3 @@
-// RougeLearn.BMAD.Documentation/docs/fullstack-architecture/components.md
 # **Components**
 
 This section details the major logical components of the platform.
@@ -64,7 +63,7 @@ This diagram shows how the components interact.
 ```mermaid
 graph TD
     subgraph "Clients"
-        WebApp("Next.js Web App") -- embeds --> Unity("Unity Game Client")
+        WebApp["Next.js Web App"] -- embeds --> Unity["Unity Game Client"]
     end
 
     subgraph "Entry Layer (Azure)"
@@ -78,27 +77,27 @@ graph TD
         Social["Social Service"]
         Meeting["Meeting Service (Go)"]
         CodeBattle["Code Battle Service (Go)"]
-        AIProxy["AI Proxy Service<br/><em>Internal Only</em>"]
-        Scraper["Scraping Service (Python)<br/><em>Internal Only</em>"]
+        AIProxy["AI Proxy Service (Internal Only)"]
+        Scraper["Scraping Service (Python, Internal Only)"]
     end
 
     subgraph "External Dependencies"
         Gemini["Gemini API"]
-        ExternalWeb[External University Websites]
+        ExternalWeb["External University Websites"]
     end
 
     subgraph "Data & Asset Persistence (Supabase)"
         DB["PostgreSQL DB"]
         Store["File Storage"]
         GameAssets["Game Asset Hosting (CDN)"]
-        SupabaseAuth[Supabase GoTrue Auth]
+        SupabaseAuth["Supabase GoTrue Auth"]
     end
 
-    WebApp -- Auth via SDK --> SupabaseAuth
+    WebApp -- "Auth via SDK" --> SupabaseAuth
     WebApp -- HTTP --> Gateway
     WebApp -- WebSocket --> Realtime
     Unity -- HTTP --> Gateway
-    Unity -- loads assets from --> GameAssets
+    Unity -- "loads assets from" --> GameAssets
     
     Gateway --> User
     Gateway --> Quests
@@ -112,7 +111,7 @@ graph TD
     Realtime --> User
     Realtime --> Quests
 
-    User -- Sync Trigger --> DB
+    User -- "Sync Trigger" --> DB
     
     Quests --> AIProxy
     Quests --> Scraper
@@ -130,8 +129,8 @@ graph TD
     Scraper --> ExternalWeb
 
     %% Event-driven interactions
-    Quests -. publish quest.completed .-> User
-    User -. publish verification.updated .-> User
-    User -. publish reward.triggered .-> WebApp
-    User -. publish skilltree.updated .-> WebApp
+    Quests -. "publish quest.completed" .-> User
+    User -. "publish verification.updated" .-> User
+    User -. "publish reward.triggered" .-> WebApp
+    User -. "publish skilltree.updated" .-> WebApp
 ```
