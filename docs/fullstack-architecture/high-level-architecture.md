@@ -20,17 +20,19 @@ To best support our technology stack and scalability goals, I recommend the foll
 
 ### **Repository Structure**
 
-As established, we will use a **Multi-Repo Strategy**. This provides the best separation of concerns and allows for independent development lifecycles. The initial repository structure will be:
+As established, we will use a **Multi-Repo Strategy**. This provides the best separation of concerns and allows for independent development lifecycles. The repository structure is as follows:
 
-*   **`roguelearn-web`**: The Next.js frontend application.
+*   **`RogueLearn.Frontend`**: The Next.js frontend application.
+*   **`RogueLearn.BMAD.Documentation`**: The source of truth documentation for the entire project development.
 *   **`roguelearn-unity-games`**: The Unity project containing the "Boss Fight" game client.
-*   **`roguelearn-user-service`**: .NET microservice for user profiles, preferences, and user-related operations (authentication handled by Supabase Auth).
-*   **`roguelearn-quests-service`**: .NET microservice for syllabus, quests, skill trees, and game session logic.
-*   **`roguelearn-social-service`**: .NET microservice for Parties, Guilds, Events, and real-time features like Duels.
-*   **`roguelearn-meeting-service`**: Go microservice for party meetings, scheduling, and meeting-related features.
-*   **`roguelearn-code-battle-service`**: **Go** microservice for compiling, running, and scoring user-submitted code with Qdrant for vector storage.
-*   **`roguelearn-buildingblocks`**: Shared common libraries and utilities used across backend microservices.
-*   **`roguelearn-shared-types`**: A private NPM package for shared TypeScript interfaces.
+*   **`RogueLearn.User`**: .NET microservice for user profiles, preferences, and user-related operations.
+*   **`RogueLearn.Quests`**: (To be created) .NET microservice for syllabus, quests, skill trees, and game session logic.
+*   **`RogueLearn.Social`**: (To be created) .NET microservice for Parties, Guilds, Events, and real-time features.
+*   **`RogueLearn.Meeting`**: (To be created) Go microservice for party meetings, scheduling, and meeting-related features.
+*   **`RogueLearn.CodeBattle`**: Go microservice for compiling, running, and scoring user-submitted code.
+*   **`RogueLearn.Protos`**: A centralized repository for Protocol Buffer (Protobuf) definitions to facilitate gRPC or other schema-based inter-service communication.
+*   **`RogueLearn.Kubernetes`**: The GitOps repository containing Kubernetes manifests and ArgoCD configurations for deploying all services.
+*   **`RogueLearn.CleanArchitecture`**: A template repository containing the standard Clean Architecture setup for all .NET microservices, ensuring consistency.
 
 ### **High Level Architecture Diagram**
 
@@ -154,4 +156,3 @@ graph TD
 *   **Component-Based UI (Next.js):** The frontend will be built as a collection of reusable components. *Rationale:* Promotes reusability and faster development.
 *   **Repository Pattern (.NET):** Data access within each microservice will be abstracted. *Rationale:* Decouples business logic from data access implementation.
 *   **Database Triggers:** A PostgreSQL trigger will be used to sync new users from Supabase's `auth.users` table to our application's `UserProfiles` table. *Rationale:* Provides a reliable, event-driven way to create user profiles without webhooks.
-

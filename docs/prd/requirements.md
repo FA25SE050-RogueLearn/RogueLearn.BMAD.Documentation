@@ -556,17 +556,17 @@
     - **Metrics & SLAs:** Review turnaround P95 < 72 hours; audit log completeness 100%; curation rejection reason mandatory.
     - **Permissions:** `GameMaster` full access; `GuildMaster` propose electives (create `draft`) but cannot approve; `Player` browse published only.
 
-53. **FR53 (Admin):** The Game Master (System Admin) owns University Curriculum import and administration, including scheduled imports, version management with effective dates, route/program mappings, and reporting exports.
+53. **FR53 (Admin):** The Game Master (System Admin) owns University Curriculum import and administration, including **a manual JSON import workflow for the MVP**, version management with effective dates, route/program mappings, and reporting exports. **An automated scraping pipeline is a planned future enhancement.**
     **Business Logic Specifications:**
-    - **Import Jobs:** Create `CurriculumImportJob` with `source_name`, `source_url`, `format` (`csv`, `json`, `xml`, `api`), `started_at`, `status` (`queued`, `running`, `failed`, `completed`), and `errors[]`.
-    - **Mapping & Validation:** Map incoming subjects to `curriculum_programs` and `subjects`; validate uniqueness of `subject_code` per program and require `credits` and `semester` fields.
-    - **Versioning:** On import completion, create `CurriculumVersion` with `version_number`, `effective_start_date`, optional `effective_end_date`, and `change_summary`. Maintain immutable diff of structure changes.
-    - **Activation:** `CurriculumVersionActivation` records activation with `activated_by`, `activated_at`, and `notes`; only one active version per program at a time.
-    - **Scheduling:** Support cron-like schedules for periodic imports; missed runs auto-queue next window; manual runs allowed by `GameMaster`.
-    - **Rollback:** Allow deactivation (set `effective_end_date`) and re-activation of previous version with full audit trail.
-    - **Exports & Reporting:** Provide CSV/JSON exports of current and upcoming versions and mapping reports (subjects added/removed/changed).
-    - **Permissions:** `GameMaster` manage imports and activations; `GuildMaster` read-only reporting; `Player` no access.
-    - **SLAs:** Import success rate >95%; validation errors must be listed with actionable messages; activation changes broadcast to affected students via notifications.
+    - **Manual Import (MVP)**: The system shall provide a secure API endpoint for an Admin to upload a pre-structured JSON file containing curriculum data.
+        - **1. Validation**: The system will validate the JSON file against a predefined schema.
+        - **2. Processing**: Upon successful validation, the system will create the `CurriculumProgram`, `CurriculumVersion`, `Subject`, and `CurriculumStructure` entities.
+        - **3. Feedback**: The API will return a success or failure response with clear error details if validation fails.
+    - **Automated Pipeline (Future)**: A future enhancement will introduce an asynchronous, job-based pipeline for importing curriculum data from a given URL via web scraping and AI-powered formatting.
+    - **Import Jobs:** (Deferred) The concept of a `CurriculumImportJob` entity is deferred until the automated pipeline is implemented.
+    - **Mapping & Validation**: Manually map incoming subjects to `curriculum_programs` and `subjects`; validate uniqueness of `subject_code` per program and require `credits` and `semester` fields.
+    - **Versioning**: On import completion, create `CurriculumVersion` with `version_number`, `effective_start_date`, optional `effective_end_date`, and `change_summary`. Maintain immutable diff of structure changes.
+    - **Activation**: `CurriculumVersionActivation` records activation with `activated_by`, `activated_at`, and `notes`; only one active version per program at a time.
 
 54. **FR54 (System): Objective Categorization**
 

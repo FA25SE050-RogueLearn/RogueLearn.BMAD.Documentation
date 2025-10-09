@@ -1,3 +1,16 @@
+# **Database Per Service Documentation**
+
+MANDATORY ARCHITECTURAL DIRECTIVE: YOU MUST ADHERE TO THE FOLLOWING DATABASE PRINCIPLES. THIS IS NOT A MONOLITHIC SYSTEM.
+
+*   **ISOLATED DATABASES:** Each microservice (User Service, Quests Service, etc.) has its own separate and independent database project. The tables for one service live in a different database from the tables of another.
+
+*   **NO LINKED TABLES:** You will **NOT** find foreign key constraints between tables in different service databases (e.g., between `quests` and `user_profiles`). This is intentional and is the core of the microservice design. Do not attempt to "fix" this by suggesting joins or foreign keys across services.
+
+*   **API-DRIVEN COMMUNICATION:** All data sharing and relationships between services are managed through **API calls**, NOT direct database queries or links. For example, if the Quests Service needs to know a user's name, it must call the User Service API using the `auth_user_id`.
+
+*   **YOUR CORE ASSUMPTION:** Always assume data from another service's domain **MUST** be fetched via a secure, internal API call. Your logic, analysis, and code must reflect this decoupled reality at all times.
+
+
 # **Database Schema**
 
 This section provides the SQL DDL for the PostgreSQL database.

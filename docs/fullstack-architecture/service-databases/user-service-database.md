@@ -3,6 +3,26 @@
 ## Overview
 The User Service manages user profiles, authentication, academic structure, achievements, and user progress tracking. This service maintains the core user data and academic framework for the RogueLearn platform.
 
+## Enums and Types
+
+-- Verification status for lecturer requests
+CREATE TYPE verification_status AS ENUM ('Pending', 'Approved', 'Rejected');
+
+-- Degree levels
+CREATE TYPE degree_level AS ENUM ('Associate', 'Bachelor', 'Master', 'Doctorate');
+
+-- Enrollment status
+CREATE TYPE enrollment_status AS ENUM ('Active', 'Graduated', 'Withdrawn', 'Suspended');
+
+-- Subject enrollment status
+CREATE TYPE subject_enrollment_status AS ENUM ('Enrolled', 'Completed', 'Failed', 'Withdrawn');
+
+-- Quest status
+CREATE TYPE quest_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Abandoned');
+
+-- Notification types
+CREATE TYPE notification_type AS ENUM ('Achievement', 'QuestComplete', 'PartyInvite', 'GuildInvite', 'MeetingReminder', 'System');
+
 ## Database Tables
 
 ### Core User Management
@@ -55,8 +75,7 @@ CREATE TABLE curriculum_programs (
 Core user profile data linked to Supabase auth.users
 ```sql
 CREATE TABLE user_profiles (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    auth_user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
+    auth_user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     username VARCHAR(255) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
     first_name VARCHAR(255),
@@ -317,7 +336,7 @@ Summary of user progress on quests for quick reference and cross-service sync
 CREATE TABLE user_quest_progress (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    quest_id UUID NOT NULL,
+    quest_id UUID NOT NULL, -- This references quests.id in the Quests Service. No FK constraint.
     status quest_status NOT NULL,
     completed_at TIMESTAMPTZ,
     last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -385,33 +404,10 @@ CREATE TABLE notifications (
 );
 ```
 
-## Enums and Types
-
-```sql
--- Verification status for lecturer requests
-CREATE TYPE verification_status AS ENUM ('Pending', 'Approved', 'Rejected');
-
--- Degree levels
-CREATE TYPE degree_level AS ENUM ('Associate', 'Bachelor', 'Master', 'Doctorate');
-
--- Enrollment status
-CREATE TYPE enrollment_status AS ENUM ('Active', 'Graduated', 'Withdrawn', 'Suspended');
-
--- Subject enrollment status
-CREATE TYPE subject_enrollment_status AS ENUM ('Enrolled', 'Completed', 'Failed', 'Withdrawn');
-
--- Quest status
-CREATE TYPE quest_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Abandoned');
-
--- Notification types
-CREATE TYPE notification_type AS ENUM ('Achievement', 'QuestComplete', 'PartyInvite', 'GuildInvite', 'MeetingReminder', 'System');
-```
-
 ## Indexes for Performance
 
 ```sql
 -- User profile indexes
-CREATE INDEX idx_user_profiles_auth_user_id ON user_profiles(auth_user_id);
 CREATE INDEX idx_user_profiles_username ON user_profiles(username);
 CREATE INDEX idx_user_profiles_email ON user_profiles(email);
 CREATE INDEX idx_user_profiles_class_id ON user_profiles(class_id);
