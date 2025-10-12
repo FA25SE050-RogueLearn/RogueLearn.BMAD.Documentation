@@ -61,7 +61,9 @@ CREATE TABLE quest_resources (
     file_path TEXT,
     metadata JSONB, -- Additional resource-specific metadata
     display_order INTEGER NOT NULL DEFAULT 0,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    -- FIX: Added the missing updated_at column to align with the BaseEntity class.
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ```
 
@@ -137,6 +139,8 @@ CREATE TABLE learning_path_quests (
     is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
     unlock_criteria JSONB, -- Conditions that must be met to unlock this quest
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    -- FIX: Added the missing updated_at column to align with the BaseEntity class.
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (learning_path_id, quest_id),
     UNIQUE (learning_path_id, sequence_order)
 );
