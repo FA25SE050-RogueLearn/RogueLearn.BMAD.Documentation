@@ -8,6 +8,7 @@ Summary
 Core Mechanics
 1) Answer Stations (Majority Ready-Check)
 - Players approach a Station and press Interact to mark “Ready.”
+- Game Start gating: The game session does not auto-start; the first time station majority is reached, the server transitions from Pre-Game to Answer Mode, emits a GameStarted event, and begins the first question. Until then, players may move freely and the HUD should prompt “Ready at Station to Start.”
 - When majority (configurable: e.g., ≥50% of connected players) are Ready, the server enters Answer Mode:
   - Show Question UI and start the timer
   - Boss enters question-phase behavior (e.g., patrol tied to question) if desired
@@ -49,6 +50,7 @@ Optional: Time Bank
 
 Event and State Model (Server Authoritative)
 Server-owned states (replicated via NetworkVariable/NetworkList):
+- gameStarted: NetworkVariable<bool>
 - answerModeActive: NetworkVariable<bool>
 - teamCharges: NetworkVariable<int>
 - powerPlayActive: NetworkVariable<bool>
@@ -56,6 +58,7 @@ Server-owned states (replicated via NetworkVariable/NetworkList):
 - stationReadyMask or stationReadyCount: NetworkVariable<int> or NetworkList<ulong> (player IDs ready)
 
 New Events (integrate with existing EventBus):
+- GameStarted (emitted on first majority at station to start the session)
 - AnswerModeEntered / AnswerModeExited
 - TeamChargeAdded / TeamChargeSpent
 - PowerPlayStarted / PowerPlayEnded
