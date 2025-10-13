@@ -39,6 +39,8 @@ sequenceDiagram
     %% Step 3: Answer Station majority gating %%
     U->>GameClient: Interact 'Ready at Station'
     GameClient->>GameServer: RequestToggleReadyAtStation(stationId, isReady)
+    GameServer->>GameServer: Update stationReadyCount; evaluate majority
+
     alt Majority reached
         GameServer-->>GameClient: AnswerModeEntered (replicated)
         GameClient->>GameClient: Show Question UI from pack, start timer
@@ -49,6 +51,8 @@ sequenceDiagram
     %% Step 4: Question phase & server-side validation %%
     U->>GameClient: Submit answer
     GameClient->>GameServer: SubmitAnswer(answerData)
+    GameServer->>GameServer: Validate answer
+
     alt Correct answer
         GameServer->>GameServer: teamCharges++ (replicated)
         GameServer-->>GameClient: TeamChargeAdded (HUD update)
