@@ -19,10 +19,10 @@ jobs:
         id: date
         run: echo "today=$(date -u +%F)" >> $GITHUB_OUTPUT
 
-      - name: Check if log exists in docs/team-log
+      - name: Check if log exists in team-log
         id: check
         run: |
-          if [ -f "docs/team-log/${{ steps.date.outputs.today }}.md" ]; then
+          if [ -f "team-log/${{ steps.date.outputs.today }}.md" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -33,6 +33,8 @@ jobs:
         run: |
           mkdir -p team-log
           cp team-log/template.md "team-log/${{ steps.date.outputs.today }}.md"
+          sed -i "1s/^# .*/# Team Progress Log - ${{ steps.date.outputs.today }}/" "team-log/${{ steps.date.outputs.today }}.md"
+          sed -i "s/YYYY-MM-DD/${{ steps.date.outputs.today }}/g" "team-log/${{ steps.date.outputs.today }}.md"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "team-log/${{ steps.date.outputs.today }}.md"
