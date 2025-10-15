@@ -55,6 +55,33 @@ CREATE TABLE classes (
 );
 ```
 
+#### class_nodes
+Hierarchical structure nodes for a class/roadmap (modules, topics, checkpoints)
+```sql
+CREATE TABLE class_nodes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+    parent_id UUID REFERENCES class_nodes(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    node_type TEXT,
+    description TEXT,
+    sequence INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+#### class_specialization_subjects
+Maps a roadmap class specialization to concrete curriculum subjects that fulfill placeholders
+```sql
+CREATE TABLE class_specialization_subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    placeholder_subject_code TEXT NOT NULL,
+    semester INTEGER NOT NULL
+);
+```
+
 #### curriculum_programs
 Abstract program definitions (e.g., "B.S. in Software Engineering")
 ```sql
@@ -314,6 +341,69 @@ CREATE TABLE skill_dependencies (
 );
 ```
 
+### Notes Management (Arsenal)
+
+#### notes
+User-owned notes that form the personal Arsenal. Content can be structured (JSONB) and optionally public.
+```sql
+CREATE TABLE notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    content JSONB,
+    is_public BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### note_quests
+Links notes to quests (many-to-many). quest_id is a soft reference to Quests Service.
+```sql
+CREATE TABLE note_quests (
+    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    quest_id UUID NOT NULL, -- Soft reference to quests.id in Quests Service
+    PRIMARY KEY (note_id, quest_id)
+);
+```
+
+#### note_skills
+Links notes to skills (many-to-many).
+```sql
+CREATE TABLE note_skills (
+    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    PRIMARY KEY (note_id, skill_id)
+);
+```
+
+#### tags
+User-defined tags for flexible note organization.
+```sql
+CREATE TABLE tags (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    UNIQUE (auth_user_id, name)
+);
+```
+
+#### note_tags
+Join table for notes and tags (many-to-many).
+```sql
+CREATE TABLE note_tags (
+    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (note_id, tag_id)
+);
+```
+
+#### Notes Model Usage
+- When creating a note, the client can attach one or more quests and skills.
+- Browsing the Arsenal can be filtered by quest or skill via the join tables.
+- From a quest view, query related notes via `note_quests.quest_id = :questId`.
+- Tags provide personal categorization that complements structured links to quests and skills.
+
 ### Skills and Progress Tracking
 
 #### user_skills
@@ -416,12 +506,27 @@ CREATE INDEX idx_user_profiles_class_id ON user_profiles(class_id);
 CREATE INDEX idx_classes_name ON classes(name);
 CREATE INDEX idx_classes_is_active ON classes(is_active);
 CREATE INDEX idx_classes_difficulty_level ON classes(difficulty_level);
+-- Class hierarchy and mapping indexes
+CREATE INDEX idx_class_nodes_class_id ON class_nodes(class_id);
+CREATE INDEX idx_class_nodes_parent_id ON class_nodes(parent_id);
+CREATE INDEX idx_class_specialization_subjects_class_id ON class_specialization_subjects(class_id);
+CREATE INDEX idx_class_specialization_subjects_subject_id ON class_specialization_subjects(subject_id);
 
 -- Academic structure indexes
 CREATE INDEX idx_curriculum_structure_curriculum_version_id ON curriculum_structure(curriculum_version_id);
 CREATE INDEX idx_curriculum_structure_subject_id ON curriculum_structure(subject_id);
 CREATE INDEX idx_student_enrollments_auth_user_id ON student_enrollments(auth_user_id);
 CREATE INDEX idx_student_term_subjects_enrollment_id ON student_term_subjects(enrollment_id);
+
+-- Notes/Arsenal indexes
+CREATE INDEX idx_notes_auth_user_id ON notes(auth_user_id);
+CREATE INDEX idx_note_quests_note_id ON note_quests(note_id);
+CREATE INDEX idx_note_quests_quest_id ON note_quests(quest_id);
+CREATE INDEX idx_note_skills_note_id ON note_skills(note_id);
+CREATE INDEX idx_note_skills_skill_id ON note_skills(skill_id);
+CREATE INDEX idx_tags_auth_user_id ON tags(auth_user_id);
+CREATE INDEX idx_note_tags_note_id ON note_tags(note_id);
+CREATE INDEX idx_note_tags_tag_id ON note_tags(tag_id);
 
 -- Skills and progress indexes
 CREATE INDEX idx_user_skills_auth_user_id ON user_skills(auth_user_id);

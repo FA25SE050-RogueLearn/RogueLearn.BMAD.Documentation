@@ -79,6 +79,22 @@ CREATE TABLE party_activities (
 );
 ```
 
+#### party_stash_items
+Snapshot of shared notes within a party (Arsenal sharing). Captures content at share-time while linking back to the original note.
+```sql
+CREATE TABLE party_stash_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
+    original_note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE, -- User Service notes
+    shared_by_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    content JSONB NOT NULL,
+    tags TEXT[],
+    shared_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
 ### Guild System
 
 #### guilds
@@ -355,6 +371,12 @@ CREATE INDEX idx_social_events_scheduled_start_time ON social_events(scheduled_s
 CREATE INDEX idx_social_events_status ON social_events(status);
 CREATE INDEX idx_event_participants_event_id ON event_participants(event_id);
 CREATE INDEX idx_event_participants_auth_user_id ON event_participants(auth_user_id);
+
+-- Party stash indexes
+CREATE INDEX idx_party_stash_items_party_id ON party_stash_items(party_id);
+CREATE INDEX idx_party_stash_items_shared_by_user_id ON party_stash_items(shared_by_user_id);
+CREATE INDEX idx_party_stash_items_original_note_id ON party_stash_items(original_note_id);
+CREATE INDEX idx_party_stash_items_shared_at ON party_stash_items(shared_at);
 ```
 
 ## Service Responsibilities
