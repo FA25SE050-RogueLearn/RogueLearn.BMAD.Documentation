@@ -10,6 +10,7 @@
 - [Technical Guidance](./technical-guidance.md)
 - [Epic List](./epic-list.md)
 - [User Roles and Actors](./user-roles.md)
+- [User Features](./user-features.md)
 - [User Flows](./user-flows.md)
 - [Epic Details](./epic-details.md)
 - [Operational Requirements](./operational-requirements.md)
