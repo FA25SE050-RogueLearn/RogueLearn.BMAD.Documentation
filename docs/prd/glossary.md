@@ -68,6 +68,18 @@ A visual representation of knowledge areas and their relationships within a subj
 - Missing skills needed to reach learning goals
 - Progress pathways through the curriculum
 
+### **Boss Fight (2D)**
+An interactive mock exam presented as a 2D boss encounter. Players answer subject-specific questions to unlock damage windows, use strategic abilities, and progress the fight. Results are synchronized to the platform (XP, achievements, leaderboards, skill progression).
+
+#### **Answer Station**
+A ready-check station where players mark readiness; a majority triggers the timed question phase. Enforces fairness through server-authoritative validation and debounced state changes.
+
+#### **Team Charges**
+A shared resource earned by answering questions correctly. Any player can spend a charge to perform a heavy attack or team utility during vulnerability windows.
+
+#### **Power Play (Window)**
+A brief period of increased boss vulnerability and a damage multiplier, typically triggered after spending a team charge. Strict cooldowns and server-authoritative timers ensure fair play in co-op sessions.
+
 ## Gamification Elements
 
 ### **Achievement**

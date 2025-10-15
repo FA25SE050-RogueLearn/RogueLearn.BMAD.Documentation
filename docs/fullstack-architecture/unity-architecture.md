@@ -2,7 +2,7 @@
 
 This page centralizes the Unity game client architecture for RogueLearn, complementing the PRD Technical Guidance and the Fullstack Architecture views.
 
-- Unity Version: 2022.3 LTS (pinned)
+- Unity Version: 2022.3.55f1 (LTS pinned)
 - Primary Role: Interactive "Boss Fight" experiences
 - Primary Targets: WebGL (client), Linux Headless (dedicated server)
 - Related: See PRD Unity Multiplayer — Phased Plan for delivery sequencing and exit criteria
@@ -13,6 +13,16 @@ References
 - Frontend Integration: ./frontend-architecture.md
 - Tech Stack: ./tech-stack.md
 - API Spec (Game endpoints): ./api-specification.md
+
+Package Versions (Unity Packages/manifest.json)
+- URP (Universal Render Pipeline) 14.0.11 — 2D Renderer & Lighting
+- Input System 1.11.2 — Action maps for WebGL-compatible input
+- Cinemachine 2D 2.10.5 — Camera framing and transitions
+- TextMesh Pro 3.0.7 — UI text rendering
+- UGUI 1.0.0 — HUD and menu UI system
+- Netcode for GameObjects 1.11.0 — Server-authoritative state sync
+- Unity Relay 1.2.0 — WSS transport for client-hosted sessions
+- Multiplayer Tools 1.1.1 — Profiling and simulation tools
 
 ## Runtime & Build Targets
 

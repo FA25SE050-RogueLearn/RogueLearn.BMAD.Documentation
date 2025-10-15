@@ -87,7 +87,14 @@
 - Action buttons (Start, Study More, Find Party)
 
 **Unity Integration:**
-- WebGL component for interactive battles
-- Loading states and error handling
-- Performance optimization for mobile
+- WebGL component for interactive battles (embedded via React Unity WebGL)
+- Loading states and error handling (skeleton overlay, retry, lobby return)
+- Performance optimization for mobile (reduced effects, capped particles)
 - Fallback UI for unsupported browsers
+- JavaScript ↔ Unity bridge events:
+  - JS → Unity: StartSession, ReadyUp, SubmitAnswer, SpendCharge, TriggerPowerPlay, CompleteSession, CancelSession
+  - Unity → JS: GameLoaded, SessionReadyRequested, AnswerStationOpen/AnswerResult, BossHealthUpdate, PlayerResolveUpdate, PowerPlayWindow, NetworkStatus, SessionCompleted/SessionCancelled
+- Embedding specifics:
+  - Full-screen canvas within a dedicated container; avoid React reflows on the canvas element
+  - Ephemeral session token + Relay join code passed after GameLoaded
+  - Graceful degradation to non-interactive summary if WebGL is unavailable
