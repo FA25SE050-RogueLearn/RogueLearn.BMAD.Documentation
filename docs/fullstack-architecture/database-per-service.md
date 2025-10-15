@@ -13,6 +13,8 @@ This document outlines which database tables and collections are used by each mi
 - `user_roles` - User role assignments
 - `lecturer_verification_requests` - Lecturer verification workflow
 - `classes` - Academic class definitions
+- `class_nodes` - Hierarchical modules/topics/checkpoints within a roadmap class
+- `class_specialization_subjects` - Mapping from roadmap class placeholders to actual curriculum subjects
 - `curriculum_programs` - Abstract program definitions (e.g., "B.S. in Software Engineering")
 - `curriculum_versions` - Versioned curriculum snapshots (e.g., "K18A", "K18B") with effective year tracking
 - `subjects` - Master list of all subjects with codes and credits
@@ -22,6 +24,11 @@ This document outlines which database tables and collections are used by each mi
 - `student_term_subjects` - Comprehensive academic term tracking with status (Enrolled, Completed, Failed, Withdrawn)
 - `skills` - Skill Catalog of named competencies with domain/tier metadata
 - `skill_dependencies` - Skill Tree graph relationships among skills (prerequisites, complements)
+- `notes` - User-owned notes (Arsenal) with JSONB content and visibility
+- `note_quests` - Many-to-many linking notes to quests (quest_id is a soft reference to Quests Service)
+- `note_skills` - Many-to-many linking notes to skills in the User Service catalog
+- `tags` - User-defined tags for organizing notes
+- `note_tags` - Many-to-many join between notes and tags
 - `user_skills` - User skill progression tracking with experience points
 - `user_quest_progress` - Summary of user progress on quests for quick reference and cross-service sync
 - `user_skill_rewards` - Event-sourced ledger of XP rewards applied to user skills
@@ -43,7 +50,7 @@ This document outlines which database tables and collections are used by each mi
 - `user_learning_path_progress` - Tracks user progress through learning paths
 - `quest_submissions` - User submissions for assessed quests
 - `quest_analytics` - Aggregated analytics data for quest performance and engagement
-- `notes` - User-generated content linked to quests and skills for collaborative knowledge sharing
+  (Notes are not owned here. Personal notes live in the User Service and are linked via `note_quests`.)
 
 ### **Social Service** (`roguelearn-social-service`)
 **Purpose**: Manages parties, guilds, events, leaderboards, and collaborative knowledge sharing
@@ -53,7 +60,7 @@ This document outlines which database tables and collections are used by each mi
 - `party_members` - Party membership tracking with roles and status
 - `party_invitations` - Manages invitations for users to join parties
 - `party_activities` - Tracks collaborative activities and achievements within a party
-- `party_stash_items` - Shared note repository for party collaboration
+- `party_stash_items` - Shared note repository for party collaboration (snapshot of a user's note; `original_note_id` is a soft reference to User Service)
 - `guilds` - Guild definitions with verification status
 - `guild_members` - Guild membership with hierarchical roles
 - `guild_invitations` - Manages invitations and applications to join guilds
@@ -105,7 +112,7 @@ This document outlines which database tables and collections are used by each mi
 Some services may need to read data from other services' primary tables:
 
 - **User Service** provides user profile data to all other services, and owns the Skill Catalog (skills and dependencies) and rewards ledger (`user_skill_rewards`)
-- **Quests Service** quest data is referenced by Social Service for achievements; publishes reward events (XP, Skill Points, Unlocks) to User Service for authoritative ledgering
+- **Quests Service** quest data is referenced by Social Service for achievements; publishes reward events (XP, Skill Points, Unlocks) to User Service for authoritative ledgering; retrieves personal notes via User Service APIs (linked by `note_quests`)
 - **Social Service** party and guild data is used by Meeting Service for scheduling
 - **Code Battle Service** may reference user profiles for submission tracking
 

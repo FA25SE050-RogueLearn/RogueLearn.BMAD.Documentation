@@ -157,20 +157,34 @@ CREATE TABLE student_term_subjects (
     is_retake BOOLEAN NOT NULL DEFAULT false
 );
 
--- ------------------------------------------
 -- SECTION 4: QUEST & SKILL MANAGEMENT
 -- ------------------------------------------
 
+-- Personal Notes (Arsenal) live in the User Service. In this aggregated schema,
+-- we reflect the microservice boundary by avoiding cross-service foreign keys.
+-- Notes no longer have quest_id/skill_id columns; instead use many-to-many join tables.
 CREATE TABLE notes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     content JSONB,
-    quest_id UUID,
-    skill_id UUID,
-    tags TEXT[],
+    is_public BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Link notes to quests via soft references (quest_id is not an FK to the Quests Service).
+CREATE TABLE note_quests (
+    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    quest_id UUID NOT NULL,
+    PRIMARY KEY (note_id, quest_id)
+);
+
+-- Link notes to skills in the User Service Skill Catalog.
+CREATE TABLE note_skills (
+    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    PRIMARY KEY (note_id, skill_id)
 );
 
 CREATE TABLE quest_lines (
@@ -261,8 +275,8 @@ CREATE TABLE skill_dependencies (
     PRIMARY KEY (skill_id, prerequisite_skill_id)
 );
 
-ALTER TABLE notes ADD CONSTRAINT fk_notes_quest_id FOREIGN KEY (quest_id) REFERENCES quests(id) ON DELETE SET NULL;
-ALTER TABLE notes ADD CONSTRAINT fk_notes_skill_id FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE SET NULL;
+-- Notes are linked to quests/skills through note_quests and note_skills.
+-- No cross-service foreign keys are defined here to preserve service boundaries.
 
 
 -- ------------------------------------------
@@ -371,13 +385,13 @@ CREATE TABLE guild_members (
 CREATE TABLE party_stash_items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
-    original_note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    original_note_id UUID NOT NULL, -- soft reference to User Service notes(id)
     shared_by_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     content JSONB NOT NULL,
-    syllabus_version_id UUID REFERENCES syllabus_versions(id) ON DELETE SET NULL,
-    quest_id UUID REFERENCES quests(id) ON DELETE SET NULL,
-    skill_id UUID REFERENCES skills(id) ON DELETE SET NULL,
+    syllabus_version_id UUID, -- soft reference
+    quest_id UUID,            -- soft reference
+    skill_id UUID,            -- soft reference
     tags TEXT[],
     shared_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -708,6 +722,8 @@ CREATE TABLE submissions (
 -- ------------------------------------------
 CREATE INDEX idx_user_profiles_email ON user_profiles(email);
 CREATE INDEX idx_notes_user_id ON notes(auth_user_id);
+CREATE INDEX idx_note_quests_quest_id ON note_quests(quest_id);
+CREATE INDEX idx_note_skills_skill_id ON note_skills(skill_id);
 CREATE INDEX idx_party_stash_items_party_id ON party_stash_items(party_id);
 CREATE INDEX idx_party_stash_items_shared_by_user_id ON party_stash_items(shared_by_user_id);
 CREATE INDEX idx_party_stash_items_original_note_id ON party_stash_items(original_note_id);
@@ -723,7 +739,7 @@ CREATE INDEX idx_quests_syllabus_version_id ON quests(syllabus_version_id);
 CREATE INDEX idx_skills_skill_tree_id ON skills(skill_tree_id);
 CREATE INDEX idx_user_skills_user_id ON user_skills(auth_user_id);
 CREATE INDEX idx_game_sessions_user_id ON game_sessions(auth_user_id);
-CREATE INDEX idx_guild_memberships_user_id ON guild_memberships(auth_user_id);
+CREATE INDEX idx_guild_members_user_id ON guild_members(auth_user_id);
 CREATE INDEX idx_meeting_participants_user_id ON meeting_participant(user_id);
 CREATE INDEX idx_rooms_event_id ON rooms(event_id);
 CREATE INDEX idx_room_players_user_id ON room_players(auth_user_id);
