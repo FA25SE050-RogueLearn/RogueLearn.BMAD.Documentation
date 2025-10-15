@@ -916,6 +916,23 @@ This is the core game loop. The interface is built within Unity and is designed 
 
 **Timer:** Adds a sense of urgency and pressure, simulating real exam conditions in a controlled way.
 
+#### WebGL Embedding & Bridge Flow (JS ↔ Unity)
+- Loading & Handshake:
+  - React mounts Unity WebGL, shows loading overlay
+  - Unity emits GameLoaded
+  - JS sends StartSession with { sessionId, ephemeralToken, relayJoinCode, playerId, ruleSet }
+  - Unity connects via NGO + Relay, then emits SessionReadyRequested; JS replies ReadyUp
+- Gameplay Event Flow:
+  - Unity → JS: AnswerStationOpen (question + options)
+  - JS → Unity: SubmitAnswer (selected option); Unity → JS: AnswerResult (correct/incorrect)
+  - JS → Unity: SpendCharge (team charge type); Unity reflects power-ups/defense visuals
+  - JS → Unity: TriggerPowerPlay; Unity opens PowerPlayWindow and applies effects
+  - Unity → JS: BossHealthUpdate, PlayerResolveUpdate, NetworkStatus (latency)
+  - Completion: JS → Unity CompleteSession or CancelSession; Unity → JS SessionCompleted/SessionCancelled
+- Co-op Readiness & Inputs:
+  - Party member ready-check surfaced in UI; ReadyUp is only sent after audio/input checks pass
+  - Team charges and power plays are server-authoritative; UI disables actions until backend confirms
+
 ### Phase 3: The Post-Battle Results Screen ("Victory/Defeat")
 
 This screen appears after the boss is defeated or the player's health runs out. It focuses on summarizing performance and providing actionable feedback.

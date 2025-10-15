@@ -127,6 +127,7 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
     - Browser Support
     - Framework Recommendations
     - API Integration
+    - Unity WebGL Bridge & Embedding (Boss Fight 2D)
 
 ### ♿ Quality & Standards
 20. [Accessibility Requirements](./accessibility-requirements.md)
@@ -136,7 +137,7 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
 
 21. [Performance Requirements](./performance-requirements.md)
     - Loading Performance
-    - Unity WebGL Optimization
+    - Unity WebGL Optimization (FPS, memory budget, dynamic resolution, join latency)
     - Mobile Performance
 
 22. [Wireframe Review Report](./wireframe-review-report.md)

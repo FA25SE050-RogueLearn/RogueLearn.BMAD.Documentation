@@ -337,6 +337,44 @@
 34. **FR34 (AI/Player):** The system must generate comprehensive meeting summaries from recorded content, including executive summaries, key discussion points, action items with assignments, next steps, resources mentioned, study materials covered, and unresolved questions, with options for both AI-generated and manual/collaborative summary creation.
 35. **FR35 (System):** The notification system must support email notifications and push notifications for mobile devices with user-configurable preferences.
 
+35A. **FR35A (Party Leader/System):** Party Leaders must be able to start and manage co-op Boss Fight (2D, Unity WebGL) sessions with configurable rules within allowed ranges.
+    
+    **Business Logic Specifications:**
+    - **Session Modes:** `SinglePlayer` and `Co-op` (party-based)
+    - **Rule Configuration (Allowed Ranges):**
+      - Time per question: 5–180 seconds (default 45)
+      - Team charges per session: 0–10 (default 3)
+      - Power Play window length: 5–60 seconds (default 15)
+      - Difficulty preset: Easy, Medium, Hard, Expert, Adaptive (default Adaptive)
+      - Max players: 1–12 (target ≤8 for WebGL stability)
+    - **Authority & Anti-Grief:** Server-authoritative validation, global cooldowns on charges/power plays, session pause/cancel limited to leader with safeguards
+    - **Session Lifecycle:** Create → Lobby (ready-check) → In-progress → Complete/Cancel; session status retrievable via API
+
+35B. **FR35B (System):** The Boss Fight 2D gameplay loop must implement question-driven combat with Answer Stations, Team Charges, Power Play windows, and real-time scoring/leaderboards.
+
+    **Business Logic Specifications:**
+    - **Answer Stations:** Timed question UI with clear prompts and options; answers must be validated server-side, awarding damage/score based on difficulty and time
+    - **Team Charges:** Consumable team abilities (e.g., DamageBoost, Heal, Shield, TimeFreeze) with strict cooldowns and limited counts per session
+    - **Power Play Windows:** Short vulnerability windows triggered by team actions; damage multiplier active; server-authoritative timers enforced
+    - **Scoring & Sync:** Real-time score updates, correct/incorrect counters, and a synchronized scoreboard across clients; results persisted and reflected in skill tree progression, XP, achievements, and leaderboards
+    - **Single-player & Co-op:** Identical mechanics; co-op adds shared charge pool and synchronized power plays
+
+35C. **FR35C (Networking):** Co-op Boss Fight sessions must use Unity Netcode for GameObjects (NGO) with Unity Relay (WSS) for WebGL clients, employing a join-code flow and server-authoritative validation via backend APIs.
+
+    **Technical Specifications:**
+    - **Join Flow:** Party leader starts session → receives Relay join code → clients join via Unity → ready-check in lobby → start
+    - **Authoritative Actions:** Answers, charge spends, and power plays POST to backend; backend computes authority and returns effects; Unity client reflects results
+    - **Latency Tolerance:** Gameplay tolerant to 100–200 ms RTT; scorekeeping remains authoritative; client-side prediction limited to visuals
+    - **Reliability:** Graceful handling of disconnects (temporary), rejoin within 60 seconds, host migration plan documented for Phase 2
+
+35D. **FR35D (Frontend):** The Next.js frontend must embed the Unity WebGL Boss Fight module and provide a JavaScript ↔ Unity bridge for session control, authentication, and result reporting.
+
+    **Technical Specifications:**
+    - **Embedding:** Use React Unity WebGL to load game canvas with loading/error states and retry options
+    - **Bridge Events:** StartSession, ReadyCheck, SubmitAnswer, SpendCharge, TriggerPowerPlay, CompleteSession, CancelSession
+    - **Auth:** Inject JWT into Unity via initialization payload for authenticated API calls
+    - **State:** Persist session status in frontend store; reflect in UI (HUD, scoreboard, charge counts)
+
 ### **Functional - Phase 3: Educator & Game Master Toolkit**
 *Focus: Empower educators and administrators with tools.*
 
@@ -832,6 +870,13 @@ To validate the RogueLearn MVP, we will use a combination of qualitative and qua
 5.  **NFR5 (Frontend Technology):** The system must use Next.js (version 14 or later) for the frontend application to enable server-side rendering and a fast user experience.
 6.  **NFR6 (Data Storage):** The system must use Supabase for database and file storage, configured for scalability and reliability.
 7.  **NFR7 (Unity Integration):** Boss Fight interactive experiences must be implemented using Unity WebGL to ensure rich interactive gameplay while maintaining browser compatibility.
+    - **Performance Target:** Maintain ≥60 FPS on modern desktop browsers (Chrome/Edge ≥ latest) for typical scenes; acceptable ≥30 FPS on mid-range devices
+    - **Build Size Budget:** Compressed (gzip/br) build size ≤50 MB initial download; use streaming/background loading for heavy assets
+    - **Memory Budget:** WebGL heap target ≤512 MB; avoid excessive allocations, pool objects, and use addressables for assets
+    - **Input/UI:** Unity Input System for keyboard/mouse; TextMesh Pro + UGUI for robust UI; Cinemachine 2D for camera behaviors
+    - **Networking:** Co-op via Unity Netcode for GameObjects + Unity Relay (WSS); server-authoritative validation through backend APIs
+    - **Resilience:** Graceful handling of disconnects, tab visibility changes, and lost focus; rejoin window ≥60 seconds
+    - **Compatibility:** Documented known constraints (no native threads, limited filesystem access); single-precision math where applicable
 8.  **NFR8 (Payment Integration - Post-MVP):** Payment and subscription capabilities are explicitly excluded from MVP. A lightweight, non-user-exposed placeholder may be prepared for technical exploration but will not be enabled or validated during MVP.
 9.  **NFR9 (Performance):** Core API endpoints (including user authentication, quest generation, and data retrieval) must respond in under 500ms under a normal load of 100 concurrent users.
 10. **NFR10 (Frontend Performance):** The web application's core pages (Dashboard, Skill Tree, Quest Log) must achieve a Google Lighthouse performance score of 85 or higher on both mobile and desktop.
@@ -849,3 +894,5 @@ To validate the RogueLearn MVP, we will use a combination of qualitative and qua
 22. **NFR22 (Mobile Responsiveness):** The system must provide native mobile app capabilities through progressive web app (PWA) technology with offline functionality, push notifications, and device-specific optimizations for iOS and Android platforms.
 23. **NFR23 (Analytics & Monitoring):** The system must implement comprehensive telemetry, distributed tracing, and business intelligence capabilities with real-time dashboards, automated alerting, and data export functionality for institutional reporting.
 24. **NFR24 (Compliance & Accessibility):** The platform must comply with WCAG 2.1 AA accessibility standards, support multiple languages and localization, and maintain compliance with educational data privacy regulations including FERPA and COPPA where applicable.
+25. **NFR25 (Co-op Reliability):** Boss Fight co-op sessions must tolerate client RTTs of 100–200 ms with consistent scorekeeping and synchronized HUD across ≤8 concurrent clients; authoritative actions must be processed within 250 ms at P95.
+26. **NFR26 (WebGL Resource Governance):** Unity WebGL must enforce controlled asset streaming, texture compression (ASTC/ETC2 where supported), and pooled animation systems to keep CPU ≤50% and memory within budget on target hardware.
