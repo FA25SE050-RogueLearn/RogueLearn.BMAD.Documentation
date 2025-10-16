@@ -1,15 +1,30 @@
+# RougeLearn.BMAD.Documentation/docs/fullstack-architecture/service-databases/quests-service-database.md
 # Quests Service Database Schema
 
 ## Overview
 The Quests Service manages the gamified learning experience through quests, challenges, and learning paths. It provides structured learning activities that align with academic curricula and skill development goals.
 
-## Database Tables
+-- Enable UUID generation if not already enabled
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-### Quest Management
+-- Enums and Types
+CREATE TYPE quest_type AS ENUM ('Tutorial', 'Practice', 'Challenge', 'Project', 'Assessment', 'Exploration');
+CREATE TYPE difficulty_level AS ENUM ('Beginner', 'Intermediate', 'Advanced', 'Expert');
+CREATE TYPE step_type AS ENUM ('Reading', 'Video', 'Interactive', 'Coding', 'Quiz', 'Discussion', 'Submission', 'Reflection');
+CREATE TYPE resource_type AS ENUM ('Document', 'Video', 'Audio', 'Interactive', 'Link', 'Code', 'Dataset');
+CREATE TYPE quest_attempt_status AS ENUM ('InProgress', 'Completed', 'Abandoned', 'Paused');
+CREATE TYPE step_completion_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Skipped');
+CREATE TYPE path_type AS ENUM ('Course', 'Specialization', 'Bootcamp', 'Custom');
+CREATE TYPE path_progress_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Paused');
+CREATE TYPE assessment_type AS ENUM ('Quiz', 'Assignment', 'Project', 'PeerReview', 'AutoGraded', 'ManualReview');
 
-#### quests
-Core quest definitions with metadata and configuration
-```sql
+
+-- Database Tables
+
+-- Quest Management
+
+-- quests
+-- Core quest definitions with metadata and configuration
 CREATE TABLE quests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(255) NOT NULL,
@@ -26,11 +41,9 @@ CREATE TABLE quests (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-```
 
-#### quest_steps
-Individual steps within a quest for structured progression
-```sql
+-- quest_steps
+-- Individual steps within a quest for structured progression
 CREATE TABLE quest_steps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
@@ -46,11 +59,9 @@ CREATE TABLE quest_steps (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (quest_id, step_number)
 );
-```
 
-#### quest_resources
-Learning resources attached to quests (documents, videos, links, etc.)
-```sql
+-- quest_resources
+-- Learning resources attached to quests (documents, videos, links, etc.)
 CREATE TABLE quest_resources (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
@@ -62,16 +73,13 @@ CREATE TABLE quest_resources (
     metadata JSONB, -- Additional resource-specific metadata
     display_order INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    -- FIX: Added the missing updated_at column to align with the BaseEntity class.
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-```
 
-### User Progress Tracking
+-- User Progress Tracking
 
-#### user_quest_attempts
-Tracks user attempts and progress on quests
-```sql
+-- user_quest_attempts
+-- Tracks user attempts and progress on quests
 CREATE TABLE user_quest_attempts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
@@ -84,13 +92,13 @@ CREATE TABLE user_quest_attempts (
     completion_percentage DECIMAL(5,2) NOT NULL DEFAULT 0.00,
     current_step_id UUID REFERENCES quest_steps(id),
     notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (auth_user_id, quest_id)
 );
-```
 
-#### user_quest_step_progress
-Detailed tracking of individual step completion
-```sql
+-- user_quest_step_progress
+-- Detailed tracking of individual step completion
 CREATE TABLE user_quest_step_progress (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     attempt_id UUID NOT NULL REFERENCES user_quest_attempts(id) ON DELETE CASCADE,
@@ -102,15 +110,15 @@ CREATE TABLE user_quest_step_progress (
     feedback TEXT,
     experience_earned INTEGER NOT NULL DEFAULT 0,
     attempts_count INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (attempt_id, step_id)
 );
-```
 
-### Learning Paths and Curriculum Integration
+-- Learning Paths and Curriculum Integration
 
-#### learning_paths
-Structured sequences of quests for comprehensive learning
-```sql
+-- learning_paths
+-- Structured sequences of quests for comprehensive learning
 CREATE TABLE learning_paths (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
@@ -126,11 +134,9 @@ CREATE TABLE learning_paths (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-```
 
-#### learning_path_quests
-Junction table linking quests to learning paths with sequencing
-```sql
+-- learning_path_quests
+-- Junction table linking quests to learning paths with sequencing
 CREATE TABLE learning_path_quests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     learning_path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
@@ -139,16 +145,13 @@ CREATE TABLE learning_path_quests (
     is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
     unlock_criteria JSONB, -- Conditions that must be met to unlock this quest
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    -- FIX: Added the missing updated_at column to align with the BaseEntity class.
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (learning_path_id, quest_id),
     UNIQUE (learning_path_id, sequence_order)
 );
-```
 
-#### user_learning_path_progress
-Tracks user progress through learning paths
-```sql
+-- user_learning_path_progress
+-- Tracks user progress through learning paths
 CREATE TABLE user_learning_path_progress (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
@@ -161,15 +164,15 @@ CREATE TABLE user_learning_path_progress (
     total_quests_count INTEGER NOT NULL DEFAULT 0,
     completion_percentage DECIMAL(5,2) NOT NULL DEFAULT 0.00,
     total_experience_earned INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (auth_user_id, learning_path_id)
 );
-```
 
-### Assessment and Validation
+-- Assessment and Validation
 
-#### quest_assessments
-Assessment configurations for quests requiring evaluation
-```sql
+-- quest_assessments
+-- Assessment configurations for quests requiring evaluation
 CREATE TABLE quest_assessments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
@@ -182,11 +185,9 @@ CREATE TABLE quest_assessments (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-```
 
-#### quest_submissions
-User submissions for assessed quests
-```sql
+-- quest_submissions
+-- User submissions for assessed quests
 CREATE TABLE quest_submissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     attempt_id UUID NOT NULL REFERENCES user_quest_attempts(id) ON DELETE CASCADE,
@@ -199,15 +200,15 @@ CREATE TABLE quest_submissions (
     feedback TEXT,
     graded_by UUID, -- Reference to user_profiles.auth_user_id in User Service
     is_passed BOOLEAN,
-    attempt_number INTEGER NOT NULL DEFAULT 1
+    attempt_number INTEGER NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-```
 
-### Analytics and Insights
+-- Analytics and Insights
 
-#### quest_analytics
-Aggregated analytics data for quest performance and engagement
-```sql
+-- quest_analytics
+-- Aggregated analytics data for quest performance and engagement
 CREATE TABLE quest_analytics (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
@@ -220,9 +221,21 @@ CREATE TABLE quest_analytics (
     difficulty_rating DECIMAL(3,2), -- User-reported difficulty (1.0-5.0)
     engagement_score DECIMAL(5,2), -- Calculated engagement metric
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (quest_id, date_recorded)
 );
-```
+
+-- notes
+-- User-specific notes for their personal knowledge base ("Arsenal")
+CREATE TABLE notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    quest_id UUID REFERENCES quests(id) ON DELETE SET NULL, -- Optional link to a quest
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
 ## Enums and Types
 
@@ -290,6 +303,10 @@ CREATE INDEX idx_quest_submissions_assessment_id ON quest_submissions(assessment
 -- Analytics indexes
 CREATE INDEX idx_quest_analytics_quest_id ON quest_analytics(quest_id);
 CREATE INDEX idx_quest_analytics_date_recorded ON quest_analytics(date_recorded);
+
+-- Notes indexes
+CREATE INDEX idx_notes_auth_user_id ON notes(auth_user_id);
+CREATE INDEX idx_notes_quest_id ON notes(quest_id);
 ```
 
 ## Service Responsibilities
@@ -325,4 +342,116 @@ CREATE INDEX idx_quest_analytics_date_recorded ON quest_analytics(date_recorded)
 - **Rewards Ledger Non-Ownership**: Although quests define `experience_points_reward` and track earned XP within attempts/progress for analytics, the Quests Service does not own the authoritative XP ledger. All reward events are published to the User Service, which persists them in `user_skill_rewards` and applies progression to `user_skills`.
 - **Reward Cascade Compliance (FR58)**: Objective completion triggers a pipeline of events: `XPGranted`, `SkillPointsGranted`, `ChallengeUnlocked`. Events must include correlation IDs to ensure auditability and ordering. Quests Service emits these events; User Service ingests and persists them.
 - **Skill Tree Catalog Non-Ownership**: Quests Service consumes the Skill Catalog (skills and dependencies) maintained by the User Service to tag quests (`skill_tags`), generate objectives, and perform recommendations. It does not define or own `skills` or `skill_dependencies` tables.
-- **Arsenal Notes Non-Ownership**: The Quests Service does not store or manage personal notes. Notes reside in the User Service. The `note_quests` join table (owned by the User Service) links notes to quests via a soft reference (`quest_id UUID`) to `quests.id`. Expose an API endpoint to retrieve notes by `quest_id` by delegating to the User Service.
+
+---
+## **Database Correction and Update Script**
+
+The following script should be executed to align the database schema with the application's domain models. It is idempotent and safe to run multiple times.
+
+```sql
+-- ALTERATION SCRIPT FOR RogueLearn Quest Service Schema (Version 2 - Corrected)
+-- This script safely handles dependencies, brings the schema into compliance with the BaseEntity contract,
+-- and ensures the required 'notes' table for the Personal Arsenal feature exists.
+
+-- ----------------------------------------------------
+-- SECTION 1: CREATE GENERIC 'updated_at' TRIGGER FUNCTION
+-- This function will be reused by all tables. CREATE OR REPLACE is idempotent.
+-- ----------------------------------------------------
+CREATE OR REPLACE FUNCTION public.handle_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- ----------------------------------------------------
+-- SECTION 2: APPLY IDEMPOTENT TRIGGERS TO ALL TABLES
+-- For each table, we first drop the trigger if it exists, then create it.
+-- This makes the script runnable multiple times without errors.
+-- ----------------------------------------------------
+
+-- Table: quests
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quests;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.quests
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: quest_steps
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_steps;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.quest_steps
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: quest_resources
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_resources;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.quest_resources
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: user_quest_attempts
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.user_quest_attempts;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.user_quest_attempts
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: user_quest_step_progress
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.user_quest_step_progress;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.user_quest_step_progress
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: learning_paths
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.learning_paths;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.learning_paths
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: learning_path_quests
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.learning_path_quests;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.learning_path_quests
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: user_learning_path_progress
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.user_learning_path_progress;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.user_learning_path_progress
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: quest_assessments
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_assessments;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.quest_assessments
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: quest_submissions
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_submissions;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.quest_submissions
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+
+-- Table: quest_analytics
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_analytics;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.quest_analytics
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+    
+-- Table: notes
+DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.notes;
+CREATE TRIGGER trg_handle_updated_at
+    BEFORE UPDATE ON public.notes
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_updated_at();
+```
