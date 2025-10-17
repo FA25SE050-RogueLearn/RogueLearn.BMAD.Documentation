@@ -4,8 +4,11 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
-### **Epic: Core Business Logic & Scoring Systems**
-*Goal: Implement the fundamental business rules, algorithms, and scoring mechanisms that drive the gamification experience.*
+## Phase 1: Core Player MVP
+*Focus: Establish the fundamental single-player experience.*
+
+### Epic: Skill & Stats Foundation
+*Focus: Implement the fundamental business rules, algorithms, and scoring mechanisms that drive the core player stats, XP, and progression.*
 
 #### **Story: Skill Point Calculation Engine**
 **As a** system developer, **I want** to implement the core skill point calculation algorithm, **so that** player performance is consistently and fairly quantified across all learning activities.
@@ -31,6 +34,9 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Historical XP tracking maintains complete progression history
     *   Level benefits are clearly communicated to users upon advancement
 
+### Epic: Boss Fights & Leaderboards
+*Focus: Deliver competitive gameplay loops through fair boss fight scoring and transparent leaderboard ranking systems.*
+
 #### **Story: Boss Fight Scoring Algorithm**
 **As a** player, **I want** Boss Fight challenges to be scored fairly based on accuracy, speed, and difficulty, **so that** my performance reflects my true mastery level.
 
@@ -42,6 +48,9 @@ This document provides detailed user stories for each epic, aligned with the pha
     *   Partial credit system awards points for partially correct multiple-choice answers
     *   Score breakdown is displayed post-challenge with detailed performance analysis
     *   High scores (>90%) trigger bonus XP rewards and achievement unlocks
+
+### Epic: Dynamic Quest & Notifications
+*Focus: Adapt quest difficulty dynamically based on player performance and keep users engaged with clear system feedback.*
 
 #### **Story: Dynamic Difficulty Adjustment Engine**
 **As a** player, **I want** the system to automatically adjust quest difficulty based on my performance patterns, **so that** I'm consistently challenged without being overwhelmed.
@@ -69,11 +78,10 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
-## **Phase 1: Core Player MVP**
-*Focus: Establish the fundamental single-player experience.*
+<!-- Phase 1 section moved above to align epics under the correct phase heading -->
 
-### **Epic: User Onboarding & Profile Management**
-*Goal: Create a seamless and engaging entry point for new users, allowing them to set up their curriculum-based learning profiles with career specialization integration.*
+### Epic: Onboarding & Academic Data
+*Focus: Create a seamless entry point for new users to set up curriculum-based learning profiles with career specialization integration.*
 
 #### **Story: Project Infrastructure Setup**
 **As a** Developer, **I want** to establish the foundational project infrastructure with proper CI/CD pipelines, **so that** we have a reliable development and deployment foundation.
@@ -212,8 +220,9 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
-### **Epic: Core AI & Quest Generation**
-*Goal: Leverage AI to transform academic curriculum into personalized learning paths with career specialization integration through gap analysis and roadmap.sh enhancement, enhanced with FPTU-specific capabilities for verified students.*
+### Epic: AI Curriculum & Career Alignment
+*Focus: Use AI to transform academic curriculum into personalized learning paths, align with career specialization via gap analysis and roadmap.sh integration.*
+*Phase note: FPTU-specific verification and quest memory are scheduled under Phase 3 per epic-list alignment.*
 
 #### **Story: AI Curriculum Processing & Quest Generation**
 **As a** student, **I want** the system to process my academic curriculum with AI, **so that** a comprehensive learning path is created with career specialization integration.
@@ -286,7 +295,7 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
-### **Epic: Skill Tree & Knowledge Management**
+### Epic: Skill Tree & Knowledge Management
 *Goal: Provide tools for students to visualize curriculum-based progression and organize knowledge with career specialization enhancement through optional document integration.*
 
 #### **Story: The 'Arsenal' - Enhanced Note Management**
@@ -343,7 +352,7 @@ This document provides detailed user stories for each epic, aligned with the pha
 
 ---
 
-### **Epic: Gamification & Assessment**
+### Epic: Gamification & Assessment
 *Goal: Make learning engaging and measurable through Unity-based interactive challenges and progress tracking.*
 
 #### **Story: Unity Boss Fight System Setup**
@@ -404,8 +413,10 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 ## **Phase 2: Social & Extension MVP**
 *Focus: Introduce multiplayer and external integration features.*
 
-### **Epic: Social & Collaboration (Parties)**
-*Goal: Transform learning from an isolated activity into a collaborative, team-based effort.*
+### Epic: Party & Collaboration (Study Groups)
+*Focus: Transform learning from an isolated activity into a collaborative, team-based effort via study groups, shared resources, and coordinated activities.*
+*FR coverage: FR25–FR31.*
+*Phase note: Phase 2 — Social & Extension MVP.*
 
 #### **Story: Party Creation & Management**
 **As a** student, **I want** to create a 'Party' and become its 'Party Leader', **so that** I can organize a study group with clear size limits and management capabilities.
@@ -452,7 +463,12 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 *   **Acceptance Criteria:**
     *   A user can create a "Party" and become its "Party Leader."
     *   The Party Leader can invite other students to their party.
-    *   Party members gain access to a shared resource space ("Party Stash") where they can share items from their personal Arsenal.
+*   Party members gain access to a shared resource space ("Party Stash") where they can share items from their personal Arsenal.
+
+### Epic: Meetings & Summaries
+*Focus: Plan and run study meetings with recording, AI-generated summaries, and actionable follow-ups.*
+*FR coverage: FR32–FR34.*
+*Phase note: Phase 2 — Social & Extension MVP.*
 
 #### **Story: Meeting Scheduling & Organization**
 **As a** Party Leader, **I want** to schedule and organize study meetings within my party, **so that** we can coordinate collaborative learning sessions effectively.
@@ -505,8 +521,10 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 
 ---
 
-### **Epic: Browser Extension**
-*Goal: Integrate the learning experience directly into the student's existing web-based academic workflow, with enhanced FPTU portal integration for verified students.*
+### Epic: Browser Extension Integration (FPTU & Arsenal)
+*Focus: Integrate RogueLearn into the student's web workflow with contextual note access and deep FPTU portal sync.*
+*FR coverage: FR22–FR24, FR50.*
+*Phase note: Initial MVP integration in Phase 2; enhanced capabilities land in Phase 4.*
 
 #### **Story: Extension for Document Extraction**
 **As a** student, **I want** a browser extension that can extract academic info from my university portal, **so that** I can easily import it into RogueLearn.
@@ -568,8 +586,46 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 ## **Phase 3: Simplified Educator Toolkit & Competition Platform**
 *Focus: Enhanced social learning, competitive programming, and comprehensive event management.*
 
-### **Epic 3: Advanced Social Learning & Code Battle Competition**
-*Goal: Create a comprehensive competitive programming environment with real-time code battles, guild-based events with room assignments, and advanced social learning mechanics that enhance student engagement and skill development.*
+### Epic: Basic Guild Management (Verified Lecturer Gated)
+*Focus: Provide essential guild tools for creation, verified lecturer governance, materials sharing, and anonymized progress tracking.*
+*FR coverage: FR36–FR39*
+*Phase note: Phase 3 alignment per epic-list.*
+
+#### **Story: Guild Creation & Community Engagement**
+**As a** Student, **I want** to create or join a "Guild," **so that** I can engage with a larger community, share my knowledge, and learn from experienced peers or Verified Lecturers.
+
+*   **Acceptance Criteria:**
+    *   Any user can create a Guild focused on a specific subject or technology.
+    *   A verification process exists for educators to become "Verified Lecturers," granting them a badge of credibility.
+    *   Guild Masters (either students or Verified Lecturers) can upload course materials and post announcements.
+    *   A Guild Master dashboard provides aggregated, anonymized progress data to identify topics where members are struggling.
+
+#### **Story: Guild Creation & Course Material Upload**
+**As a** Guild Master, **I want** to create a Guild and upload course materials, **so that** I can establish an interactive learning environment for my students.
+
+*   **Acceptance Criteria:**
+    *   Guild creation wizard guides educators through setup process
+    *   Course material upload supports multiple formats (PDF, DOCX, video, audio)
+    *   Content organization tools for structuring lessons and modules
+    *   Integration with existing LMS systems for content import
+    *   Preview and publishing workflow for course materials
+    *   Student enrollment management with invitation and registration systems
+
+#### **Story: Guild Dashboard & Analytics**
+**As a** Guild Master, **I want** to view aggregated progress data for all students in my Guild, **so that** I can identify areas where students are struggling.
+
+*   **Acceptance Criteria:**
+    *   Comprehensive analytics dashboard showing student progress and engagement
+    *   Identification of common struggle points across quest completion data
+    *   Individual student progress tracking with intervention recommendations
+    *   Comparative analytics showing class performance trends
+    *   Exportable reports for academic record keeping
+    *   Real-time alerts for students requiring additional support
+
+### Epic: Code Battle & Competitive Events
+*Focus: Real-time code battles, guild-based competitions with room assignments, and social learning mechanics that enhance engagement and skill development.*
+*FR coverage: FR43–FR45.*
+*Phase note: Phase 3 alignment per epic-list.*
 
 #### **Story: Real-time Code Battle Environment**
 **As a** student, **I want** to participate in real-time code battles with secure execution environments, **so that** I can compete with peers while solving programming challenges in a fair and monitored setting.
@@ -626,8 +682,10 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 
 ---
 
-### **Epic 3: Event Management & Administration Platform**
-*Goal: Provide comprehensive event management capabilities with multi-tier approval workflows, automated scheduling, and advanced administrative tools for creating, managing, and analyzing competitive programming events and educational activities.*
+### Epic: Event Management & Administration Platform
+*Focus: Provide comprehensive event management with multi-tier approval workflows, automated scheduling, and advanced administrative tools to create, manage, and analyze competitive programming events and educational activities.*
+*FR coverage: FR46–FR47*
+*Phase note: Phase 3 alignment per epic-list.*
 
 #### **Story: Comprehensive Event Creation Wizard**
 **As a** Guild Master, **I want** an intuitive event creation wizard with advanced configuration options, **so that** I can efficiently set up complex competitive events with detailed specifications and requirements.
@@ -683,7 +741,13 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 
 ---
 
-### **Epic: Career Preparations - The Final Gauntlet**
+### Epic: Admin-Owned Educational Governance
+*Focus: Centralized governance for elective content and official curricula.*
+*FR coverage: FR52–FR53*
+*Phase note: Phase 3 alignment per epic-list.*
+
+
+### Epic: Career Preparations - The Final Gauntlet
 *Goal: Bridge the final gap between being a skilled student and becoming a compelling job candidate. This epic focuses on creating tangible career assets, preparing for the hiring process, and engaging with the broader professional community.*
 
 #### **Story: The Capstone Portfolio Project**
@@ -713,15 +777,6 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   The system tracks performance metrics (speed, accuracy) and provides feedback on areas for improvement.
     *   Successfully completing the gauntlet unlocks a special "Interview Ready" achievement that can be displayed on the user's profile.
 
-#### **Story: Guild Creation & Community Engagement**
-**As a** Student, **I want** to create or join a "Guild," **so that** I can engage with a larger community, share my knowledge, and learn from experienced peers or Verified Lecturers.
-
-*   **Acceptance Criteria:**
-    *   Any user can create a Guild focused on a specific subject or technology.
-    *   A verification process exists for educators to become "Verified Lecturers," granting them a badge of credibility.
-    *   Guild Masters (either students or Verified Lecturers) can upload course materials and post announcements.
-    *   A Guild Master dashboard provides aggregated, anonymized progress data to identify topics where members are struggling.
-
 #### **Story: The Networking Quest**
 **As a** Student entering the job market, **I want** a social quest that encourages and guides me to network with professionals in my field, **so that** I can build industry connections and learn about job opportunities.
 
@@ -735,7 +790,7 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 ## **Phase 4: Specialization & Career Preparation**
 *Focus: Advanced curriculum, portfolio development, and career readiness.*
 
-### **Epic: The Specialization Chapter**
+### Epic: The Specialization Chapter
 *Goal: Enable the student to commit to a specific career path by choosing a Specialization Track and mastering an advanced, industry-aligned curriculum that includes collaborative project work.*
 
 #### **Story: Choosing the Specialization Track**
@@ -776,34 +831,7 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 
 ---
 
-### **Epic: Guild Master Toolkit**
-*Goal: Provide educators with tools to create, manage, and enhance courses as interactive "Guilds".*
-
-#### **Story: Guild Creation & Course Material Upload**
-**As a** Guild Master, **I want** to create a Guild and upload course materials, **so that** I can establish an interactive learning environment for my students.
-
-*   **Acceptance Criteria:**
-    *   Guild creation wizard guides educators through setup process
-    *   Course material upload supports multiple formats (PDF, DOCX, video, audio)
-    *   Content organization tools for structuring lessons and modules
-    *   Integration with existing LMS systems for content import
-    *   Preview and publishing workflow for course materials
-    *   Student enrollment management with invitation and registration systems
-
-#### **Story: Guild Dashboard & Analytics**
-**As a** Guild Master, **I want** to view aggregated progress data for all students in my Guild, **so that** I can identify areas where students are struggling.
-
-*   **Acceptance Criteria:**
-    *   Comprehensive analytics dashboard showing student progress and engagement
-    *   Identification of common struggle points across quest completion data
-    *   Individual student progress tracking with intervention recommendations
-    *   Comparative analytics showing class performance trends
-    *   Exportable reports for academic record keeping
-    *   Real-time alerts for students requiring additional support
-
----
-
-### **Epic: Game Master (Admin) Toolkit**
+### Epic: Game Master (Admin) Toolkit
 *Goal: Provide system administrators with tools to manage and monitor the platform.*
 
 #### **Story: System Monitoring & Analytics**

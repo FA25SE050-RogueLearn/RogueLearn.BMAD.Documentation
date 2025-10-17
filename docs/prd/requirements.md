@@ -1,6 +1,8 @@
 ### **Functional - Phase 1: Core Player MVP**
 *Focus: Establish the fundamental single-player experience.*
 
+#### Onboarding & Academic Data
+
 1.  **FR1 (User):** The system must allow a new user to create an account and onboard via a 3-step "Character Creation" flow: (1) Route selection (Curriculum), (2) Class selection (Roadmap.sh specialization), and (3) Skill-based roadmap selection.
     
     **Business Logic Specifications:**
@@ -40,6 +42,8 @@
     - **Arsenal Personalization**: Documents unlock specialized tools, resources, and achievements in user's personal arsenal
     - **FPTU Integration**: Verified FPTU students gain access to university-specific quest flows and academic calendar synchronization
 3.  **FR3 (System):** The system must maintain a comprehensive database of predefined curriculum and syllabus content for all supported academic routes and subjects, with optional document upload capability for enhanced personalization.
+
+#### AI Curriculum & Career Alignment
 4.  **FR4 (AI):** The system's AI must analyze the selected curriculum to identify the user's academic route and structure the primary quest line based on curriculum requirements and academic progression.
     
     **Business Logic Specifications:**
@@ -82,6 +86,7 @@
       - User progress and demonstrated competencies
       - Employer feedback and job market requirements
     - **Confidence Thresholds**: Gap analysis requires ≥85% confidence in curriculum mapping and ≥90% confidence in roadmap.sh alignment
+#### Skill & Stats Foundation
 6.  **FR5 (AI):** The AI must calculate user skill points on a 1-10 scale based on FPT University scoring system and convert academic performance into relevant skill categories.
     
     **Business Logic Specifications:**
@@ -96,15 +101,15 @@
       - Score 1-4.9: 10-49 skill points in related areas
     - **Skill Category Mapping**: Subject scores contribute to relevant skill trees (Programming, Mathematics, Design, etc.)
     - **Performance Tracking**: System tracks score trends and adjusts skill point allocation accordingly
-6.  **FR6 (AI):** After user selection of smaller major, the AI must suggest related classes aligned to that route.
-7.  **FR7 (AI):** The system's AI must use the uploaded academic data (GPA, transcripts, schedules) to influence the character's initial stats.
+7.  **FR6 (AI):** After user selection of smaller major, the AI must suggest related classes aligned to that route.
+8.  **FR7 (AI):** The system's AI must use the uploaded academic data (GPA, transcripts, schedules) to influence the character's initial stats.
     
     **Business Logic Specifications:**
     - **GPA Conversion**: GPA (1-10 scale) maps to base stats using formula: Base Stat = (GPA/10.0) × 100, minimum 25 points
     - **Transcript Analysis**: Completed courses contribute +5 points per course to related skill categories (max 200 points per category)
     - **Grade Weighting**: A grades = +10 points, B grades = +7 points, C grades = +4 points, D/F grades = +1 point to relevant skills
     - **Stat Categories**: Intelligence (academic performance), Experience (completed courses), Potential (GPA trend analysis)
-8.  **FR8 (AI):** The AI must populate the skill tree with acquired knowledge based on uploaded academic data.
+9.  **FR8 (AI):** The AI must populate the skill tree with acquired knowledge based on uploaded academic data.
     
     **Business Logic Specifications:**
     - **Course-to-Skill Mapping**: Each completed course maps to 2-5 skill nodes based on course content analysis and predefined curriculum mappings
@@ -112,7 +117,7 @@
     - **Prerequisite Chain Recognition**: System identifies course prerequisites and creates skill dependencies (e.g., Calculus I → Calculus II → Differential Equations)
     - **Knowledge Decay**: Skills not reinforced within 12 months decrease by 10% per semester (minimum level 20% of original)
     - **Cross-Skill Synergies**: Related skills provide +5% bonus when multiple skills in same domain exceed level 50
-9.  **FR9 (AI):** The AI must automatically create quest lines organized into quest chapters (semesters) with structured quests based on course syllabus and FPTU academic calendar integration.
+10.  **FR9 (AI):** The AI must automatically create quest lines organized into quest chapters (semesters) with structured quests based on course syllabus and FPTU academic calendar integration.
 
     **Business Logic Specifications:**
     - **Quest Chapter Structure**: Each semester (4 months) = 1 quest chapter containing exactly 10 quests representing the first 10 weeks of study
@@ -145,8 +150,9 @@
       - **Latency Target**: Suggestion must be generated and surfaced to the user within 5 seconds
       - **Placement**: Append as a new objective under the active quest, tagged as `Follow-up`
       - **Notification**: Send in-app notification and highlight the suggestion in the Quest Detail view
-10. **FR10 (User):** Users must have a personal dashboard ("Character Sheet") that displays their progress, stats (influenced by academic data), a dynamic and interconnected skill tree, and the generated quest line.
-11. **FR11 (System):** The skill tree must be visualized as an interconnected mind map with nodes representing individual skills.
+#### Dashboard, Skill Tree & Arsenal
+11. **FR10 (User):** Users must have a personal dashboard ("Character Sheet") that displays their progress, stats (influenced by academic data), a dynamic and interconnected skill tree, and the generated quest line.
+12. **FR11 (System):** The skill tree must be visualized as an interconnected mind map with nodes representing individual skills.
     
     **Business Logic Specifications:**
     - **Node Hierarchy**: Skills organized in 4 tiers: Foundation (Level 1-25), Intermediate (26-50), Advanced (51-75), Expert (76-100)
@@ -157,12 +163,13 @@
       - In-progress skills: Pulsing animation with current XP/next level ratio
     - **Interconnection Logic**: Each skill can have 1-5 prerequisites and unlock 1-8 dependent skills
     - **Layout Algorithm**: Force-directed graph with clustering by domain (Programming, Mathematics, Design, etc.)
-12. **FR12 (System):** Each skill tree node must display its skill level, contributed notes from the user's Arsenal, and completed/upcoming quests that contribute to that skill.
-13. **FR13 (System):** The skill tree visualization must show relationships between skills and highlight missing skills needed to reach the user's goal.
-14. **FR14 (User):** The user's personal study notes ("Arsenal") must be a rich text editor with Notion-like functionalities, allowing for flexible content creation and organization.
-15. **FR15 (System):** The skill tree must be able to display links to relevant notes within the user's "Arsenal" for each skill node, with visual indicators showing which Arsenal items contribute to each skill's development.
-16. **FR16 (System):** The system must generate gamified mock exams ("Boss Fights") as Unity-based interactive experiences (WebGL) with multiple choice questions, visual feedback, and engaging animations based on upcoming tests input by the player.
-17. **FR17 (System):** Each Boss Fight question must have an assigned difficulty level, with higher difficulty questions awarding more points and triggering more challenging visual boss mechanics.
+13. **FR12 (System):** Each skill tree node must display its skill level, contributed notes from the user's Arsenal, and completed/upcoming quests that contribute to that skill.
+14. **FR13 (System):** The skill tree visualization must show relationships between skills and highlight missing skills needed to reach the user's goal.
+15. **FR14 (User):** The user's personal study notes ("Arsenal") must be a rich text editor with Notion-like functionalities, allowing for flexible content creation and organization.
+16. **FR15 (System):** The skill tree must be able to display links to relevant notes within the user's "Arsenal" for each skill node, with visual indicators showing which Arsenal items contribute to each skill's development.
+#### Boss Fights & Leaderboards
+17. **FR16 (System):** The system must generate gamified mock exams ("Boss Fights") as Unity-based interactive experiences (WebGL) with multiple choice questions, visual feedback, and engaging animations based on upcoming tests input by the player.
+18. **FR17 (System):** Each Boss Fight question must have an assigned difficulty level, with higher difficulty questions awarding more points and triggering more challenging visual boss mechanics.
     
     **Business Logic Specifications:**
     - **Difficulty Levels**: Easy (1-2 points), Medium (3-4 points), Hard (5-7 points), Expert (8-10 points)
@@ -174,7 +181,7 @@
       - Expert: Advanced AI patterns, 500 HP, dynamic difficulty adjustment
     - **Question Distribution**: 40% Easy, 30% Medium, 20% Hard, 10% Expert per exam
     - **Adaptive Difficulty**: System adjusts question difficulty based on user's skill level and recent performance
-18. **FR18 (System):** The total Boss Fight score must be calculated based on correctly answered questions, weighted by their difficulty levels, with real-time score updates and visual progress indicators in the Unity game interface. Earned points must contribute to the skill tree progression system.
+19. **FR18 (System):** The total Boss Fight score must be calculated based on correctly answered questions, weighted by their difficulty levels, with real-time score updates and visual progress indicators in the Unity game interface. Earned points must contribute to the skill tree progression system.
     
     **Business Logic Specifications:**
     - **Point-to-Skill Conversion**: Boss Fight points convert to skill tree experience using formula: Skill XP = (Boss Points × Subject Relevance Score × 0.8)
@@ -190,7 +197,7 @@
       - Consecutive wins: +5% per consecutive victory (max +25%)
     - **Skill Level Progression**: Each skill level requires exponentially more XP: Level N requires (N × 100) XP points
     - **Cross-Skill Synergies**: Completing Boss Fights in related subjects provides +10% XP bonus to connected skill nodes
-19. **FR19 (System):** The system must feature comprehensive leaderboards that display player rankings, both within specific "Classes", for competitive events including real-time code battles, and overall platform performance.
+20. **FR19 (System):** The system must feature comprehensive leaderboards that display player rankings, both within specific "Classes", for competitive events including real-time code battles, and overall platform performance.
     
     **Business Logic Specifications:**
     - **Ranking Algorithm**: Overall rank = (40% Quest Completion Score + 30% Skill Tree Progress + 20% Boss Fight Performance + 10% Social Contribution)
@@ -215,7 +222,8 @@
     - **Real-time Updates**: Leaderboard positions update within 5 seconds of score changes during active events
     - **Update Frequency**: Real-time for Boss Fights, daily batch updates for Quest/Skill progress, weekly for Social Contribution
     - **Seasonal Resets**: Quarterly leaderboard resets with legacy achievement preservation
-20. **FR20 (AI):** The main quest line must be dynamic, allowing for AI-driven changes to uncompleted tasks based on user preferences or new information.
+#### Dynamic Quest & Notifications
+21. **FR20 (AI):** The main quest line must be dynamic, allowing for AI-driven changes to uncompleted tasks based on user preferences or new information.
 
     **Business Logic Specifications:**
     - **Dynamic Adjustment Triggers**: 
@@ -230,12 +238,13 @@
     - **AI Learning**: System tracks user completion patterns and adjusts future quest generation accordingly
     - **Rollback Protection**: Users can revert quest changes within 24 hours of modification
     - **Micro-Objective Triggers**: Completion of foundational objectives automatically adds complementary or alternative micro-objectives to the current quest using the Skill Knowledge Graph
-21. **FR21 (System):** The system must have a notification system to inform users of changes to their quest line and suggest new learning paths.
+22. **FR21 (System):** The system must have a notification system to inform users of changes to their quest line and suggest new learning paths.
 
 ### **Functional - Phase 2: Social & Extension MVP**
 *Focus: Introduce multiplayer and external integration features.*
+#### Browser Extension Integration (FPTU & Arsenal)
 
-22. **FR22 (Browser Extension):** The system must provide a browser extension with comprehensive FPTU portal integration to scan, extract, and synchronize academic documents and information for automated quest generation and academic tracking.
+23. **FR22 (Browser Extension):** The system must provide a browser extension with comprehensive FPTU portal integration to scan, extract, and synchronize academic documents and information for automated quest generation and academic tracking.
     
     **Business Logic Specifications:**
     - **FPTU Portal Integration**: Extension specifically integrates with FPTU systems to extract:
@@ -259,7 +268,7 @@
       - Failed course recovery quest creation
       - Semester-specific quest chapter organization
 
-23. **FR23 (Browser Extension):** The browser extension must automatically organize extracted FPTU academic information and web content into the user's "Arsenal" (notes), with intelligent categorization based on academic context and quest relevance.
+24. **FR23 (Browser Extension):** The browser extension must automatically organize extracted FPTU academic information and web content into the user's "Arsenal" (notes), with intelligent categorization based on academic context and quest relevance.
     
     **Business Logic Specifications:**
     - **Academic Content Organization**: Extension categorizes content by:
@@ -278,7 +287,7 @@
       - Exam schedule synchronization with boss fight preparation quests
       - Academic advisor communications and guidance integration
 
-24. **FR24 (Browser Extension):** When a user highlights text on a webpage, the extension must trigger an intelligent popup that displays relevant notes from their "Arsenal" and suggests quest-related actions based on the highlighted content and current academic context.
+25. **FR24 (Browser Extension):** When a user highlights text on a webpage, the extension must trigger an intelligent popup that displays relevant notes from their "Arsenal" and suggests quest-related actions based on the highlighted content and current academic context.
     
     **Business Logic Specifications:**
     - **Contextual Content Analysis**: Extension analyzes highlighted text for:
@@ -296,7 +305,8 @@
       - Upcoming assignment deadlines and exam schedules
       - Academic performance patterns and learning preferences
       - University-specific resources and support materials
-25. **FR25 (User):** A user must be able to create a "Party" (study group) with configurable rules and permissions.
+#### Party & Collaboration Features
+26. **FR25 (User):** A user must be able to create a "Party" (study group) with configurable rules and permissions.
     
     **Business Logic Specifications:**
     - **Party Size Limits**: Minimum 2 members, maximum 8 members for optimal collaboration
@@ -315,11 +325,11 @@
       - Communication preferences (required check-ins: daily/weekly/none)
       - Resource sharing policies (open/restricted/approval-required)
     - **Auto-Management**: Inactive members (>14 days) automatically moved to "inactive" status with limited permissions
-26. **FR26 (User):** When creating a party, a user must have the option to invite friends directly.
-27. **FR27 (User):** When creating a party, a user must have the option to browse a list of other users (strangers), view their relevant stats, and send invitations.
-28. **FR28 (User):** When creating a party, a user must have the option to set the party to be open for anyone to join.
-29. **FR29 (User):** A Party Leader must be able to invite other registered users to their Party and assign granular permissions to each member.
-30. **FR30 (User):** Party members must have access to a shared resource space ("Party Stash") with role-based permissions: view-only access, edit permissions, or comment-only permissions on shared Arsenal items (notes).
+27. **FR26 (User):** When creating a party, a user must have the option to invite friends directly.
+28. **FR27 (User):** When creating a party, a user must have the option to browse a list of other users (strangers), view their relevant stats, and send invitations.
+29. **FR28 (User):** When creating a party, a user must have the option to set the party to be open for anyone to join.
+30. **FR29 (User):** A Party Leader must be able to invite other registered users to their Party and assign granular permissions to each member.
+31. **FR30 (User):** Party members must have access to a shared resource space ("Party Stash") with role-based permissions: view-only access, edit permissions, or comment-only permissions on shared Arsenal items (notes).
     
     **Business Logic Specifications:**
     - **Storage Limits**: 500MB per party (scales with party size: +100MB per member beyond 4)
@@ -331,12 +341,15 @@
     - **Version Control**: Automatic versioning for edited documents with 30-day history retention
     - **Access Logs**: Track who accessed/modified what content with timestamps for accountability
     - **Content Organization**: Folder structure with tags, search functionality, and content categorization by subject/course
-31. **FR31 (User):** The Party Leader must be able to configure permissions for each member individually in the Party Stash.
-32. **FR32 (Player):** Players must be able to schedule, organize, and manage study meetings within their party, including setting meeting titles, descriptions, types (Study Session, Project Discussion, Exam Prep, General Meeting), and scheduling details.
-33. **FR33 (System/Player):** The system must provide built-in meeting recording capabilities during party study sessions that capture participant discussions, shared resources, and key decisions, with support for multiple recording methods (manual entry, audio transcription, automated capture) that can be activated/deactivated by participants. The browser extension serves only as a content capture tool for external web resources and does not handle meeting recording functionality.
-34. **FR34 (AI/Player):** The system must generate comprehensive meeting summaries from recorded content, including executive summaries, key discussion points, action items with assignments, next steps, resources mentioned, study materials covered, and unresolved questions, with options for both AI-generated and manual/collaborative summary creation.
-35. **FR35 (System):** The notification system must support email notifications and push notifications for mobile devices with user-configurable preferences.
+32. **FR31 (User):** The Party Leader must be able to configure permissions for each member individually in the Party Stash.
+#### Meetings & Summaries
+33. **FR32 (Player):** Players must be able to schedule, organize, and manage study meetings within their party, including setting meeting titles, descriptions, types (Study Session, Project Discussion, Exam Prep, General Meeting), and scheduling details.
+34. **FR33 (System/Player):** The system must provide built-in meeting recording capabilities during party study sessions that capture participant discussions, shared resources, and key decisions, with support for multiple recording methods (manual entry, audio transcription, automated capture) that can be activated/deactivated by participants. The browser extension serves only as a content capture tool for external web resources and does not handle meeting recording functionality.
+35. **FR34 (AI/Player):** The system must generate comprehensive meeting summaries from recorded content, including executive summaries, key discussion points, action items with assignments, next steps, resources mentioned, study materials covered, and unresolved questions, with options for both AI-generated and manual/collaborative summary creation.
+#### Notifications
+36. **FR35 (System):** The notification system must support email notifications and push notifications for mobile devices with user-configurable preferences.
 
+#### Boss Fight (Co-op & Frontend Integration)
 35A. **FR35A (Party Leader/System):** Party Leaders must be able to start and manage co-op Boss Fight (2D, Unity WebGL) sessions with configurable rules within allowed ranges.
     
     **Business Logic Specifications:**
@@ -378,7 +391,7 @@
 ### **Functional - Phase 3: Educator & Game Master Toolkit**
 *Focus: Empower educators and administrators with tools.*
 
-36. **FR36 (Guild Master):** Any user (Player or Verified Lecturer) can create a "Guild." Verified Lecturers receive additional features and capabilities within the system. Administrative publishing and educational governance (e.g., elective curation, curriculum imports) are owned by the **Game Master (System Admin)**.
+37. **FR36 (Guild Master):** Any user (Player or Verified Lecturer) can create a "Guild." Verified Lecturers receive additional features and capabilities within the system. Administrative publishing and educational governance (e.g., elective curation, curriculum imports) are owned by the **Game Master (System Admin)**.
     
     **Business Logic Specifications:**
     - **Guild Creation Requirements**:
@@ -407,8 +420,8 @@
     - **Verification Requirements**: Lecturer status requires institutional email verification and periodic re-verification (annually)
     - **Verified Lecturer Process**: The system must provide a verification process for Guild Masters to become "Verified Lecturers" through academic credential validation, enabling enhanced guild creation privileges and credibility indicators
     - **Streamlined Guild Creation**: Verified Lecturers must be able to create guilds with streamlined processes, basic document sharing capabilities, and simple member management tools focused on educational content delivery
-37. **FR37 (Player):** Players (Students) in a Guild must be able to use Guild Master-uploaded materials to adjust or supplement their personal quest lines.
-38. **FR38 (Guild Master):** A Guild Master must have a basic dashboard to view aggregated, anonymized progress for all Players in their course ("Guild"). Administrative governance flows (elective publication, curriculum imports) are not included and are owned by the **Game Master (System Admin)**.
+38. **FR37 (Player):** Players (Students) in a Guild must be able to use Guild Master-uploaded materials to adjust or supplement their personal quest lines.
+39. **FR38 (Guild Master):** A Guild Master must have a basic dashboard to view aggregated, anonymized progress for all Players in their course ("Guild"). Administrative governance flows (elective publication, curriculum imports) are not included and are owned by the **Game Master (System Admin)**.
     
     **Business Logic Specifications:**
     - **Dashboard Features**: The dashboard must highlight topics or 'boss fights' where a significant percentage of the class is struggling
@@ -432,15 +445,16 @@
 ### **Cross-Cutting Requirements (All Phases)**
 *Focus: Core system capabilities that support all phases.*
 
-39. **FR39 (System):** The system must implement basic in-app notifications for quest updates and system announcements.
-40. **FR40 (System):** The system must implement structured logging for debugging and basic performance monitoring.
-41. **FR41 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
-42. **FR42 (System):** The platform must support scalable content delivery with optimized asset loading.
+40. **FR39 (System):** The system must implement basic in-app notifications for quest updates and system announcements.
+41. **FR40 (System):** The system must implement structured logging for debugging and basic performance monitoring.
+42. **FR41 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
+43. **FR42 (System):** The platform must support scalable content delivery with optimized asset loading.
 
 ### **Phase 3: Event Management & Code Battle Requirements**
 *Focus: Competitive learning platform with comprehensive event management.*
+#### Event Platform (Code Arena & Guild Events)
 
-43. **FR43 (System):** The system must provide a real-time code battle execution environment supporting multiple programming languages with automated testing, scoring, and live spectator capabilities.
+44. **FR43 (System):** The system must provide a real-time code battle execution environment supporting multiple programming languages with automated testing, scoring, and live spectator capabilities.
     
     **Technical Specifications:**
     - **Supported Languages**: JavaScript, Python, Java, C#, Go, TypeScript (extensible architecture)
@@ -451,7 +465,7 @@
     - **Battle Types**: Head-to-head duels, team competitions, time-based challenges, algorithmic problem solving
     - **Performance Metrics**: Solution correctness (40%), execution efficiency (30%), code quality (20%), completion time (10%)
 
-44. **FR44 (System):** The system must support system-wide guild-based competitive events with room assignment management, guild ranking calculations, and comprehensive event lifecycle management.
+45. **FR44 (System):** The system must support system-wide guild-based competitive events with room assignment management, guild ranking calculations, and comprehensive event lifecycle management.
     
     **Guild Event Features:**
     - **Event Structure**: System-wide events exclusively for participating guilds with no bracket tournaments
@@ -463,7 +477,7 @@
     - **Event Analytics**: Guild performance statistics, member participation tracking, engagement metrics
     - **Live Broadcasting**: Event streaming capabilities with guild-focused commentary and audience interaction
 
-45. **FR45 (System):** The system must implement advanced social learning mechanics including peer-to-peer challenges, collaborative problem-solving, and mentorship integration within competitive environments.
+46. **FR45 (System):** The system must implement advanced social learning mechanics including peer-to-peer challenges, collaborative problem-solving, and mentorship integration within competitive environments.
     
     **Social Learning Features:**
     - **Peer Challenges**: Direct challenge system between users with customizable problem sets
@@ -474,7 +488,7 @@
     - **Skill Matching**: Intelligent pairing based on skill levels, learning objectives, and compatibility
     - **Progress Tracking**: Individual and group progress analytics with improvement recommendations
 
-46. **FR46 (System):** The system must provide comprehensive event creation and management tools enabling educators and guild masters to design, schedule, and administer competitive learning events.
+47. **FR46 (System):** The system must provide comprehensive event creation and management tools enabling educators and guild masters to design, schedule, and administer competitive learning events.
     
     **Event Management Capabilities:**
     - **Event Creation Wizard**: Template-based event setup with customizable parameters and rules
@@ -485,7 +499,7 @@
     - **Monitoring Dashboard**: Real-time event oversight, participant tracking, issue resolution tools
     - **Analytics & Reporting**: Event performance metrics, participant feedback collection, outcome analysis
 
-47. **FR47 (System):** The system must implement a streamlined approval workflow for event management ensuring educational quality and platform integrity through Game Master administrative oversight.
+48. **FR47 (System):** The system must implement a streamlined approval workflow for event management ensuring educational quality and platform integrity through Game Master administrative oversight.
     
     **Approval Workflow Features:**
     - **Game Master Authority**: Game Masters have the highest administrative authority and can create events with automatic approval for all event types
@@ -500,7 +514,8 @@
     - **Audit Trail**: Complete approval history, decision tracking, accountability logging
     - **Administrative Controls**: Game Masters can suspend events, moderate content, and respond to incidents with full authority
 
-48. **FR48 (System/AI):** The system must implement FPTU student verification through academic document analysis and university portal integration to validate student status and academic standing.
+#### Academic Integration (FPTU, Quest Memory & Recovery)
+49. **FR48 (System/AI):** The system must implement FPTU student verification through academic document analysis and university portal integration to validate student status and academic standing.
     
     **Business Logic Specifications:**
     - **Student Verification Process**: System validates FPTU student status through:
@@ -518,7 +533,7 @@
       - Failed course recovery quest generation
       - Academic calendar-aligned quest scheduling
 
-49. **FR49 (AI/System):** The system must implement quest memory and history tracking to maintain continuity across semesters and academic periods.
+50. **FR49 (AI/System):** The system must implement quest memory and history tracking to maintain continuity across semesters and academic periods.
     
     **Business Logic Specifications:**
     - **Quest History Database**: System maintains comprehensive records of:
@@ -537,7 +552,7 @@
       - Consistent character development and progression
       - Long-term learning objective alignment
 
-50. **FR50 (System/Browser Extension):** The browser extension must implement comprehensive FPTU portal integration for automated academic data extraction and quest synchronization.
+51. **FR50 (System/Browser Extension):** The browser extension must implement comprehensive FPTU portal integration for automated academic data extraction and quest synchronization.
     
     **Business Logic Specifications:**
     - **Portal Integration Scope**: Extension integrates with FPTU systems for:
@@ -556,7 +571,7 @@
       - Grade posting notifications and quest impact analysis
       - Academic milestone tracking and celebration
 
-51. **FR51 (AI/System):** The system must implement adaptive quest generation for students who fail semesters, providing specialized recovery and remediation pathways.
+52. **FR51 (AI/System):** The system must implement adaptive quest generation for students who fail semesters, providing specialized recovery and remediation pathways.
     
     **Business Logic Specifications:**
     - **Failure Detection and Analysis**: System identifies and analyzes:
@@ -582,7 +597,8 @@
 
 
 
-52. **FR52 (Admin):** The Game Master (System Admin) owns Elective Library curation and approval, including multi-source intake, audit-logged review workflows, tagging/versioning aligned to skill nodes, and controlled publication.
+#### Admin & Content Curation
+53. **FR52 (Admin):** The Game Master (System Admin) owns Elective Library curation and approval, including multi-source intake, audit-logged review workflows, tagging/versioning aligned to skill nodes, and controlled publication.
     **Business Logic Specifications:**
     - **Intake Sources:** Allow creation of `ElectiveSource` entries with fields `name`, `type` (`rss`, `lms`, `manual`), `base_url`, `auth_method`, `sync_frequency` (cron-like), and `status` (`active`, `paused`).
     - **Curation Workflow:** New electives enter `draft` → `review` → `approved` → `published`. Only `GameMaster` role can transition to `approved/published`. All transitions create immutable audit logs with `actor_id`, `timestamp`, `from_state`, `to_state`, `reason`.
@@ -594,7 +610,7 @@
     - **Metrics & SLAs:** Review turnaround P95 < 72 hours; audit log completeness 100%; curation rejection reason mandatory.
     - **Permissions:** `GameMaster` full access; `GuildMaster` propose electives (create `draft`) but cannot approve; `Player` browse published only.
 
-53. **FR53 (Admin):** The Game Master (System Admin) owns University Curriculum import and administration, including **a manual JSON import workflow for the MVP**, version management with effective dates, route/program mappings, and reporting exports. **An automated scraping pipeline is a planned future enhancement.**
+54. **FR53 (Admin):** The Game Master (System Admin) owns University Curriculum import and administration, including **a manual JSON import workflow for the MVP**, version management with effective dates, route/program mappings, and reporting exports. **An automated scraping pipeline is a planned future enhancement.**
     **Business Logic Specifications:**
     - **Manual Import (MVP)**: The system shall provide a secure API endpoint for an Admin to upload a pre-structured JSON file containing curriculum data.
         - **1. Validation**: The system will validate the JSON file against a predefined schema.
@@ -606,7 +622,8 @@
     - **Versioning**: On import completion, create `CurriculumVersion` with `version_number`, `effective_start_date`, optional `effective_end_date`, and `change_summary`. Maintain immutable diff of structure changes.
     - **Activation**: `CurriculumVersionActivation` records activation with `activated_by`, `activated_at`, and `notes`; only one active version per program at a time.
 
-54. **FR54 (System): Objective Categorization**
+#### Objective System, Knowledge Graph & Rewards
+55. **FR54 (System): Objective Categorization**
 
     The system must categorize each objective with a `type` that dictates the UI workspace and completion logic.
 
@@ -618,7 +635,7 @@
       - `Reading`/`Study` → Lightweight objective panel with notes integration
     - **Data Model**: Objective includes `type`, `verification_policy`, and `completion_policy`
 
-55. **FR55 (System): Objective Completion Criteria (Adjusted)**
+56. **FR55 (System): Objective Completion Criteria (Adjusted)**
 
     Completion criteria must be conditional based on objective `type`.
 
@@ -631,7 +648,7 @@
       - Completion toggled automatically upon verification success
       - Manual override by `GuildMaster` or `Lecturer` allowed with audit trail
 
-56. **FR56 (AI/System): Automated Project Verification (New)**
+57. **FR56 (AI/System): Automated Project Verification (New)**
 
     For `LocalProject` objectives, the system must verify user submissions (e.g., GitHub repo URL or .zip file) using an automated process.
 
@@ -647,7 +664,7 @@
     - **Run Unit Tests**: Execute predefined test suites; aggregate pass rate
     - **Runtime Smoke Tests**: Basic HTTP endpoint checks for web projects
 
-57. **FR57 (AI/System): Skill Knowledge Graph (New)**
+58. **FR57 (AI/System): Skill Knowledge Graph (New)**
 
     The system must create and maintain a knowledge graph defining relationships between skills to enable intelligent micro-objective suggestions.
 
@@ -658,7 +675,7 @@
     - **Storage**: Persisted graph with versioning; lightweight query API for suggestion generation
     - **Updates**: Graph evolves with imported curricula and lecturer curation (see FR52/FR53)
 
-58. **FR58 (System): Reward Cascade (New)**
+59. **FR58 (System): Reward Cascade (New)**
 
     A single objective completion event must trigger a sequence of distinct rewards processed as separate but related events.
 
@@ -668,7 +685,7 @@
     - **Visual Feedback**: Staggered animations and notifications for each reward type
     - **Audit Trail**: Persist individual reward events with correlation IDs
 
-59. **FR59 (System): Contextual Unlocks (New)**
+60. **FR59 (System): Contextual Unlocks (New)**
 
     Completion of a `Foundational` objective must unlock a `Practical` objective linked by the knowledge graph.
 
@@ -678,7 +695,7 @@
     - **Unlock Effects**: Display unlock banner and add to current quest or next quest chapter
     - **Controls**: User can defer unlock; system retains in backlog with reminder
 
-60. **FR60 (Frontend): Workspace-Specific Interfaces (New)**
+61. **FR60 (Frontend): Workspace-Specific Interfaces (New)**
 
     Provide distinct, full-screen UI workspaces based on objective `type`.
 
@@ -896,3 +913,49 @@ To validate the RogueLearn MVP, we will use a combination of qualitative and qua
 24. **NFR24 (Compliance & Accessibility):** The platform must comply with WCAG 2.1 AA accessibility standards, support multiple languages and localization, and maintain compliance with educational data privacy regulations including FERPA and COPPA where applicable.
 25. **NFR25 (Co-op Reliability):** Boss Fight co-op sessions must tolerate client RTTs of 100–200 ms with consistent scorekeeping and synchronized HUD across ≤8 concurrent clients; authoritative actions must be processed within 250 ms at P95.
 26. **NFR26 (WebGL Resource Governance):** Unity WebGL must enforce controlled asset streaming, texture compression (ASTC/ETC2 where supported), and pooled animation systems to keep CPU ≤50% and memory within budget on target hardware.
+
+### **Limitations & Exclusions (MVP)**
+*Focus: Clarify what is intentionally out of scope or constrained for the initial MVP release.*
+
+**Scope Exclusions (MVP)**
+- Payment and subscription features are excluded. No premium tiers, billing, or entitlements are implemented in MVP (see NFR8).
+- Automated curriculum scraping/import pipeline is deferred; MVP supports manual JSON import only (see FR53).
+- Bracket tournaments and elimination ladders are not supported in Phase 3 events; guild events are non-bracket (see FR44).
+- The browser extension does not record meetings; it is limited to web content capture and contextual assistance (see FR33).
+- Deep third-party LMS integrations (e.g., Moodle/Canvas) beyond Supabase and manual file uploads are post-MVP (see NFR21).
+- Native mobile apps are out of scope; MVP is web-only with PWA capabilities. App store distribution is excluded (see NFR22).
+- Enterprise SSO (SAML/OIDC) is out of scope; MVP uses Supabase Authentication only (see NFR2).
+- Bulk data migration/export tooling for institutions is deferred to post-MVP.
+
+**Functional Constraints**
+- Boss Fight gameplay is 2D Unity WebGL-only, targeting modern desktop browsers; max ≤8 concurrent clients; mobile support is best-effort (see NFR7, NFR25).
+- Code Battle sandbox disallows outbound network access and enforces resource limits (CPU/memory/timeout). Runtime language support is limited to JavaScript, Python, Java, C#, Go, and TypeScript; third-party package installation at runtime is not supported (see FR43).
+- Notes (Arsenal) provide rich text editing without database-like blocks or end-to-end encryption. Attachments are subject to size quotas; search is text-based only (no OCR/semantic search in MVP).
+- Tagging is flat (non-hierarchical) without synonyms/ontologies in MVP.
+- Party & Guild limits apply as specified: Party size ≤8; Guild tiers/limits per FR36–FR38. Cross-guild chat and global DMs are excluded; communication is limited to party/guild contexts and notifications.
+- Event publication is governed by approval workflows; self-service public publishing by non-admins is excluded (see FR47, FR52).
+
+**AI & Data Limitations**
+- AI generation quality is best-effort. Confidence thresholds apply; manual override/resubmission may be required for low-confidence outputs (see FR4, FR4A, FR9).
+- Primary language support is English; non-English documents may reduce AI accuracy and coverage.
+- Document processing SLAs are targets, not guarantees; very large or complex PDFs may fail and require manual correction (see Success Metrics section).
+
+**Security, Privacy, and Compliance**
+- MVP is designed with GDPR principles but is not certified for HIPAA/PCI. Educational privacy compliance (e.g., FERPA/COPPA) is best-effort in MVP (see NFR14).
+- Notes are not end-to-end encrypted; data retention policy exists but may offer limited granularity (see NFR12, NFR14).
+- RBAC is limited to Player, Guild Master, Game Master, and Verified Lecturer roles. Fine-grained per-object policies beyond defined scopes are deferred (see NFR15).
+
+**Performance & Availability**
+- MVP performance targets assume ≤100 concurrent users; beyond this, performance may degrade without additional scaling (see NFR9).
+- Uptime target is 99.5% without formal multi-region failover in MVP; planned maintenance windows apply (see NFR11).
+- Real-time SignalR/WebSocket sessions may be unstable on poor networks; reconnection is best-effort (see NFR19).
+
+**Out-of-Scope Items (Post-MVP Candidates)**
+- Automated curriculum scraping pipeline and import jobs (FR53 future).
+- Hierarchical tagging and knowledge graph UI editors.
+- Full-text search across attachments, OCR, and semantic search across notes.
+- Bracket tournaments and complex event formats.
+- Native mobile apps and offline-first capabilities beyond basic PWA.
+- Marketplace/monetization features and premium tiers.
+- Deep third-party LMS integrations and institutional data pipelines.
+- End-user customization plugins for frontend/editor components.

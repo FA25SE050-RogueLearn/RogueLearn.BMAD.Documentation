@@ -3,132 +3,135 @@
 ## **Phase 1: Core Player MVP**
 *Focus: Establish the fundamental single-player experience.*
 
-### **Epic: User Onboarding & Profile Management**
-*Goal: Create a seamless and engaging entry point for new users, allowing them to set up their curriculum-based learning journey and career specialization.*
-*   **FR1:** User account creation and curriculum-based onboarding ("Character Creation") with Route (Curriculum) and Class (Roadmap.sh) selection.
-*   **FR2:** Enhanced academic document upload with FPTU student verification and academic calendar integration for verified students.
-*   **FR3:** Personal dashboard ("Character Sheet") displaying curriculum progress and career specialization alignment.
-*   **FR48:** FPTU Student Verification System for enhanced academic integration and personalized quest generation.
+### **Epic: Onboarding & Academic Data**
+*Goal: Seamless entry into a curriculum-aligned journey with optional academic data enrichment.*
+*   **FR1:** Account creation with 3-step "Character Creation" (Route selection, Class selection, Skill-based roadmap selection).
+*   **FR2:** Optional academic document upload with FPTU verification to enrich skill tree and Arsenal features.
+*   **FR3:** System maintains comprehensive predefined curriculum/syllabus database with optional document intake for personalization.
 
-### **Epic: Core AI & Quest Generation**
-*Goal: Leverage AI to transform curriculum content into personalized learning paths and bridge academic-industry gaps through roadmap.sh integration.*
-*   **FR4:** Curriculum analysis and academic route identification for primary quest line generation.
-*   **FR4A:** Gap analysis between curriculum and roadmap.sh career specialization with supplementary quest generation.
-*   **FR5:** AI-powered curriculum-based "main quest line" generation following academic progression.
-*   **FR6:** AI analysis of curriculum structure, prerequisites, and learning objectives.
-*   **FR7:** AI generation of skill tree from curriculum topics and career specialization requirements.
-*   **FR8:** AI influence on character stats from academic performance data.
-*   **FR9:** Enhanced AI creation of integrated learning paths with FPTU-specific quest memory (FR49) and adaptive generation for failed students (FR51).
-*   **FR10:** Dynamic, AI-driven updates to quest lines based on curriculum changes and industry trends.
-*   **FR11:** Notification system for quest changes, curriculum updates, and new supplementary learning paths.
-*   **FR49:** Quest Memory & Continuity System for maintaining learning progress across semesters.
-*   **FR51:** Adaptive Quest Generation for Failed Students with personalized recovery pathways.
+### **Epic: AI Curriculum & Career Alignment**
+*Goal: Transform selected curriculum into a clear academic route and bridge to career specialization.*
+*   **FR4:** AI analyzes selected curriculum to identify academic route and structure primary quest line.
+*   **FR4A:** AI gap analysis versus roadmap.sh specialization, generating supplementary quests.
 
-### **Epic: Core Business Logic & Scoring Systems**
-*Goal: Implement the fundamental business rules, algorithms, and scoring mechanisms that drive the gamification experience.*
+### **Epic: Skill & Stats Foundation**
+*Goal: Establish core AI-driven skills, stats, and quest scaffolding from academic data.*
+*   **FR5:** AI calculates user skill points (1–10 scale) aligned to FPTU scoring.
+*   **FR6:** AI suggests related classes aligned to selected route (smaller major).
+*   **FR7:** Initial character stats influenced by uploaded academic data (GPA, transcripts, schedules).
+*   **FR8:** AI populates skill tree with acquired knowledge based on academic data.
+*   **FR9:** AI automatically creates quest lines organized into chapters (semesters) with FPTU calendar integration.
 
-*   **FR3:** Skill point calculation algorithm: `skill_points = (difficulty_level × base_points × performance_multiplier)`
-*   **FR6:** XP conversion system: `xp_gained = skill_points × 10`
-*   **FR7:** Boss Fight scoring algorithm: `score = (correct_answers / total_questions) × time_bonus × difficulty_multiplier`
-*   **FR8:** Dynamic difficulty adjustment based on performance patterns
-*   **FR9:** Leaderboard ranking algorithms (weekly/monthly/category-specific)
-*   **FR10:** Achievement and milestone calculation systems
+### **Epic: Dashboard, Skill Tree & Arsenal**
+*Goal: Visualize progress, manage knowledge, and link notes to skills.*
+*   **FR10:** Personal dashboard ("Character Sheet") showing progress, stats, dynamic skill tree, and generated quest line.
+*   **FR11:** Skill tree visualized as an interconnected mind map.
+*   **FR12:** Skill nodes display skill level, linked Arsenal notes, and completed/upcoming quests.
+*   **FR13:** Visualization highlights relationships and missing skills needed to reach goals.
+*   **FR14:** Arsenal rich text editor with Notion-like functionality.
+*   **FR15:** Link skill tree nodes to Arsenal notes with visual indicators.
 
-### **Epic: Skill Tree & Knowledge Management**
-*Goal: Provide tools for students to organize their knowledge, visualize academic progress, and manage personal learning resources enhanced by user documents.*
-*   **FR12:** Dynamic and interconnected skill tree based on curriculum structure and career specialization.
-*   **FR13:** Rich text editor for study notes and personal learning resources ("Arsenal").
-*   **FR14:** Linking skill tree nodes to notes in "Arsenal" with user document integration.
-*   **FR15:** Skill tree node completion tracking enhanced by uploaded achievement documents.
-*   **FR16:** Prerequisites and dependencies between skill nodes following curriculum progression.
-*   **FR17:** Visual progress indicators for skill mastery with personalized achievements from user documents.
+### **Epic: Boss Fights & Leaderboards**
+*Goal: Make learning engaging and measurable through Unity-based challenges.*
+*   **FR16:** Gamified mock exams (Unity WebGL Boss Fights) with MCQs, feedback, and animations.
+*   **FR17:** Difficulty levels per question award more points and affect mechanics.
+*   **FR18:** Total Boss Fight score calculated and contributes to skill progression.
+*   **FR19:** Comprehensive leaderboards (class-specific, events, overall platform).
 
-### **Epic: Gamification & Assessment**
-*Goal: Make learning engaging and measurable through Unity-based interactive challenges and progress tracking.*
-*   **FR18:** Gamified mock exams ("Boss Fights").
-*   **FR19:** Leaderboards.
-*   **FR20:** Simplified Guild Creation for Verified Lecturers.
-*   **FR21:** Guild Master basic dashboard.
-*   **FR22:** Guild Master dashboard highlights struggling topics.
-*   **FR23:** Guild Master upload basic reference materials.
-*   **FR24:** Guild Master create simple announcements.
+### **Epic: Dynamic Quest & Notifications**
+*Goal: Keep the quest line adaptive and users informed.*
+*   **FR20:** Dynamic main quest line with AI-driven changes to uncompleted tasks.
+*   **FR21:** Notification system for quest changes and suggested learning paths.
+
+### **Epic: Browser Extension Integration (FPTU & Arsenal)**
+*Goal: Capture and organize web/portal content to drive learning automation.*
+*   **FR22:** Browser extension with comprehensive FPTU portal integration to scan, extract, and synchronize academic documents.
+*   **FR23:** Automatic organization of extracted FPTU/web content into Arsenal with intelligent categorization.
+*   **FR24:** Contextual popup on text highlight showing relevant notes and quest actions.
 
 ---
 
 ## **Phase 2: Social & Extension MVP**
-*Focus: Introduce multiplayer and external integration features with enhanced FPTU capabilities.*
+*Focus: Introduce multiplayer social learning and collaborative workflows.*
 
-### **Epic: Social & Collaboration (Parties)**
-*Goal: Transform learning from an isolated activity into a collaborative, team-based effort.*
+### **Epic: Party & Collaboration (Study Groups)**
+*Goal: Turn learning into a collaborative, team-based effort.*
+*   **FR25:** Create and manage a Party with configurable rules and permissions.
+*   **FR26:** Invite friends directly when creating a Party.
+*   **FR27:** Browse other users, view relevant stats, and send invitations.
+*   **FR28:** Set a Party to open for anyone to join.
+*   **FR29:** Invite registered users and assign granular member permissions.
+*   **FR30:** Shared resource space ("Party Stash") with role-based permissions (view/edit/comment).
+*   **FR31:** Party Leader configures per-member permissions in Party Stash.
 
-*   **FR21:** Party creation and management system (2-8 members per party)
-*   **FR22:** Party leadership and role management with transfer protocols
-*   **FR23:** Shared resource space ("Party Stash") with permission controls
-*   **FR24:** Meeting scheduling and organization tools
-*   **FR25:** AI-powered meeting summaries and action item extraction
-*   **FR26:** Collaborative study session coordination
+### **Epic: Meetings & Summaries**
+*Goal: Coordinate study sessions and capture outcomes.*
+*   **FR32:** Schedule, organize, and manage study meetings (titles, descriptions, types, scheduling).
+*   **FR33:** Built-in meeting recording capabilities (manual entry, audio transcription, automated capture). Browser extension is for web content capture only.
+*   **FR34:** AI-generated meeting summaries with key points, action items, next steps, and resources.
 
-### **Epic: Browser Extension**
-*   Enhanced FPTU portal integration with real-time academic data synchronization (FR50).
-*   Scan and extract academic documents from web pages.
-*   Automatic organization of extracted information into "Arsenal".
-*   Contextual note display on text highlight.
-*   Real-time academic calendar and grade monitoring for FPTU students.
+### **Epic: Notifications (Platform)**
+*   **FR35:** Email and mobile push notifications with user-configurable preferences.
+
+### **Epic: Boss Fight (Co-op & Frontend Integration)**
+*Goal: Cooperative Boss Fights with robust networking and UI integration.*
+*   **FR35A:** Start/manage co-op Boss Fight sessions with configurable rules.
+*   **FR35B:** Implement question-driven 2D gameplay loop with Answer Stations, Team Charges, Power Play windows, and real-time scoring/leaderboards.
+*   **FR35C:** Unity Netcode for GameObjects with Unity Relay (WSS), join-code flow, server-authoritative validation.
+*   **FR35D:** Next.js embeds Unity WebGL module with JS ↔ Unity bridge for session control, auth, and result reporting.
 
 ---
 
 ## **Phase 3: Simplified Educator Toolkit & Competition Platform**
 
-### **Epic 3.1: Basic Guild Management**
-**Functional Requirements:** FR21-FR24
-**Description:** Essential tools for Guild Masters to create and manage educational guilds with basic progress tracking, simple document sharing, and communication features. Focus on core educational value without complex administrative overhead.
+### **Epic: Basic Guild Management (Verified Lecturer Gated)**
+*Goal: Provide essential tools for guild creation, materials sharing, and progress tracking.*
+*   **FR36:** Create a Guild (Players or Verified Lecturers). Governance (elective curation, curriculum imports) is owned by Game Master.
+*   **FR37:** Players use Guild Master-uploaded materials to adjust/supplement personal quest lines.
+*   **FR38:** Guild Master dashboard for aggregated, anonymized course progress.
+*   **FR39:** Basic in-app notifications for quest updates and announcements.
 
-### **Epic 3.2: Verified Lecturer System**
-**Functional Requirements:** FR18, FR19, FR20
-**Description:** Academic credential verification system that enables enhanced guild creation privileges and credibility indicators for qualified educators, maintaining educational quality while keeping the system simple and focused.
+### **Epic: Code Battle & Competitive Events**
+*Goal: Enable real-time coding challenges and guild-based competitions.*
+*   **FR43:** Real-time code battle execution environment (multi-language, automated testing, scoring, spectator mode).
+*   **FR44:** Guild-based competitive events with room assignment, ranking calculations, and lifecycle management.
+*   **FR45:** Advanced social learning mechanics within competitive contexts (peer challenges, collaboration, mentorship).
 
-### **Epic 3: Advanced Social Learning & Code Battle Competition**
-**Functional Requirements:** FR19 (Enhanced), FR45, FR46, FR47
-**Description:** Comprehensive competitive learning platform featuring real-time code battles, guild-based events, and advanced social learning mechanics. Includes live coding competitions, peer-to-peer challenges, leaderboard systems, and collaborative problem-solving environments that transform learning into engaging competitive experiences.
+### **Epic: Event Management & Administration Platform**
+*Goal: Tools to create, schedule, administer, and approve events with Game Master oversight.*
+*   **FR46:** Comprehensive event creation and management tools for educators/guild masters.
+*   **FR47:** Streamlined approval workflow with Game Master administrative authority.
 
-**Key Features:**
-*   Real-time code battle execution and judging system
-*   Guild-based competitive events with room assignment systems
-*   Live peer-to-peer coding challenges and knowledge duels
-*   Advanced party management with competitive coordination
-*   Global and guild-specific leaderboards with ranking systems
-*   Collaborative problem-solving and team-based competitions
-*   Real-time spectator mode for educational observation
-*   Performance analytics and skill progression tracking
+### **Epic: Academic Integration (FPTU, Quest Memory & Recovery)**
+*Goal: Robust academic verification and continuity across semesters.*
+*   **FR48:** FPTU student verification via document analysis and portal integration.
+*   **FR49:** Quest memory and history tracking for cross-semester continuity.
+*   **FR51:** Adaptive quest generation for failed students with recovery pathways.
 
-### **Epic 3: Event Management & Administration Platform**
-**Functional Requirements:** FR48, FR49
-**Description:** Comprehensive event creation and management system enabling educators and guild masters to organize, schedule, and administer competitive learning events. Provides Game Master administrative oversight with highest authority, streamlined approval workflows, and event lifecycle management for maintaining educational quality and platform integrity.
+### **Epic: Admin-Owned Educational Governance**
+*Goal: Centralized governance for elective content and official curricula.*
+*   **FR52:** Elective Library curation and approval (multi-source intake, audit-logged workflows, tagging/versioning, controlled publication).
+*   **FR53:** University Curriculum import and administration (manual JSON import in MVP), version management, mappings, and reporting.
 
-**Key Features:**
-*   Event creation wizard with templates and customization options
-*   Streamlined approval workflow (Guild Master → Game Master) with Game Master highest authority
-*   Event scheduling and calendar integration
-*   Participant registration and capacity management
-*   Event monitoring and real-time administration tools
-*   Post-event analytics and performance reporting
-*   Event archival and historical tracking
-*   Game Master administrative dashboard for platform oversight
+### **Epic: Objective System, Knowledge Graph & Rewards**
+*Goal: Define objectives, verify projects, and drive progression through contextual rewards.*
+*   **FR54:** Objective Categorization.
+*   **FR55:** Objective Completion Criteria (Adjusted).
+*   **FR56:** Automated Project Verification.
+*   **FR57:** Skill Knowledge Graph.
+*   **FR58:** Reward Cascade.
+*   **FR59:** Contextual Unlocks.
+*   **FR60:** Workspace-Specific Interfaces.
 
-*Note: Advanced educator features (AI-assisted quest generation, complex analytics, skill tree overlays, and comprehensive game master tools) have been moved to post-MVP to focus on core player experience validation.*
+*Note: Advanced educator features (AI-assisted quest generation, complex analytics, and comprehensive Game Master tools) are post-MVP to keep focus on core player validation.*
 
 ---
 
 ## **Phase 4: Enhanced Browser Extension Integration**
-*Focus: Advanced web integration and content management.*
+*Focus: Advanced portal integration and content management.*
 
 ### **Epic: Enhanced Browser Extension Integration**
-*   Web content extraction and organization
-*   Contextual learning assistance during browsing
-*   Seamless integration with Arsenal knowledge base
-*   Cross-platform synchronization
-*   Advanced web page analysis and content categorization
-*   Smart content recommendations based on study goals
+*   **FR50:** Comprehensive FPTU portal integration for automated academic data extraction and quest synchronization.
 
 ---
 
@@ -141,14 +144,3 @@
 - Virtual currency and trading systems
 
 *These features will be considered for future development phases after successful MVP validation and user feedback.*
-### **Epic 3.3: Admin-Owned Educational Governance**
-**Functional Requirements:** FR52, FR53
-**Description:** Centralized educational governance owned by Game Master (System Admin) to ensure quality and consistency across elective content and official curriculum. Includes curated elective library management and university curriculum import/administration with strict RBAC-controlled publication.
-
-**Key Features:**
-* Elective library curation and approval workflow (draft → review → approved → published)
-* Tagging, versioning, and visibility controls aligned to skill nodes
-* Curated elective packs with institutional/public visibility options
-* University curriculum import with mapping, validation, and version activation
-* Scheduled imports, rollback capabilities, and audit-logged governance actions
-* Read-only reporting for Guild Masters; publication authority restricted to Admin
