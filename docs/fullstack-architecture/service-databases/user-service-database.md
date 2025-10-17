@@ -300,7 +300,7 @@ CREATE TABLE notes (
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     content JSONB,
-    is_public BOOLEAN NOT NULL DEFAULT FALSE,
+    is_public BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

@@ -96,6 +96,45 @@ CREATE TABLE lecturer_verification_requests (
     reviewer_notes TEXT
 );
 
+-- Personal Notes (Arsenal) live in the User Service.
+CREATE TABLE notes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    content JSONB,
+    is_public BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Tags for notes are also user-owned.
+CREATE TABLE tags (
+    id uuid NOT NULL DEFAULT gen_random_uuid(),
+    name text NOT NULL DEFAULT ''::text UNIQUE,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT tags_pkey PRIMARY KEY (id)
+);
+
+-- Link notes to quests via soft references (quest_id is not an FK to the Quests Service).
+CREATE TABLE note_quests (
+    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    quest_id UUID NOT NULL,
+    PRIMARY KEY (note_id, quest_id)
+);
+
+-- Link notes to skills in the User Service Skill Catalog.
+CREATE TABLE note_skills (
+    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+    PRIMARY KEY (note_id, skill_id)
+);
+
+-- Link notes to user-defined tags.
+CREATE TABLE note_tags (
+    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
+    tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (note_id, tag_id)
+);
 
 -- ------------------------------------------
 -- SECTION 3: ACADEMIC & CONTENT MANAGEMENT
@@ -159,33 +198,6 @@ CREATE TABLE student_term_subjects (
 
 -- SECTION 4: QUEST & SKILL MANAGEMENT
 -- ------------------------------------------
-
--- Personal Notes (Arsenal) live in the User Service. In this aggregated schema,
--- we reflect the microservice boundary by avoiding cross-service foreign keys.
--- Notes no longer have quest_id/skill_id columns; instead use many-to-many join tables.
-CREATE TABLE notes (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    content JSONB,
-    is_public BOOLEAN NOT NULL DEFAULT false,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- Link notes to quests via soft references (quest_id is not an FK to the Quests Service).
-CREATE TABLE note_quests (
-    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
-    quest_id UUID NOT NULL,
-    PRIMARY KEY (note_id, quest_id)
-);
-
--- Link notes to skills in the User Service Skill Catalog.
-CREATE TABLE note_skills (
-    note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
-    skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
-    PRIMARY KEY (note_id, skill_id)
-);
 
 CREATE TABLE quest_lines (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -274,10 +286,6 @@ CREATE TABLE skill_dependencies (
     prerequisite_skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
     PRIMARY KEY (skill_id, prerequisite_skill_id)
 );
-
--- Notes are linked to quests/skills through note_quests and note_skills.
--- No cross-service foreign keys are defined here to preserve service boundaries.
-
 
 -- ------------------------------------------
 -- SECTION 5: USER QUEST PROGRESS & ACHIEVEMENTS
@@ -638,13 +646,6 @@ CREATE TABLE code_problems (
     CONSTRAINT code_problems_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE tags (
-    id uuid NOT NULL DEFAULT gen_random_uuid(),
-    name text NOT NULL DEFAULT ''::text UNIQUE,
-    created_at timestamp with time zone NOT NULL DEFAULT now(),
-    CONSTRAINT tags_pkey PRIMARY KEY (id)
-);
-
 CREATE TABLE code_problem_tags (
     code_problem_id uuid NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
     tag_id uuid NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
@@ -724,6 +725,7 @@ CREATE INDEX idx_user_profiles_email ON user_profiles(email);
 CREATE INDEX idx_notes_user_id ON notes(auth_user_id);
 CREATE INDEX idx_note_quests_quest_id ON note_quests(quest_id);
 CREATE INDEX idx_note_skills_skill_id ON note_skills(skill_id);
+CREATE INDEX idx_note_tags_tag_id ON note_tags(tag_id);
 CREATE INDEX idx_party_stash_items_party_id ON party_stash_items(party_id);
 CREATE INDEX idx_party_stash_items_shared_by_user_id ON party_stash_items(shared_by_user_id);
 CREATE INDEX idx_party_stash_items_original_note_id ON party_stash_items(original_note_id);
