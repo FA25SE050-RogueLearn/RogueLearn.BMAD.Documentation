@@ -225,18 +225,6 @@ CREATE TABLE quest_analytics (
     UNIQUE (quest_id, date_recorded)
 );
 
--- notes
--- User-specific notes for their personal knowledge base ("Arsenal")
-CREATE TABLE notes (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    auth_user_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    quest_id UUID REFERENCES quests(id) ON DELETE SET NULL, -- Optional link to a quest
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
 ## Enums and Types
 
 ```sql
@@ -303,10 +291,6 @@ CREATE INDEX idx_quest_submissions_assessment_id ON quest_submissions(assessment
 -- Analytics indexes
 CREATE INDEX idx_quest_analytics_quest_id ON quest_analytics(quest_id);
 CREATE INDEX idx_quest_analytics_date_recorded ON quest_analytics(date_recorded);
-
--- Notes indexes
-CREATE INDEX idx_notes_auth_user_id ON notes(auth_user_id);
-CREATE INDEX idx_notes_quest_id ON notes(quest_id);
 ```
 
 ## Service Responsibilities
@@ -339,119 +323,8 @@ CREATE INDEX idx_notes_quest_id ON notes(quest_id);
 
 ## Ownership and Integration Notes
 
+- **Notes (Arsenal) Non-Ownership**: The Quests Service does not own the `notes` table. The personal "Arsenal" is owned by the User Service. Quests can be linked to notes via the `note_quests` join table in the User Service database, and this relationship is managed through API calls to the User Service.
 - **Rewards Ledger Non-Ownership**: Although quests define `experience_points_reward` and track earned XP within attempts/progress for analytics, the Quests Service does not own the authoritative XP ledger. All reward events are published to the User Service, which persists them in `user_skill_rewards` and applies progression to `user_skills`.
 - **Reward Cascade Compliance (FR58)**: Objective completion triggers a pipeline of events: `XPGranted`, `SkillPointsGranted`, `ChallengeUnlocked`. Events must include correlation IDs to ensure auditability and ordering. Quests Service emits these events; User Service ingests and persists them.
 - **Skill Tree Catalog Non-Ownership**: Quests Service consumes the Skill Catalog (skills and dependencies) maintained by the User Service to tag quests (`skill_tags`), generate objectives, and perform recommendations. It does not define or own `skills` or `skill_dependencies` tables.
-
----
-## **Database Correction and Update Script**
-
-The following script should be executed to align the database schema with the application's domain models. It is idempotent and safe to run multiple times.
-
-```sql
--- ALTERATION SCRIPT FOR RogueLearn Quest Service Schema (Version 2 - Corrected)
--- This script safely handles dependencies, brings the schema into compliance with the BaseEntity contract,
--- and ensures the required 'notes' table for the Personal Arsenal feature exists.
-
--- ----------------------------------------------------
--- SECTION 1: CREATE GENERIC 'updated_at' TRIGGER FUNCTION
--- This function will be reused by all tables. CREATE OR REPLACE is idempotent.
--- ----------------------------------------------------
-CREATE OR REPLACE FUNCTION public.handle_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- ----------------------------------------------------
--- SECTION 2: APPLY IDEMPOTENT TRIGGERS TO ALL TABLES
--- For each table, we first drop the trigger if it exists, then create it.
--- This makes the script runnable multiple times without errors.
--- ----------------------------------------------------
-
--- Table: quests
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quests;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.quests
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: quest_steps
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_steps;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.quest_steps
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: quest_resources
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_resources;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.quest_resources
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: user_quest_attempts
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.user_quest_attempts;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.user_quest_attempts
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: user_quest_step_progress
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.user_quest_step_progress;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.user_quest_step_progress
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: learning_paths
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.learning_paths;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.learning_paths
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: learning_path_quests
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.learning_path_quests;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.learning_path_quests
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: user_learning_path_progress
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.user_learning_path_progress;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.user_learning_path_progress
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: quest_assessments
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_assessments;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.quest_assessments
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: quest_submissions
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_submissions;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.quest_submissions
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-
--- Table: quest_analytics
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.quest_analytics;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.quest_analytics
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
-    
--- Table: notes
-DROP TRIGGER IF EXISTS trg_handle_updated_at ON public.notes;
-CREATE TRIGGER trg_handle_updated_at
-    BEFORE UPDATE ON public.notes
-    FOR EACH ROW
-    EXECUTE FUNCTION public.handle_updated_at();
 ```

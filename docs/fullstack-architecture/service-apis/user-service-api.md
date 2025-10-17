@@ -1,13 +1,13 @@
 # User Service API Specification
 
-This service manages user identity and academic context: profiles, academic structures (programs, subjects), enrollments, lecturer verification, achievements, skills, and notifications.
+This service manages user identity and academic context: profiles, academic structures (programs, subjects), enrollments, lecturer verification, achievements, skills, notes (Arsenal), and notifications.
 
 ```yaml
 openapi: 3.0.0
 info:
   title: RogueLearn User Service API
   version: v1.0.0
-  description: Central authority for user identity and academic context.
+  description: Central authority for user identity, academic context, and personal notes (Arsenal).
 servers:
   - url: https://api.roguelearn.com/v1
     description: Production
@@ -129,6 +129,40 @@ components:
         message: { type: string }
         read: { type: boolean }
         created_at: { type: string, format: date-time }
+    Note:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        auth_user_id: { type: string, format: uuid }
+        title: { type: string }
+        content: { type: object }
+        is_public: { type: boolean }
+        tags: { type: array, items: { type: string } }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    NoteLinkRequest:
+      type: object
+      properties:
+        quest_id: { type: string, format: uuid, nullable: true }
+        skill_id: { type: string, format: uuid, nullable: true }
+
+tags:
+  - name: Profiles
+    description: User profile management
+  - name: Academic
+    description: Academic structure and enrollment management
+  - name: Admin
+    description: Administrative endpoints
+  - name: Verification
+    description: Lecturer verification workflows
+  - name: Skills
+    description: Skill tree and progression
+  - name: Achievements
+    description: User achievements
+  - name: Notifications
+    description: User notifications
+  - name: Notes
+    description: Personal user notes (Arsenal) management
 
 paths:
   # Profiles & Onboarding
@@ -559,4 +593,153 @@ paths:
       responses:
         '200':
           description: Notification marked as read.
-```
+
+  # Notes (Arsenal) Management
+  /notes:
+    get:
+      summary: List all notes for current user
+      description: Retrieves a list of all notes in the current user's Arsenal.
+      tags: [Notes]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: A list of notes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+    post:
+      summary: Create a new note
+      description: Adds a new note to the user's Arsenal.
+      tags: [Notes]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: { type: string }
+                content: { type: object }
+                is_public: { type: boolean, default: false }
+                tags: { type: array, items: { type: string } }
+      responses:
+        '201':
+          description: Note created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+
+  /notes/{noteId}:
+    get:
+      summary: Get a specific note
+      description: Retrieves a single note by its ID.
+      tags: [Notes]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: The requested note.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '404':
+          description: Note not found.
+    put:
+      summary: Update a note
+      description: Updates the content, title, or tags of an existing note.
+      tags: [Notes]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                content: { type: object }
+                is_public: { type: boolean }
+                tags: { type: array, items: { type: string } }
+      responses:
+        '200':
+          description: Note updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+    delete:
+      summary: Delete a note
+      description: Permanently deletes a note from the user's Arsenal.
+      tags: [Notes]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: Note deleted successfully.
+
+  /notes/{noteId}/links:
+    post:
+      summary: Link a note to a quest or skill
+      description: Creates an association between a note and a quest (from Quests Service) or a skill.
+      tags: [Notes]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteLinkRequest'
+      responses:
+        '201':
+          description: Link created successfully.
+    delete:
+      summary: Unlink a note from a quest or skill
+      description: Removes an association between a note and a quest or skill.
+      tags: [Notes]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteLinkRequest'
+      responses:
+        '204':
+          description: Link removed successfully.

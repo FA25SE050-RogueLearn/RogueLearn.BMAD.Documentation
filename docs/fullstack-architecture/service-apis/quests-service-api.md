@@ -1,11 +1,10 @@
-```yaml
 openapi: 3.0.0
 info:
   title: RogueLearn Quests Service API
   version: 1.0.0
   description: |
     Manages the core learning loop: quests, learning paths, ephemeral boss fights,
-    game sessions, and the personal Arsenal (notes). All IDs are UUIDs. All endpoints
+    and game sessions. All IDs are UUIDs. All endpoints
     require BearerAuth unless otherwise noted.
 servers:
   - url: https://api.roguelearn.local/quests
@@ -20,8 +19,6 @@ tags:
     description: Ephemeral boss fights and session completion
   - name: BossFightSessions
     description: Boss Fight (2D, Unity WebGL) session lifecycle (single-player and co-op) and in-session actions
-  - name: Notes
-    description: Personal Arsenal notes
 components:
   securitySchemes:
     BearerAuth:
@@ -187,14 +184,6 @@ components:
         timeTakenSeconds: { type: integer }
         correctCount: { type: integer }
         incorrectCount: { type: integer }
-    Note:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        title: { type: string }
-        content: { type: string }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: string, format: date-time }
 paths:
   /learning-paths/me:
     get:
@@ -498,96 +487,3 @@ paths:
       responses:
         '202':
           description: Results accepted for processing.
-
-  /notes:
-    get:
-      summary: List notes
-      description: Retrieves all notes from the user's Arsenal.
-      tags: [Notes]
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Notes list
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/Note' }
-    post:
-      summary: Create note
-      description: Creates a new note.
-      tags: [Notes]
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [title, content]
-              properties:
-                title: { type: string }
-                content: { type: string }
-      responses:
-        '201':
-          description: Note created
-
-  /notes/{noteId}:
-    get:
-      summary: Get note
-      description: Retrieves a specific note.
-      tags: [Notes]
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: noteId
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-      responses:
-        '200':
-          description: Note detail
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Note'
-    put:
-      summary: Update note
-      description: Updates an existing note.
-      tags: [Notes]
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: noteId
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title: { type: string }
-                content: { type: string }
-      responses:
-        '200':
-          description: Note updated
-    delete:
-      summary: Delete note
-      description: Deletes a note.
-      tags: [Notes]
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: noteId
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-      responses:
-        '204':
-          description: Note deleted
-```

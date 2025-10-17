@@ -5,7 +5,7 @@ This document defines RPG-specific terminologies and gamification concepts used 
 ## Core RPG Concepts
 
 ### **Arsenal**
-A player's personal knowledge repository containing all their notes, documents, and learning materials. Functions as the player's "inventory" where they store and organize their accumulated knowledge and resources.
+A player's personal knowledge repository, **owned and managed by the User Service**, containing all their notes, documents, and learning materials. It functions as the player's "inventory" where they store and organize their accumulated knowledge and resources, which can be linked to quests, skills, and shared with their party.
 
 ### **Character Creation**
 The onboarding process where new users define their academic identity by selecting:
