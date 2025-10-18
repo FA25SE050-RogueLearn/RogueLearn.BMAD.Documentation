@@ -23,7 +23,7 @@ CREATE TYPE assessment_type AS ENUM ('Quiz', 'Assignment', 'Project', 'PeerRevie
 -- Quest Management
 
 -- quests
--- Core quest definitions with metadata and configuration
+-- Core quest definitions with metadata and configuration. Represents a single major topic or subject.
 CREATE TABLE quests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(255) NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE quests (
 );
 
 -- quest_steps
--- Individual steps within a quest for structured progression
+-- Individual, actionable tasks a user must complete to finish a single Quest. This is the smallest unit of work.
 CREATE TABLE quest_steps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
@@ -117,7 +117,7 @@ CREATE TABLE user_quest_step_progress (
 -- Learning Paths and Curriculum Integration
 
 -- learning_paths
--- Structured sequences of quests for comprehensive learning
+-- The top-level container for an entire learning journey (e.g., a full course or curriculum).
 CREATE TABLE learning_paths (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
@@ -134,8 +134,22 @@ CREATE TABLE learning_paths (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- quest_chapters
+-- High-level thematic groupings of Quests within a Learning Path, used for presentation (e.g., "Semester 1").
+CREATE TABLE quest_chapters (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quest_line_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    sequence INT NOT NULL,
+    status path_progress_status NOT NULL DEFAULT 'NotStarted',
+    start_date DATE,
+    end_date DATE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- learning_path_quests
--- Junction table linking quests to learning paths with sequencing
+-- Junction table that structurally defines which Quests belong to a Learning Path and in what order.
 CREATE TABLE learning_path_quests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     learning_path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
@@ -244,10 +258,11 @@ CREATE INDEX idx_user_quest_attempts_quest_id ON user_quest_attempts(quest_id);
 CREATE INDEX idx_user_quest_attempts_status ON user_quest_attempts(status);
 CREATE INDEX idx_user_quest_step_progress_attempt_id ON user_quest_step_progress(attempt_id);
 
--- Learning path indexes
+-- Learning path and chapter indexes
 CREATE INDEX idx_learning_paths_path_type ON learning_paths(path_type);
 CREATE INDEX idx_learning_paths_subject_id ON learning_paths(subject_id);
 CREATE INDEX idx_learning_paths_is_published ON learning_paths(is_published);
+CREATE INDEX idx_quest_chapters_quest_line_id ON quest_chapters(quest_line_id);
 CREATE INDEX idx_learning_path_quests_learning_path_id ON learning_path_quests(learning_path_id);
 CREATE INDEX idx_user_learning_path_progress_auth_user_id ON user_learning_path_progress(auth_user_id);
 
