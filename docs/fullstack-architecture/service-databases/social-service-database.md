@@ -1,14 +1,14 @@
 # Social Service Database Schema
 
 ## Overview
-The Social Service manages social interactions, party formation, guild systems, and collaborative learning experiences. It enables students to form study groups, join guilds, and participate in collaborative learning activities.
+The Social Service manages social interactions, party formation, and guild systems. It is responsible for community features but **no longer manages events or competitions**, which have been migrated to the new Event Service.
 
 ## Database Tables
 
 ### Party System
 
 #### parties
-Study groups and collaborative learning parties
+Study groups and collaborative learning parties.
 ```sql
 CREATE TABLE parties (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -18,9 +18,9 @@ CREATE TABLE parties (
     max_members INTEGER NOT NULL DEFAULT 6,
     current_member_count INTEGER NOT NULL DEFAULT 1,
     is_public BOOLEAN NOT NULL DEFAULT TRUE,
-    subject_id UUID, -- Reference to subjects table in User Service
-    class_id UUID, -- Reference to classes table in User Service
-    created_by UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    subject_id UUID, -- Soft FK to User Service: subjects table
+    class_id UUID, -- Soft FK to User Service: classes table
+    created_by UUID NOT NULL, -- Soft FK to User Service: user_profiles table
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     disbanded_at TIMESTAMPTZ
@@ -28,12 +28,12 @@ CREATE TABLE parties (
 ```
 
 #### party_members
-Party membership tracking with roles and status
+Party membership tracking with roles and status.
 ```sql
 CREATE TABLE party_members (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    auth_user_id UUID NOT NULL, -- Soft FK to User Service: user_profiles table
     role party_role NOT NULL DEFAULT 'Member',
     status member_status NOT NULL DEFAULT 'Active',
     joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -44,13 +44,13 @@ CREATE TABLE party_members (
 ```
 
 #### party_invitations
-Party invitation system
+Party invitation system.
 ```sql
 CREATE TABLE party_invitations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
-    inviter_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
-    invitee_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    inviter_id UUID NOT NULL, -- Soft FK to User Service: user_profiles table (inviter)
+    invitee_id UUID NOT NULL, -- Soft FK to User Service: user_profiles table (invitee)
     status invitation_status NOT NULL DEFAULT 'Pending',
     message TEXT,
     invited_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -61,7 +61,7 @@ CREATE TABLE party_invitations (
 ```
 
 #### party_activities
-Tracks party collaborative activities and achievements
+Tracks party collaborative activities and achievements.
 ```sql
 CREATE TABLE party_activities (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -69,8 +69,8 @@ CREATE TABLE party_activities (
     activity_type activity_type NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    quest_id UUID, -- Reference to quests in Quests Service
-    meeting_id UUID, -- Reference to meetings in Meeting Service
+    quest_id UUID, -- Soft FK to Quests Service: quests table
+    meeting_id UUID, -- Soft FK to Meeting Service: meetings table
     started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     completed_at TIMESTAMPTZ,
     experience_points_earned INTEGER NOT NULL DEFAULT 0,
@@ -85,8 +85,8 @@ Snapshot of shared notes within a party (Arsenal sharing). Captures content at s
 CREATE TABLE party_stash_items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
-    original_note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE, -- User Service notes
-    shared_by_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    original_note_id UUID NOT NULL, -- Soft FK to User Service: notes(id)
+    shared_by_user_id UUID NOT NULL, -- Soft FK to User Service: user_profiles(auth_user_id)
     title TEXT NOT NULL,
     content JSONB NOT NULL,
     tags TEXT[],
@@ -98,7 +98,7 @@ CREATE TABLE party_stash_items (
 ### Guild System
 
 #### guilds
-Large-scale learning communities and organizations
+Large-scale learning communities and organizations.
 ```sql
 CREATE TABLE guilds (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -112,19 +112,19 @@ CREATE TABLE guilds (
     is_public BOOLEAN NOT NULL DEFAULT TRUE,
     requires_approval BOOLEAN NOT NULL DEFAULT FALSE,
     banner_image_url TEXT,
-    created_by UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    created_by UUID NOT NULL, -- Soft FK to User Service: user_profiles table
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ```
 
 #### guild_members
-Guild membership with hierarchical roles
+Guild membership with hierarchical roles.
 ```sql
 CREATE TABLE guild_members (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    auth_user_id UUID NOT NULL, -- Soft FK to User Service: user_profiles table
     role guild_role NOT NULL DEFAULT 'Member',
     status member_status NOT NULL DEFAULT 'Active',
     joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -136,13 +136,13 @@ CREATE TABLE guild_members (
 ```
 
 #### guild_invitations
-Guild invitation and application system
+Guild invitation and application system.
 ```sql
 CREATE TABLE guild_invitations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    inviter_id UUID, -- Reference to user_profiles.auth_user_id in User Service (null for applications)
-    invitee_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    inviter_id UUID, -- Soft FK to User Service: user_profiles (null for applications)
+    invitee_id UUID NOT NULL, -- Soft FK to User Service: user_profiles (the applicant or invitee)
     invitation_type invitation_type NOT NULL,
     status invitation_status NOT NULL DEFAULT 'Pending',
     message TEXT,
@@ -154,7 +154,7 @@ CREATE TABLE guild_invitations (
 ```
 
 #### guild_achievements
-Guild-level achievements and milestones
+Guild-level achievements and milestones.
 ```sql
 CREATE TABLE guild_achievements (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -171,12 +171,12 @@ CREATE TABLE guild_achievements (
 ### Social Interactions
 
 #### friendships
-User friendship connections
+User friendship connections.
 ```sql
 CREATE TABLE friendships (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    requester_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
-    addressee_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    requester_id UUID NOT NULL, -- Soft FK to User Service: user_profiles
+    addressee_id UUID NOT NULL, -- Soft FK to User Service: user_profiles
     status friendship_status NOT NULL DEFAULT 'Pending',
     requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     accepted_at TIMESTAMPTZ,
@@ -187,11 +187,11 @@ CREATE TABLE friendships (
 ```
 
 #### user_social_stats
-Aggregated social statistics for users
+Aggregated social statistics for users.
 ```sql
 CREATE TABLE user_social_stats (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    auth_user_id UUID NOT NULL UNIQUE, -- Reference to user_profiles.auth_user_id in User Service
+    auth_user_id UUID NOT NULL UNIQUE, -- Soft FK to User Service: user_profiles
     friends_count INTEGER NOT NULL DEFAULT 0,
     parties_joined INTEGER NOT NULL DEFAULT 0,
     parties_created INTEGER NOT NULL DEFAULT 0,
@@ -206,11 +206,11 @@ CREATE TABLE user_social_stats (
 ### Communication and Messaging
 
 #### social_messages
-Direct messages and party/guild communications
+Direct messages and party/guild communications.
 ```sql
 CREATE TABLE social_messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    sender_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    sender_id UUID NOT NULL, -- Soft FK to User Service: user_profiles
     message_type message_type NOT NULL,
     recipient_id UUID, -- For direct messages
     party_id UUID REFERENCES parties(id) ON DELETE CASCADE, -- For party messages
@@ -230,58 +230,19 @@ CREATE TABLE social_messages (
 ```
 
 #### message_reactions
-Emoji reactions to messages
+Emoji reactions to messages.
 ```sql
 CREATE TABLE message_reactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     message_id UUID NOT NULL REFERENCES social_messages(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    auth_user_id UUID NOT NULL, -- Soft FK to User Service: user_profiles
     reaction_emoji VARCHAR(10) NOT NULL,
     reacted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (message_id, auth_user_id, reaction_emoji)
 );
 ```
 
-### Events and Activities
-
-#### social_events
-Social learning events and activities
-```sql
-CREATE TABLE social_events (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    event_type event_type NOT NULL,
-    organizer_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
-    party_id UUID REFERENCES parties(id) ON DELETE SET NULL,
-    guild_id UUID REFERENCES guilds(id) ON DELETE SET NULL,
-    max_participants INTEGER,
-    current_participants_count INTEGER NOT NULL DEFAULT 0,
-    scheduled_start_time TIMESTAMPTZ NOT NULL,
-    scheduled_end_time TIMESTAMPTZ NOT NULL,
-    location_type location_type NOT NULL,
-    location_details JSONB, -- Virtual meeting links or physical location
-    status event_status NOT NULL DEFAULT 'Scheduled',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
-
-#### event_participants
-Event participation tracking
-```sql
-CREATE TABLE event_participants (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_id UUID NOT NULL REFERENCES social_events(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
-    status participation_status NOT NULL DEFAULT 'Registered',
-    registered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    attended_at TIMESTAMPTZ,
-    feedback_rating INTEGER CHECK (feedback_rating >= 1 AND feedback_rating <= 5),
-    feedback_comment TEXT,
-    UNIQUE (event_id, auth_user_id)
-);
-```
+-- REMOVED: `social_events` and `event_participants` tables have been migrated to the new Event Service.
 
 ## Enums and Types
 
@@ -313,18 +274,6 @@ CREATE TYPE friendship_status AS ENUM ('Pending', 'Accepted', 'Blocked');
 
 -- Message types
 CREATE TYPE message_type AS ENUM ('Direct', 'Party', 'Guild');
-
--- Event types
-CREATE TYPE event_type AS ENUM ('StudySession', 'Workshop', 'Competition', 'Social', 'Presentation', 'Review');
-
--- Location types
-CREATE TYPE location_type AS ENUM ('Virtual', 'Physical', 'Hybrid');
-
--- Event status
-CREATE TYPE event_status AS ENUM ('Scheduled', 'InProgress', 'Completed', 'Cancelled', 'Postponed');
-
--- Participation status
-CREATE TYPE participation_status AS ENUM ('Registered', 'Attended', 'NoShow', 'Cancelled');
 ```
 
 ## Indexes for Performance
@@ -363,14 +312,6 @@ CREATE INDEX idx_social_messages_recipient_id ON social_messages(recipient_id);
 CREATE INDEX idx_social_messages_party_id ON social_messages(party_id);
 CREATE INDEX idx_social_messages_guild_id ON social_messages(guild_id);
 CREATE INDEX idx_social_messages_sent_at ON social_messages(sent_at);
-
--- Event indexes
-CREATE INDEX idx_social_events_organizer_id ON social_events(organizer_id);
-CREATE INDEX idx_social_events_event_type ON social_events(event_type);
-CREATE INDEX idx_social_events_scheduled_start_time ON social_events(scheduled_start_time);
-CREATE INDEX idx_social_events_status ON social_events(status);
-CREATE INDEX idx_event_participants_event_id ON event_participants(event_id);
-CREATE INDEX idx_event_participants_auth_user_id ON event_participants(auth_user_id);
 
 -- Party stash indexes
 CREATE INDEX idx_party_stash_items_party_id ON party_stash_items(party_id);

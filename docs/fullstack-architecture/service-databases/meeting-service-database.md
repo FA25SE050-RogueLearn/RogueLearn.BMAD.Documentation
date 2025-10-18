@@ -1,14 +1,14 @@
 # Meeting Service Database Schema
 
 ## Overview
-The Meeting Service manages virtual meetings with core functionality for meeting lifecycle, participant tracking, transcript management, and summary generation. This simplified schema focuses on essential meeting operations and AI-powered content processing.
+The Meeting Service manages virtual meetings with core functionality for meeting lifecycle, participant tracking, transcript management, and summary generation. This schema focuses on essential meeting operations and AI-powered content processing.
 
 ## Database Tables
 
 ### Core Meeting Management
 
 #### meeting
-Core meeting definitions and scheduling
+Core meeting definitions and scheduling.
 ```sql
 CREATE TABLE meeting (
     meeting_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -17,29 +17,29 @@ CREATE TABLE meeting (
     scheduled_end_time TIMESTAMPTZ NOT NULL,
     actual_start_time TIMESTAMPTZ,
     actual_end_time TIMESTAMPTZ,
-    organizer_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    organizer_id UUID NOT NULL, -- Soft FK to user_profiles.auth_user_id in User Service
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ```
 
 #### meeting_participant
-Meeting participation tracking with join/leave times and roles
+Meeting participation tracking with join/leave times and roles.
 ```sql
 CREATE TABLE meeting_participant (
     participant_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     meeting_id UUID NOT NULL REFERENCES meeting(meeting_id) ON DELETE CASCADE,
-    user_id UUID NOT NULL, -- Reference to user_profiles.auth_user_id in User Service
+    user_id UUID NOT NULL, -- Soft FK to user_profiles.auth_user_id in User Service
     join_time TIMESTAMPTZ,
     leave_time TIMESTAMPTZ,
     role_in_meeting VARCHAR(50) NOT NULL DEFAULT 'participant'
 );
 ```
 
-### AI-Powered Content Processing
+### AI-Powered Content Processing (Future Implementation)
 
 #### transcript_segment
-Meeting transcript segments with speaker identification and timing
+Meeting transcript segments with speaker identification and timing.
 ```sql
 CREATE TABLE transcript_segment (
     segment_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -55,7 +55,7 @@ CREATE TABLE transcript_segment (
 ```
 
 #### summary_chunk
-AI-generated summary chunks for meeting segments
+AI-generated summary chunks for meeting segments.
 ```sql
 CREATE TABLE summary_chunk (
     summary_chunk_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -68,7 +68,7 @@ CREATE TABLE summary_chunk (
 ```
 
 #### meeting_summary
-Complete AI-generated meeting summaries
+Complete AI-generated meeting summaries.
 ```sql
 CREATE TABLE meeting_summary (
     meeting_summary_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -106,22 +106,12 @@ CREATE INDEX idx_meeting_summary_meeting_id ON meeting_summary(meeting_id);
 ### Primary Responsibilities
 - Meeting lifecycle management (scheduling, starting, ending)
 - Participant tracking and role management
-- Real-time transcript capture and processing
-- AI-powered content summarization
+- Real-time transcript capture and processing (Future)
+- AI-powered content summarization (Future)
 - Meeting content storage and retrieval
 
 ### Cross-Service Integration
-- **User Service**: Retrieves user profiles for organizers and participants
-- **AI Service**: Processes transcripts for summarization and insights
-- **Notification Service**: Sends meeting reminders and updates
-
-### Data Access Patterns
-- **Read/Write Access**: All tables within Meeting Service domain
-- **External References**: User profiles from User Service
-- **API Integration**: Exposes meeting management via REST APIs
-- **Real-time Integration**: WebSocket connections for live transcript updates
-
-### Real-time Features
-- **Live Transcription**: Real-time speech-to-text processing
-- **Participant Tracking**: Live join/leave status updates
-- **Summary Generation**: AI-powered content summarization during and after meetings
+- **User Service**: Retrieves user profiles for organizers and participants.
+- **AI Service**: Will process transcripts for summarization and insights.
+- **Notification Service**: Will send meeting reminders and updates.
+- **Social Service**: Consumes context from Parties and Guilds to associate meetings with them.

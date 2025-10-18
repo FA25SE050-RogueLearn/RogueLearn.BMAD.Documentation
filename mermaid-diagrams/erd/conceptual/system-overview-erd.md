@@ -3,56 +3,147 @@
 ## Entity Relationship Diagram
 
 ```mermaid
----
-config:
-  layout: elk
----
 erDiagram
-    %% Authentication & User Management
-    AuthUsers ||--|| UserProfile : authenticates
+    %% Core Services & Entities
+
+    subgraph User Service
+        user_profiles {
+            uuid auth_user_id PK
+            string username
+            uuid class_id FK
+            uuid route_id FK
+        }
+        curriculum_programs {
+            uuid id PK
+            string program_name
+        }
+        classes {
+            uuid id PK
+            string name
+        }
+        notes {
+            uuid id PK
+            uuid auth_user_id FK
+        }
+        achievements {
+            uuid id PK
+            string name
+        }
+        user_achievements {
+            uuid auth_user_id PK,FK
+            uuid achievement_id PK,FK
+        }
+    end
+
+    subgraph Quest Service
+        learning_paths {
+            uuid id PK
+            string name
+            uuid curriculum_version_id
+        }
+        quests {
+            uuid id PK
+            string title
+        }
+        user_quest_attempts {
+            uuid id PK
+            uuid auth_user_id
+            uuid quest_id FK
+        }
+    end
+
+    subgraph Social Service
+        parties {
+            uuid id PK
+            string name
+            uuid created_by
+        }
+        guilds {
+            uuid id PK
+            string name
+            uuid created_by
+        }
+        party_members {
+            uuid party_id PK,FK
+            uuid auth_user_id PK
+        }
+        guild_members {
+            uuid guild_id PK,FK
+            uuid auth_user_id PK
+        }
+    end
+
+    subgraph Event Service
+        events {
+            uuid id PK
+            string title
+            uuid original_request_id FK
+        }
+        event_requests {
+            uuid id PK
+            uuid requester_guild_id
+        }
+        rooms {
+            uuid id PK
+            uuid event_id FK
+        }
+        room_players {
+            uuid room_id PK,FK
+            uuid user_id PK
+        }
+        submissions {
+            uuid id PK
+            uuid user_id
+            uuid code_problem_id
+        }
+        code_problems {
+            uuid id PK
+            string title
+        }
+    end
+
+    subgraph Meeting Service
+        meeting {
+            uuid meeting_id PK
+            string title
+            uuid organizer_id
+        }
+        meeting_participant {
+            uuid participant_id PK
+            uuid meeting_id FK
+            uuid user_id
+        }
+    end
+
+    %% Relationships between Services
+    user_profiles }o--|| curriculum_programs : "selects as Route"
+    user_profiles }o--|| classes : "selects as Class"
+    user_profiles ||--o{ learning_paths : "has"
+    user_profiles ||--o{ user_quest_attempts : "attempts"
+    user_profiles ||--o{ party_members : "is member of"
+    user_profiles ||--o{ guild_members : "is member of"
+    user_profiles ||--o{ room_players : "plays in"
+    user_profiles ||--o{ submissions : "submits"
+    user_profiles ||--o{ meeting_participant : "attends"
+    user_profiles ||--o{ user_achievements : "earns"
+    achievements ||--o{ user_achievements : " "
     
-    %% Academic Structure
-    "Class" ||--o{ UserProfile : contains
-    UserProfile }o--|| CurriculumProgram : follows
-    CurriculumProgram ||--o{ CurriculumVersion : includes
-    CurriculumProgram ||--o{ SkillTree : develops
-    
-    %% Learning Journey
-    UserProfile ||--o{ StudentEnrollment : enrolls_in
-    CurriculumVersion ||--o{ StudentEnrollment : enrolled_by
-    CurriculumProgram ||--o{ QuestLine : generates
-    QuestLine ||--o{ Quest : contains
-    Subject ||--o{ Quest : generates
-    SkillTree ||--o{ Skill : branches_into
-    
-    %% Game Mechanics
-    UserProfile ||--o{ GameSession : plays
-    Quest ||--o{ GameSession : engaged_in
-    UserProfile ||--o{ UserQuestProgress : tracks
-    
-    %% Achievement System
-    UserProfile ||--o{ UserAchievement : earns
-    Achievement ||--o{ UserAchievement : awarded_as
-    
-    %% Social Dynamics
-    UserProfile ||--o{ Party : leads
-    UserProfile ||--o| Guild : masters
-    Guild ||--o{ Event : joins
-    
-    %% Competitive Elements
-    UserProfile ||--o{ LeaderboardEntry : ranks_in
-    Event ||--o{ LeaderboardEntry : scored_in
-    Event ||--o{ Room : creates
-    Event ||--o{ EventCodeProblem : includes
-    CodeProblem ||--o{ EventCodeProblem : featured_in
-    
-    %% Meeting & Collaboration
-    Party ||--o{ Meeting : conducts
-    UserProfile ||--o{ Meeting : creates
-    
-    %% Code Battle Integration
-    CodeProblem ||--o{ Submission : solved_by
-    Language ||--o{ Submission : written_in
+    curriculum_programs ||--o{ learning_paths : "generates"
+    learning_paths ||--o{ quests : "contains"
+    quests ||--o{ user_quest_attempts : " "
+
+    parties ||--o{ party_members : " "
+    guilds ||--o{ guild_members : " "
+    guilds }o--|| event_requests : "requests"
+
+    events ||--o{ rooms : "has"
+    rooms ||--o{ room_players : " "
+    events ||--o{ event_requests : "approves"
+    events ||--o{ code_problems : "features"
+    code_problems ||--o{ submissions : " "
+
+    parties ||--o{ meeting : "holds"
+    meeting ||--o{ meeting_participant : " "
 ```
 
 ## System Architecture Overview
@@ -60,84 +151,28 @@ erDiagram
 ### Service Boundaries & Responsibilities
 
 #### **User Service** (`roguelearn-user-service`)
-- **Primary Responsibility**: User identity, profiles, roles, academic structure, and achievement tracking
-- **Key Entities**: UserProfiles, Roles, Classes, CurriculumPrograms, StudentEnrollments, UserQuestProgress, Achievements, UserAchievements
-- **External Integration**: Supabase Auth for authentication
-- **Cross-Service Impact**: Provides user context to all other services and maintains quest progress summaries
+- **Primary Responsibility**: User identity, profiles, roles, academic structure, and achievement tracking. Owns the "Arsenal" of notes.
+- **Key Entities**: `user_profiles`, `roles`, `classes`, `curriculum_programs`, `student_enrollments`, `achievements`, `notes`.
 
 #### **Quests Service** (`roguelearn-quests-service`)
-- **Primary Responsibility**: Learning content, gamification, and progress tracking
-- **Key Entities**: Subjects, Quests, Skills, GameSessions
-- **Dependencies**: User Service (UserProfiles), Academic structure (CurriculumPrograms)
-- **Cross-Service Impact**: Drives user engagement and learning progression
+- **Primary Responsibility**: Learning content, gamification, and progress tracking. Transforms academic blueprints into playable content.
+- **Key Entities**: `learning_paths`, `quests`, `quest_steps`, `user_quest_attempts`.
 
 #### **Social Service** (`roguelearn-social-service`)
-- **Primary Responsibility**: Community features, events, competition, and collaborative knowledge sharing
-- **Key Entities**: Parties, Guilds, Events, LeaderboardEntries, PartyStashItems
-- **Dependencies**: User Service (UserProfiles), Quests Service (Notes for party stash)
-- **Cross-Service Impact**: Enables collaborative learning, competition, and shared knowledge repositories
+- **Primary Responsibility**: Community features (Parties, Guilds, Friends).
+- **Key Entities**: `parties`, `guilds`, `party_members`, `guild_members`, `friendships`.
+
+#### **Event Service** (`roguelearn-event-service`)
+- **Primary Responsibility**: Creation, management, and execution of all competitive and social events. Owns the code problem catalog and submission engine.
+- **Key Entities**: `events`, `event_requests`, `rooms`, `code_problems`, `submissions`, `leaderboard_entries`.
 
 #### **Meeting Service** (`roguelearn-meeting-service`)
-- **Primary Responsibility**: Multi-context collaboration (parties and guilds), meeting management, and participant activity analytics
-- **Key Entities**: Meetings, MeetingParticipants, MeetingAgenda, MeetingNotes, MeetingParticipantActivity, MeetingParticipantEngagement, MeetingParticipantStats
-- **Dependencies**: Social Service (Parties, Guilds), User Service (UserProfiles)
-- **Cross-Service Impact**: Facilitates team collaboration across parties and guilds, study groups, and provides detailed meeting analytics
+- **Primary Responsibility**: Real-time collaborative meetings for Parties and Guilds.
+- **Key Entities**: `meeting`, `meeting_participant`.
 
-#### **Code Battle Service** (`roguelearn-code-battle-service`)
-- **Primary Responsibility**: Code compilation, execution, and competitive programming
-- **Key Entities**: CodeProblems, Submissions, Languages, Rooms
-- **Dependencies**: Social Service (Events), User Service (UserProfiles)
-- **External Integration**: Qdrant for vector embeddings, Judge0 for code execution
-
-### Data Flow Patterns
-
-#### **User Journey Flow**
-1. **Authentication**: Supabase Auth → User Service (UserProfiles)
-2. **Onboarding**: User Service → Academic assignment (Classes, Curriculums)
-3. **Learning**: Quests Service → Content delivery and progress tracking → User Service (UserQuestProgress sync)
-4. **Achievement**: Cross-service events → User Service (Achievement awards)
-5. **Social**: Social Service → Community engagement and events
-6. **Collaboration**: Meeting Service → Team study sessions with detailed activity tracking and engagement analytics
-7. **Competition**: Code Battle Service → Competitive programming challenges
-
-#### **Cross-Service Data Dependencies**
-- **UserProfiles**: Referenced by all services for user context
-- **UserQuestProgress**: Maintained by User Service, updated by Quests Service
-- **Achievements**: Managed by User Service, triggered by all services
-- **Events**: Bridge between Social Service and Code Battle Service
-- **Curriculums**: Shared between User Service and Quests Service
-- **Parties**: Bridge between Social Service and Meeting Service for party-based meetings
-- **Guilds**: Bridge between Social Service and Meeting Service for guild-based meetings
-- **Notes**: Referenced by Social Service (PartyStashItems) for collaborative knowledge sharing
-- **Meeting Analytics**: Meeting Service maintains detailed participant activity data for performance insights
-
-### Scalability Considerations
-
-#### **Service Independence**
-- Each service manages its own primary data
-- Cross-service references use UUIDs for loose coupling
-- Services can scale independently based on usage patterns
-
-#### **Data Consistency**
-- Foreign key relationships maintain referential integrity
-- Cascade deletes ensure data cleanup
-- Event-driven synchronization for cross-service updates
-
-#### **Performance Optimization**
-- Indexed foreign keys for cross-service queries
-- Read replicas for analytics and reporting
-- Caching layers for frequently accessed user data
-
-### Integration Points
-
-#### **External Systems**
-- **Supabase Auth**: User authentication and session management
-- **Qdrant**: Vector embeddings for code similarity and problem matching
-- **Judge0**: Code compilation and execution service
-
-#### **Internal APIs**
-- RESTful APIs for synchronous operations
-- Event streaming for asynchronous updates
-- GraphQL federation for unified data access
-
-This system design enables a comprehensive gamified learning platform with strong separation of concerns, scalable architecture, and rich feature integration across all learning aspects.
+### Data Flow & Relationships (Soft References)
+-   All services reference `user_profiles` in the **User Service** via `auth_user_id` for user context.
+-   The **Social Service** (`guilds`) is referenced by the **Event Service** (`event_requests`) when a Guild Master requests an event.
+-   The **Event Service** (`code_problems`) provides the catalog of challenges for code battle events.
+-   The **User Service** (`notes`) are referenced by the **Social Service** (`party_stash_items`) for collaborative sharing.
+-   The **Quest Service** (`quests`) are referenced by the **User Service** (`note_quests`) to link notes to specific learning objectives.
