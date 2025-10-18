@@ -9,20 +9,32 @@
 
 ```mermaid
 flowchart TD
-  Login --> Onboarding
-  Onboarding --> Dashboard
-  Dashboard --> SkillTree
-  Dashboard --> Quests
+  Login --> Onboarding[Character Creation Wizard]
+  Onboarding --> Dashboard[Main Dashboard]
+  
+  %% Dashboard primary navigation
+  Dashboard --> LearningProgress[Learning Progress Interface]
+  Dashboard --> SkillTree[Skill Tree Visualization]
+  Dashboard --> Quests[Quest Line Interface]
   Dashboard --> Arsenal
-  Quests --> QuestDetail
-  QuestDetail --> BossFight
   Dashboard --> Leaderboard
+  Dashboard --> GuildMasterDashboard[Guild Master Dashboard]
+  Dashboard --> EventWizard[Event Creation Wizard]
 
+  %% Quest branch
+  Quests --> QuestDetail[Quest Detail View]
+  QuestDetail --> MissionControl[Mission Control Workspace]
+  QuestDetail --> CodeArena[Code Arena]
+  QuestDetail --> BossFight[Boss Fight Arena]
+
+  %% Pop-up (document import during onboarding)
   ImportDocs([Import Academic Document]):::popup
   Onboarding --> ImportDocs
   style ImportDocs fill:#fff,stroke:#333,stroke-dasharray: 5 5;
 
+  %% Dashboard tabs grouping
   subgraph DashboardTabs [Dashboard Tabs]
+    LearningProgress
     SkillTree
     Quests
     Arsenal
@@ -32,28 +44,40 @@ flowchart TD
 ### 3.1.2 Screen Descriptions
 > Provide descriptions for the screens in the Screens Flow above.
 
-| # | Feature | Screen | Description |
-|---|---------|--------|-------------|
-| 1 | Onboarding & Academic Data | Onboarding | 3-step character creation to establish curriculum, specialization, and roadmap. |
-| 2 | Onboarding & Academic Data | Import Academic Document | Pop-up to upload transcripts/schedules/IDs to influence stats and verification. |
-| 3 | Dashboard | Dashboard | Overview of progress, stats, active quests, and quick links to features. |
-| 4 | Skill Tree | Skill Tree | Visual interconnected skill graph showing levels, prerequisites, and links to notes. |
-| 5 | Quests | Quest Detail | Semester-organized quest detail with objectives derived from syllabus. |
-| 6 | Boss Fights | Boss Fight | WebGL mock exam experience with scoring and XP conversion. |
-| 7 | Social & Rankings | Leaderboard | Rankings by class/major/guild with scoring breakdowns. |
-| 8 | Notes | Arsenal | Notion-like rich text workspace for study materials and references. |
+| # | Feature | Screen | Description | Source PRD |
+|---|---------|--------|-------------|------------|
+| 1 | Onboarding & Academic Data | Character Creation Wizard | Guided 3-step onboarding to select curriculum, specialization (roadmap.sh), and generate the initial skill-based roadmap. | [Onboarding & Academic Data](../prd/requirements.md#onboarding--academic-data) |
+| 2 | Onboarding & Academic Data | Import Academic Document | Pop-up to upload transcripts/schedules/IDs to influence stats, verification (FPTU), and semester planning. | [Onboarding & Academic Data](../prd/requirements.md#onboarding--academic-data) |
+| 3 | Dashboard | Main Dashboard | Central hub showing progress, stats (STR/DEX/INT, XP), active quests, upcoming events, and quick navigation to tabs. | [Dashboard, Skill Tree & Arsenal](../prd/requirements.md#dashboard-skill-tree--arsenal) |
+| 4 | Learning Progress | Learning Progress Interface | Module/semester view of quest completion, grades, deadlines, and workload indicators with filters and responsive layout. | [Dashboard, Skill Tree & Arsenal](../prd/requirements.md#dashboard-skill-tree--arsenal) |
+| 5 | Skill Tree | Skill Tree Visualization | Interactive graph with nodes, prerequisites, levels, and links to related notes and quests; supports zoom/pan and contextual unlocks. | [Dashboard, Skill Tree & Arsenal](../prd/requirements.md#dashboard-skill-tree--arsenal) |
+| 6 | Quests | Quest Line Interface | Chapter/semester-oriented quest line with states (Completed, In Progress, Available, Locked); shows dependency chains and rewards. | [AI Curriculum & Career Alignment](../prd/requirements.md#ai-curriculum--career-alignment), [Dynamic Quest & Notifications](../prd/requirements.md#dynamic-quest--notifications) |
+| 7 | Quests | Quest Detail View | Detailed objectives, resources, micro-objectives (via knowledge graph), attempt history, and actions: Start/Pause/Submit. | [AI Curriculum & Career Alignment](../prd/requirements.md#ai-curriculum--career-alignment) |
+| 8 | Assessments | Boss Fight Arena | WebGL assessment arena with timer, scoring, feedback, and XP/skill reward cascade; supports practice/exam modes. | [Boss Fights & Leaderboards](../prd/requirements.md#boss-fights--leaderboards) |
+| 9 | Workspace | Mission Control (Local Project) | Workspace for code/project objectives with repository links, checklists, and automated verification hooks. | [Objective System, Knowledge Graph & Rewards](../prd/requirements.md#objective-system-knowledge-graph--rewards) |
+| 10 | Coding Arena | Code Arena | In-browser coding interface with problem statements, test cases, and real-time feedback; supports solo and event modes. | [Event Platform (Code Arena & Guild Events)](../prd/requirements.md#event-platform-code-arena--guild-events) |
+| 11 | Social & Management | Guild Master Dashboard | Manage guild members, invitations, activity tracking, and learning path oversight with analytics. | [Basic Guild Management (Verified Lecturer Gated)](../prd/epic-list.md#basic-guild-management-verified-lecturer-gated) |
+| 12 | Events | Event Creation Wizard | Multi-step wizard to create sessions/competitions (single, multi-day, recurring), schedule, scoring rules, and registration. | [Event Platform (Code Arena & Guild Events)](../prd/requirements.md#event-platform-code-arena--guild-events) |
+| 13 | Social & Rankings | Leaderboard | Rankings by class/major/guild with filters and seasonal resets; shows score composition and recent achievements. | [Boss Fights & Leaderboards](../prd/requirements.md#boss-fights--leaderboards) |
+| 14 | Notes | Arsenal | Rich text and media notes, document processing, tagging, and linkage to skills/quests; supports party stash sharing. | [Dashboard, Skill Tree & Arsenal](../prd/requirements.md#dashboard-skill-tree--arsenal), [Browser Extension Integration](../prd/requirements.md#browser-extension-integration-fptu--arsenal) |
 
 ### 3.1.3 Screen Authorization
 > Provide system roles authorization to features.
 
 | Screen / Activity | Student (Player) | Party Leader | Guild Master | Verified Lecturer | Instructor/Advisor | Game Master (Admin) |
 |-------------------|:----------------:|:------------:|:------------:|:-----------------:|:------------------:|:-------------------:|
-| Onboarding | X |  |  |  |  |  |
+| Character Creation Wizard (Onboarding) | X |  |  |  |  |  |
 | Import Academic Document | X |  |  |  |  | X |
-| Dashboard | X | X | X | X | X | X |
-| Skill Tree | X | X | X | X | X | X |
-| Quest Detail | X | X | X | X | X | X |
-| Boss Fight | X |  |  |  |  |  |
+| Main Dashboard | X | X | X | X | X | X |
+| Learning Progress Interface | X | X | X | X | X | X |
+| Skill Tree Visualization | X | X | X | X | X | X |
+| Quest Line Interface | X | X | X | X | X | X |
+| Quest Detail View | X | X | X | X | X | X |
+| Boss Fight Arena | X |  |  |  |  |  |
+| Mission Control Workspace | X |  |  |  |  |  |
+| Code Arena | X |  |  |  |  |  |
+| Guild Master Dashboard |  |  | X | X |  | X |
+| Event Creation Wizard |  |  |  | X |  | X |
 | Leaderboard | X | X | X | X | X | X |
 | Arsenal | X |  |  |  |  |  |
 | Query All Data |  |  |  |  |  | X |
