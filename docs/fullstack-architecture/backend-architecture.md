@@ -16,7 +16,7 @@ The backend consists of the following microservices:
 *   **AI Proxy Service** (`roguelearn-ai-proxy-service`) - Secure gateway for Gemini API communications
 
 #### **Specialized Go Services**
-*   **Code Battle Service** (`roguelearn-code-battle-service`) - Compiles, executes, and scores user-submitted code in secure sandboxes
+*   **Event Service** (`roguelearn-event-service`) - Compiles, executes, and scores user-submitted code in secure sandboxes
 *   **Meeting Service** (`roguelearn-meeting-service`) - Handles party meetings, scheduling, and collaboration features
 
 ### **Service Communication Patterns**
@@ -56,12 +56,12 @@ type MeetingRepository interface {
 }
 ```
 
-### **Code Battle Service Architecture**
+### **Event Service Architecture**
 
-The Code Battle Service uses Go for performance-critical code execution:
+The Event Service uses Go for performance-critical code execution:
 
 ```go
-// Code Battle Service Core Types
+// Event Service Core Types
 type Submission struct {
     ID           uuid.UUID `json:"id"`
     EventID      uuid.UUID `json:"eventId"`

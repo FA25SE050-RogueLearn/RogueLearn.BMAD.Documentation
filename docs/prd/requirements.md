@@ -197,7 +197,7 @@
       - Consecutive wins: +5% per consecutive victory (max +25%)
     - **Skill Level Progression**: Each skill level requires exponentially more XP: Level N requires (N × 100) XP points
     - **Cross-Skill Synergies**: Completing Boss Fights in related subjects provides +10% XP bonus to connected skill nodes
-20. **FR19 (System):** The system must feature comprehensive leaderboards that display player rankings, both within specific "Classes", for competitive events including real-time code battles, and overall platform performance.
+20. **FR19 (System):** The system must feature comprehensive leaderboards that display player rankings, both within specific "Classes", for competitive events including real-time competitive programming events, and overall platform performance.
     
     **Business Logic Specifications:**
     - **Ranking Algorithm**: Overall rank = (40% Quest Completion Score + 30% Skill Tree Progress + 20% Boss Fight Performance + 10% Social Contribution)
@@ -211,9 +211,9 @@
       - Class-Specific: Users within same role-based roadmap (Backend, Frontend, etc.)
       - Major-Specific: Users within same smaller major (ReactJS/NodeJS, Game Development, etc.)
       - Guild/Party: Rankings within specific social groups
-      - **Event-Specific**: Real-time rankings for active code battles and guild-based competitive events
+      - **Event-Specific**: Real-time rankings for active competitive programming events and guild-based competitive events
       - **Guild Events**: Guild rankings based on total points accumulated by all guild members in system-wide events
-    - **Code Battle Integration**:
+    - **Event Integration**:
       - Real-time score updates during active competitions
       - Performance metrics including solution efficiency, code quality, and completion time
       - Head-to-head comparison displays for direct competitions
@@ -450,11 +450,11 @@
 42. **FR41 (System):** The system must implement comprehensive data architecture supporting real-time synchronization and data versioning.
 43. **FR42 (System):** The platform must support scalable content delivery with optimized asset loading.
 
-### **Phase 3: Event Management & Code Battle Requirements**
+### **Phase 3: Event Management & Competitive Programming Requirements**
 *Focus: Competitive learning platform with comprehensive event management.*
 #### Event Platform (Code Arena & Guild Events)
 
-44. **FR43 (System):** The system must provide a real-time code battle execution environment supporting multiple programming languages with automated testing, scoring, and live spectator capabilities.
+44. **FR43 (System):** The system must provide a real-time competitive programming execution environment supporting multiple programming languages with automated testing, scoring, and live spectator capabilities.
     
     **Technical Specifications:**
     - **Supported Languages**: JavaScript, Python, Java, C#, Go, TypeScript (extensible architecture)
@@ -492,7 +492,7 @@
     
     **Event Management Capabilities:**
     - **Event Creation Wizard**: Template-based event setup with customizable parameters and rules
-    - **Event Types**: Code battles, hackathons, study competitions, skill assessments, collaborative projects
+    - **Event Types**: Competitive programming events, hackathons, study competitions, skill assessments, collaborative projects
     - **Scheduling Tools**: Calendar integration, recurring event support, timezone management, conflict detection
     - **Participant Management**: Registration systems, capacity limits, prerequisite checking, team formation
     - **Content Management**: Problem set creation, test case definition, resource allocation, difficulty scaling
@@ -641,8 +641,8 @@
 
     **Business Logic Specifications:**
     - **Reading / Study**: Manual checkbox completion with optional note attachment
-    - **CodingChallenge**: Automatic completion when code passes all predefined test cases via Code Battle Service
-      - Integration: Submit code to Code Battle Service; receive pass/fail per test case
+    - **CodingChallenge**: Automatic completion when code passes all predefined test cases via Event Service
+      - Integration: Submit code to Event Service; receive pass/fail per test case
       - Threshold: Completion requires 100% test case pass for the selected problem
     - **LocalProject**: Requires successful verification step (see FR56)
       - Completion toggled automatically upon verification success
@@ -701,7 +701,7 @@
 
     **Business Logic Specifications:**
     - **Mission Control (LocalProject)**: Integrated objective tracker, context-aware notes, smart submission & verification panel
-    - **Code Arena (CodingChallenge)**: Problem description panel, in-browser code editor, test case/console panel; integrates with Code Battle Service
+    - **Code Arena (CodingChallenge)**: Problem description panel, in-browser code editor, test case/console panel; integrates with Event Service
     - **Consistency**: Workspaces preserve progress context and reward visibility
     - **Navigation**: Clear entry points from Quest Detail with `Launch Workspace` actions
 
@@ -929,7 +929,7 @@ To validate the RogueLearn MVP, we will use a combination of qualitative and qua
 
 **Functional Constraints**
 - Boss Fight gameplay is 2D Unity WebGL-only, targeting modern desktop browsers; max ≤8 concurrent clients; mobile support is best-effort (see NFR7, NFR25).
-- Code Battle sandbox disallows outbound network access and enforces resource limits (CPU/memory/timeout). Runtime language support is limited to JavaScript, Python, Java, C#, Go, and TypeScript; third-party package installation at runtime is not supported (see FR43).
+- Competitive programming event sandbox disallows outbound network access and enforces resource limits (CPU/memory/timeout). Runtime language support is limited to JavaScript, Python, Java, C#, Go, and TypeScript; third-party package installation at runtime is not supported (see FR43).
 - Notes (Arsenal) provide rich text editing without database-like blocks or end-to-end encryption. Attachments are subject to size quotas; search is text-based only (no OCR/semantic search in MVP).
 - Tagging is flat (non-hierarchical) without synonyms/ontologies in MVP.
 - Party & Guild limits apply as specified: Party size ≤8; Guild tiers/limits per FR36–FR38. Cross-guild chat and global DMs are excluded; communication is limited to party/guild contexts and notifications.

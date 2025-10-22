@@ -345,7 +345,7 @@ This document contains mobile-responsive wireframes for all RogueLearn Phase 2 a
 └─────────────────────────────────┘
 ```
 
-## 4. Code Battle Competition - Mobile
+## 4. Event Competition - Mobile
 
 ### 4.1 Tournament Bracket (Mobile)
 
@@ -850,7 +850,7 @@ This document contains mobile-responsive wireframes for all RogueLearn Phase 2 a
 │ └─────────────────────────────┘ │
 │                                 │
 │ ┌─────────────────────────────┐ │
-│ │ 🎮 Code Battle Tournament   │ │
+│ │ 🎮 Event Tournament   │ │
 │ │ By: Tom Chen                │ │
 │ │ Type: Competition           │ │
 │ │ Participants: 32            │ │

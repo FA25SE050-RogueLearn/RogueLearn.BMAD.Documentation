@@ -106,7 +106,7 @@ References:
 - Collaborate with guild members on shared goals
 
 ## Spectator (Competition Viewing)
-- Watch live code battle events
+- Watch live competitive programming events
 - View real-time rankings and performance metrics
 
 ---

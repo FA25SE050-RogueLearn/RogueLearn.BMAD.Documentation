@@ -17,7 +17,7 @@ graph TB
         QS[Quests Service<br/>roguelearn-quests-service]
         SS[Social Service<br/>roguelearn-social-service]
         MS[Meeting Service<br/>roguelearn-meeting-service]
-        CBS[Code Battle Service<br/>roguelearn-code-battle-service]
+        CBS[Event Service<br/>roguelearn-event-service]
     end
 
     %% Client Applications
@@ -66,7 +66,7 @@ graph TB
     QS -.->|Progress Updates| US
     SS -.->|Achievement Triggers| US
     MS -.->|Meeting Analytics| US
-    CBS -.->|Competition Results| US
+    CBS -.->|Event Results| US
     SS -.->|Event Context| CBS
     SS -.->|Party/Guild Context| MS
     QS -.->|Notes Sharing| SS
@@ -171,10 +171,11 @@ graph TB
 
 ---
 
-### **Code Battle Service** (`roguelearn-code-battle-service`)
-**Primary Domain**: Competitive Programming, Code Execution
+### **Event Service** (`roguelearn-event-service`)
+**Primary Domain**: Event Management, Code Execution
 
 **Core Responsibilities**:
+- Event management and coordination
 - Code problem management and storage
 - Real-time competitive coding battles
 - Code compilation and execution
@@ -213,11 +214,11 @@ User Service (Curriculum) → Quests Service (Content) → User Service (Progres
 ### **Social & Collaboration Flow**
 ```
 Social Service (Community) ↔ Meeting Service (Collaboration)
-Social Service (Events) ↔ Code Battle Service (Competition)
+Social Service (Events) ↔ Event Service (Competition)
 ```
 - Social Service provides community context for meetings and competitions
 - Meeting Service enables collaboration within parties and guilds
-- Code Battle Service provides competitive programming within events
+- Event Service provides competitive programming within events
 
 ### **Achievement & Analytics Flow**
 ```
@@ -261,7 +262,7 @@ Meeting Service → User Service (Analytics)
 - Read replicas for analytics and reporting workloads
 
 ### **Load Distribution**
-- Code Battle Service handles compute-intensive operations
+- Event Service handles compute-intensive operations
 - Meeting Service manages real-time collaboration features
 - Social Service handles community and event management
 - Quests Service processes learning content and gamification

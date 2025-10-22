@@ -44,7 +44,7 @@ This section details the major logical components of the platform.
 *   **Responsibility:** Acts as a secure, internal gateway for all communications with the Gemini API. Facilitates complex data structuring and analysis tasks.
 *   **Technology Stack:** .NET 9, C#.
 
-### **Code Battle Service (`roguelearn-code-battle-service`)**
+### **Event Service (`roguelearn-event-service`)**
 
 *   **Responsibility:** Manages competitive programming features including code compilation, execution, and scoring in secure sandboxed environments.
 *   **Technology Stack:** Go, Docker (for sandboxing), WebSocket support for real-time features.
@@ -76,7 +76,7 @@ graph TD
         Quests["Quests Service"]
         Social["Social Service"]
         Meeting["Meeting Service (Go)"]
-        CodeBattle["Code Battle Service (Go)"]
+        CodeBattle["Event Service (Go)"]
         AIProxy["AI Proxy Service (Internal Only)"]
         Scraper["Scraping Service (Python, Internal Only)"]
     end

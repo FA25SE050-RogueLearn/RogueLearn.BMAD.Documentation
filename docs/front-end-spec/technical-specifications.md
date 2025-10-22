@@ -34,7 +34,7 @@
 │  └─────────────┘  └─────────────┘  └─────────────┘         │
 │                                                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │ Code Battle │  │   Events    │  │  Real-time  │         │
+│  │    Event    │  │   Events    │  │  Real-time  │         │
 │  │ Competition │  │ Management  │  │Collaboration│         │
 │  └─────────────┘  └─────────────┘  └─────────────┘         │
 └─────────────────────────────────────────────────────────────┘
@@ -246,7 +246,7 @@ interface MemberProgressTrackerProps {
 }
 ```
 
-#### 3.2.3 Code Battle System
+#### 3.2.3 Event System
 
 ```typescript
 // Tournament Bracket Component
@@ -257,9 +257,9 @@ interface TournamentBracketProps {
   onMatchClick: (matchId: string) => void;
 }
 
-// Live Battle Interface
-interface LiveBattleInterfaceProps {
-  battle: Battle;
+// Live Event Interface
+interface LiveEventInterfaceProps {
+  event: Event;
   participants: Participant[];
   problem: Problem;
   isSpectator: boolean;
@@ -398,21 +398,21 @@ export const battleApi = api.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Battle'],
+      invalidatesTags: ['Event'],
     }),
     
-    joinBattle: builder.mutation<void, JoinBattleRequest>({
-      query: ({ battleId, ...data }) => ({
-        url: `/battles/${battleId}/join`,
+    joinEvent: builder.mutation<void, JoinEventRequest>({
+      query: ({ eventId, ...data }) => ({
+        url: `/events/${eventId}/join`,
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Battle'],
+      invalidatesTags: ['Event'],
     }),
     
     submitCode: builder.mutation<SubmissionResult, SubmitCodeRequest>({
-      query: ({ battleId, ...data }) => ({
-        url: `/battles/${battleId}/submit`,
+      query: ({ eventId, ...data }) => ({
+        url: `/events/${eventId}/submit`,
         method: 'POST',
         body: data,
       }),
@@ -498,8 +498,8 @@ class WebSocketManager {
       store.dispatch(partyUpdated(data));
     });
     
-    this.socket.on('battle:update', (data) => {
-      store.dispatch(battleUpdated(data));
+    this.socket.on('event:update', (data) => {
+      store.dispatch(eventUpdated(data));
     });
     
     this.socket.on('collaboration:change', (data) => {

@@ -91,9 +91,9 @@
 *   **FR38:** Guild Master dashboard for aggregated, anonymized course progress.
 *   **FR39:** Basic in-app notifications for quest updates and announcements.
 
-### **Epic: Code Battle & Competitive Events**
+### **Epic: Event & Competitive Programming**
 *Goal: Enable real-time coding challenges and guild-based competitions.*
-*   **FR43:** Real-time code battle execution environment (multi-language, automated testing, scoring, spectator mode).
+*   **FR43:** Real-time competitive programming execution environment (multi-language, automated testing, scoring, spectator mode).
 *   **FR44:** Guild-based competitive events with room assignment, ranking calculations, and lifecycle management.
 *   **FR45:** Advanced social learning mechanics within competitive contexts (peer challenges, collaboration, mentorship).
 

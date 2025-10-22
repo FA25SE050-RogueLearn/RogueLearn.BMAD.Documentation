@@ -948,14 +948,15 @@ interface GuildSettingsPanelProps extends BaseComponentProps {
 }
 ```
 
-### 9.3 Code Battle Components
+### 9.3 Event Competition Components
 
 ```typescript
-// Tournament Bracket
-interface TournamentBracketProps extends BaseComponentProps {
+// Event Tournament Bracket
+interface EventTournamentBracketProps extends BaseComponentProps {
   tournament: Tournament;
   matches: Match[];
-  onMatchClick?: (matchId: string) => void;
+  currentUser: User;
+  onMatchClick: (matchId: string) => void;
 }
 
 // Code Editor

@@ -917,7 +917,7 @@ The **Code Arena** is a focused, in-browser workspace for `CodingChallenge` obje
 - **Problem Panel**: Clear problem statement, constraints, and sample I/O
 - **Editor**: Multi-language support, autosave, themes, and keyboard shortcuts
 - **Test Runner**: Executes predefined test cases; shows pass/fail and logs
-- **Submission**: Sends code to Code Battle Service for authoritative evaluation
+- **Submission**: Sends code to Event Service for authoritative evaluation
 - **Rewards**: Displays XP, Skill Points, and potential unlocks on success
 - **Persistence**: Retains code drafts and progress across sessions
 

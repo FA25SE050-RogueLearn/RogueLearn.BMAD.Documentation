@@ -334,7 +334,7 @@ CREATE INDEX idx_party_stash_items_shared_at ON party_stash_items(shared_at);
 - **User Service**: Retrieves user profiles and academic context
 - **Quests Service**: Integrates collaborative quest completion
 - **Meeting Service**: Links social events with meeting sessions
-- **Code Battle Service**: Organizes team competitions and tournaments
+- **Event Service**: Organizes team competitions and tournaments
 
 ### Data Access Patterns
 - **Read/Write Access**: All tables within Social Service domain

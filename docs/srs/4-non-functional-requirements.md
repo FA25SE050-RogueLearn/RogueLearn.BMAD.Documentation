@@ -4,10 +4,6 @@
 > Information to ensure the system communicates properly with users and external elements.
 
 - User Interface: Responsive web (desktop/mobile), accessible per WCAG 2.1 AA, consistent with platform design system.
-- FPTU Portal/API: OAuth2 or token-based access for academic calendar, course, and verification endpoints.
-- roadmap.sh API: Read-only integration for career path content used in gap analysis.
-- GitHub OAuth/API: OAuth login (optional), repository linking to Arsenal notes.
-- Analytics/Telemetry: Client-side event tracking and server-side metrics for usage and performance monitoring.
 - Unity WebGL (Boss Fight): Embed via iframe/container with standardized messaging for score and state sync.
 
 ## 4.2 Quality Attributes
@@ -54,11 +50,6 @@
   - Input latency ≤ 100 ms; network join/reconnect ≤ 1500 ms.
   - Graceful suspend/resume; watchdogs for fatal WebGL context loss with recovery.
 
-- Mobile performance:
-  - Touch response ≤ 100 ms; scroll jank budget: ≤ 0.1% frames > 50 ms.
-  - Battery usage: ≤ 5% drain per 10-minute session on mid-tier devices.
-  - Offline capability: read-only Arsenal and cached Quest Detail; deferred sync when online.
-
 ### 4.2.4 Security
 - OWASP Top 10 mitigations: input validation, output encoding, CSRF protections where applicable, secure auth/session handling.
 - Authentication & Authorization: JWT validation, RBAC enforcement (self vs managed vs admin), least-privilege policies.
@@ -93,7 +84,6 @@
 
 ### 4.2.9 Browser & Device Compatibility
 - Supported browsers: latest 2 versions of Chrome, Edge, Firefox; Safari latest.
-- Mobile: Android 10+, iOS 14+; responsive layouts per front-end spec.
 - WebGL: fallback messaging for unsupported devices; capability detection and dynamic quality settings.
 
 ### 4.2.10 Maintainability & Deployment

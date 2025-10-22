@@ -232,10 +232,10 @@ The community-focused system that enables a **Guild Master** (a Verified Lecture
 
 ---
 
-## **Flow 6: Enhanced Event Management & Code Battle Competition**
+## **Flow 6: Enhanced Event Management & Competitive Programming Competition**
 
 ### **Description**
-The comprehensive competitive programming system that enables Guild Masters and System Admins to create, manage, and execute system-wide code battle events where participating guilds compete through room-based assignments. This enhanced flow includes advanced event lifecycle management, multi-tier approval workflows, real-time spectator capabilities, and guild-based ranking systems with detailed analytics and post-event reporting.
+The comprehensive competitive programming system that enables Guild Masters and System Admins to create, manage, and execute system-wide competitive programming events where participating guilds compete through room-based assignments. This enhanced flow includes advanced event lifecycle management, multi-tier approval workflows, real-time spectator capabilities, and guild-based ranking systems with detailed analytics and post-event reporting.
 
 ### **Actors**
 - **Primary:** 
@@ -254,7 +254,7 @@ The comprehensive competitive programming system that enables Guild Masters and 
 
 ### **Enhanced Process**
 1. **Event Creation & Streamlined Approval Phase:**
-   - Game Master imports code problems into Code Battle Service with difficulty levels, test cases, and solution templates
+   - Game Master imports code problems into Event Service with difficulty levels, test cases, and solution templates
    - Guild Master A initiates event creation through enhanced Event Management Service interface
    - **Event Configuration Wizard**: Template-based setup with customizable parameters (event type, scoring rules, time limits, guild eligibility criteria)
    - Event Management Service validates configuration and creates draft event with unique identifier
@@ -272,7 +272,7 @@ The comprehensive competitive programming system that enables Guild Masters and 
 
 3. **Real-time Competition Execution:**
    - Room Assignment Service distributes guild members across available battle rooms for balanced competition
-   - Code Battle Service initializes secure, containerized execution environments for all participants
+   - Event Service initializes secure, containerized execution environments for all participants
    - **Live Spectator Mode**: Real-time viewing capabilities with commentary support and audience interaction
    - **Multi-language Support**: Comprehensive programming language options with standardized testing frameworks
    - **Real-time Guild Rankings**: Live ranking updates based on total points accumulated by all guild members
@@ -326,7 +326,7 @@ The comprehensive competitive programming system that enables Guild Masters and 
 - **Assessment → Core AI Loop:** Assessment results feed back into the adaptive learning part of the loop.
 - **Social Learning → Guild Management:** Party activities can contribute to Guild analytics and community health.
 - **Guild Management → Enhanced Event Management:** Guild Masters can create comprehensive competitive events with advanced configuration options.
-- **Enhanced Event Management → Assessment:** Code battle competitions provide alternative assessment mechanisms with real-time skill validation.
+- **Enhanced Event Management → Assessment:** Competitive programming competitions provide alternative assessment mechanisms with real-time skill validation.
 - **Enhanced Event Management → Social Learning:** Competitive events foster guild collaboration, peer learning, and knowledge sharing through post-event analysis.
 - **Enhanced Event Management → Core AI Loop:** Competition performance data feeds into personalized learning recommendations and skill gap analysis.
 
@@ -350,7 +350,7 @@ The comprehensive competitive programming system that enables Guild Masters and 
 - **Social Learning Adoption:** >40% of users join or create parties.
 - **Guild Effectiveness:** Educator interventions improve outcomes by >20%.
 - **Event Management Engagement:** >60% of active guilds participate in competitive events monthly.
-- **Code Battle Completion:** >80% of event participants complete at least one code challenge.
+- **Competitive Programming Event Completion:** >80% of event participants complete at least one code challenge.
 - **Adaptation Success:** Personalized adjustments increase retention by >30%.
 
 ### **Overall Platform Health**

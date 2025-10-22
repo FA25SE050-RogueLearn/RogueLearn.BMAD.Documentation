@@ -16,7 +16,7 @@ graph TD
     D --> H[Party Management]
     D --> I[Guild Discovery]
     D --> J[Boss Fights]
-    D --> K[Code Battles]
+    D --> K[Event Competitions]
     
     E --> E1[Learning Module Details]
     E --> E2[Learning Progress Tracking]

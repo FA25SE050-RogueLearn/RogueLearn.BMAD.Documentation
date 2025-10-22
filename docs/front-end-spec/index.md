@@ -39,7 +39,7 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
    - Core User Journey: New Student Onboarding
    - Quest System Flows (Completion & AI-Driven Questlines)
    - Arsenal Management System Flows
-   - Code Battle System Flows (Free-for-All Events)
+   - Event System Flows (Free-for-All Events)
    - Guild System Flows (Discovery & Management)
    - Party System Flows (Creation & Study Sessions)
    - Social Features Flows (Mentorship & Peer Challenges)
@@ -77,7 +77,7 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
     - Member Management
     - Guild Activities & Events
 
-11. [Code Battle Wireframes](./code-battle-wireframes.md)
+11. [Event Wireframes](./event-wireframes.md)
     - Free-for-All Guild Events
     - Live Coding Competitions
     - Guild & Individual Leaderboards
@@ -179,7 +179,7 @@ This comprehensive frontend specification covers all phases of the RogueLearn pl
 - ✅ Real-time Collaboration Tools
 
 ### Advanced Features
-- ✅ Free-for-All Code Battle Events
+- ✅ Free-for-All Events
 - ✅ Guild & Individual Leaderboards
 - ✅ Peer Challenge System
 - ✅ Mentorship Pairing
