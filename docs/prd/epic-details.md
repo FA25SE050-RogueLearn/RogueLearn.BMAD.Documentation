@@ -622,16 +622,16 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   Exportable reports for academic record keeping
     *   Real-time alerts for students requiring additional support
 
-### Epic: Code Battle & Competitive Events
-*Focus: Real-time code battles, guild-based competitions with room assignments, and social learning mechanics that enhance engagement and skill development.*
+### Epic: Event & Competitive Programming
+*Focus: Real-time competitive programming events, guild-based competitions with room assignments, and social learning mechanics that enhance engagement and skill development.*
 *FR coverage: FR43–FR45.*
 *Phase note: Phase 3 alignment per epic-list.*
 
-#### **Story: Real-time Code Battle Environment**
-**As a** student, **I want** to participate in real-time code battles with secure execution environments, **so that** I can compete with peers while solving programming challenges in a fair and monitored setting.
+#### **Story: Real-time Competitive Programming Environment**
+**As a** student, **I want** to participate in real-time competitive programming events with secure execution environments, **so that** I can compete with peers while solving programming challenges in a fair and monitored setting.
 
 *   **Acceptance Criteria:**
-    *   Real-time code battle system supports multiple programming languages (Python, JavaScript, Java, C#)
+    *   Real-time competitive programming system supports multiple programming languages (Python, JavaScript, Java, C#)
     *   Secure containerized execution environment prevents malicious code and ensures fair play
     *   Live code editor with syntax highlighting and basic debugging capabilities
     *   Real-time synchronization shows opponent progress and submission status
@@ -692,7 +692,7 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 
 *   **Acceptance Criteria:**
     *   Step-by-step wizard interface guides users through event configuration process
-    *   Event type selection supports multiple formats (tournaments, workshops, lectures, code battles)
+    *   Event type selection supports multiple formats (tournaments, workshops, lectures, competitive programming events)
     *   Advanced scheduling system with timezone support, recurring events, and conflict detection
     *   Customizable participant criteria including skill level, guild membership, and prerequisites
     *   Problem set configuration with difficulty distribution and topic selection
@@ -765,14 +765,14 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
 *   **Acceptance Criteria:**
     *   The quest provides a checklist of tasks for improving a technical resume, including sections for skills, projects, and experience.
     *   The quest includes tasks for optimizing the user's GitHub and LinkedIn profiles.
-    *   Tasks prompt the user to link their new capstone project and their RogueLearn profile (which showcases their Code Battle stats and completed skills).
+    *   Tasks prompt the user to link their new capstone project and their RogueLearn profile (which showcases their competitive programming stats and completed skills).
     *   Quest completion is self-reported by the user checking off all tasks.
 
 #### **Story: The Technical Interview Gauntlet**
-**As a** Student preparing for interviews, **I want** to face a series of challenging "Boss Fights" and "Code Battles" that simulate a real technical interview, **so that** I can build confidence and prove my problem-solving skills under pressure.
+**As a** Student preparing for interviews, **I want** to face a series of challenging "Boss Fights" and "Competitive Programming Events" that simulate a real technical interview, **so that** I can build confidence and prove my problem-solving skills under pressure.
 
 *   **Acceptance Criteria:**
-    *   The system generates a special "Interview Gauntlet" quest line that combines relevant Code Battle challenges (for algorithms) and Boss Fights (for conceptual knowledge).
+    *   The system generates a special "Interview Gauntlet" quest line that combines relevant competitive programming challenges (for algorithms) and Boss Fights (for conceptual knowledge).
     *   The challenges are sourced from a pool of questions commonly asked in technical interviews for the user's chosen career path.
     *   The system tracks performance metrics (speed, accuracy) and provides feedback on areas for improvement.
     *   Successfully completing the gauntlet unlocks a special "Interview Ready" achievement that can be displayed on the user's profile.
@@ -820,11 +820,11 @@ Reference: See PRD Technical Guidance → Unity Game Client & Multiplayer — Ph
     *   To complete the quest, the user must submit the public URL to their finished project on GitHub.
     *   The system validates that a valid GitHub URL has been provided to mark the quest as "Complete." (Note: Automated code grading is out of scope for this story).
 
-#### **Story: Advanced Algorithmic Challenges (Code Battles)**
+#### **Story: Advanced Algorithmic Challenges (Competitive Programming Events)**
 **As a** Student preparing for my career, **I want** to tackle interview-style algorithmic challenges relevant to my specialization, **so that** I can build my problem-solving profile.
 
 *   **Acceptance Criteria:**
-    *   The platform's "Code Battles" feature is integrated as a core quest type within Specialization Tracks.
+    *   The platform's "Competitive Programming Events" feature is integrated as a core quest type within Specialization Tracks.
     *   These quests present LeetCode-style problems that are relevant to the user's chosen career (e.g., array manipulation for game dev, string parsing for web dev).
     *   The user submits their code, which is automatically judged against a set of test cases.
     *   Successful completion of these challenges contributes to a visible "Problem-Solving" stat on the user's public profile, similar to a LeetCode profile.

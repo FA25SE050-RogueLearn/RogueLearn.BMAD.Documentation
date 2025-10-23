@@ -66,7 +66,7 @@ Representative APIs:
 - `GET /meetings/{meetingId}`
 - `GET /meetings/{meetingId}/transcripts`, `GET /meetings/{meetingId}/summaries`
 
-### Code Battles & Leaderboards — Code Battle Service
+### Code Battles & Leaderboards — Event Service
 Spec: `./service-apis/code-battle-service-api.md`
 - Problems & test cases: list problems, fetch test cases.
 - Rooms & events: create rooms, join/leave, track room players.

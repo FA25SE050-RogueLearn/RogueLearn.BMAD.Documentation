@@ -145,13 +145,13 @@ sequenceDiagram
     S->>U: Document added to Arsenal
 ```
 
-## 4. Code Battle System Flows
+## 4. Event System Flows
 
 ### 4.1 Free-for-All Event Participation Flow
 
 ```mermaid
 graph TD
-    A[View Code Battles] --> B[Live Events Dashboard]
+    A[View Events] --> B[Live Events Dashboard]
     B --> C{Event Status?}
     
     C -->|Live Event| D[Join Live Event]

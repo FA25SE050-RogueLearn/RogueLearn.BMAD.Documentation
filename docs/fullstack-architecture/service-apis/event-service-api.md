@@ -1,11 +1,11 @@
-# Code Battle Service API Specification
+# Event Service API Specification
 
 ```yaml
 openapi: 3.0.0
 info:
-  title: RogueLearn Code Battle Service API
+  title: RogueLearn Event Service API
   version: v1.0.0
-  description: Competitive coding events, problems, submissions, rooms, and leaderboards.
+  description: Event management, competitive coding events, problems, submissions, rooms, and leaderboards.
 servers:
   - url: https://api.roguelearn.com/v1
     description: Production Server

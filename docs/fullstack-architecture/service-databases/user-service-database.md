@@ -522,7 +522,7 @@ CREATE INDEX idx_curriculum_version_activations_version_id ON curriculum_version
 - Receives quest completion updates from Quests Service
 - Receives achievement triggers from Social Service
 - Receives meeting analytics from Meeting Service
-- Receives competition results from Code Battle Service
+- Receives competition results from Event Service
 
 ### Data Access Patterns
 - **Read/Write Access**: All tables within User Service domain

@@ -64,40 +64,72 @@ flowchart TD
 ### 3.1.3 Screen Authorization
 > Provide system roles authorization to features.
 
-| Screen / Activity | Student (Player) | Party Leader | Guild Master | Verified Lecturer | Instructor/Advisor | Game Master (Admin) |
-|-------------------|:----------------:|:------------:|:------------:|:-----------------:|:------------------:|:-------------------:|
-| Character Creation Wizard (Onboarding) | X |  |  |  |  |  |
-| Import Academic Document | X |  |  |  |  | X |
-| Main Dashboard | X | X | X | X | X | X |
-| Learning Progress Interface | X | X | X | X | X | X |
-| Skill Tree Visualization | X | X | X | X | X | X |
-| Quest Line Interface | X | X | X | X | X | X |
-| Quest Detail View | X | X | X | X | X | X |
-| Boss Fight Arena | X |  |  |  |  |  |
-| Mission Control Workspace | X |  |  |  |  |  |
-| Code Arena | X |  |  |  |  |  |
-| Guild Master Dashboard |  |  | X | X |  | X |
-| Event Creation Wizard |  |  |  | X |  | X |
-| Leaderboard | X | X | X | X | X | X |
-| Arsenal | X |  |  |  |  |  |
-| Query All Data |  |  |  |  |  | X |
-| Query Own Data | X | X | X | X | X | X |
-| Query Managed Data |  | X | X | X | X | X |
-| Add New Data |  |  |  |  |  | X |
-| Update All Data |  |  |  |  |  | X |
-| Update Own Data | X | X | X | X | X | X |
-| Update Managed Data |  | X | X | X | X | X |
-| Delete Data |  |  |  |  |  | X |
+| Screen / Activity | Student (Player) | Party Leader | Guild Master | Verified Lecturer | Game Master (Admin) |
+|-------------------|:----------------:|:------------:|:------------:|:-----------------:|:-------------------:|
+| **Character Creation Wizard** | X |  |  |  |  |
+| - Select curriculum | X |  |  |  |  |
+| - Choose specialization | X |  |  |  |  |
+| - Generate skill roadmap | X |  |  |  |  |
+| **Import Academic Document** | X |  |  |  | X |
+| - Upload transcripts/schedules | X |  |  |  | X |
+| - Verify FPTU status | X |  |  |  | X |
+| **Main Dashboard** | X | X | X | X | X |
+| - View progress stats | X | X | X | X | X |
+| - Navigate to tabs | X | X | X | X | X |
+| - View active quests | X | X | X | X | X |
+| **Learning Progress Interface** | X | X | X | X | X |
+| - View quest completion | X | X | X | X | X |
+| - Filter by module/semester | X | X | X | X | X |
+| - Check deadlines | X | X | X | X | X |
+| **Skill Tree Visualization** | X | X | X | X | X |
+| - Navigate skill nodes | X | X | X | X | X |
+| - View prerequisites | X | X | X | X | X |
+| - Link to notes/quests | X | X | X | X | X |
+| **Quest Line Interface** | X | X | X | X | X |
+| - View quest states | X | X | X | X | X |
+| - Check dependency chains | X | X | X | X | X |
+| - View rewards | X | X | X | X | X |
+| **Quest Detail View** | X | X | X | X | X |
+| - View objectives | X | X | X | X | X |
+| - Access resources | X | X | X | X | X |
+| - Start/Pause/Submit quest | X | X | X | X | X |
+| **Boss Fight Arena** | X |  |  |  |  |
+| - Take assessments | X |  |  |  |  |
+| - View scoring/feedback | X |  |  |  |  |
+| - Practice mode | X |  |  |  |  |
+| **Mission Control Workspace** | X |  |  |  |  |
+| - Manage project objectives | X |  |  |  |  |
+| - Link repositories | X |  |  |  |  |
+| - Track checklists | X |  |  |  |  |
+| **Code Arena** | X |  |  |  |  |
+| - Solve coding problems | X |  |  |  |  |
+| - Run test cases | X |  |  |  |  |
+| - Participate in events | X |  |  |  |  |
+| **Guild Master Dashboard** |  |  | X | X | X |
+| - Manage guild members |  |  | X | X | X |
+| - Send invitations |  |  | X | X | X |
+| - Track member activity |  |  | X | X | X |
+| **Event Creation Wizard** |  |  |  | X | X |
+| - Create sessions/competitions |  |  |  | X | X |
+| - Set scheduling |  |  |  | X | X |
+| - Configure scoring rules |  |  |  | X | X |
+| **Leaderboard** | X | X | X | X | X |
+| - View rankings | X | X | X | X | X |
+| - Filter by class/major/guild | X | X | X | X | X |
+| - Check achievements | X | X | X | X | X |
+| **Arsenal** | X |  |  |  |  |
+| - Create/edit notes | X |  |  |  |  |
+| - Tag and organize | X |  |  |  |  |
+| - Link to skills/quests | X |  |  |  |  |
 
 ### 3.1.4 Non-Screen Functions
 > Describe non-screen system functions (batch/cron job, services, APIs).
 
 | # | Feature | System Function | Description |
 |---|---------|-----------------|-------------|
-| 1 | Calendar Sync | AcademicCalendarSync (cron) | Nightly import of academic calendar and schedule changes from FPTU portal. |
-| 2 | Quest Generation | QuestGeneratorService | AI service that converts syllabus and calendar into semester-organized quests. |
-| 3 | Verification | StudentVerificationAPI | Endpoint to validate FPTU status based on uploaded documents. |
-| 4 | Leaderboard | LeaderboardAggregator (batch) | Weekly recalculation and seasonal reset of rankings. |
+| 1 | Quest Generation | QuestGeneratorService | AI service that converts syllabus and calendar into semester-organized quests. |
+| 2 | Verification | StudentVerificationAPI | Endpoint to validate FPTU status based on uploaded documents. |
+| 3 | Leaderboard | LeaderboardAggregator (batch) | Weekly recalculation and seasonal reset of rankings. |
 
 ### 3.1.5 Entity Relationship Diagram
 > Provide ERD and entity descriptions.

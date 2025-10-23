@@ -71,7 +71,7 @@ graph TD
             end
             SocialService[.NET Social Service]
             MeetingService[Go Meeting Service]
-            CodeBattleService[Go Code Battle Service]
+            CodeBattleService[Go Event Service]
             AIProxyService[.NET AI Proxy Service]
         end
     end

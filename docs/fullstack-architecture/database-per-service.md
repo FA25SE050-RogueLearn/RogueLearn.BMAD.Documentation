@@ -82,7 +82,7 @@ This document outlines which database tables and collections are used by each mi
 - `summary_chunk` - Chunked meeting summaries for efficient processing and retrieval
 - `meeting_summary` - Complete meeting summaries generated from transcript analysis
 
-### **Code Battle Service** (`roguelearn-code-battle-service`)
+### **Event Service** (`roguelearn-event-service`)
 **Purpose**: Manages code problems, real-time battles, compilation, execution, and competitive programming
 
 **PostgreSQL Tables**:
@@ -114,7 +114,7 @@ Some services may need to read data from other services' primary tables:
 - **User Service** provides user profile data to all other services, and owns the Skill Catalog (skills and dependencies) and rewards ledger (`user_skill_rewards`)
 - **Quests Service** quest data is referenced by Social Service for achievements; publishes reward events (XP, Skill Points, Unlocks) to User Service for authoritative ledgering; retrieves personal notes via User Service APIs (linked by `note_quests`)
 - **Social Service** party and guild data is used by Meeting Service for scheduling
-- **Code Battle Service** may reference user profiles for submission tracking
+- **Event Service** may reference user profiles for submission tracking
 
 ### **Data Synchronization**
 - User profile changes in User Service trigger updates to related services
@@ -131,7 +131,7 @@ Each service maintains its own database connection pool to the shared PostgreSQL
 - **No Direct Access**: Services use API calls for complex cross-service operations
 
 ### **Qdrant Access**
-Only the Code Battle Service has direct access to Qdrant collections for vector operations.
+Only the Event Service has direct access to Qdrant collections for vector operations.
 
 ## **Future Considerations**
 

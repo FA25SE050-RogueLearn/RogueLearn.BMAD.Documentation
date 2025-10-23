@@ -1,4 +1,4 @@
-# Code Battle Service ERD
+# Event Service ERD
 
 ## Entity Relationship Diagram
 
