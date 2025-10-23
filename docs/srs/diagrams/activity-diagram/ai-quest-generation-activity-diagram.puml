@@ -1,0 +1,56 @@
+' File Path: /docs/srs/diagrams/activity/ai-quest-generation-activity-diagram.puml
+@startuml
+title "Activity Diagram: AI-Powered Quest Generation (UC-004)"
+
+|Quest Service|
+start
+:Receive Trigger\n(e.g., 'GenerateQuestLineFromCurriculumCommand');
+:Perform Idempotency Check;
+if (QuestLine already exists?) then (yes)
+  :Return Existing QuestLine ID;
+  stop
+endif
+
+|User Service|
+|Quest Service|
+:Fetch Required Data from User Service;
+fork
+  |User Service|
+  :Provide Curriculum Structure;
+fork again
+  |User Service|
+  :Provide Skill Catalog;
+fork again
+  |User Service|
+  :Provide User Profile Context\n(if applicable);
+endfork
+
+|Quest Service|
+:Receive & Consolidate Data;
+:Create base 'LearningPath' entity;
+:Group Subjects by Semester;
+
+repeat
+  :Take next Semester Group;
+  :Create 'QuestChapter' for Semester;
+  
+  fork
+    repeat
+      :Take next Subject;
+      |AI Proxy Service|
+      :Generate Quest from Subject Syllabus;
+    repeat while (more subjects in semester?)
+  fork again
+    |Quest Service|
+    :Wait for all Quest Generations\nin Semester to complete;
+  end fork
+  
+  :Persist generated Quests and QuestSteps;
+repeat while (more semesters?)
+
+:Parse Prerequisites from Curriculum Data;
+:Create 'QuestDependency' records;
+:Return new LearningPath ID;
+stop
+
+@enduml

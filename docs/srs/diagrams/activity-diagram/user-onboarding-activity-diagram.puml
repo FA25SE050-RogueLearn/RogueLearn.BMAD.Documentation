@@ -1,0 +1,57 @@
+' File Path: /docs/srs/diagrams/activity/user-onboarding-activity-diagram.puml
+@startuml
+title "Activity Diagram: User Registration & Onboarding (UC-001)"
+
+|New Player|
+start
+:Access Registration Page;
+:Submit Credentials\n(Email, Password, etc.);
+
+|External Auth Provider|
+:Create Auth Record;
+:Send Verification Email;
+
+|New Player|
+:Verify Email;
+
+|External Auth Provider|
+:Confirm Email Verification;
+
+|RogueLearn Platform|
+:Redirect to Onboarding;
+
+|New Player|
+:Select Route (Curriculum);
+:Select Class (Career);
+
+|RogueLearn Platform|
+:Save Route & Class to Profile;
+
+|New Player|
+if (Choose to Verify as FPTU Student?) then (yes)
+  :Upload FPTU Documents;
+  |RogueLearn Platform|
+  :Validate Documents;
+  if (Validation Success?) then (yes)
+    :Set 'is_verified_fptu' flag on Profile;
+    :Perform AI Gap Analysis\n(with FPTU context);
+    :Generate QuestLine\n(with FPTU calendar integration);
+  else (no)
+    :Display Verification Error;
+    :Perform AI Gap Analysis\n(standard);
+    :Generate QuestLine\n(standard);
+  endif
+else (no)
+  |RogueLearn Platform|
+  :Perform AI Gap Analysis\n(standard);
+  :Generate QuestLine\n(standard);
+endif
+
+|RogueLearn Platform|
+:Mark Onboarding as 'Completed';
+
+|New Player|
+:Access Main Dashboard;
+stop
+
+@enduml

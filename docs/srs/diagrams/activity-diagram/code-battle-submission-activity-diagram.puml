@@ -1,0 +1,72 @@
+' File Path: /docs/srs/diagrams/activity/code-battle-submission-activity-diagram.puml
+@startuml
+title "Activity Diagram: Code Battle Submission & Judging (UC-012)"
+
+|Player|
+start
+:Write Code in Editor;
+:Submit Solution;
+
+|Event Service|
+:Receive Submission Request\n(code, problemId, languageId);
+:Create 'Submission' record\n(Status: Pending);
+
+|Executor Service|
+:Queue Submission for Execution;
+:Pull next Submission from Queue;
+:Create Secure Sandbox\n(e.g., Docker container);
+:Copy Source Code into Sandbox;
+:Compile Code;
+if (Compilation Success?) then (yes)
+  |Event Service|
+  :Update Submission Status: 'Running';
+  |Executor Service|
+  fork
+    repeat
+      :Take next Test Case;
+      :Execute Code against Test Case;
+      if (Execution Success?) then (yes)
+        :Compare Output with Expected Output;
+        if (Output Matches?) then (yes)
+          :Mark Test Case as 'Passed';
+        else (no)
+          :Mark Test Case as 'WrongAnswer';
+          :Stop Execution;
+        endif
+      else (no)
+        if (Timeout?) then (timeout)
+          :Mark as 'TimeLimitExceeded';
+        else (error)
+          :Mark as 'RuntimeError';
+        endif
+        :Stop Execution;
+      endif
+    repeat while (more test cases and no failure?)
+  fork again
+    |Event Service|
+    :Wait for all tests to complete or first failure;
+  end fork
+
+  if (All Test Cases Passed?) then (yes)
+    :Update Submission Status: 'Accepted';
+    :Calculate Score and XP;
+    :Update Leaderboard;
+  else (no)
+    ' The final status was already set by the failure
+  endif
+else (no)
+  :Update Submission Status: 'CompileError';
+endif
+
+|Executor Service|
+:Destroy Secure Sandbox;
+:Send Final Result to Event Service;
+
+|Event Service|
+:Notify Player of Result;
+
+|Player|
+:Receive Real-time Feedback\n(e.g., 'Accepted', 'Wrong Answer');
+stop
+
+@enduml

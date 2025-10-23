@@ -1,0 +1,119 @@
+@startuml
+title "Activity Diagram: Player Learning Loop"
+skinparam ActivityDiamondBackgroundColor #FEFECE
+skinparam ActivityDiamondBorderColor #A80036
+skinparam PartitionBorderColor #000000
+skinparam PartitionFontSize 14
+skinparam ArrowThickness 1
+skinparam Padding 4
+skinparam BoxPadding 10
+skinparam ParticipantPadding 20
+skinparam Nodesep 80
+skinparam Ranksep 60
+
+|Player|
+start
+:Access Dashboard ("Character Sheet");
+:View Active Learning Path;
+:Select an 'Available' Quest;
+
+|Quest Service|
+:Fetch Quest Details;
+if (Is Quest Started?) then (no)
+  :Create 'UserQuestAttempt' record\n(Status: InProgress);
+else (yes)
+endif
+
+|Player|
+:View Quest Objectives;
+
+repeat
+  :Select Next Objective;
+  
+  if (Objective Type?) then (Study/Reading)
+    :Read content / Watch video;
+    :Mark Objective as Complete;
+    
+  elseif (Quiz)
+    :Answer Quiz Questions;
+    |Quest Service|
+    :Grade Quiz Submission;
+    
+    if (Score >= Passing\nThreshold?) then (yes)
+      :Send "Passed" Feedback;
+    else (no)
+      :Send "Failed" Feedback;
+    endif
+    
+    |Player|
+    if (Quiz Passed?) then (yes)
+      :Receive "Passed" Feedback;
+    else (no)
+      :Receive "Failed" Feedback;
+      :Review incorrect answers;
+    endif
+    
+  elseif (Coding Challenge)
+    |Event Service|
+    :Direct Player to Code Arena;
+    
+    |Player|
+    :Write & Submit Code;
+    
+    |Executor Service|
+    :Compile & Run against Test Cases;
+    :Send Judgement Result;
+    
+    |Player|
+    if (Result is 'Accepted'?) then (yes)
+      :Receive "Accepted" Feedback;
+    else (no)
+      :Receive "Wrong Answer/Error" Feedback;
+    endif
+    
+  else (Boss Fight)
+    |Quest Service|
+    :Generate Ephemeral Game Session;
+    
+    |Player|
+    :Launch Unity WebGL Client;
+    :Play Boss Fight;
+    :Submit Final Score;
+    
+    |Quest Service|
+    :Evaluate Score;
+    
+    |Player|
+    if (Score >= Passing\nThreshold?) then (yes)
+      :Receive "Victory" Screen;
+    else (no)
+      :Receive "Defeat" Screen;
+    endif
+  endif
+  
+  |Quest Service|
+  :Update 'UserQuestStepProgress'\n(Status: Completed);
+  
+  |User Service|
+  :Ingest XP Event for completed objective;
+  :Update User's Skill Progression & XP;
+  :Evaluate for new Achievements;
+  
+  |Quest Service|
+  :Check if all mandatory\nobjectives are complete;
+  
+repeat while (More objectives\nto complete?) is (yes)
+->no;
+
+|Quest Service|
+:Update 'UserQuestAttempt' record\n(Status: Completed);
+
+|User Service|
+:Ingest XP Event for Quest Completion;
+
+|Player|
+:Receive "Quest Complete"\nNotification & Rewards;
+:Return to Dashboard;
+
+stop
+@enduml

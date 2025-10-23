@@ -1,0 +1,57 @@
+' File Path: /docs/srs/diagrams/activity/event-management-activity-diagram.puml
+@startuml
+title "Activity Diagram: Event Management & Approval Workflow (UC-011)"
+
+|Guild Master|
+start
+:Access Event Creation UI;
+:Fill out Event Details\n(Title, Type, Schedule, Rules);
+
+|Event Service|
+:Receive Event Creation Request;
+:Validate Request Data;
+if (Is Data Valid?) then (yes)
+  :Create Event record\n(Status: PendingApproval);
+  :Notify Game Masters of\nnew pending event;
+else (no)
+  |Guild Master|
+  :Display Validation Errors;
+  stop
+endif
+
+|Game Master (Admin)|
+:Access Approval Dashboard;
+:Select Pending Event for Review;
+:Review Event Details & Configuration;
+
+|Event Service|
+if (Is Event Auto-Approvable?) then (yes)
+  :Auto-Approve Event;
+else (no)
+  |Game Master (Admin)|
+  :Make Approval Decision;
+  if (Decision?) then (Approve)
+    |Event Service|
+    :Update Event Status to 'Approved';
+    :Trigger Event Setup processes\n(e.g., Room creation, notifications);
+    |Guild Master|
+    :Receive "Event Approved" Notification;
+  else (Reject)
+    |Game Master (Admin)|
+    :Provide Rejection Reason;
+    |Event Service|
+    :Update Event Status to 'Rejected';
+    :Notify Guild Master of Rejection\n(with reason);
+    |Guild Master|
+    :Receive "Event Rejected" Notification;
+    :Can choose to revise and resubmit;
+    stop
+  endif
+endif
+
+|Event Service|
+:Event is now Live/Scheduled;
+
+stop
+
+@enduml
