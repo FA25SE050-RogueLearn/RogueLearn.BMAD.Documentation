@@ -1,0 +1,24 @@
+' File Path: /docs/srs/diagrams/state-machines/user-quest-step-progress-state-machine.puml
+@startuml
+title "State Machine: UserQuestStepProgress"
+hide empty description
+
+[*] --> NotStarted
+
+state NotStarted
+
+
+state InProgress
+
+
+state Completed
+
+
+state Skipped
+
+
+NotStarted --> InProgress : On Start Objective
+NotStarted --> Skipped : On Skip Optional Objective
+InProgress --> Completed : On Submit & Pass Criteria
+
+@enduml

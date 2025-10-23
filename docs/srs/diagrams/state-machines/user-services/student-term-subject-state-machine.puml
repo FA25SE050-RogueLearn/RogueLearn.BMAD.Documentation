@@ -1,0 +1,21 @@
+' File Path: /docs/srs/diagrams/state-machines/student-term-subject-state-machine.puml
+@startuml
+!theme plain
+title "State Machine: StudentTermSubject"
+hide empty description
+
+[*] --> Enrolled : On Term Registration
+
+state Enrolled
+
+state Completed
+
+state Failed
+
+state Withdrawn
+
+Enrolled --> Completed : On Passing Grade
+Enrolled --> Failed : On Failing Grade
+Enrolled --> Withdrawn : On Student Withdrawal from Subject
+
+@enduml

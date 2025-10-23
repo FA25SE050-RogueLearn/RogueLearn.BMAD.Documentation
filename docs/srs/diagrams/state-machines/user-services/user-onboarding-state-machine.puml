@@ -1,0 +1,11 @@
+' File Path: /docs/srs/diagrams/state-machines/user-onboarding-state-machine.puml
+@startuml
+title "State Machine: User Onboarding"
+hide empty description
+
+[*] --> NotStarted : On User Creation
+NotStarted --> InProgress : On Start Onboarding
+InProgress --> Completed : On Final Step Submission
+Completed --> [*]
+
+@enduml

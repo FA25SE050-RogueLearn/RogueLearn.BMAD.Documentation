@@ -1,0 +1,24 @@
+' File Path: /docs/srs/diagrams/state-machines/student-enrollment-state-machine.puml
+@startuml
+
+title "State Machine: StudentEnrollment"
+hide empty description
+
+[*] --> Active : On Create Enrollment
+
+state Active
+
+
+state Graduated
+
+
+state Withdrawn
+
+state Suspended
+
+
+Active --> Graduated : On Complete Program Requirements
+Active --> Withdrawn : On Student Withdrawal
+Active --> Suspended : On Admin Suspension
+
+Suspended --> Active : On

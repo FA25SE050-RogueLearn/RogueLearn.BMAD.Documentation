@@ -1,0 +1,26 @@
+' File Path: /docs/srs/diagrams/state-machines/user-learning-path-progress-state-machine.puml
+@startuml
+
+title "State Machine: UserLearningPathProgress"
+hide empty description
+
+[*] --> NotStarted : On Enroll in Path
+
+state NotStarted
+
+
+state InProgress
+
+
+state Paused
+
+
+state Completed
+
+
+NotStarted --> InProgress : On Start First Quest
+InProgress --> Paused : On User Inactivity
+InProgress --> Completed : On Complete Final Quest
+Paused --> InProgress : On Resume Activity
+
+@enduml
