@@ -1,0 +1,23 @@
+' File Path: /docs/srs/diagrams/state-machines/friendship-state-machine.puml
+@startuml
+!theme plain
+title "State Machine: Friendship"
+hide empty description
+
+[*] --> Pending : On Send Friend Request
+
+state Accepted
+state Blocked
+
+Pending --> Accepted : On Recipient Accepts
+Pending --> Declined : On Recipient Declines
+Pending --> Blocked : On User Blocks
+
+Accepted --> Blocked : On User Blocks
+Accepted --> [*] : On Unfriend (Record Deleted)
+
+Declined --> [*] : Request is closed
+Blocked --> Accepted : On User Unblocks (if previously friends)
+Blocked --> [*] : On User Unblocks (if not previously friends)
+
+@enduml

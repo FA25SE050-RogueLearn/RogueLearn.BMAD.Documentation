@@ -1,0 +1,44 @@
+' File Path: /docs/srs/diagrams/state-machines/membership-state-machine.puml
+@startuml
+!theme plain
+title "State Machine: PartyMembership / GuildMembership"
+hide empty description
+
+[*] --> Active : On Join or Invite Accept
+
+state Active
+note right of Active
+    The user is a full member of the
+    group with all associated permissions.
+end note
+
+state Inactive
+note right of Inactive
+    The user has not participated in group
+    activities for a defined period.
+    Permissions may be limited.
+end note
+
+state Suspended
+note right of Suspended
+    The user's membership has been temporarily
+    revoked by a group leader or admin.
+end note
+
+Active --> Inactive : On Prolonged Inactivity
+Inactive --> Active : On Resume Activity
+
+Active --> Suspended : On Leader/Admin Action
+Suspended --> Active : On Leader/Admin Reinstatement
+
+Active --> Left : On User Voluntarily Leaves
+Suspended --> Left : On User Voluntarily Leaves
+
+' Left is a terminal state, but the record is kept for history.
+state Left
+note right of Left
+    The user has permanently left the group.
+    The membership record is kept.
+end note
+
+@enduml
