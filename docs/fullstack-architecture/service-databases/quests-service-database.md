@@ -3,12 +3,70 @@
 ## Overview
 The Quests Service manages the gamified learning experience through quests, challenges, and learning paths. It provides structured learning activities aligned with academic curricula and skill development goals.
 
+-- Enable UUID generation if not already enabled
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 ## Database Tables
+
+### Learning Paths and Curriculum Integration
+
+#### learning_paths
+Top-level container for an entire learning journey (e.g., a full course or curriculum), also referred to as a QuestLine.
+```sql
+CREATE TABLE learning_paths (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    path_type path_type NOT NULL,
+    subject_id UUID, -- Soft FK to User Service: subjects
+    curriculum_version_id UUID, -- Soft FK to User Service: curriculum_versions
+    difficulty_progression difficulty_level[] NOT NULL,
+    estimated_total_duration_hours INTEGER,
+    total_experience_points INTEGER NOT NULL DEFAULT 0,
+    is_published BOOLEAN NOT NULL DEFAULT FALSE,
+    created_by UUID NOT NULL, -- Soft FK to User Service: user_profiles(auth_user_id)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### quest_chapters
+High-level thematic groupings of quests within a learning path.
+```sql
+CREATE TABLE quest_chapters (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quest_line_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    sequence INT NOT NULL,
+    status path_progress_status NOT NULL DEFAULT 'NotStarted',
+    start_date DATE,
+    end_date DATE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### learning_path_quests
+Defines which quests belong to a learning path and in what order.
+```sql
+CREATE TABLE learning_path_quests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    learning_path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    sequence_order INTEGER NOT NULL,
+    is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
+    unlock_criteria JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (learning_path_id, quest_id),
+    UNIQUE (learning_path_id, sequence_order)
+);
+```
 
 ### Quest Management
 
 #### quests
-Core quest definitions with metadata and configuration.
+Core quest definitions with metadata and configuration. Prerequisites are managed in the `quest_prerequisites` table.
 ```sql
 CREATE TABLE quests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -19,12 +77,24 @@ CREATE TABLE quests (
     estimated_duration_minutes INTEGER,
     experience_points_reward INTEGER NOT NULL DEFAULT 0,
     skill_tags TEXT[],
-    prerequisites UUID[], -- Array of quest IDs that must be completed first
     subject_id UUID, -- Soft FK to User Service: subjects
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_by UUID NOT NULL, -- Soft FK to User Service: user_profiles(auth_user_id)
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### quest_prerequisites
+A join table to define the many-to-many relationship for quest dependencies.
+```sql
+CREATE TABLE quest_prerequisites (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    prerequisite_quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(quest_id, prerequisite_quest_id)
 );
 ```
 
@@ -106,61 +176,6 @@ CREATE TABLE user_quest_step_progress (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (attempt_id, step_id)
-);
-```
-
-### Learning Paths and Curriculum Integration
-
-#### learning_paths
-Top-level container for an entire learning journey (e.g., a full course or curriculum).
-```sql
-CREATE TABLE learning_paths (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    path_type path_type NOT NULL,
-    subject_id UUID, -- Soft FK to User Service: subjects
-    curriculum_version_id UUID, -- Soft FK to User Service: curriculum_versions
-    difficulty_progression difficulty_level[] NOT NULL,
-    estimated_total_duration_hours INTEGER,
-    total_experience_points INTEGER NOT NULL DEFAULT 0,
-    is_published BOOLEAN NOT NULL DEFAULT FALSE,
-    created_by UUID NOT NULL, -- Soft FK to User Service: user_profiles(auth_user_id)
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
-
-#### quest_chapters
-High-level thematic groupings of quests within a learning path.
-```sql
-CREATE TABLE quest_chapters (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    quest_line_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    sequence INT NOT NULL,
-    status path_progress_status NOT NULL DEFAULT 'NotStarted',
-    start_date DATE,
-    end_date DATE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
-
-#### learning_path_quests
-Defines which quests belong to a learning path and in what order.
-```sql
-CREATE TABLE learning_path_quests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    learning_path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
-    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
-    sequence_order INTEGER NOT NULL,
-    is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
-    unlock_criteria JSONB,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (learning_path_id, quest_id),
-    UNIQUE (learning_path_id, sequence_order)
 );
 ```
 
@@ -260,6 +275,24 @@ CREATE TYPE path_progress_status AS ENUM ('NotStarted', 'InProgress', 'Completed
 CREATE TYPE assessment_type AS ENUM ('Quiz', 'Assignment', 'Project', 'PeerReview', 'AutoGraded', 'ManualReview');
 ```
 
+## Triggers and Functions
+```sql
+-- Automatically updates the 'updated_at' timestamp on any row modification.
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Example of applying the trigger to a table.
+CREATE TRIGGER update_learning_path_quests_updated_at 
+    BEFORE UPDATE ON learning_path_quests 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+```
+
 ## Indexes for Performance
 ```sql
 -- Quest indexes
@@ -268,6 +301,10 @@ CREATE INDEX idx_quests_difficulty_level ON quests(difficulty_level);
 CREATE INDEX idx_quests_subject_id ON quests(subject_id);
 CREATE INDEX idx_quests_is_active ON quests(is_active);
 CREATE INDEX idx_quests_skill_tags ON quests USING GIN(skill_tags);
+
+-- Quest prerequisites index
+CREATE INDEX idx_quest_prerequisites_quest_id ON quest_prerequisites(quest_id);
+CREATE INDEX idx_quest_prerequisites_prereq_id ON quest_prerequisites(prerequisite_quest_id);
 
 -- Quest steps indexes
 CREATE INDEX idx_quest_steps_quest_id ON quest_steps(quest_id);
