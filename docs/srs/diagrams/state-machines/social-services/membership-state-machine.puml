@@ -41,4 +41,7 @@ note right of Left
     The membership record is kept.
 end note
 
+Left --> [*]
+Banned --> [*]
+
 @enduml

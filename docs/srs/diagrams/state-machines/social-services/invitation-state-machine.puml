@@ -16,4 +16,9 @@ Pending --> Declined : On Recipient/Leader Declines
 Pending --> Cancelled : On Inviter/Applicant Cancels
 Pending --> Expired : On Timeout (e.g., 7 days)
 
+Accepted --> [*]
+Declined --> [*]
+Cancelled --> [*]
+Expired --> [*]
+
 @enduml

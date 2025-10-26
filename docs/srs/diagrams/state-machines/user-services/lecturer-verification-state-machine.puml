@@ -5,12 +5,17 @@ hide empty description
 
 [*] --> Pending : On Submit Request
 
+state Pending
 state Approved
-
 state Rejected
 
 Pending --> Approved : On Admin Approve
 Pending --> Rejected : On Admin Reject
+Pending --> [*] : On User Cancels Request
+
 Rejected --> Pending : On Resubmit with corrections
+Rejected --> [*] : On User Abandons Request
+
+Approved --> [*] : Verification Complete
 
 @enduml

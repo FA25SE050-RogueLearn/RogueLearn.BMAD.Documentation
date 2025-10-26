@@ -21,4 +21,7 @@ NotStarted --> InProgress : On Start Objective
 NotStarted --> Skipped : On Skip Optional Objective
 InProgress --> Completed : On Submit & Pass Criteria
 
+Completed --> [*]
+Skipped --> [*]
+
 @enduml

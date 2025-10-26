@@ -6,10 +6,12 @@ hide empty description
 [*] --> Draft : On Create
 
 state Draft
-
 state Published
 
 Draft --> Published : On Admin Publish
 Published --> Draft : On Admin Unpublish
+
+Draft --> [*]
+Published --> [*]
 
 @enduml

@@ -1,20 +1,13 @@
 ' File Path: /docs/srs/diagrams/state-machines/user-quest-attempt-state-machine.puml
 @startuml
-
 title "State Machine: UserQuestAttempt"
 hide empty description
 
 [*] --> InProgress : On Start Quest
 
 state InProgress
-
-
 state Paused
-
-
 state Completed
-
-
 state Abandoned
 
 InProgress --> Paused : On User Pause Action
@@ -22,5 +15,8 @@ InProgress --> Completed : On Complete Final Objective
 InProgress --> Abandoned : On User Abandon Action
 
 Paused --> InProgress : On User Resume Action
+
+Completed --> [*]
+Abandoned --> [*]
 
 @enduml
