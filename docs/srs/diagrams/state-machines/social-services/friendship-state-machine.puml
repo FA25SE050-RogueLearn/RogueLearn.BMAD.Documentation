@@ -1,6 +1,5 @@
 ' File Path: /docs/srs/diagrams/state-machines/friendship-state-machine.puml
 @startuml
-!theme plain
 title "State Machine: Friendship"
 hide empty description
 

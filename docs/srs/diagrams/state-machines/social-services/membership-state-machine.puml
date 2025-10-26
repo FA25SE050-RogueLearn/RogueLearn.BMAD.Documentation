@@ -1,6 +1,5 @@
 ' File Path: /docs/srs/diagrams/state-machines/membership-state-machine.puml
 @startuml
-!theme plain
 title "State Machine: PartyMembership / GuildMembership"
 hide empty description
 

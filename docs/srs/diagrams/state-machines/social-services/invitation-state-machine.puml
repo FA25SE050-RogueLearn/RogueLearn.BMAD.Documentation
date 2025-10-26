@@ -1,6 +1,5 @@
 ' File Path: /docs/srs/diagrams/state-machines/invitation-state-machine.puml
 @startuml
-!theme plain
 title "State Machine: PartyInvitation / GuildInvitation"
 hide empty description
 
