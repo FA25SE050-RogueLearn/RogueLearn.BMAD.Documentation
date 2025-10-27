@@ -151,24 +151,6 @@ CREATE TABLE guild_invitations (
 );
 ```
 
-### Social Interactions
-
-#### friendships
-User friendship connections.
-```sql
-CREATE TABLE friendships (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    requester_id UUID NOT NULL, -- Soft FK to User Service: user_profiles
-    addressee_id UUID NOT NULL, -- Soft FK to User Service: user_profiles
-    status friendship_status NOT NULL DEFAULT 'Pending',
-    requested_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    accepted_at TIMESTAMPTZ,
-    blocked_at TIMESTAMPTZ,
-    UNIQUE (requester_id, addressee_id),
-    CHECK (requester_id != addressee_id)
-);
-```
-
 ### Communication and Messaging
 
 #### social_messages
