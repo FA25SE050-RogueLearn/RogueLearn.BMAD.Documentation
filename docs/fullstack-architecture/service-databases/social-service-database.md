@@ -18,8 +18,6 @@ CREATE TABLE parties (
     max_members INTEGER NOT NULL DEFAULT 6,
     current_member_count INTEGER NOT NULL DEFAULT 1,
     is_public BOOLEAN NOT NULL DEFAULT TRUE,
-    subject_id UUID, -- Soft FK to User Service: subjects table
-    class_id UUID, -- Soft FK to User Service: classes table
     created_by UUID NOT NULL, -- Soft FK to User Service: user_profiles table
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -153,21 +151,6 @@ CREATE TABLE guild_invitations (
 );
 ```
 
-#### guild_achievements
-Guild-level achievements and milestones.
-```sql
-CREATE TABLE guild_achievements (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    achievement_name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    achieved_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    experience_points_awarded INTEGER NOT NULL DEFAULT 0,
-    contributing_members UUID[] NOT NULL, -- Array of auth_user_ids who contributed
-    metadata JSONB
-);
-```
-
 ### Social Interactions
 
 #### friendships
@@ -183,23 +166,6 @@ CREATE TABLE friendships (
     blocked_at TIMESTAMPTZ,
     UNIQUE (requester_id, addressee_id),
     CHECK (requester_id != addressee_id)
-);
-```
-
-#### user_social_stats
-Aggregated social statistics for users.
-```sql
-CREATE TABLE user_social_stats (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    auth_user_id UUID NOT NULL UNIQUE, -- Soft FK to User Service: user_profiles
-    friends_count INTEGER NOT NULL DEFAULT 0,
-    parties_joined INTEGER NOT NULL DEFAULT 0,
-    parties_created INTEGER NOT NULL DEFAULT 0,
-    guilds_joined INTEGER NOT NULL DEFAULT 0,
-    guilds_created INTEGER NOT NULL DEFAULT 0,
-    total_collaboration_hours DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    social_reputation_score INTEGER NOT NULL DEFAULT 0,
-    last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ```
 
@@ -269,9 +235,6 @@ CREATE TYPE guild_type AS ENUM ('Academic', 'Professional', 'Hobby', 'Competitio
 -- Activity types
 CREATE TYPE activity_type AS ENUM ('QuestCompletion', 'StudySession', 'ProjectWork', 'Discussion', 'Competition', 'Meeting');
 
--- Friendship status
-CREATE TYPE friendship_status AS ENUM ('Pending', 'Accepted', 'Blocked');
-
 -- Message types
 CREATE TYPE message_type AS ENUM ('Direct', 'Party', 'Guild');
 ```
@@ -282,42 +245,108 @@ CREATE TYPE message_type AS ENUM ('Direct', 'Party', 'Guild');
 -- Party indexes
 CREATE INDEX idx_parties_created_by ON parties(created_by);
 CREATE INDEX idx_parties_party_type ON parties(party_type);
-CREATE INDEX idx_parties_subject_id ON parties(subject_id);
-CREATE INDEX idx_parties_class_id ON parties(class_id);
 CREATE INDEX idx_parties_is_public ON parties(is_public);
+CREATE INDEX idx_parties_created_at ON parties(created_at);
+CREATE INDEX idx_parties_disbanded_at ON parties(disbanded_at);
+CREATE INDEX idx_parties_public_type ON parties(is_public, party_type);
+CREATE INDEX idx_parties_member_count ON parties(current_member_count, max_members);
 
 -- Party member indexes
 CREATE INDEX idx_party_members_party_id ON party_members(party_id);
 CREATE INDEX idx_party_members_auth_user_id ON party_members(auth_user_id);
 CREATE INDEX idx_party_members_status ON party_members(status);
+CREATE INDEX idx_party_members_role ON party_members(role);
+CREATE INDEX idx_party_members_joined_at ON party_members(joined_at);
+CREATE INDEX idx_party_members_active ON party_members(party_id, status) WHERE status = 'Active';
+CREATE INDEX idx_party_members_user_active ON party_members(auth_user_id, status) WHERE status = 'Active';
 
--- Guild indexes
-CREATE INDEX idx_guilds_guild_type ON guilds(guild_type);
-CREATE INDEX idx_guilds_is_public ON guilds(is_public);
-CREATE INDEX idx_guilds_created_by ON guilds(created_by);
+-- Party invitation indexes
+CREATE INDEX idx_party_invitations_party_id ON party_invitations(party_id);
+CREATE INDEX idx_party_invitations_inviter_id ON party_invitations(inviter_id);
+CREATE INDEX idx_party_invitations_invitee_id ON party_invitations(invitee_id);
+CREATE INDEX idx_party_invitations_status ON party_invitations(status);
+CREATE INDEX idx_party_invitations_expires_at ON party_invitations(expires_at);
+CREATE INDEX idx_party_invitations_pending ON party_invitations(invitee_id, status) WHERE status = 'Pending';
 
--- Guild member indexes
-CREATE INDEX idx_guild_members_guild_id ON guild_members(guild_id);
-CREATE INDEX idx_guild_members_auth_user_id ON guild_members(auth_user_id);
-CREATE INDEX idx_guild_members_role ON guild_members(role);
-
--- Social interaction indexes
-CREATE INDEX idx_friendships_requester_id ON friendships(requester_id);
-CREATE INDEX idx_friendships_addressee_id ON friendships(addressee_id);
-CREATE INDEX idx_friendships_status ON friendships(status);
-
--- Message indexes
-CREATE INDEX idx_social_messages_sender_id ON social_messages(sender_id);
-CREATE INDEX idx_social_messages_recipient_id ON social_messages(recipient_id);
-CREATE INDEX idx_social_messages_party_id ON social_messages(party_id);
-CREATE INDEX idx_social_messages_guild_id ON social_messages(guild_id);
-CREATE INDEX idx_social_messages_sent_at ON social_messages(sent_at);
+-- Party activity indexes
+CREATE INDEX idx_party_activities_party_id ON party_activities(party_id);
+CREATE INDEX idx_party_activities_activity_type ON party_activities(activity_type);
+CREATE INDEX idx_party_activities_started_at ON party_activities(started_at);
+CREATE INDEX idx_party_activities_completed_at ON party_activities(completed_at);
+CREATE INDEX idx_party_activities_quest_id ON party_activities(quest_id);
+CREATE INDEX idx_party_activities_meeting_id ON party_activities(meeting_id);
+CREATE INDEX idx_party_activities_participants ON party_activities USING GIN(participants);
 
 -- Party stash indexes
 CREATE INDEX idx_party_stash_items_party_id ON party_stash_items(party_id);
 CREATE INDEX idx_party_stash_items_shared_by_user_id ON party_stash_items(shared_by_user_id);
 CREATE INDEX idx_party_stash_items_original_note_id ON party_stash_items(original_note_id);
 CREATE INDEX idx_party_stash_items_shared_at ON party_stash_items(shared_at);
+CREATE INDEX idx_party_stash_items_updated_at ON party_stash_items(updated_at);
+CREATE INDEX idx_party_stash_items_tags ON party_stash_items USING GIN(tags);
+
+-- Guild indexes
+CREATE INDEX idx_guilds_guild_type ON guilds(guild_type);
+CREATE INDEX idx_guilds_is_public ON guilds(is_public);
+CREATE INDEX idx_guilds_created_by ON guilds(created_by);
+CREATE INDEX idx_guilds_level ON guilds(level);
+CREATE INDEX idx_guilds_experience_points ON guilds(experience_points);
+CREATE INDEX idx_guilds_created_at ON guilds(created_at);
+CREATE INDEX idx_guilds_public_type ON guilds(is_public, guild_type);
+CREATE INDEX idx_guilds_member_count ON guilds(current_member_count, max_members);
+CREATE INDEX idx_guilds_requires_approval ON guilds(requires_approval);
+
+-- Guild member indexes
+CREATE INDEX idx_guild_members_guild_id ON guild_members(guild_id);
+CREATE INDEX idx_guild_members_auth_user_id ON guild_members(auth_user_id);
+CREATE INDEX idx_guild_members_role ON guild_members(role);
+CREATE INDEX idx_guild_members_status ON guild_members(status);
+CREATE INDEX idx_guild_members_joined_at ON guild_members(joined_at);
+CREATE INDEX idx_guild_members_contribution_points ON guild_members(contribution_points);
+CREATE INDEX idx_guild_members_rank_within_guild ON guild_members(rank_within_guild);
+CREATE INDEX idx_guild_members_active ON guild_members(guild_id, status) WHERE status = 'Active';
+CREATE INDEX idx_guild_members_user_active ON guild_members(auth_user_id, status) WHERE status = 'Active';
+
+-- Guild invitation indexes
+CREATE INDEX idx_guild_invitations_guild_id ON guild_invitations(guild_id);
+CREATE INDEX idx_guild_invitations_inviter_id ON guild_invitations(inviter_id);
+CREATE INDEX idx_guild_invitations_invitee_id ON guild_invitations(invitee_id);
+CREATE INDEX idx_guild_invitations_invitation_type ON guild_invitations(invitation_type);
+CREATE INDEX idx_guild_invitations_status ON guild_invitations(status);
+CREATE INDEX idx_guild_invitations_created_at ON guild_invitations(created_at);
+CREATE INDEX idx_guild_invitations_expires_at ON guild_invitations(expires_at);
+CREATE INDEX idx_guild_invitations_pending ON guild_invitations(invitee_id, status) WHERE status = 'Pending';
+
+-- Friendship indexes
+CREATE INDEX idx_friendships_requester_id ON friendships(requester_id);
+CREATE INDEX idx_friendships_addressee_id ON friendships(addressee_id);
+CREATE INDEX idx_friendships_status ON friendships(status);
+CREATE INDEX idx_friendships_requested_at ON friendships(requested_at);
+CREATE INDEX idx_friendships_accepted_at ON friendships(accepted_at);
+CREATE INDEX idx_friendships_blocked_at ON friendships(blocked_at);
+CREATE INDEX idx_friendships_pending ON friendships(addressee_id, status) WHERE status = 'Pending';
+CREATE INDEX idx_friendships_accepted ON friendships(requester_id, addressee_id, status) WHERE status = 'Accepted';
+
+-- Social message indexes
+CREATE INDEX idx_social_messages_sender_id ON social_messages(sender_id);
+CREATE INDEX idx_social_messages_recipient_id ON social_messages(recipient_id);
+CREATE INDEX idx_social_messages_party_id ON social_messages(party_id);
+CREATE INDEX idx_social_messages_guild_id ON social_messages(guild_id);
+CREATE INDEX idx_social_messages_message_type ON social_messages(message_type);
+CREATE INDEX idx_social_messages_sent_at ON social_messages(sent_at);
+CREATE INDEX idx_social_messages_edited_at ON social_messages(edited_at);
+CREATE INDEX idx_social_messages_deleted_at ON social_messages(deleted_at);
+CREATE INDEX idx_social_messages_is_system_message ON social_messages(is_system_message);
+CREATE INDEX idx_social_messages_party_recent ON social_messages(party_id, sent_at DESC) WHERE deleted_at IS NULL;
+CREATE INDEX idx_social_messages_guild_recent ON social_messages(guild_id, sent_at DESC) WHERE deleted_at IS NULL;
+CREATE INDEX idx_social_messages_direct_recent ON social_messages(recipient_id, sent_at DESC) WHERE message_type = 'Direct' AND deleted_at IS NULL;
+
+-- Message reaction indexes
+CREATE INDEX idx_message_reactions_message_id ON message_reactions(message_id);
+CREATE INDEX idx_message_reactions_auth_user_id ON message_reactions(auth_user_id);
+CREATE INDEX idx_message_reactions_reaction_emoji ON message_reactions(reaction_emoji);
+CREATE INDEX idx_message_reactions_reacted_at ON message_reactions(reacted_at);
+CREATE INDEX idx_message_reactions_message_emoji ON message_reactions(message_id, reaction_emoji);
 ```
 
 ## Service Responsibilities
