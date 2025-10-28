@@ -297,10 +297,11 @@ All significant technical decisions will be evaluated against the following crit
 - **Infrastructure:**
   - **Frontend:** Vercel with custom domain
   - **Unity WebGL:** Static hosting with CORS configuration for game assets
-  - **Backend:** Docker containers on Azure Container Apps or AWS Fargate
-  - **Database:** Managed PostgreSQL (Azure Database or AWS RDS)
-  - **Cache:** Managed Redis (Azure Cache or AWS ElastiCache)
-  - **Monitoring:** Application Insights or CloudWatch
+  - **User Service (Consolidated):** Single Docker container on Azure Container Apps with horizontal scaling
+  - **Event Service:** Separate Docker container optimized for code execution workloads
+  - **Database:** Managed PostgreSQL (Azure Database or AWS RDS) with consolidated User Service database
+  - **Cache:** Managed Redis (Azure Cache or AWS ElastiCache) for session management and frequently accessed data
+  - **Monitoring:** Application Insights or CloudWatch with unified logging across consolidated services
   - **UGS (Phase 2):** Unity Authentication (anonymous), Lobby, Relay configured for WSS
   - **Dedicated Server (Phase 3):** Linux headless build, Dockerized, reverse proxy (Caddy) providing TLS and WSS upgrades; health endpoint
 
