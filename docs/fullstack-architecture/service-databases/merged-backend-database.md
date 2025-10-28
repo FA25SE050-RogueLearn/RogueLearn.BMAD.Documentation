@@ -51,7 +51,7 @@ CREATE TYPE invitation_status AS ENUM ('Pending', 'Accepted', 'Declined', 'Expir
 CREATE TYPE invitation_type AS ENUM ('Invite', 'Application');
 CREATE TYPE guild_type AS ENUM ('Academic', 'Professional', 'Hobby', 'Competition', 'Study', 'Research');
 CREATE TYPE activity_type AS ENUM ('QuestCompletion', 'StudySession', 'ProjectWork', 'Discussion', 'Competition', 'Meeting');
-CREATE TYPE message_type AS ENUM ('Direct', 'Party', 'Guild');
+CREATE TYPE post_type AS ENUM ('announcement', 'discussion', 'general', 'achievement');
 CREATE TYPE friendship_status AS ENUM ('Pending', 'Accepted', 'Blocked');
 ```
 
@@ -911,42 +911,51 @@ CREATE TABLE guild_invitations (
 );
 ```
 
-#### Communication and Messaging
-
-##### social_messages
-Direct messages and party/guild communications.
+##### guild_posts
+Guild community posts and announcements.
 ```sql
-CREATE TABLE social_messages (
+CREATE TABLE guild_posts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    sender_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
-    message_type message_type NOT NULL,
-    recipient_id UUID REFERENCES user_profiles(auth_user_id),
-    party_id UUID REFERENCES parties(id) ON DELETE CASCADE,
-    guild_id UUID REFERENCES guilds(id) ON DELETE CASCADE,
+    guild_id UUID NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    author_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
+    post_type post_type NOT NULL DEFAULT 'general',
+    is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
+    is_announcement BOOLEAN NOT NULL DEFAULT FALSE,
     attachments JSONB,
-    is_system_message BOOLEAN NOT NULL DEFAULT FALSE,
-    sent_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    edited_at TIMESTAMPTZ,
-    deleted_at TIMESTAMPTZ,
-    CHECK (
-        (message_type = 'Direct' AND recipient_id IS NOT NULL AND party_id IS NULL AND guild_id IS NULL) OR
-        (message_type = 'Party' AND party_id IS NOT NULL AND recipient_id IS NULL AND guild_id IS NULL) OR
-        (message_type = 'Guild' AND guild_id IS NOT NULL AND recipient_id IS NULL AND party_id IS NULL)
-    )
+    like_count INTEGER NOT NULL DEFAULT 0,
+    comment_count INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ
 );
 ```
 
-##### message_reactions
-Emoji reactions to messages.
+##### guild_post_comments
+Comments on guild posts.
 ```sql
-CREATE TABLE message_reactions (
+CREATE TABLE guild_post_comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    message_id UUID NOT NULL REFERENCES social_messages(id) ON DELETE CASCADE,
-    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
-    reaction_emoji VARCHAR(10) NOT NULL,
-    reacted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (message_id, auth_user_id, reaction_emoji)
+    post_id UUID NOT NULL REFERENCES guild_posts(id) ON DELETE CASCADE,
+    author_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    content TEXT NOT NULL,
+    parent_comment_id UUID REFERENCES guild_post_comments(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMPTZ
+);
+```
+
+##### guild_post_likes
+Likes on guild posts.
+```sql
+CREATE TABLE guild_post_likes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    post_id UUID NOT NULL REFERENCES guild_posts(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (post_id, user_id)
 );
 ```
 
@@ -1415,23 +1424,26 @@ CREATE INDEX idx_friendships_accepted_at ON friendships(accepted_at);
 CREATE INDEX idx_friendships_user_friends ON friendships(requester_id, status) WHERE status = 'Accepted';
 CREATE INDEX idx_friendships_pending_requests ON friendships(addressee_id, status) WHERE status = 'Pending';
 
--- Social messages
-CREATE INDEX idx_social_messages_sender_id ON social_messages(sender_id);
-CREATE INDEX idx_social_messages_recipient_id ON social_messages(recipient_id);
-CREATE INDEX idx_social_messages_party_id ON social_messages(party_id);
-CREATE INDEX idx_social_messages_guild_id ON social_messages(guild_id);
-CREATE INDEX idx_social_messages_type ON social_messages(message_type);
-CREATE INDEX idx_social_messages_sent_at ON social_messages(sent_at);
-CREATE INDEX idx_social_messages_is_system ON social_messages(is_system_message);
-CREATE INDEX idx_social_messages_recent_direct ON social_messages(recipient_id, sent_at DESC) WHERE message_type = 'Direct' AND deleted_at IS NULL;
-CREATE INDEX idx_social_messages_recent_party ON social_messages(party_id, sent_at DESC) WHERE message_type = 'Party' AND deleted_at IS NULL;
-CREATE INDEX idx_social_messages_recent_guild ON social_messages(guild_id, sent_at DESC) WHERE message_type = 'Guild' AND deleted_at IS NULL;
+-- Guild posts
+CREATE INDEX idx_guild_posts_guild_id ON guild_posts(guild_id);
+CREATE INDEX idx_guild_posts_author_id ON guild_posts(author_id);
+CREATE INDEX idx_guild_posts_created_at ON guild_posts(created_at DESC);
+CREATE INDEX idx_guild_posts_post_type ON guild_posts(post_type);
+CREATE INDEX idx_guild_posts_pinned ON guild_posts(guild_id, is_pinned DESC, created_at DESC) WHERE is_pinned = TRUE;
+CREATE INDEX idx_guild_posts_announcements ON guild_posts(guild_id, is_announcement DESC, created_at DESC) WHERE is_announcement = TRUE;
+CREATE INDEX idx_guild_posts_active ON guild_posts(guild_id, created_at DESC) WHERE deleted_at IS NULL;
 
--- Message reactions
-CREATE INDEX idx_message_reactions_message_id ON message_reactions(message_id);
-CREATE INDEX idx_message_reactions_user_id ON message_reactions(auth_user_id);
-CREATE INDEX idx_message_reactions_emoji ON message_reactions(reaction_emoji);
-CREATE INDEX idx_message_reactions_reacted_at ON message_reactions(reacted_at);
+-- Guild post comments
+CREATE INDEX idx_guild_post_comments_post_id ON guild_post_comments(post_id);
+CREATE INDEX idx_guild_post_comments_author_id ON guild_post_comments(author_id);
+CREATE INDEX idx_guild_post_comments_created_at ON guild_post_comments(created_at);
+CREATE INDEX idx_guild_post_comments_parent ON guild_post_comments(parent_comment_id);
+CREATE INDEX idx_guild_post_comments_active ON guild_post_comments(post_id, created_at) WHERE deleted_at IS NULL;
+
+-- Guild post likes
+CREATE INDEX idx_guild_post_likes_post_id ON guild_post_likes(post_id);
+CREATE INDEX idx_guild_post_likes_user_id ON guild_post_likes(user_id);
+CREATE INDEX idx_guild_post_likes_created_at ON guild_post_likes(created_at);
 ```
 
 ### Meeting Service Indexes
@@ -1495,7 +1507,7 @@ CREATE INDEX idx_user_engagement_meetings ON meeting_participants(user_id, join_
 -- Recent activity queries
 CREATE INDEX idx_recent_quest_completions ON user_quest_attempts(completed_at DESC, status) WHERE status = 'Completed';
 CREATE INDEX idx_recent_party_activities ON party_activities(started_at DESC, activity_type);
-CREATE INDEX idx_recent_social_messages ON social_messages(sent_at DESC, message_type) WHERE deleted_at IS NULL;
+CREATE INDEX idx_recent_guild_posts ON guild_posts(created_at DESC, post_type) WHERE deleted_at IS NULL;
 CREATE INDEX idx_recent_achievements ON user_achievements(earned_at DESC);
 
 -- Leaderboard and ranking queries
