@@ -13,11 +13,8 @@ graph TB
 
     %% Core Services
     subgraph "RogueLearn Microservices"
-        US[User Service<br/>roguelearn-user-service]
-        QS[Quests Service<br/>roguelearn-quests-service]
-        SS[Social Service<br/>roguelearn-social-service]
-        MS[Meeting Service<br/>roguelearn-meeting-service]
-        CBS[Event Service<br/>roguelearn-event-service]
+        US[User Service<br/>roguelearn-user-service<br/>Consolidated: Profiles, Quests, Social, Meeting, AI]
+        CBS[Event Service<br/>roguelearn-event-service<br/>Code Battles & Competitions]
     end
 
     %% Client Applications
@@ -25,7 +22,7 @@ graph TB
         WEB[Web Application]
         MOB[Mobile Application]
         API[API Gateway]
-        UNITY[Unity WebGL (embedded)]
+        UNITY[Unity WebGL embedded]
     end
 
     %% Unity is embedded in Web App %%
@@ -41,41 +38,24 @@ graph TB
     MOB --> API
     UNITY --> API
     API --> US
-    API --> QS
-    API --> SS
-    API --> MS
     API --> CBS
 
     %% Inter-Service Dependencies
-    QS --> US
-    SS --> US
-    MS --> US
-    MS --> SS
     CBS --> US
-    CBS --> SS
 
     %% External Service Dependencies
     CBS --> PC
     UNITY --> RL
 
     %% Data Flow Indicators
-    US -.->|User Context| QS
-    US -.->|User Context| SS
-    US -.->|User Context| MS
-    US -.->|User Context| CBS
-    QS -.->|Progress Updates| US
-    SS -.->|Achievement Triggers| US
-    MS -.->|Meeting Analytics| US
-    CBS -.->|Event Results| US
-    SS -.->|Event Context| CBS
-    SS -.->|Party/Guild Context| MS
-    QS -.->|Notes Sharing| SS
+    US -.->|Code Submission| CBS
+    CBS -.->|Evaluation Results| US
 
     classDef service fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     classDef external fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef client fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
 
-    class US,QS,SS,MS,CBS service
+    class US,CBS service
     class SA,PC,RL external
     class WEB,MOB,API,UNITY client
 ```
@@ -83,99 +63,36 @@ graph TB
 ## Service Responsibilities & Boundaries
 
 ### **User Service** (`roguelearn-user-service`)
-**Primary Domain**: Identity, Academic Structure, Achievement Management
+**Primary Domain**: Consolidated Business Logic - Identity, Academic, Quests, Social, Meeting, AI Integration
 
 **Core Responsibilities**:
 - User authentication integration with Supabase Auth
 - User profile and role management
 - Academic structure (Classes, Curriculum Programs, Student Enrollments)
+- Quest and quest line management with skill trees
+- User progress monitoring and analytics
+- Game session management and experience tracking
 - Achievement system and user achievement tracking
-- Quest progress summary maintenance
-- Lecturer verification and administrative functions
+- Party system for small group collaboration
+- Guild system for larger community organization
+- Meeting management, scheduling, and analytics
+- Notes system for learning context and collaboration
+- AI-assisted quest generation and secure Gemini API integration
+- Real-time features via SignalR (duels, meetings, social interactions)
 
-**Key Entities**: `UserProfiles`, `Roles`, `Classes`, `CurriculumPrograms`, `StudentEnrollments`, `Achievements`, `UserAchievements`, `UserQuestProgress`
+**Key Entities**: `UserProfiles`, `Roles`, `Classes`, `CurriculumPrograms`, `StudentEnrollments`, `QuestLines`, `Quests`, `SkillTrees`, `Skills`, `UserSkill`, `GameSessions`, `Notes`, `Parties`, `PartyMemberships`, `Guilds`, `GuildMemberships`, `Meetings`, `MeetingParticipants`, `Achievements`, `UserAchievements`
 
 **External Dependencies**: 
 - Supabase Auth for authentication
-- Receives progress updates from Quests Service
-- Receives achievement triggers from all services
-
----
-
-### **Quests Service** (`roguelearn-quests-service`)
-**Primary Domain**: Learning Content, Gamification, Progress Tracking
-
-**Core Responsibilities**:
-- Quest and quest line management
-- Skill trees and skill development tracking
-- User progress monitoring and analytics
-- Game session management and experience tracking
-- Notes system for learning context
-- AI-assisted quest generation
-
-**Key Entities**: `QuestLines`, `Quests`, `SkillTrees`, `Skills`, `UserSkill`, `GameSessions`, `Notes`
-
-**Service Dependencies**:
-- User Service: User profiles, curriculum data
-- AI Service: Quest generation assistance
-
-**Data Sharing**:
-- Provides notes to Social Service for party stash functionality
-- Sends progress updates to User Service
-
----
-
-### **Social Service** (`roguelearn-social-service`)
-**Primary Domain**: Community, Events, Competition Management
-
-**Core Responsibilities**:
-- Party system for small group collaboration
-- Guild system for larger community organization
-- Event management and leaderboards
-- Collaborative knowledge sharing through party stash
-- Social features and community engagement
-
-**Key Entities**: `Parties`, `PartyMemberships`, `Guilds`, `GuildMemberships`, `Events`, `LeaderboardEntries`, `PartyStashItems`
-
-**Service Dependencies**:
-- User Service: User profiles and context
-- Quests Service: Notes for party stash sharing
-
-**Integration Points**:
-- Provides event context to Code Battle Service
-- Provides party/guild context to Meeting Service
-- Triggers achievements in User Service
-
----
-
-### **Meeting Service** (`roguelearn-meeting-service`)
-**Primary Domain**: Collaboration, Meeting Management, Activity Analytics
-
-**Core Responsibilities**:
-- Multi-context meeting management (parties and guilds)
-- Meeting scheduling and participant management
-- Detailed participant activity tracking and analytics
-- Meeting engagement metrics and performance insights
-- Agenda management and meeting notes
-
-**Key Entities**: `Meetings`, `MeetingParticipants`, `MeetingAgenda`, `MeetingNotes`, `MeetingParticipantActivity`, `MeetingParticipantEngagement`, `MeetingParticipantStats`
-
-**Service Dependencies**:
-- User Service: User profiles
-- Social Service: Party and guild context for meetings
-
-**Analytics Capabilities**:
-- Real-time participant engagement tracking
-- Meeting performance analytics
-- Attendance and participation metrics
+- Gemini API for AI-powered features (via internal AI proxy)
+- Event Service for code evaluation
 
 ---
 
 ### **Event Service** (`roguelearn-event-service`)
-**Primary Domain**: Event Management, Code Execution
+**Primary Domain**: Code Execution, Competition Management
 
 **Core Responsibilities**:
-- Event management and coordination
 - Code problem management and storage
 - Real-time competitive coding battles
 - Code compilation and execution
@@ -197,36 +114,19 @@ graph TB
 
 ### **Authentication & User Context Flow**
 ```
-Supabase Auth → User Service → All Other Services
+Supabase Auth → User Service → Event Service
 ```
 - Centralized authentication through Supabase Auth
-- User Service maintains user profiles and provides context to all services
+- User Service maintains consolidated business logic and provides context to Event Service
 - All services reference users through `AuthUserId` from Supabase Auth
 
-### **Learning Journey Flow**
+### **Code Evaluation Flow**
 ```
-User Service (Curriculum) → Quests Service (Content) → User Service (Progress)
+User Service → Event Service (Code Submission)
+Event Service → User Service (Evaluation Results)
 ```
-- Academic structure defined in User Service
-- Learning content and gamification managed by Quests Service
-- Progress summaries maintained in User Service for academic tracking
-
-### **Social & Collaboration Flow**
-```
-Social Service (Community) ↔ Meeting Service (Collaboration)
-Social Service (Events) ↔ Event Service (Competition)
-```
-- Social Service provides community context for meetings and competitions
-- Meeting Service enables collaboration within parties and guilds
-- Event Service provides competitive programming within events
-
-### **Achievement & Analytics Flow**
-```
-All Services → User Service (Achievements)
-Meeting Service → User Service (Analytics)
-```
-- All services can trigger achievements in User Service
-- Meeting Service provides detailed analytics for learning insights
+- User Service publishes code submissions to Event Service
+- Event Service returns evaluation results and updates achievements
 
 ## Integration Architecture
 
@@ -236,35 +136,35 @@ Meeting Service → User Service (Analytics)
 - Provides unified API interface for client applications
 
 ### **Event-Driven Communication**
-- Services communicate through events for loose coupling
-- Achievement triggers, progress updates, and analytics data flow through events
+- Services communicate through Azure Service Bus for loose coupling
+- Code submission, evaluation results, and achievement triggers flow through events
 - Ensures eventual consistency across service boundaries
 
-### **Shared Data References**
-- Services use UUIDs for cross-service references
-- Foreign key relationships maintain data integrity
-- Cascade deletes ensure proper cleanup across services
+### **Consolidated Data Access**
+- User Service uses direct database access for all consolidated business logic
+- Event Service maintains isolated database for specialized code execution
+- Cross-service references handled via API calls with soft references
 
 ### **External System Integration**
 - **Supabase Auth**: Centralized authentication and user management
-- **Pinecone**: Vector database for AI-powered features
+- **Pinecone**: Vector database for AI-powered features in Event Service
+- **Gemini API**: AI integration handled securely within User Service
 
 ## Scalability & Performance Considerations
 
-### **Service Independence**
-- Each service can scale independently based on usage patterns
-- Database per service pattern ensures data ownership
-- Microservice architecture enables technology diversity
+### **Service Consolidation Benefits**
+- Reduced inter-service communication overhead
+- Simplified transaction management within User Service
+- Efficient data access patterns for related business operations
+
+### **Specialized Service Isolation**
+- Event Service handles compute-intensive code execution operations
+- Isolated database ensures performance isolation for code evaluation
+- Independent scaling based on code submission volume
 
 ### **Caching Strategy**
-- User context cached across services for performance
-- Frequently accessed data cached at API Gateway level
-- Read replicas for analytics and reporting workloads
+- User context consolidated within single service reduces caching complexity
+- Event Service caches frequently accessed code problems and test cases
+- API Gateway level caching for cross-service communication
 
-### **Load Distribution**
-- Event Service handles compute-intensive operations
-- Meeting Service manages real-time collaboration features
-- Social Service handles community and event management
-- Quests Service processes learning content and gamification
-
-This ecosystem design provides a comprehensive, scalable, and maintainable architecture for the RogueLearn gamified learning platform, with clear service boundaries, well-defined data flows, and robust integration patterns.
+This consolidated ecosystem design provides a streamlined, maintainable architecture for the RogueLearn platform, with clear separation between core business logic and specialized code execution functionality.

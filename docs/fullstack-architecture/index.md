@@ -54,15 +54,15 @@ This document provides a comprehensive architectural overview of the RogueLearn 
 - **Performance Analytics**: Detailed competition performance tracking
 
 ### 🔧 **Technical Infrastructure**
-- **Microservices Architecture**: Service-oriented design with clear boundaries
-- **Cross-Service Communication**: Efficient data synchronization patterns
-- **Real-time Features**: WebSocket-based real-time updates
+- **Consolidated Architecture**: Streamlined service design with clear separation of concerns
+- **Cross-Service Communication**: Event-driven communication via Azure Service Bus
+- **Real-time Features**: WebSocket-based real-time updates via SignalR
 - **Scalable Data Storage**: PostgreSQL and Qdrant for different data types
 
 ## Architecture Principles
 
-1. **Microservices Design**: Clear service boundaries with dedicated databases
-2. **Event-Driven Architecture**: Asynchronous communication between services
+1. **Consolidated Service Design**: Clear service boundaries with the User Service handling core business logic and Event Service managing specialized code execution
+2. **Event-Driven Communication**: Asynchronous communication between services via Azure Service Bus
 3. **Data Consistency**: ACID compliance within services, eventual consistency across services
 4. **Scalability**: Horizontal scaling capabilities for high-load scenarios
 5. **Security**: Multi-layer security with authentication, authorization, and data protection

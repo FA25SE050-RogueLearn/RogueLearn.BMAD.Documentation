@@ -1,6 +1,6 @@
 # **API Specification**
 
-This document presents RogueLearn’s feature-level API overview and points to the service-specific OpenAPI specifications. The monolithic API has been sharded into dedicated service APIs to better reflect clear boundaries, scalability, and ownership.
+This document presents RogueLearn's feature-level API overview and points to the service-specific OpenAPI specifications. The architecture has been consolidated to provide a unified API experience while maintaining clear feature boundaries.
 
 ## **How to Use This Document**
 - Start here to understand feature areas and which service owns them.
@@ -22,41 +22,46 @@ This document presents RogueLearn’s feature-level API overview and points to t
 
 ## **Feature → Service Mapping**
 
-### Profiles & Academic Management — User Service
+### Core Application Features — User Service (Consolidated)
 Spec: `./service-apis/user-service-api.md`
-- User profile: retrieve current profile.
+
+The User Service provides a unified API for all core application functionality:
+
+#### User Profile & Academic Management
+- User profile: retrieve and update current profile.
 - Academic enrollments: list/create enrollments, manage status.
 - Syllabus upload: upload and process syllabus documents against an enrollment.
 
 Representative APIs:
-- `GET /profiles/me`
+- `GET /profiles/me`, `PATCH /profiles/me`
 - `GET /enrollments`, `POST /enrollments`
 - `POST /enrollments/{enrollmentId}/upload-syllabus`
 
-### Social & Collaboration — Social Service
-Spec: `./service-apis/social-service-api.md`
+#### Social & Collaboration Features
 - Parties: create, list, invite, manage membership.
 - Guilds: create, list, invite, achievements, membership.
 - Messaging: party/guild messages and reactions.
+- Social events: organize and participate in community events.
 
 Representative APIs:
 - `GET /parties`, `POST /parties`
 - `GET /guilds`, `POST /guilds`
 - `GET /messages`, `POST /messages`
+- `GET /social-events`, `POST /social-events`
 
-### Quests & Curriculum Packs — Quests Service
-Spec: `./service-apis/quests-service-api.md`
+#### Quest & Skill Management
 - Quests: list and create quests and learning paths.
 - Curriculum packs: manage AI-vetted content packs.
 - Game sessions: start, track, and complete quest sessions.
+- Skills: manage skill trees and user skill progression.
 
 Representative APIs:
 - `GET /quests`, `POST /quests`
 - `GET /learning-paths`, `POST /learning-paths`
 - `GET /curriculum-packs`, `POST /curriculum-packs`
+- `GET /skills`, `GET /skill-trees`
 
-### Meetings & AI Summaries — Meeting Service
-Spec: `./service-apis/meeting-service-api.md`
+#### Meeting & Collaboration Management
 - Meetings: list, create, and retrieve meetings.
 - Participants: manage and view meeting participants.
 - Transcripts & summaries: AI-powered processing and retrieval.
@@ -66,8 +71,21 @@ Representative APIs:
 - `GET /meetings/{meetingId}`
 - `GET /meetings/{meetingId}/transcripts`, `GET /meetings/{meetingId}/summaries`
 
-### Code Battles & Leaderboards — Event Service
-Spec: `./service-apis/code-battle-service-api.md`
+#### Notes & Content Management
+- Notes: create, update, and manage user-generated content.
+- Tags: organize content with tagging system.
+- Content linking: associate notes with quests and skills.
+
+Representative APIs:
+- `GET /notes`, `POST /notes`
+- `GET /tags`, `POST /tags`
+- `POST /notes/{noteId}/link-quests`
+
+### Code Battles & Competitions — Event Service (Specialized)
+Spec: `./service-apis/event-service-api.md`
+
+The Event Service maintains specialized functionality for competitive programming:
+
 - Problems & test cases: list problems, fetch test cases.
 - Rooms & events: create rooms, join/leave, track room players.
 - Submissions & leaderboards: submit solutions, view rankings.
@@ -79,10 +97,22 @@ Representative APIs:
 - `POST /submissions`, `GET /leaderboards`
 - `POST /duels/challenge`
 
+## **Service Communication Patterns**
+
+### Internal User Service Communication
+- **Direct Database Access**: All User Service features can access shared database directly
+- **Transactional Operations**: Cross-domain operations (e.g., quest completion affecting social stats) can use database transactions
+- **Real-time Updates**: SignalR hubs provide real-time communication across all User Service features
+
+### User Service ↔ Event Service Communication
+- **API-based Integration**: Event Service communicates with User Service via REST APIs
+- **Soft References**: Event Service maintains `auth_user_id` references to User Service entities
+- **Event-driven Updates**: Azure Service Bus handles asynchronous communication for code evaluation results
+
 ## **Cross-Service Considerations**
-- Identity: `auth_user_id` is the canonical link across services for authenticated users.
-- Authorization: Resource ownership and roles enforced per service (e.g., party leader, guild officer, meeting organizer).
-- Data flows: Features may coordinate across services (e.g., social events linking to code battle rooms); keep interactions via well-defined APIs.
+- Identity: `auth_user_id` is the canonical link between services for authenticated users.
+- Authorization: Resource ownership and roles enforced within User Service; Event Service validates permissions via User Service APIs.
+- Data flows: Event Service coordinates with User Service for user data, guild information, and achievement triggers.
 
 ## **Next Steps**
 - For detailed request/response formats, refer to each service spec under `./service-apis/`.
