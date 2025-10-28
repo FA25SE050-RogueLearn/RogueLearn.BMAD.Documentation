@@ -19,7 +19,10 @@ CREATE TYPE enrollment_status AS ENUM ('Active', 'Inactive', 'Graduated', 'Dropp
 CREATE TYPE semester_status AS ENUM ('Enrolled', 'Completed', 'Failed', 'Withdrawn');
 CREATE TYPE skill_relationship_type AS ENUM ('Prerequisite', 'Corequisite', 'Recommended');
 CREATE TYPE skill_reward_source_type AS ENUM ('QuestComplete', 'BossFight', 'PartyActivity', 'GuildActivity', 'MeetingParticipation', 'CodeChallenge');
+CREATE TYPE skill_tier_level AS ENUM ('Foundation', 'Intermediate', 'Advanced', 'Expert');
 CREATE TYPE notification_type AS ENUM ('Achievement', 'QuestComplete', 'PartyInvite', 'GuildInvite', 'FriendRequest', 'System', 'Reminder');
+CREATE TYPE degree_level AS ENUM ('Associate', 'Bachelor', 'Master', 'Doctorate');
+CREATE TYPE subject_enrollment_status AS ENUM ('Enrolled', 'Completed', 'Failed', 'Withdrawn');
 ```
 
 ### Quests Service Enums
@@ -34,6 +37,7 @@ CREATE TYPE step_completion_status AS ENUM ('NotStarted', 'InProgress', 'Complet
 CREATE TYPE path_type AS ENUM ('Course', 'Specialization', 'Bootcamp', 'Custom');
 CREATE TYPE path_progress_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Paused');
 CREATE TYPE assessment_type AS ENUM ('Quiz', 'Assignment', 'Project', 'PeerReview', 'AutoGraded', 'ManualReview');
+CREATE TYPE quest_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Abandoned');
 ```
 
 ### Social Service Enums
@@ -71,6 +75,60 @@ CREATE TABLE roles (
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     permissions JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### Academic Structure
+
+##### classes
+Roadmap.sh specialization classes (Frontend, Backend, DevOps, etc.).
+```sql
+CREATE TABLE classes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL, -- e.g., "Backend Developer", "Frontend Developer"
+    description TEXT,
+    roadmap_url TEXT, -- Link to roadmap.sh specialization
+    skill_focus_areas TEXT[], -- Array of primary skill domains
+    difficulty_level difficulty_level DEFAULT 'Beginner',
+    estimated_duration_months INTEGER, -- Expected time to complete roadmap
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+##### class_nodes
+Hierarchical structure within classes (nodes in the roadmap tree).
+```sql
+CREATE TABLE class_nodes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+    parent_id UUID REFERENCES class_nodes(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    node_type TEXT,
+    description TEXT,
+    sequence INTEGER NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    is_locked_by_import BOOLEAN NOT NULL DEFAULT FALSE,
+    metadata JSONB,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+
+##### curriculum_programs
+University degree programs and curricula.
+```sql
+CREATE TABLE curriculum_programs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    program_name VARCHAR(255) NOT NULL,
+    program_code VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT,
+    degree_level degree_level NOT NULL,
+    total_credits INTEGER,
+    duration_years INTEGER,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -128,71 +186,6 @@ CREATE TABLE lecturer_verification_requests (
 );
 ```
 
-#### Academic Structure
-
-##### classes
-Roadmap.sh specialization classes (Frontend, Backend, DevOps, etc.).
-```sql
-CREATE TABLE classes (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name VARCHAR(255) NOT NULL, -- e.g., "Backend Developer", "Frontend Developer"
-    description TEXT,
-    roadmap_url TEXT, -- Link to roadmap.sh specialization
-    skill_focus_areas TEXT[], -- Array of primary skill domains
-    difficulty_level difficulty_level DEFAULT 'Beginner',
-    estimated_duration_months INTEGER, -- Expected time to complete roadmap
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
-
-##### class_nodes
-Hierarchical structure within classes (nodes in the roadmap tree).
-```sql
-CREATE TABLE class_nodes (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
-    parent_id UUID REFERENCES class_nodes(id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    node_type TEXT,
-    description TEXT,
-    sequence INTEGER NOT NULL DEFAULT 0,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    is_locked_by_import BOOLEAN NOT NULL DEFAULT FALSE,
-    metadata JSONB,
-    created_at TIMESTAMPTZ DEFAULT now()
-);
-```
-
-##### class_specialization_subjects
-Maps class specializations to university subjects.
-```sql
-CREATE TABLE class_specialization_subjects (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
-    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    placeholder_subject_code TEXT NOT NULL,
-    semester INTEGER NOT NULL
-);
-```
-
-##### curriculum_programs
-University degree programs and curricula.
-```sql
-CREATE TABLE curriculum_programs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    program_name VARCHAR(255) NOT NULL,
-    program_code VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT,
-    degree_level degree_level NOT NULL,
-    total_credits INTEGER,
-    duration_years INTEGER,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
-
 ##### curriculum_versions
 Versioned curriculum definitions.
 ```sql
@@ -219,6 +212,18 @@ CREATE TABLE subjects (
     description TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+##### class_specialization_subjects
+Maps class specializations to university subjects.
+```sql
+CREATE TABLE class_specialization_subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    class_id UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    placeholder_subject_code TEXT NOT NULL,
+    semester INTEGER NOT NULL
 );
 ```
 
@@ -327,13 +332,37 @@ CREATE TABLE skill_dependencies (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
     prerequisite_skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
-    relationship_type skill_dependency_type NOT NULL DEFAULT 'Prerequisite', -- Prerequisite, Complements, Alternative
+    relationship_type skill_relationship_type NOT NULL DEFAULT 'Prerequisite', -- Prerequisite, Complements, Alternative
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),  
     UNIQUE (skill_id, prerequisite_skill_id, relationship_type)
 );
 ```
 
 #### Notes Management (Arsenal)
+
+### Quests Service Tables (moved earlier for dependency order)
+
+#### Quest Management
+
+##### quests (moved earlier)
+Core quest definitions with metadata and configuration.
+```sql
+CREATE TABLE quests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    quest_type quest_type NOT NULL,
+    difficulty_level difficulty_level NOT NULL,
+    estimated_duration_minutes INTEGER,
+    experience_points_reward INTEGER NOT NULL DEFAULT 0,
+    skill_tags TEXT[],
+    subject_id UUID REFERENCES subjects(id),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
 
 ##### notes
 User-created learning notes and resources.
@@ -448,13 +477,13 @@ CREATE TABLE achievements (
     name TEXT NOT NULL UNIQUE,
     description TEXT NOT NULL,
     icon_url TEXT,
-    source_service VARCHAR(255) NOT NULL -- e.g., 'QuestsService', 'CodeBattleService'
+    source_service VARCHAR(255) NOT NULL, -- e.g., 'QuestsService', 'CodeBattleService'
     key TEXT,
     rule_type TEXT,
     rule_config JSONB,
     category TEXT,
     version INTEGER,
-    is_active BOOLEAN NOT NULL DEFAULT true,
+    is_active BOOLEAN NOT NULL DEFAULT true
 );
 ```
 
@@ -545,26 +574,6 @@ CREATE TABLE learning_path_quests (
 ```
 
 #### Quest Management
-
-##### quests
-Core quest definitions with metadata and configuration.
-```sql
-CREATE TABLE quests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    quest_type quest_type NOT NULL,
-    difficulty_level difficulty_level NOT NULL,
-    estimated_duration_minutes INTEGER,
-    experience_points_reward INTEGER NOT NULL DEFAULT 0,
-    skill_tags TEXT[],
-    subject_id UUID REFERENCES subjects(id),
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_by UUID NOT NULL REFERENCES user_profiles(auth_user_id),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
 
 ##### quest_prerequisites
 A join table to define the many-to-many relationship for quest dependencies.
@@ -792,6 +801,23 @@ CREATE TABLE party_invitations (
 );
 ```
 
+##### meetings (moved earlier)
+Core meeting definitions and scheduling.
+```sql
+CREATE TABLE meetings (
+    meeting_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    scheduled_start_time TIMESTAMPTZ NOT NULL,
+    scheduled_end_time TIMESTAMPTZ NOT NULL,
+    actual_start_time TIMESTAMPTZ,
+    actual_end_time TIMESTAMPTZ,
+    organizer_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
 ##### party_activities
 Tracks party collaborative activities and achievements.
 ```sql
@@ -927,23 +953,6 @@ CREATE TABLE message_reactions (
 ### Meeting Service Tables
 
 #### Core Meeting Management
-
-##### meetings
-Core meeting definitions and scheduling.
-```sql
-CREATE TABLE meetings (
-    meeting_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
-    scheduled_start_time TIMESTAMPTZ NOT NULL,
-    scheduled_end_time TIMESTAMPTZ NOT NULL,
-    actual_start_time TIMESTAMPTZ,
-    actual_end_time TIMESTAMPTZ,
-    organizer_id UUID NOT NULL REFERENCES user_profiles(auth_user_id),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
 
 ##### meeting_participants
 Meeting participation tracking with join/leave times and roles.
