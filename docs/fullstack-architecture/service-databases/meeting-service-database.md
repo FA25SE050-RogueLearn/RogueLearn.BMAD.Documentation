@@ -3,6 +3,11 @@
 ## Overview
 The Meeting Service manages virtual meetings with core functionality for meeting lifecycle, participant tracking, transcript management, and summary generation. This schema focuses on essential meeting operations and AI-powered content processing.
 
+## Enums and Types
+
+-- Transcript segment status
+CREATE TYPE transcript_segment_status AS ENUM ('Processed', 'Failed');
+
 ## Database Tables
 
 ### Core Meeting Management
@@ -10,8 +15,9 @@ The Meeting Service manages virtual meetings with core functionality for meeting
 #### meeting
 Core meeting definitions and scheduling.
 ```sql
-CREATE TABLE meeting (
+CREATE TABLE meetings (
     meeting_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    party_id UUID NOT NULL REFERENCES parties(party_id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     scheduled_start_time TIMESTAMPTZ NOT NULL,
     scheduled_end_time TIMESTAMPTZ NOT NULL,
@@ -49,6 +55,7 @@ CREATE TABLE transcript_segment (
     end_time TIMESTAMPTZ NOT NULL,
     transcript_text TEXT NOT NULL,
     chunk_number INTEGER NOT NULL,
+    status transcript_segment_status NOT NULL DEFAULT 'Processed',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

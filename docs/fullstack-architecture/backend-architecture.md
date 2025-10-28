@@ -5,54 +5,113 @@
 *   **Pattern:** **Clean Architecture** will be strictly followed in all .NET services.
 *   **Function Organization:** Services will be deployed as standard ASP.NET Core Web API projects to Azure Container Apps.
 
-### **Microservices Overview**
+### **Consolidated Service Overview**
 
-The backend consists of the following microservices:
+The backend consists of the following services:
 
-#### **Core .NET Services**
-*   **User Service** (`roguelearn-user-service`) - Manages user profiles, preferences, and user-related operations
-*   **Quests Service** (`roguelearn-quests-service`) - Handles syllabus, quests, skill trees, and game session logic
-*   **Social Service** (`roguelearn-social-service`) - Manages parties, guilds, events, and real-time duels
-*   **AI Proxy Service** (`roguelearn-ai-proxy-service`) - Secure gateway for Gemini API communications
+#### **Core .NET Service**
+*   **User Service** (`roguelearn-user-service`) - Consolidated service that manages:
+    *   User profiles, preferences, and authentication
+    *   Syllabus, quests, skill trees, and game session logic
+    *   Parties, guilds, social interactions, and real-time duels
+    *   Party meetings, scheduling, and collaboration features
+    *   Secure gateway for Gemini API communications
 
-#### **Specialized Go Services**
+#### **Specialized Go Service**
 *   **Event Service** (`roguelearn-event-service`) - Compiles, executes, and scores user-submitted code in secure sandboxes
-*   **Meeting Service** (`roguelearn-meeting-service`) - Handles party meetings, scheduling, and collaboration features
 
 ### **Service Communication Patterns**
 
 #### **Synchronous Communication**
 *   **API Gateway Pattern:** All external requests route through Azure API Management
-*   **Service-to-Service:** Direct HTTP calls for immediate data requirements
+*   **Service-to-Service:** Direct HTTP calls between User Service and Event Service for code evaluation
 *   **Authentication:** JWT tokens validated at gateway level, propagated to services
 
 #### **Asynchronous Communication**
 *   **Real-time Features:** SignalR hubs for live updates (duels, meetings, code battles)
-*   **Event-Driven:** Database triggers for user synchronization
-*   **Background Processing:** Async operations for AI processing and code evaluation
+*   **Event-Driven:** Internal event handling within the User Service for cross-domain operations
+*   **Background Processing:** Async operations for AI processing and code evaluation coordination
 
-### **Meeting Service Architecture**
+### **Consolidated User Service Architecture**
 
-The Meeting Service handles all collaboration features using Go:
+The User Service now handles all business domains using .NET:
 
-```go
-// Meeting Service Domain Models
-type Meeting struct {
-    ID                 uuid.UUID `json:"id"`
-    PartyID           uuid.UUID `json:"partyId"`
-    Title             string    `json:"title"`
-    Status            string    `json:"status"`
-    ScheduledStartTime time.Time `json:"scheduledStartTime"`
-    Participants      []MeetingParticipant `json:"participants"`
-    AgendaItems       []MeetingAgenda `json:"agendaItems"`
+```csharp
+// User Service Domain Models - User Management
+public class UserProfile
+{
+    public Guid AuthUserId { get; set; }
+    public string Username { get; set; }
+    public string Email { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public Guid? ClassId { get; set; }
 }
 
-// Meeting Service Repository Pattern
-type MeetingRepository interface {
-    GetByID(ctx context.Context, id uuid.UUID) (*Meeting, error)
-    GetByPartyID(ctx context.Context, partyId uuid.UUID) ([]*Meeting, error)
-    Create(ctx context.Context, meeting *Meeting) error
-    Update(ctx context.Context, meeting *Meeting) error
+// User Service Domain Models - Quest Management
+public class Quest
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public QuestType Type { get; set; }
+    public QuestStatus Status { get; set; }
+    public List<QuestDependency> Dependencies { get; set; }
+}
+
+// User Service Domain Models - Social Features
+public class Party
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public PartyType Type { get; set; }
+    public PartyJoinType JoinType { get; set; }
+    public List<PartyMember> Members { get; set; }
+}
+
+// User Service Domain Models - Meeting Management
+public class Meeting
+{
+    public Guid Id { get; set; }
+    public Guid PartyId { get; set; }
+    public string Title { get; set; }
+    public MeetingStatus Status { get; set; }
+    public DateTime ScheduledStartTime { get; set; }
+    public List<MeetingParticipant> Participants { get; set; }
+}
+
+// User Service Repository Pattern
+public interface IUserRepository
+{
+    Task<UserProfile?> GetByIdAsync(Guid authUserId);
+    Task<UserProfile?> GetByUsernameAsync(string username);
+    Task AddAsync(UserProfile user);
+    Task UpdateAsync(UserProfile user);
+}
+
+public interface IQuestRepository
+{
+    Task<Quest?> GetByIdAsync(Guid id);
+    Task<IEnumerable<Quest>> GetByQuestLineIdAsync(Guid questLineId);
+    Task AddAsync(Quest quest);
+    Task UpdateAsync(Quest quest);
+}
+
+public interface IPartyRepository
+{
+    Task<Party?> GetByIdAsync(Guid id);
+    Task<IEnumerable<Party>> GetByUserIdAsync(Guid userId);
+    Task AddAsync(Party party);
+    Task UpdateAsync(Party party);
+}
+
+public interface IMeetingRepository
+{
+    Task<Meeting?> GetByIdAsync(Guid id);
+    Task<IEnumerable<Meeting>> GetByPartyIdAsync(Guid partyId);
+    Task AddAsync(Meeting meeting);
+    Task UpdateAsync(Meeting meeting);
 }
 ```
 
@@ -89,7 +148,7 @@ type JudgeService interface {
 
 ### **Shared Libraries and Common Code**
 
-*   **Repository:** **`roguelearn-buildingblocks`** - A shared repository containing common libraries, utilities, and code used across all backend microservices.
+*   **Repository:** **`roguelearn-buildingblocks`** - A shared repository containing common libraries, utilities, and code used across the User Service and Event Service.
 *   **Purpose:** Promotes code reuse, consistency, and maintainability across services.
 *   **Contents:**
     *   Common domain models and DTOs
@@ -100,104 +159,133 @@ type JudgeService interface {
     *   Shared exception handling middleware
     *   API response standardization utilities
     *   Real-time communication abstractions (SignalR)
-    *   Meeting and code battle shared models
+    *   Cross-domain shared models and utilities
 
 ### **Database Architecture**
 
-*   **Data Access:** **Entity Framework Core (EF Core)** will be used as the ORM for .NET services.
-*   **Data Access Layer:** The **Repository Pattern** will be used to abstract all data access logic.
-*   **Go Services:** Use `database/sql` with PostgreSQL drivers for direct database access.
+*   **User Service Database:** **Entity Framework Core (EF Core)** will be used as the ORM for the consolidated User Service database.
+*   **Data Access Layer:** The **Repository Pattern** will be used to abstract all data access logic across all domains.
+*   **Event Service Database:** Uses `database/sql` with PostgreSQL drivers for direct database access to its isolated database.
 
 ```csharp
-// Example: Enhanced Repository Pattern
+// Example: Enhanced Repository Pattern for Consolidated Service
 public interface IQuestRepository
 {
     Task<Quest?> GetByIdAsync(Guid id);
     Task<IEnumerable<Quest>> GetByQuestLineIdAsync(Guid questLineId);
+    Task<IEnumerable<Quest>> GetByUserIdAsync(Guid userId);
     Task AddAsync(Quest quest);
     Task UpdateAsync(Quest quest);
+    Task DeleteAsync(Guid id);
+}
+
+public interface IPartyRepository
+{
+    Task<Party?> GetByIdAsync(Guid id);
+    Task<IEnumerable<Party>> GetByUserIdAsync(Guid userId);
+    Task<IEnumerable<Party>> GetPublicPartiesAsync();
+    Task AddAsync(Party party);
+    Task UpdateAsync(Party party);
     Task DeleteAsync(Guid id);
 }
 ```
 
 ### **Real-time Communication Architecture**
 
-#### **SignalR Hubs**
-*   **Social Hub:** Handles duels, party notifications, guild events
+#### **SignalR Hubs (User Service)**
+*   **Social Hub:** Handles duels, party notifications, guild events, and social interactions
+*   **Quest Hub:** Provides real-time quest progress updates and achievement notifications
+*   **Meeting Hub:** Manages real-time meeting collaboration and communication
 *   **Code Battle Hub:** Provides live updates during coding competitions
 *   **Verification Hub:** Streams verification status updates to admin and users
 *   **Rewards Hub:** Pushes reward unlocks and XP changes in real time
 
-#### **WebSocket Connections (Go Services)**
-*   **Meeting Hub:** Manages real-time meeting collaboration via WebSocket
-*   **Code Battle Hub:** Provides live updates during coding competitions via WebSocket
-
 ```csharp
-// Social Hub Example (SignalR for .NET services)
+// Consolidated Social Hub Example (SignalR for User Service)
 public class SocialHub : Hub
 {
     public async Task JoinPartyRoom(string partyId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, $"party-{partyId}");
     }
+    
+    public async Task JoinGuildRoom(string guildId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"guild-{guildId}");
+    }
+    
+    public async Task JoinMeetingRoom(string meetingId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"meeting-{meetingId}");
+    }
 }
-```
 
-```go
-// Meeting Hub Example (WebSocket for Go services)
-type MeetingHub struct {
-    connections map[string]*websocket.Conn
-    rooms       map[string][]string
-}
-
-func (h *MeetingHub) JoinMeetingRoom(conn *websocket.Conn, meetingId string) {
-    h.rooms[meetingId] = append(h.rooms[meetingId], conn.RemoteAddr().String())
+// Quest Hub for real-time quest updates
+public class QuestHub : Hub
+{
+    public async Task JoinQuestRoom(string questId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"quest-{questId}");
+    }
+    
+    public async Task JoinUserProgressRoom(string userId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"user-progress-{userId}");
+    }
 }
 ```
 
 ### **Event Bus & Orchestration**
 
-*   **Event Bus:** Azure Service Bus topics are used for asynchronous cross-service orchestration.
-*   **Key Topics:** `quest.completed`, `verification.updated`, `reward.triggered`, `skilltree.updated`.
-*   **Subscriptions:**
-    *   Quests Service Rewards module subscribes to `quest.completed`, `verification.updated`.
-    *   Quests Service Skill Tree module subscribes to `quest.completed` and publishes `skilltree.updated`.
-    *   Quests Service may listen to `skilltree.updated` to adjust recommendations.
+*   **Internal Event Handling:** The consolidated User Service uses internal event handling for cross-domain operations within the service.
+*   **External Event Bus:** Azure Service Bus topics are used for communication between User Service and Event Service.
+*   **Key Topics:** `code.submission`, `code.evaluation.completed`, `user.achievement.unlocked`.
+*   **Event Flow:**
+    *   User Service publishes `code.submission` events to Event Service
+    *   Event Service publishes `code.evaluation.completed` events back to User Service
+    *   User Service handles internal events for quest completion, skill tree updates, and reward calculations
 
 ```mermaid
 sequenceDiagram
-    participant Q as Quests Service
     participant U as User Service
-    participant R as User: Rewards Module
-    participant K as User: Skill Tree
-    participant V as User: Verification Module
+    participant E as Event Service
     participant B as Event Bus
+    participant UI as User Interface
 
-    Q->>B: Publish quest.completed
-    B-->>R: quest.completed
-    B-->>K: quest.completed
-    R->>R: Calculate rewards
-    R->>B: Publish reward.triggered
-    K->>K: Update skill tree
-    K->>B: Publish skilltree.updated
-    Q-->>Q: Update recommendations
-    V->>B: Publish verification.updated
-    B-->>R: verification.updated
-    R->>R: Recalculate rewards if necessary
+    U->>U: Internal: Quest completed
+    U->>U: Internal: Calculate rewards
+    U->>U: Internal: Update skill tree
+    U->>UI: SignalR: Progress update
+    
+    U->>B: Publish code.submission
+    B-->>E: code.submission
+    E->>E: Execute code
+    E->>B: Publish code.evaluation.completed
+    B-->>U: code.evaluation.completed
+    U->>U: Internal: Process results
+    U->>UI: SignalR: Results update
 ```
 
 ### **Authentication and Authorization**
 
 *   **Authentication:** The API Gateway will validate JWTs issued by **Supabase**.
-*   **Authorization:** Each microservice will implement its own authorization logic using .NET's `[Authorize]` attributes and custom policies.
-*   **Service-to-Service:** Internal services use service accounts and API keys for secure communication.
+*   **Authorization:** The User Service implements comprehensive authorization logic using .NET's `[Authorize]` attributes and custom policies across all domains.
+*   **Service-to-Service:** Communication between User Service and Event Service uses service accounts and API keys for secure communication.
 
 ### **Deployment and Scaling**
 
 #### **Container Strategy**
 *   **Platform:** Azure Container Apps for auto-scaling and serverless deployment
+*   **User Service:** Single consolidated container with horizontal scaling capabilities
+*   **Event Service:** Separate container optimized for code execution workloads
 *   **Images:** Multi-stage Docker builds for optimized container sizes
 *   **Configuration:** Environment-based configuration with Azure Key Vault integration
+
+#### **Scaling Considerations**
+*   **User Service:** Scales based on API request volume and real-time connection count
+*   **Event Service:** Scales based on code submission queue length and execution demand
+*   **Database:** Azure Database for PostgreSQL with read replicas for improved performance
+*   **Caching:** Redis cache for frequently accessed data and session management
 
 #### **Scaling Patterns**
 *   **Horizontal Scaling:** Auto-scaling based on CPU/memory metrics

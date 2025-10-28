@@ -172,7 +172,6 @@ erDiagram
 
 ### Data Flow & Relationships (Soft References)
 -   All services reference `user_profiles` in the **User Service** via `auth_user_id` for user context.
--   The **Social Service** (`guilds`) is referenced by the **Event Service** (`event_requests`) when a Guild Master requests an event.
+-   The **User Service** manages all business logic including quests, social features, and meetings in a consolidated architecture.
 -   The **Event Service** (`code_problems`) provides the catalog of challenges for code battle events.
--   The **User Service** (`notes`) are referenced by the **Social Service** (`party_stash_items`) for collaborative sharing.
--   The **Quest Service** (`quests`) are referenced by the **User Service** (`note_quests`) to link notes to specific learning objectives.
+-   Cross-service communication occurs between the **User Service** and **Event Service** for code submission and evaluation workflows.

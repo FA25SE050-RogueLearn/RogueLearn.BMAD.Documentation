@@ -1,19 +1,131 @@
-# **Database Per Service Documentation**
+# **Consolidated Database Documentation**
 
-MANDATORY ARCHITECTURAL DIRECTIVE: YOU MUST ADHERE TO THE FOLLOWING DATABASE PRINCIPLES. THIS IS NOT A MONOLITHIC SYSTEM.
+MANDATORY ARCHITECTURAL DIRECTIVE: YOU MUST ADHERE TO THE FOLLOWING DATABASE PRINCIPLES.
 
-*   **ISOLATED DATABASES:** Each microservice (User Service, Quests Service, etc.) has its own separate and independent database project. The tables for one service live in a different database from the tables of another.
+*   **CONSOLIDATED USER SERVICE DATABASE:** The main application features (User, Quests, Social, AI Proxy, and Meeting functionalities) are consolidated into a single User Service database. This allows for efficient transactions and data access across integrated features.
 
-*   **NO LINKED TABLES:** You will **NOT** find foreign key constraints between tables in different service databases (e.g., between `quests` and `user_profiles`). This is intentional and is the core of the microservice design. Do not attempt to "fix" this by suggesting joins or foreign keys across services.
+*   **ISOLATED EVENT SERVICE:** The Event Service (code battles, competitions) maintains its own separate database for specialized functionality and performance isolation.
 
-*   **API-DRIVEN COMMUNICATION:** All data sharing and relationships between services are managed through **API calls**, NOT direct database queries or links. For example, if the Quests Service needs to know a user's name, it must call the User Service API using the `auth_user_id`.
+*   **FOREIGN KEY RELATIONSHIPS:** Within the User Service database, proper foreign key constraints exist between related tables (e.g., between `quests` and `user_profiles`). This ensures data integrity and enables efficient joins.
 
-*   **YOUR CORE ASSUMPTION:** Always assume data from another service's domain **MUST** be fetched via a secure, internal API call. Your logic, analysis, and code must reflect this decoupled reality at all times.
+*   **API-DRIVEN COMMUNICATION:** Data sharing between the User Service and Event Service is managed through **API calls**. The Event Service references User Service entities via `auth_user_id` and other soft references.
+
+*   **YOUR CORE ASSUMPTION:** Data within the User Service database can be accessed directly via joins and foreign keys. Data from the Event Service domain **MUST** be fetched via secure, internal API calls.
+
+## Database Structure
+
+### User Service Database (Consolidated)
+
+The User Service database contains all tables for the core application functionality:
+
+#### Foundation Tables
+- `classes` - User class definitions (Warrior, Mage, etc.)
+- `roles` - System roles and permissions
+- `tags` - Content tagging system
+
+#### User & Profile Management
+- `user_profiles` - Core user information and profiles
+- `notes` - User-generated content and notes
+- `note_quests`, `note_skills`, `note_tags` - Note relationships
+
+#### Academic & Content Management
+- `curriculum_programs` - Academic program definitions
+- `curriculum_versions` - Version control for curricula
+- `curriculum_structure` - Program structure and requirements
+- `subjects` - Subject/course definitions
+- `syllabus_versions` - Syllabus version control
+- `student_enrollments` - Student academic enrollments
+- `student_term_subjects` - Term-specific subject enrollments
+
+#### Quest & Skill Management
+- `quest_lines` - User quest progression paths
+- `quest_chapters` - Quest chapter organization
+- `quests` - Individual quest definitions
+- `quest_prerequisites` - Quest dependency management
+- `skill_trees` - Skill progression trees
+- `skills` - Individual skill definitions
+- `user_skills` - User skill acquisitions
+- `user_skill_trees` - User skill tree progress
+- `quest_skills` - Quest-skill relationships
+- `skill_dependencies` - Skill prerequisite management
+- `user_quest_progress` - User quest completion tracking
+
+#### Achievement System
+- `achievements` - Achievement definitions
+- `user_achievements` - User achievement unlocks
+
+#### Social Features
+- `parties` - User party/group management
+- `party_members` - Party membership
+- `party_stash_items` - Shared party resources
+- `party_invitations` - Party invitation system
+- `party_activities` - Party activity tracking
+- `guilds` - Guild/organization management
+- `guild_members` - Guild membership
+- `guild_invitations` - Guild invitation system
+- `guild_achievements` - Guild-level achievements
+- `friendships` - User friendship connections
+- `user_social_stats` - Social interaction metrics
+- `social_messages` - In-app messaging system
+- `message_reactions` - Message reaction system
+- `social_events` - Social event management
+- `event_participants` - Event participation tracking
+
+#### Meeting Management
+- `meeting` - Meeting session management
+- `meeting_participant` - Meeting participation
+- `transcript_segment` - Meeting transcription
+- `summary_chunk` - Meeting summary segments
+- `meeting_summary` - Complete meeting summaries
+
+#### System Features
+- `game_sessions` - User session tracking
+- `notifications` - System notification management
+
+### Event Service Database (Isolated)
+
+The Event Service maintains its own database for specialized code battle and competition functionality:
+
+#### Core Event Management
+- `languages` - Programming language support
+- `events` - Competition and event definitions
+- `rooms` - Event room management
+- `event_guild_participants` - Guild participation in events
+
+#### Code Challenge System
+- `code_problems` - Programming challenge definitions
+- `code_problem_tags` - Challenge categorization
+- `code_problem_language_details` - Language-specific challenge details
+- `event_code_problems` - Event-challenge associations
+- `test_cases` - Challenge test case definitions
+- `submissions` - User code submissions
+
+#### Competition & Scoring
+- `leaderboard_entries` - Individual user rankings
+- `guild_leaderboard_entries` - Guild-based rankings
+- `room_players` - Real-time room participation
+
+### Cross-Service Data Access
+
+#### User Service Internal Access
+- Direct database queries and joins are allowed within the User Service database
+- Foreign key relationships ensure data integrity
+- Transactions can span multiple tables within the service
+
+#### Event Service Integration
+- Event Service references User Service entities via `auth_user_id`
+- No direct database connections between services
+- All User Service data access from Event Service occurs via API calls
+- Event Service maintains soft references to User Service entities
 
 
 # **Database Schema**
 
-This section provides the SQL DDL for the PostgreSQL database.
+## PostgreSQL DDL
+
+### User Service Database Schema
+
+The following DDL creates the consolidated User Service database with all core application tables:
 
 ```sql
 -- RogueLearn Database Schema for PostgreSQL
@@ -599,8 +711,42 @@ CREATE TABLE meeting_summary (
 
 
 -- ------------------------------------------
--- SECTION 9: EVENTS & CODE BATTLES
+-- SECTION 9: EVENTS & CODE BATTLES (Event Service Database)
 -- ------------------------------------------
+
+-- Note: The following tables belong to the separate Event Service database
+-- They are included here for reference but are not part of the User Service database
+
+-- Event Service Database Tables:
+-- - languages
+-- - events  
+-- - rooms
+-- - event_guild_participants
+-- - code_problems
+-- - code_problem_tags
+-- - code_problem_language_details
+-- - event_code_problems
+-- - leaderboard_entries
+-- - guild_leaderboard_entries
+-- - room_players
+-- - test_cases
+-- - submissions
+
+-- These tables maintain soft references to User Service entities via auth_user_id
+-- All User Service data access from Event Service occurs via API calls
+
+```
+
+### Event Service Database Schema
+
+The Event Service maintains its own isolated database with the following structure:
+
+```sql
+-- Event Service Database DDL
+-- (Separate database instance)
+
+CREATE TYPE event_type AS ENUM ('code_battle', 'tournament', 'practice');
+CREATE TYPE submission_status AS ENUM ('Pending', 'Running', 'Accepted', 'Wrong Answer', 'Time Limit Exceeded', 'Memory Limit Exceeded', 'Runtime Error', 'Compilation Error');
 
 CREATE TABLE languages (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -629,9 +775,10 @@ CREATE TABLE rooms (
   CONSTRAINT rooms_pkey PRIMARY KEY (id)
 );
 
+-- Note: guild_id references User Service guilds table via API calls
 CREATE TABLE event_guild_participants (
     event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-    guild_id uuid NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    guild_id uuid NOT NULL, -- Soft reference to User Service guilds table
     joined_at timestamp with time zone DEFAULT (now() AT TIME ZONE 'utc'::text),
     room_id uuid REFERENCES rooms(id) ON DELETE SET NULL,
     PRIMARY KEY (event_id, guild_id)
@@ -646,9 +793,10 @@ CREATE TABLE code_problems (
     CONSTRAINT code_problems_pkey PRIMARY KEY (id)
 );
 
+-- Note: tag_id references User Service tags table via API calls
 CREATE TABLE code_problem_tags (
     code_problem_id uuid NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
-    tag_id uuid NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    tag_id uuid NOT NULL, -- Soft reference to User Service tags table
     PRIMARY KEY (code_problem_id, tag_id)
 );
 
@@ -669,27 +817,30 @@ CREATE TABLE event_code_problems (
     PRIMARY KEY (event_id, code_problem_id)
 );
 
+-- Note: user_id references User Service user_profiles table via API calls
 CREATE TABLE leaderboard_entries (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
-    user_id uuid NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    user_id uuid NOT NULL, -- Soft reference to User Service user_profiles(auth_user_id)
     event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     rank integer NOT NULL,
     score integer NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text)
 );
 
+-- Note: guild_id references User Service guilds table via API calls
 CREATE TABLE guild_leaderboard_entries (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
-    guild_id uuid NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    guild_id uuid NOT NULL, -- Soft reference to User Service guilds table
     event_id uuid NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     rank integer NOT NULL,
     total_score integer NOT NULL,
     snapshot_date date NOT NULL
 );
 
+-- Note: auth_user_id references User Service user_profiles table via API calls
 CREATE TABLE room_players (
     room_id uuid NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
-    auth_user_id uuid NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    auth_user_id uuid NOT NULL, -- Soft reference to User Service user_profiles(auth_user_id)
     score integer NOT NULL DEFAULT 0,
     place integer,
     state text DEFAULT ''::text,
@@ -705,22 +856,43 @@ CREATE TABLE test_cases (
     is_hidden boolean NOT NULL DEFAULT true
 );
 
+-- Note: user_id and submitted_guild_id reference User Service tables via API calls
 CREATE TABLE submissions (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
-    user_id uuid NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
+    user_id uuid NOT NULL, -- Soft reference to User Service user_profiles(auth_user_id)
     code_problem_id uuid NOT NULL REFERENCES code_problems(id) ON DELETE CASCADE,
     language_id uuid NOT NULL REFERENCES languages(id) ON DELETE CASCADE,
     room_id uuid NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
-    submitted_guild_id uuid NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
+    submitted_guild_id uuid NOT NULL, -- Soft reference to User Service guilds table
     source_code text NOT NULL,
     status submission_status NOT NULL DEFAULT 'Pending',
     submitted_at timestamp with time zone NOT NULL DEFAULT (now() AT TIME ZONE 'utc'::text)
 );
 
+-- Event Service Database Indexes
+CREATE INDEX idx_rooms_event_id ON rooms(event_id);
+CREATE INDEX idx_room_players_user_id ON room_players(auth_user_id);
+CREATE INDEX idx_test_cases_code_problem_id ON test_cases(code_problem_id);
+CREATE INDEX idx_submissions_user_event ON submissions(user_id);
+CREATE INDEX idx_submissions_problem_id ON submissions(code_problem_id);
+CREATE INDEX idx_leaderboard_entries_user_id ON leaderboard_entries(user_id);
+CREATE INDEX idx_leaderboard_entries_event_id ON leaderboard_entries(event_id);
+CREATE INDEX idx_code_problem_tags_problem_id ON code_problem_tags(code_problem_id);
+CREATE INDEX idx_code_problem_tags_tag_id ON code_problem_tags(tag_id);
+CREATE INDEX idx_code_problem_language_details_problem_id ON code_problem_language_details(code_problem_id);
+CREATE INDEX idx_code_problem_language_details_language_id ON code_problem_language_details(language_id);
+CREATE INDEX idx_event_code_problems_event_id ON event_code_problems(event_id);
+CREATE INDEX idx_event_code_problems_code_problem_id ON event_code_problems(code_problem_id);
+CREATE INDEX idx_event_guild_participants_event_id ON event_guild_participants(event_id);
+CREATE INDEX idx_event_guild_participants_guild_id ON event_guild_participants(guild_id);
+```
+
 
 -- ------------------------------------------
--- SECTION 10: INDEXES FOR PERFORMANCE
+-- SECTION 10: INDEXES FOR PERFORMANCE (User Service Database)
 -- ------------------------------------------
+
+-- User Service Database Indexes
 CREATE INDEX idx_user_profiles_email ON user_profiles(email);
 CREATE INDEX idx_notes_user_id ON notes(auth_user_id);
 CREATE INDEX idx_note_quests_quest_id ON note_quests(quest_id);
@@ -743,23 +915,8 @@ CREATE INDEX idx_user_skills_user_id ON user_skills(auth_user_id);
 CREATE INDEX idx_game_sessions_user_id ON game_sessions(auth_user_id);
 CREATE INDEX idx_guild_members_user_id ON guild_members(auth_user_id);
 CREATE INDEX idx_meeting_participants_user_id ON meeting_participant(user_id);
-CREATE INDEX idx_rooms_event_id ON rooms(event_id);
-CREATE INDEX idx_room_players_user_id ON room_players(auth_user_id);
-CREATE INDEX idx_test_cases_code_problem_id ON test_cases(code_problem_id);
-CREATE INDEX idx_submissions_user_event ON submissions(user_id);
-CREATE INDEX idx_submissions_problem_id ON submissions(code_problem_id);
-CREATE INDEX idx_leaderboard_entries_user_id ON leaderboard_entries(user_id);
-CREATE INDEX idx_leaderboard_entries_event_id ON leaderboard_entries(event_id);
-CREATE INDEX idx_code_problem_tags_problem_id ON code_problem_tags(code_problem_id);
-CREATE INDEX idx_code_problem_tags_tag_id ON code_problem_tags(tag_id);
-CREATE INDEX idx_code_problem_language_details_problem_id ON code_problem_language_details(code_problem_id);
-CREATE INDEX idx_code_problem_language_details_language_id ON code_problem_language_details(language_id);
-CREATE INDEX idx_event_code_problems_event_id ON event_code_problems(event_id);
-CREATE INDEX idx_event_code_problems_code_problem_id ON event_code_problems(code_problem_id);
 CREATE INDEX idx_user_quest_progress_user_id ON user_quest_progress(auth_user_id);
 CREATE INDEX idx_user_achievements_user_id ON user_achievements(auth_user_id);
-CREATE INDEX idx_event_guild_participants_event_id ON event_guild_participants(event_id);
-CREATE INDEX idx_event_guild_participants_guild_id ON event_guild_participants(guild_id);
 CREATE INDEX idx_curriculum_versions_program_id ON curriculum_versions(program_id);
 CREATE INDEX idx_curriculum_versions_effective_year ON curriculum_versions(effective_year);
 CREATE INDEX idx_curriculum_structure_version_id ON curriculum_structure(curriculum_version_id);
@@ -785,4 +942,5 @@ CREATE INDEX idx_social_messages_guild_id ON social_messages(guild_id);
 CREATE INDEX idx_social_events_organizer_id ON social_events(organizer_id);
 CREATE INDEX idx_event_participants_event_id ON event_participants(event_id);
 CREATE INDEX idx_event_participants_auth_user_id ON event_participants(auth_user_id);
+```
 ```

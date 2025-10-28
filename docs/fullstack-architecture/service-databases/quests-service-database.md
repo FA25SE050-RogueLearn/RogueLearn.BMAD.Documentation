@@ -18,9 +18,7 @@ CREATE TABLE learning_paths (
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     path_type path_type NOT NULL,
-    subject_id UUID, -- Soft FK to User Service: subjects
     curriculum_version_id UUID, -- Soft FK to User Service: curriculum_versions
-    difficulty_progression difficulty_level[] NOT NULL,
     estimated_total_duration_hours INTEGER,
     total_experience_points INTEGER NOT NULL DEFAULT 0,
     is_published BOOLEAN NOT NULL DEFAULT FALSE,
@@ -35,7 +33,7 @@ High-level thematic groupings of quests within a learning path.
 ```sql
 CREATE TABLE quest_chapters (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    quest_line_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
+    learning_path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     sequence INT NOT NULL,
     status path_progress_status NOT NULL DEFAULT 'NotStarted',
@@ -53,6 +51,7 @@ CREATE TABLE learning_path_quests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     learning_path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
     quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    difficulty_level difficulty_level NOT NULL,
     sequence_order INTEGER NOT NULL,
     is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
     unlock_criteria JSONB,
@@ -211,9 +210,6 @@ CREATE TABLE quest_assessments (
     assessment_type assessment_type NOT NULL,
     configuration JSONB NOT NULL,
     passing_criteria JSONB NOT NULL,
-    max_attempts INTEGER,
-    time_limit_minutes INTEGER,
-    auto_grade BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -225,14 +221,11 @@ User submissions for assessed quests.
 CREATE TABLE quest_submissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     attempt_id UUID NOT NULL REFERENCES user_quest_attempts(id) ON DELETE CASCADE,
-    assessment_id UUID NOT NULL REFERENCES quest_assessments(id) ON DELETE CASCADE,
     submission_data JSONB NOT NULL,
-    submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     graded_at TIMESTAMPTZ,
     grade DECIMAL(5,2),
     max_grade DECIMAL(5,2) NOT NULL,
     feedback TEXT,
-    graded_by UUID, -- Soft FK to User Service: user_profiles(auth_user_id)
     is_passed BOOLEAN,
     attempt_number INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
