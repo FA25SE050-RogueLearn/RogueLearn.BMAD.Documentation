@@ -184,6 +184,60 @@ components:
         timeTakenSeconds: { type: integer }
         correctCount: { type: integer }
         incorrectCount: { type: integer }
+        generator: { $ref: '#/components/schemas/GeneratorMetadata' }
+        players:
+          type: array
+          items: { $ref: '#/components/schemas/PlayerSummary' }
+        questionEvents:
+          type: array
+          items: { $ref: '#/components/schemas/QuestionEvent' }
+    PlayerSummary:
+      type: object
+      properties:
+        playerId: { type: string }
+        authUserId: { type: string, format: uuid }
+        displayName: { type: string }
+        joinedAt: { type: string, format: date-time }
+        leftAt: { type: string, format: date-time }
+        score: { type: number }
+        accuracy: { type: number }
+    GeneratorMetadata:
+      type: object
+      properties:
+        provider: { type: string, enum: [Gemini, OpenAI, Claude] }
+        model: { type: string }
+        promptTemplateId: { type: string }
+        packId: { type: string }
+        version: { type: string }
+    QuestionEventOption:
+      type: object
+      properties:
+        id: { type: string }
+        text: { type: string }
+        textHash: { type: string }
+    QuestionEvent:
+      type: object
+      properties:
+        sequence: { type: integer }
+        playerId: { type: string }
+        authUserId: { type: string, format: uuid }
+        questionId: { type: string }
+        questionPackId: { type: string }
+        generatorSeed: { type: string }
+        promptText: { type: string }
+        promptHash: { type: string }
+        options: { type: array, items: { $ref: '#/components/schemas/QuestionEventOption' } }
+        correctOptionId: { type: string }
+        chosenOptionId: { type: string }
+        isCorrect: { type: boolean }
+        answeredAt: { type: string, format: date-time }
+        latencyMs: { type: integer }
+    QuestionEventBatch:
+      type: object
+      properties:
+        events:
+          type: array
+          items: { $ref: '#/components/schemas/QuestionEvent' }
 paths:
   /learning-paths/me:
     get:
@@ -487,3 +541,30 @@ paths:
       responses:
         '202':
           description: Results accepted for processing.
+
+  /game/sessions/{sessionId}/events:
+    post:
+      summary: Post in-session question events
+      description: Accepts a batch of question events for auditing generated content and player performance.
+      tags: [GameSessions]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema: { type: string }
+          description: "Use event::<sessionId>-<sequence> for idempotent retries."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionEventBatch'
+      responses:
+        '202':
+          description: Events accepted for processing.

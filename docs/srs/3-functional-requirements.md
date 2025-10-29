@@ -130,6 +130,7 @@ flowchart TD
 | 1 | Quest Generation | QuestGeneratorService | AI service that converts syllabus and calendar into semester-organized quests. |
 | 2 | Verification | StudentVerificationAPI | Endpoint to validate FPTU status based on uploaded documents. |
 | 3 | Leaderboard | LeaderboardAggregator (batch) | Weekly recalculation and seasonal reset of rankings. |
+| 4 | Assessment Logging | GameResultsAPI | Persist server-authoritative match summaries and per-question events; enables audit of generated content and analytics. |
 
 ### 3.1.5 Entity Relationship Diagram
 > Provide ERD and entity descriptions.

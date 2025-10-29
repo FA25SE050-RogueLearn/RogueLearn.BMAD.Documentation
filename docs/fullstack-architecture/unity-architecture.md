@@ -266,3 +266,11 @@ API references
 
 Data model reference
 - See BossFightQuestionPack specialization and ephemeral flag in Data Models
+---
+
+## Implementation Update — Headless Host via Relay (Current)
+We will operate the dedicated server as **headless host** using Unity Relay. This enables WebGL clients (wss) to connect via join codes while keeping server authority.
+
+References:
+- See: ./../unity-content/headless-server-bootstrap-relay.md for bootstrap code and deployment details.
+- Packages: ensure Authentication + Services Core + Relay + Transport are present.

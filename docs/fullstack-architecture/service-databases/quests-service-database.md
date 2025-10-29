@@ -255,6 +255,83 @@ CREATE TABLE quest_analytics (
 );
 ```
 
+### Game Sessions and Results
+
+#### game_sessions
+Authoritative record of an in-progress or completed game session (e.g., Boss Fight or co-op match).
+```sql
+CREATE TABLE game_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quest_id UUID REFERENCES quests(id) ON DELETE SET NULL,
+    relay_join_code TEXT,
+    region TEXT,
+    status TEXT NOT NULL DEFAULT 'InProgress', -- [Initializing, Lobby, InProgress, Completed, Cancelled]
+    started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    ended_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### game_session_players
+Players participating in a session; may include both platform users and guest/unity-only players.
+```sql
+CREATE TABLE game_session_players (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID NOT NULL REFERENCES game_sessions(id) ON DELETE CASCADE,
+    auth_user_id UUID, -- Soft FK to User Service: user_profiles(auth_user_id)
+    unity_player_id TEXT, -- NGO/Unity client identifier
+    display_name TEXT,
+    joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    left_at TIMESTAMPTZ,
+    score NUMERIC,
+    accuracy NUMERIC,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(session_id, auth_user_id, unity_player_id)
+);
+```
+
+#### game_session_results
+Summary results for a completed session (for long-term retention and academic records).
+```sql
+CREATE TABLE game_session_results (
+    session_id UUID PRIMARY KEY REFERENCES game_sessions(id) ON DELETE CASCADE,
+    questions_total INTEGER,
+    correct_total INTEGER,
+    summary_score NUMERIC,
+    time_taken_seconds INTEGER,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+```
+
+#### game_session_question_events
+Detailed per-question telemetry for auditing generated content and player performance. Typically retained short-term.
+```sql
+CREATE TABLE game_session_question_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID NOT NULL REFERENCES game_sessions(id) ON DELETE CASCADE,
+    sequence INTEGER NOT NULL,
+    auth_user_id UUID,
+    unity_player_id TEXT,
+    question_id TEXT,
+    question_pack_id TEXT,
+    generator_seed TEXT,
+    prompt_text TEXT,
+    prompt_hash TEXT,
+    options JSONB,
+    correct_option_id TEXT,
+    chosen_option_id TEXT,
+    is_correct BOOLEAN,
+    answered_at TIMESTAMPTZ,
+    latency_ms INTEGER,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (session_id, sequence)
+);
+```
+
 ## Enums and Types
 ```sql
 CREATE TYPE quest_type AS ENUM ('Tutorial', 'Practice', 'Challenge', 'Project', 'Assessment', 'Exploration');
@@ -325,6 +402,13 @@ CREATE INDEX idx_quest_submissions_assessment_id ON quest_submissions(assessment
 -- Analytics indexes
 CREATE INDEX idx_quest_analytics_quest_id ON quest_analytics(quest_id);
 CREATE INDEX idx_quest_analytics_date_recorded ON quest_analytics(date_recorded);
+
+-- Game session indexes
+CREATE INDEX idx_game_sessions_status ON game_sessions(status);
+CREATE INDEX idx_game_sessions_started_at ON game_sessions(started_at);
+CREATE INDEX idx_game_session_players_session_id ON game_session_players(session_id);
+CREATE INDEX idx_game_session_question_events_session_id ON game_session_question_events(session_id);
+CREATE INDEX idx_game_session_question_events_sequence ON game_session_question_events(sequence);
 ```
 
 ## Service Responsibilities

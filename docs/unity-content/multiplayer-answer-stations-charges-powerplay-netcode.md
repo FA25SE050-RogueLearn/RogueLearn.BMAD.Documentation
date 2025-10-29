@@ -143,3 +143,22 @@ Phase 3 (Netcode polishing):
 Adoption Notes
 - Backward compatible with current single-player flow by using a simple keybind to mark ready (majority of 1).
 - Station logic can be swapped for manual NextQuestion in non-multiplayer scenes.
+
+## Telemetry & Persistence
+- What to log:
+  - AnswerModeEntered (sequence assignment begins)
+  - AnswerSubmitted (chosen option, correctness, latency)
+  - Timeout (no choice, isCorrect=false)
+  - TeamChargeAdded / TeamChargeSpent (optional analytics)
+  - PowerPlayStarted / PowerPlayEnded (optional analytics)
+- Where to post:
+  - Batch QuestionEvent: POST /quests/game/sessions/{sessionId}/events
+  - Final summary: POST /quests/game/sessions/{sessionId}/complete
+- Identity:
+  - Include both playerId (Unity/NGO) and authUserId (platform UUID) when available
+- Idempotency:
+  - Events: Idempotency-Key: event::<sessionId>-<sequence>
+  - Results: Idempotency-Key: result::<sessionId>
+- References:
+  - See docs/unity-content/match-results-logging.md for code snippets and environment setup
+  - See docs/4.12.match-results-api.md for schemas and guidance
