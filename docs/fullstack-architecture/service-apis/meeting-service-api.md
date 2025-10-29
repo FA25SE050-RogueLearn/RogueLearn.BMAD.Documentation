@@ -1,11 +1,15 @@
 # Meeting Service API Specification
 
+This document defines the API for the specialized, real-time **Go Meeting Service**. This service is responsible for managing the live aspects of a meeting. Note that all data persistence (creating and storing meetings, participants, transcripts, etc.) is handled by the consolidated `RogueLearn.UserService`.
+
 ```yaml
 openapi: 3.0.0
 info:
   title: RogueLearn Meeting Service API
   version: v1.0.0
-  description: Meeting lifecycle, participants, transcripts, and summaries.
+  description: |
+    Manages the real-time aspects of meetings (e.g., WebSocket communication for live sessions). 
+    This service is stateless and calls the main RogueLearn.UserService for all data persistence.
 servers:
   - url: https://api.roguelearn.com/v1
     description: Production Server
@@ -82,6 +86,7 @@ paths:
   /meetings:
     get:
       summary: List meetings for current user or party
+      description: This endpoint delegates to the RogueLearn.UserService to retrieve meeting data.
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -101,6 +106,7 @@ paths:
                   $ref: '#/components/schemas/Meeting'
     post:
       summary: Schedule a meeting for a party
+      description: This endpoint delegates to the RogueLearn.UserService to create and persist the meeting.
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -124,6 +130,7 @@ paths:
   /meetings/{meetingId}:
     get:
       summary: Get meeting by ID
+      description: This endpoint delegates to the RogueLearn.UserService to retrieve meeting data.
       tags: [Meetings]
       parameters:
         - name: meetingId
@@ -152,6 +159,7 @@ paths:
   /meetings/{meetingId}/start:
     post:
       summary: Start a scheduled meeting
+      description: This endpoint triggers the real-time logic and delegates to the RogueLearn.UserService to update the meeting status.
       tags: [Meetings]
       parameters:
         - name: meetingId
@@ -164,6 +172,7 @@ paths:
   /meetings/{meetingId}/end:
     post:
       summary: End an ongoing meeting and trigger AI summary processing
+      description: This endpoint stops the real-time logic and delegates to the RogueLearn.UserService to finalize the meeting and trigger summarization.
       tags: [Meetings]
       parameters:
         - name: meetingId
@@ -176,6 +185,7 @@ paths:
   /meetings/{meetingId}/participants:
     get:
       summary: List participants
+      description: This endpoint delegates to the RogueLearn.UserService to retrieve participant data.
       tags: [Participants]
       parameters:
         - name: meetingId
@@ -194,6 +204,7 @@ paths:
   /meetings/{meetingId}/transcripts:
     get:
       summary: List transcript segments
+      description: This endpoint delegates to the RogueLearn.UserService to retrieve transcript data.
       tags: [Transcripts]
       parameters:
         - name: meetingId
@@ -212,6 +223,7 @@ paths:
   /meetings/{meetingId}/summary:
     get:
       summary: Get meeting summary
+      description: This endpoint delegates to the RogueLearn.UserService to retrieve summary data.
       tags: [Summaries]
       parameters:
         - name: meetingId
