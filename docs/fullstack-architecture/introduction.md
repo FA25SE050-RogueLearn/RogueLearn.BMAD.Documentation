@@ -6,13 +6,15 @@ This unified approach combines what would traditionally be separate backend and 
 
 ### **Starter Template or Existing Project**
 
-The project will be built **from scratch** following a **multi-repo, microservices architecture**. No overarching starter template will be used, allowing for a custom structure tailored to the project's specific needs.
+The project will be built **from scratch** following a **multi-repo strategy** with a consolidated core backend and specialized, isolated microservices. No overarching starter template will be used, allowing for a custom structure tailored to the project's specific needs.
 
 *   **Frontend**: A standalone Next.js 14+ application using Tailwind CSS and Shadcn/UI.
 *   **Game Client**: A standalone Unity 2022.3 LTS project for interactive "Boss Fights".
-*   **Backend**: A series of independent microservices built with **.NET 9** and **Go**.
+*   **Backend**: The backend is composed of:
+    *   A consolidated **`RogueLearn.UserService`** (.NET 9) handling all core business logic (User, Quests, Social, Meetings).
+    *   Isolated microservices for specialized tasks: an **Event Service** (Go), a **Meeting Service** (Go), and a **Scraping Service** (Python).
 
-This approach provides maximum flexibility, clear separation of concerns, and allows us to use the best language for each service's specific task.
+This hybrid approach provides the simplicity of a consolidated core for tightly-coupled domains, while retaining the flexibility and performance benefits of microservices for specialized tasks.
 
 ### **Change Log**
 
@@ -27,5 +29,3 @@ This approach provides maximum flexibility, clear separation of concerns, and al
 | Sep 11, 2025  | 1.2     | Replaced TanStack Router with native Next.js App Router per user feedback.     | Winston, Architect |
 | Sep 11, 2025  | 1.1     | Noted TanStack Router as the selected routing library.                         | Winston, Architect |
 | Sep 11, 2025  | 1.0     | Initial document creation and multi-repo decision.                             | Winston, Architect |
-
-s

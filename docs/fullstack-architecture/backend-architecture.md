@@ -2,122 +2,77 @@
 
 ### **Service Architecture**
 
-*   **Pattern:** **Clean Architecture** will be strictly followed in all .NET services.
-*   **Function Organization:** Services will be deployed as standard ASP.NET Core Web API projects to Azure Container Apps.
+*   **Pattern:** The backend is composed of a **consolidated .NET Core Service** (`RogueLearn.UserService`) and several specialized, isolated microservices. The `RogueLearn.UserService` will strictly follow **Clean Architecture** internally to maintain a clear separation of concerns between its logical domains (User, Quest, Social, Meeting, etc.).
+*   **Deployment:** All services will be deployed as standard containerized applications to Azure Container Apps.
 
-### **Consolidated Service Overview**
+### **Service Overview**
 
 The backend consists of the following services:
 
-#### **Core .NET Service**
-*   **User Service** (`roguelearn-user-service`) - Consolidated service that manages:
-    *   User profiles, preferences, and authentication
-    *   Syllabus, quests, skill trees, and game session logic
-    *   Parties, guilds, social interactions, and real-time duels
-    *   Party meetings, scheduling, and collaboration features
-    *   Secure gateway for Gemini API communications
+#### **Consolidated Core Service**
+*   **`RogueLearn.UserService` (.NET 9):** This is the primary backend service, managing the majority of the platform's business logic. It contains the following integrated domains:
+    *   **User Domain:** Manages user profiles, preferences, authentication, and verification.
+    *   **Quests Domain:** Manages syllabus, quests, skill trees, and game session logic.
+    *   **Social Domain:** Manages parties, guilds, social interactions, and real-time duels.
+    *   **Meeting Domain Persistence:** Handles all database operations for meetings.
+    *   **AI Proxy:** Securely communicates with the Gemini API.
 
-#### **Specialized Go Service**
-*   **Event Service** (`roguelearn-event-service`) - Compiles, executes, and scores user-submitted code in secure sandboxes
+#### **Specialized, Isolated Services**
+*   **`RogueLearn.EventService` (Go):** Compiles, executes, and scores user-submitted code in secure sandboxes for competitive events. It has its own isolated database.
+*   **`RogueLearn.MeetingService` (Go):** A stateless service that manages the real-time aspects of meetings (e.g., WebSocket communication). It calls the `RogueLearn.UserService` API to persist all meeting-related data.
+*   **`RogueLearn.Scraper` (Python):** A stateless, internal-only service for fetching raw HTML content from external URLs.
 
 ### **Service Communication Patterns**
 
 #### **Synchronous Communication**
-*   **API Gateway Pattern:** All external requests route through Azure API Management
-*   **Service-to-Service:** Direct HTTP calls between User Service and Event Service for code evaluation
-*   **Authentication:** JWT tokens validated at gateway level, propagated to services
+*   **API Gateway Pattern:** All external requests from clients route through Azure API Management.
+*   **Internal Communication:**
+    *   Within `RogueLearn.UserService`, domains communicate via direct method calls or an in-memory mediator (e.g., MediatR).
+    *   Between isolated services (e.g., `EventService` to `RogueLearn.UserService`), direct, secure HTTP/REST calls are used.
+*   **Authentication:** JWT tokens from Supabase are validated at the gateway level and propagated to services.
 
 #### **Asynchronous Communication**
-*   **Real-time Features:** SignalR hubs for live updates (duels, meetings, code battles)
-*   **Event-Driven:** Internal event handling within the User Service for cross-domain operations
-*   **Background Processing:** Async operations for AI processing and code evaluation coordination
+*   **Real-time Features:** SignalR hubs within the `RogueLearn.UserService` handle live updates for quests, social interactions, and meetings.
+*   **Event-Driven (Inter-Service):** For decoupled workflows between isolated services, an event bus (Azure Service Bus) is used (e.g., for code evaluation).
 
-### **Consolidated User Service Architecture**
+### **`RogueLearn.UserService` Consolidated Architecture**
 
-The User Service now handles all business domains using .NET:
+The `RogueLearn.UserService` handles all primary business domains using .NET and Clean Architecture.
 
 ```csharp
-// User Service Domain Models - User Management
-public class UserProfile
+// Domain Models from different domains coexist within the same service
+// User Domain
+public class UserProfile { /* ... */ }
+
+// Quest Domain
+public class Quest { /* ... */ }
+
+// Social Domain
+public class Party { /* ... */ }
+
+// Meeting Domain (Persistence Model)
+public class Meeting { /* ... */ }
+
+// A single DbContext can manage tables from all consolidated domains
+public class ApplicationDbContext : DbContext
 {
-    public Guid AuthUserId { get; set; }
-    public string Username { get; set; }
-    public string Email { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public Guid? ClassId { get; set; }
+    public DbSet<UserProfile> UserProfiles { get; set; }
+    public DbSet<Quest> Quests { get; set; }
+    public DbSet<Party> Parties { get; set; }
+    public DbSet<Meeting> Meetings { get; set; }
+    // ... other DbSets
 }
 
-// User Service Domain Models - Quest Management
-public class Quest
-{
-    public Guid Id { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public QuestType Type { get; set; }
-    public QuestStatus Status { get; set; }
-    public List<QuestDependency> Dependencies { get; set; }
-}
-
-// User Service Domain Models - Social Features
-public class Party
-{
-    public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public PartyType Type { get; set; }
-    public PartyJoinType JoinType { get; set; }
-    public List<PartyMember> Members { get; set; }
-}
-
-// User Service Domain Models - Meeting Management
-public class Meeting
-{
-    public Guid Id { get; set; }
-    public Guid PartyId { get; set; }
-    public string Title { get; set; }
-    public MeetingStatus Status { get; set; }
-    public DateTime ScheduledStartTime { get; set; }
-    public List<MeetingParticipant> Participants { get; set; }
-}
-
-// User Service Repository Pattern
-public interface IUserRepository
-{
-    Task<UserProfile?> GetByIdAsync(Guid authUserId);
-    Task<UserProfile?> GetByUsernameAsync(string username);
-    Task AddAsync(UserProfile user);
-    Task UpdateAsync(UserProfile user);
-}
-
-public interface IQuestRepository
-{
-    Task<Quest?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Quest>> GetByQuestLineIdAsync(Guid questLineId);
-    Task AddAsync(Quest quest);
-    Task UpdateAsync(Quest quest);
-}
-
-public interface IPartyRepository
-{
-    Task<Party?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Party>> GetByUserIdAsync(Guid userId);
-    Task AddAsync(Party party);
-    Task UpdateAsync(Party party);
-}
-
-public interface IMeetingRepository
-{
-    Task<Meeting?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Meeting>> GetByPartyIdAsync(Guid partyId);
-    Task AddAsync(Meeting meeting);
-    Task UpdateAsync(Meeting meeting);
-}
+// Repositories are specific to each domain but exist in the same service
+public interface IUserRepository { /* ... */ }
+public interface IQuestRepository { /* ... */ }
+public interface IPartyRepository { /* ... */ }
+public interface IMeetingRepository { /* ... */ }
 ```
 
-### **Event Service Architecture**
+### **`RogueLearn.EventService` Architecture**
 
-The Event Service uses Go for performance-critical code execution:
+The Event Service uses Go for performance-critical code execution and remains isolated.
 
 ```go
 // Event Service Core Types
@@ -125,7 +80,7 @@ type Submission struct {
     ID           uuid.UUID `json:"id"`
     EventID      uuid.UUID `json:"eventId"`
     ProblemID    uuid.UUID `json:"problemId"`
-    UserID       uuid.UUID `json:"userId"`
+    UserID       uuid.UUID `json:"userId"` // Soft reference to UserService
     LanguageID   uuid.UUID `json:"languageId"`
     SourceCode   string    `json:"sourceCode"`
     Status       string    `json:"status"`
@@ -141,154 +96,88 @@ type JudgeService interface {
 ```
 
 #### **Code Execution Security**
-*   **Sandboxing:** Docker containers with resource limits
-*   **Time Limits:** Configurable execution timeouts
-*   **Memory Limits:** Restricted memory allocation per submission
-*   **Network Isolation:** No external network access during execution
+*   **Sandboxing:** Docker containers with resource limits.
+*   **Time Limits:** Configurable execution timeouts.
+*   **Memory Limits:** Restricted memory allocation per submission.
+*   **Network Isolation:** No external network access during execution.
 
 ### **Shared Libraries and Common Code**
 
-*   **Repository:** **`roguelearn-buildingblocks`** - A shared repository containing common libraries, utilities, and code used across the User Service and Event Service.
-*   **Purpose:** Promotes code reuse, consistency, and maintainability across services.
-*   **Contents:**
-    *   Common domain models and DTOs
-    *   Shared authentication and authorization utilities
-    *   Database connection and configuration helpers
-    *   Logging and monitoring abstractions
-    *   Common validation attributes and extensions
-    *   Shared exception handling middleware
-    *   API response standardization utilities
-    *   Real-time communication abstractions (SignalR)
-    *   Cross-domain shared models and utilities
+*   **Repository:** **`roguelearn-buildingblocks`** - A shared repository for common .NET libraries, utilities, and DTOs used across the `RogueLearn.UserService` and for defining contracts for inter-service communication.
+*   **Purpose:** Promotes code reuse, consistency, and maintainability.
+*   **Contents:** Common models, auth utilities, logging abstractions, validation attributes, etc.
 
 ### **Database Architecture**
 
-*   **User Service Database:** **Entity Framework Core (EF Core)** will be used as the ORM for the consolidated User Service database.
-*   **Data Access Layer:** The **Repository Pattern** will be used to abstract all data access logic across all domains.
-*   **Event Service Database:** Uses `database/sql` with PostgreSQL drivers for direct database access to its isolated database.
+*   **`RogueLearn.UserService` Database:** Uses **Entity Framework Core (EF Core)** as the ORM for the consolidated PostgreSQL database.
+*   **Data Access Layer:** The **Repository Pattern** is used to abstract all data access logic across all internal domains.
+*   **`RogueLearn.EventService` Database:** Uses `database/sql` with PostgreSQL drivers for direct access to its own isolated database.
+
+### **Real-time Communication Architecture (within `RogueLearn.UserService`)**
+
+#### **SignalR Hubs**
+The single `RogueLearn.UserService` will host multiple logical hubs to manage real-time updates for its various domains:
+*   **Social Hub:** Handles party/guild notifications and interactions.
+*   **Quest Hub:** Provides real-time quest progress updates and achievements.
+*   **Meeting Hub:** Manages real-time meeting collaboration state.
+*   **Rewards Hub:** Pushes reward unlocks and XP changes.
 
 ```csharp
-// Example: Enhanced Repository Pattern for Consolidated Service
-public interface IQuestRepository
-{
-    Task<Quest?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Quest>> GetByQuestLineIdAsync(Guid questLineId);
-    Task<IEnumerable<Quest>> GetByUserIdAsync(Guid userId);
-    Task AddAsync(Quest quest);
-    Task UpdateAsync(Quest quest);
-    Task DeleteAsync(Guid id);
-}
-
-public interface IPartyRepository
-{
-    Task<Party?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Party>> GetByUserIdAsync(Guid userId);
-    Task<IEnumerable<Party>> GetPublicPartiesAsync();
-    Task AddAsync(Party party);
-    Task UpdateAsync(Party party);
-    Task DeleteAsync(Guid id);
-}
-```
-
-### **Real-time Communication Architecture**
-
-#### **SignalR Hubs (User Service)**
-*   **Social Hub:** Handles duels, party notifications, guild events, and social interactions
-*   **Quest Hub:** Provides real-time quest progress updates and achievement notifications
-*   **Meeting Hub:** Manages real-time meeting collaboration and communication
-*   **Code Battle Hub:** Provides live updates during coding competitions
-*   **Verification Hub:** Streams verification status updates to admin and users
-*   **Rewards Hub:** Pushes reward unlocks and XP changes in real time
-
-```csharp
-// Consolidated Social Hub Example (SignalR for User Service)
-public class SocialHub : Hub
-{
-    public async Task JoinPartyRoom(string partyId)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"party-{partyId}");
-    }
-    
-    public async Task JoinGuildRoom(string guildId)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"guild-{guildId}");
-    }
-    
-    public async Task JoinMeetingRoom(string meetingId)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"meeting-{meetingId}");
-    }
-}
-
-// Quest Hub for real-time quest updates
-public class QuestHub : Hub
-{
-    public async Task JoinQuestRoom(string questId)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"quest-{questId}");
-    }
-    
-    public async Task JoinUserProgressRoom(string userId)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"user-progress-{userId}");
-    }
-}
+// Example: A single service can host multiple hubs for different domains
+public class SocialHub : Hub { /* ... for party/guild rooms ... */ }
+public class QuestHub : Hub { /* ... for user progress rooms ... */ }
 ```
 
 ### **Event Bus & Orchestration**
 
-*   **Internal Event Handling:** The consolidated User Service uses internal event handling for cross-domain operations within the service.
-*   **External Event Bus:** Azure Service Bus topics are used for communication between User Service and Event Service.
+*   **Internal Event Handling:** Within the `RogueLearn.UserService`, MediatR or a similar in-process messaging pattern is used for decoupled communication between domains.
+*   **External Event Bus:** Azure Service Bus topics are used for asynchronous communication between the `RogueLearn.UserService` and isolated services like `RogueLearn.EventService`.
 *   **Key Topics:** `code.submission`, `code.evaluation.completed`, `user.achievement.unlocked`.
-*   **Event Flow:**
-    *   User Service publishes `code.submission` events to Event Service
-    *   Event Service publishes `code.evaluation.completed` events back to User Service
-    *   User Service handles internal events for quest completion, skill tree updates, and reward calculations
 
 ```mermaid
 sequenceDiagram
-    participant U as User Service
-    participant E as Event Service
-    participant B as Event Bus
+    participant UserService as RogueLearn.UserService
+    participant EventService as Event Service
+    participant EventBus as Azure Service Bus
     participant UI as User Interface
 
-    U->>U: Internal: Quest completed
-    U->>U: Internal: Calculate rewards
-    U->>U: Internal: Update skill tree
-    U->>UI: SignalR: Progress update
+    Note over UserService: Internal Logic (Direct Calls/MediatR)
+    UserService->>UserService: 1. Quest completed
+    UserService->>UserService: 2. Calculate rewards & update skill tree
+    UserService->>UI: 3. SignalR: Push progress update to client
     
-    U->>B: Publish code.submission
-    B-->>E: code.submission
-    E->>E: Execute code
-    E->>B: Publish code.evaluation.completed
-    B-->>U: code.evaluation.completed
-    U->>U: Internal: Process results
-    U->>UI: SignalR: Results update
+    Note over UserService, EventService: External Communication (Event Bus)
+    UserService->>EventBus: 4. Publish `code.submission` event
+    EventBus-->>EventService: Delivers event
+    
+    activate EventService
+    EventService->>EventService: 5. Execute code in sandbox
+    EventService->>EventBus: 6. Publish `code.evaluation.completed` event
+    deactivate EventService
+    
+    EventBus-->>UserService: Delivers result
+    activate UserService
+    UserService->>UserService: 7. Process evaluation results
+    UserService->>UI: 8. SignalR: Push results update to client
+    deactivate UserService
 ```
 
 ### **Authentication and Authorization**
 
-*   **Authentication:** The API Gateway will validate JWTs issued by **Supabase**.
-*   **Authorization:** The User Service implements comprehensive authorization logic using .NET's `[Authorize]` attributes and custom policies across all domains.
-*   **Service-to-Service:** Communication between User Service and Event Service uses service accounts and API keys for secure communication.
+*   **Authentication:** The API Gateway validates JWTs issued by **Supabase**.
+*   **Authorization:** The `RogueLearn.UserService` implements comprehensive authorization logic using .NET's `[Authorize]` attributes and custom policies across all its internal domains.
+*   **Service-to-Service:** Communication between isolated services uses secure methods like API keys or client credentials.
 
 ### **Deployment and Scaling**
 
 #### **Container Strategy**
-*   **Platform:** Azure Container Apps for auto-scaling and serverless deployment
-*   **User Service:** Single consolidated container with horizontal scaling capabilities
-*   **Event Service:** Separate container optimized for code execution workloads
-*   **Images:** Multi-stage Docker builds for optimized container sizes
-*   **Configuration:** Environment-based configuration with Azure Key Vault integration
+*   **Platform:** Azure Container Apps for auto-scaling and serverless deployment.
+*   **`RogueLearn.UserService`:** Deployed as a single, consolidated container that can be scaled horizontally.
+*   **`RogueLearn.EventService`:** Deployed as a separate container, scaled independently based on code submission queue length.
+*   **Images:** Multi-stage Docker builds for optimized container sizes.
 
 #### **Scaling Considerations**
-*   **User Service:** Scales based on API request volume and real-time connection count
-*   **Event Service:** Scales based on code submission queue length and execution demand
-*   **Database:** Azure Database for PostgreSQL with read replicas for improved performance
-*   **Caching:** Redis cache for frequently accessed data and session management
-
-#### **Scaling Patterns**
-*   **Horizontal Scaling:** Auto-scaling based on CPU/memory metrics
-*   **Database Scaling:** Read replicas for query-heavy operations
-*   **Caching:** Redis for session state and frequently accessed data
-
+*   **`RogueLearn.UserService`:** Scales based on API request volume and real-time connection count.
+*   **`RogueLearn.EventService`:** Scales based on code submission queue length and execution demand.
+*   **Database:** Azure Database for PostgreSQL with read replicas for improved performance.
+*   **Caching:** Redis cache for frequently accessed data and session management.

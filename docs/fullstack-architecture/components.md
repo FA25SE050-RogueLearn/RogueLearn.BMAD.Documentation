@@ -1,6 +1,6 @@
 # **Components**
 
-This section details the major logical components of the platform.
+This section details the major logical components of the platform, reflecting the consolidated backend architecture.
 
 ### **Frontend Application (`roguelearn-web`)**
 
@@ -10,55 +10,35 @@ This section details the major logical components of the platform.
 ### **Unity Game Client (`roguelearn-unity-games`)**
 
 *   **Responsibility:** Renders and manages the interactive "Boss Fight" experiences.
-*   **Key Interfaces:** Communicates with the backend via the API Gateway to start sessions and submit results.
 *   **Technology Stack:** Unity 2022.3 LTS, C#, WebGL.
 
-### **User Service (`roguelearn-user-service`)**
+### **Core Service (`RogueLearn.UserService`)**
 
-*   **Responsibility:** Manages user profiles, preferences, and user-related operations. Handles profile synchronization with Supabase Auth and manages user data across the platform. Owns Verification workflows.
-*   **Technology Stack:** .NET 9, C#.
-
-#### **User Service Modules**
-
-*   **Verification:** Lecturer verification workflows, document validation, admin review; emits `verification.updated` events.
-*   **Rewards:** Listens to domain events (quest completion, verification changes), computes reward cascades (XP, achievements, badges); emits `reward.triggered` to clients.
-*   **Skill Tree (Knowledge Graph):** Owns the user's current skill tree; updates nodes and relationships based on quest outcomes and verification signals; emits `skilltree.updated`.
-
-### **Quests Service (`roguelearn-quests-service`)**
-
-*   **Responsibility:** Owns the core learning loop, including Academic Management (Syllabuses, Enrollments), Quests, SkillTrees, and **Game Sessions**. Orchestrates the curriculum ingestion pipeline.
-*   **Technology Stack:** .NET 9, C#.
-
-### **Social Service (`roguelearn-social-service`)**
-
-*   **Responsibility:** Manages all multi-user features like Parties, Guilds, Events, and real-time Duels.
+*   **Responsibility:** A consolidated .NET service that manages the core business logic for the platform. This service is organized internally into the following logical domains:
+    *   **User Domain:** Manages user profiles, preferences, roles, verification, achievements, and the personal "Arsenal" of notes. It is the authority for user identity.
+    *   **Quests Domain:** Owns the core learning loop, including academic management (Syllabuses, Enrollments), Quests, Skill Trees, and Game Sessions.
+    *   **Social Domain:** Manages all multi-user features like Parties, Guilds, and real-time social interactions.
+    *   **AI Proxy:** Acts as a secure, internal gateway for all communications with the Gemini API.
 *   **Technology Stack:** .NET 9, C#, SignalR.
+
+### **Event Service (`RogueLearn.EventService`)**
+
+*   **Responsibility:** An isolated microservice that manages competitive programming features including code compilation, execution, and scoring in secure sandboxed environments.
+*   **Technology Stack:** Go, Docker (for sandboxing).
 
 ### **Meeting Service (`roguelearn-meeting-service`)**
 
-*   **Responsibility:** Manages party meetings, scheduling, collaboration features, and real-time meeting interactions. Handles meeting agendas, participant management, note-taking, and meeting status tracking.
-*   **Technology Stack:** Go, WebSocket support for real-time features.
-
-### **AI Proxy Service (`roguelearn-ai-proxy-service`)**
-
-*   **Responsibility:** Acts as a secure, internal gateway for all communications with the Gemini API. Facilitates complex data structuring and analysis tasks.
-*   **Technology Stack:** .NET 9, C#.
-
-### **Event Service (`roguelearn-event-service`)**
-
-*   **Responsibility:** Manages competitive programming features including code compilation, execution, and scoring in secure sandboxed environments.
-*   **Technology Stack:** Go, Docker (for sandboxing), WebSocket support for real-time features.
+*   **Responsibility:** An isolated microservice that manages party meetings, scheduling, and real-time collaboration features.
+*   **Technology Stack:** Go, WebSocket support.
 
 ### **Scraping Service (`RogueLearn.Scraper`)**
 
-*   **Responsibility:** A specialized service dedicated to extracting raw HTML content from external URLs using web scraping libraries that are difficult to block. It contains no business logic.
+*   **Responsibility:** A specialized, internal-only service for extracting raw HTML from external URLs. It contains no business logic.
 *   **Technology Stack:** Python, FastAPI, Botasaurus.
-
-<!-- Folded into User Service as modules above -->
 
 ### **Component Interaction Diagram**
 
-This diagram shows how the components interact.
+This diagram shows how the consolidated components interact.
 
 ```mermaid
 graph TD
@@ -71,14 +51,11 @@ graph TD
         Realtime["Real-time Hub (SignalR)"]
     end
 
-    subgraph "Backend Microservices (Azure Container Apps)"
-        User["User Service"]
-        Quests["Quests Service"]
-        Social["Social Service"]
-        Meeting["Meeting Service (Go)"]
-        CodeBattle["Event Service (Go)"]
-        AIProxy["AI Proxy Service (Internal Only)"]
-        Scraper["Scraping Service (Python, Internal Only)"]
+    subgraph "Backend Services (Azure Container Apps)"
+        CoreService[".NET Core Service<br/>(User, Quests, Social, AI Proxy)"]
+        MeetingService["Meeting Service (Go)"]
+        EventService["Event Service (Go)"]
+        ScraperService["Scraping Service (Python, Internal Only)"]
     end
 
     subgraph "External Dependencies"
@@ -99,38 +76,24 @@ graph TD
     Unity -- HTTP --> Gateway
     Unity -- "loads assets from" --> GameAssets
     
-    Gateway --> User
-    Gateway --> Quests
-    Gateway --> Social
-    Gateway --> Meeting
-    Gateway --> CodeBattle
-    Gateway --> AIProxy
+    Gateway --> CoreService
+    Gateway --> MeetingService
+    Gateway --> EventService
 
-    Realtime --> Social
-    Realtime --> Meeting
-    Realtime --> User
-    Realtime --> Quests
+    Realtime --> CoreService
 
-    User -- "Sync Trigger" --> DB
+    CoreService --> DB
+    CoreService --> Store
+    CoreService --> ScraperService
+    CoreService --> Gemini
     
-    Quests --> AIProxy
-    Quests --> Scraper
-    Quests --> DB
-    Quests --> Store
-    
-    Social --> DB
-    
-    Meeting --> DB
-    
-    CodeBattle --> DB
-    User --> DB
+    MeetingService --> DB
+    EventService --> DB
+    ScraperService --> ExternalWeb
 
-    AIProxy --> Gemini
-    Scraper --> ExternalWeb
-
-    %% Event-driven interactions
-    Quests -. "publish quest.completed" .-> User
-    User -. "publish verification.updated" .-> User
-    User -. "publish reward.triggered" .-> WebApp
-    User -. "publish skilltree.updated" .-> WebApp
+    %% Event-driven interactions for isolated services
+    CoreService -. "publish code.submission" .-> EventService
+    EventService -. "publish code.evaluation.completed" .-> CoreService
+    CoreService -. "publish reward.triggered" .-> WebApp
+    CoreService -. "publish skilltree.updated" .-> WebApp
 ```

@@ -1,13 +1,13 @@
 # User Service API Specification
 
-This service manages user identity and academic context: profiles, academic structures (programs, subjects), enrollments, lecturer verification, achievements, skills, notes (Arsenal), and notifications.
+This document defines the API endpoints for the **User Domain** within the consolidated `RogueLearn.UserService`. This domain is the central authority for user identity, academic context, personal notes (Arsenal), skills, achievements, and notifications.
 
 ```yaml
 openapi: 3.0.0
 info:
-  title: RogueLearn User Service API
+  title: RogueLearn Core Service API - User Domain
   version: v1.0.0
-  description: Central authority for user identity, academic context, and personal notes (Arsenal).
+  description: Manages user identity, academic context, profiles, roles, verification, skills, achievements, notifications, and personal notes (Arsenal). Part of the consolidated RogueLearn.UserService.
 servers:
   - url: https://api.roguelearn.com/v1
     description: Production
