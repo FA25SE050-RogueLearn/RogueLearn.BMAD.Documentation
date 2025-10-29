@@ -1,6 +1,6 @@
 # Meeting Service API Specification
 
-This document defines the API for the specialized, real-time **Go Meeting Service**. This service is responsible for managing the live aspects of a meeting. Note that all data persistence (creating and storing meetings, participants, transcripts, etc.) is handled by the consolidated `RogueLearn.UserService`.
+This document defines the API for the specialized, real-time **.NET Meeting Service**. This service is responsible for managing the live aspects of a meeting. Note that all data persistence (creating and storing meetings, participants, transcripts, etc.) is handled by the consolidated `RogueLearn.UserService`.
 
 ```yaml
 openapi: 3.0.0

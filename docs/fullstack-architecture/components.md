@@ -29,7 +29,7 @@ This section details the major logical components of the platform, reflecting th
 ### **Meeting Service (`roguelearn-meeting-service`)**
 
 *   **Responsibility:** An isolated microservice that manages party meetings, scheduling, and real-time collaboration features.
-*   **Technology Stack:** Go, WebSocket support.
+*   **Technology Stack:** .NET, WebSocket support.
 
 ### **Scraping Service (`RogueLearn.Scraper`)**
 

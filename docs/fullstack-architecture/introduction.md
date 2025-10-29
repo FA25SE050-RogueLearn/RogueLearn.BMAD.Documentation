@@ -12,7 +12,7 @@ The project will be built **from scratch** following a **multi-repo strategy** w
 *   **Game Client**: A standalone Unity 2022.3 LTS project for interactive "Boss Fights".
 *   **Backend**: The backend is composed of:
     *   A consolidated **`RogueLearn.UserService`** (.NET 9) handling all core business logic (User, Quests, Social, Meetings).
-    *   Isolated microservices for specialized tasks: an **Event Service** (Go), a **Meeting Service** (Go), and a **Scraping Service** (Python).
+    *   Isolated microservices for specialized tasks: an **Event Service** (Go), a **Meeting Service** (.NET), and a **Scraping Service** (Python).
 
 This hybrid approach provides the simplicity of a consolidated core for tightly-coupled domains, while retaining the flexibility and performance benefits of microservices for specialized tasks.
 

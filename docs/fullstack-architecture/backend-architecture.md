@@ -19,7 +19,7 @@ The backend consists of the following services:
 
 #### **Specialized, Isolated Services**
 *   **`RogueLearn.EventService` (Go):** Compiles, executes, and scores user-submitted code in secure sandboxes for competitive events. It has its own isolated database.
-*   **`RogueLearn.MeetingService` (Go):** A stateless service that manages the real-time aspects of meetings (e.g., WebSocket communication). It calls the `RogueLearn.UserService` API to persist all meeting-related data.
+*   **`RogueLearn.MeetingService` (.NET):** A stateless service that manages the real-time aspects of meetings (e.g., WebSocket communication). It calls the `RogueLearn.UserService` API to persist all meeting-related data.
 *   **`RogueLearn.Scraper` (Python):** A stateless, internal-only service for fetching raw HTML content from external URLs.
 
 ### **Service Communication Patterns**

@@ -59,7 +59,7 @@ graph TD
         subgraph "Services"
             CoreService[.NET Core Service<br/>(User, Quests, Social, AI Proxy)]
             EventService[Go Event Service<br/>(Code Battles)]
-            MeetingService[Go Meeting Service<br/>(Meetings)]
+            MeetingService[.NET Meeting Service<br/>(Meetings)]
             ScrapingService[Python Scraping Service<br/>(Internal)]
         end
     end
