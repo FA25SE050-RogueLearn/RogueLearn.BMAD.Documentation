@@ -6,7 +6,7 @@ This document outlines the database architecture for the RogueLearn platform, wh
 
 1.  **Consolidated Core Database (PostgreSQL):** The main application features (User, Quests, Social, AI Proxy, and Meeting functionalities) are managed by a single **.NET `RogueLearn.UserService`** that connects to a unified PostgreSQL database. This allows for efficient transactions and data access across these tightly integrated domains.
 2.  **Isolated Event Service Database (PostgreSQL):** The **Go Event Service** (for code battles and competitions) maintains its own separate PostgreSQL database. This isolates the performance-intensive and specialized workload of code judging.
-3.  **Stateless Services:** The `Meeting Service (.NET)` and `Scraping Service (Python)` are designed to be stateless. They do not have their own dedicated databases and will rely on the `RogueLearn.UserService` via API calls if any persistence is needed.
+3.  **Stateless Services:** The **Scraping Service (Python)** is designed to be stateless and does not have its own database.
 
 ## **PostgreSQL Tables by Service**
 
@@ -60,9 +60,7 @@ This document outlines the database architecture for the RogueLearn platform, wh
 **Meeting Management**:
 - `meeting` - Core meeting definitions with scheduling and organizer information
 - `meeting_participant` - Participant tracking with join/leave times and role assignments
-- `transcript_segment` - AI-generated transcript segments with speaker identification and timing
-- `summary_chunk` - Chunked meeting summaries for efficient processing and retrieval
-- `meeting_summary` - Complete meeting summaries generated from transcript analysis
+- `meeting_summary` - Complete meeting summaries (e.g., from Google Meet API).
 
 **Skills & Progress**:
 - `skills` - Skill Catalog of named competencies with domain/tier metadata

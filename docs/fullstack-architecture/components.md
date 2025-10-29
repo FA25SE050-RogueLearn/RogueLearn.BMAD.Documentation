@@ -17,7 +17,8 @@ This section details the major logical components of the platform, reflecting th
 *   **Responsibility:** A consolidated .NET service that manages the core business logic for the platform. This service is organized internally into the following logical domains:
     *   **User Domain:** Manages user profiles, preferences, roles, verification, achievements, and the personal "Arsenal" of notes. It is the authority for user identity.
     *   **Quests Domain:** Owns the core learning loop, including academic management (Syllabuses, Enrollments), Quests, Skill Trees, and Game Sessions.
-    *   **Social Domain:** Manages all multi-user features like Parties, Guilds, and real-time social interactions.
+    *   **Social Domain:** Manages all multi-user features like Parties and Guilds.
+    *   **Meeting Domain:** Manages meeting scheduling, persistence, and integration with external providers like Google Meet.
     *   **AI Proxy:** Acts as a secure, internal gateway for all communications with the Gemini API.
 *   **Technology Stack:** .NET 9, C#, SignalR.
 
@@ -25,11 +26,6 @@ This section details the major logical components of the platform, reflecting th
 
 *   **Responsibility:** An isolated microservice that manages competitive programming features including code compilation, execution, and scoring in secure sandboxed environments.
 *   **Technology Stack:** Go, Docker (for sandboxing).
-
-### **Meeting Service (`roguelearn-meeting-service`)**
-
-*   **Responsibility:** An isolated microservice that manages party meetings, scheduling, and real-time collaboration features.
-*   **Technology Stack:** .NET, WebSocket support.
 
 ### **Scraping Service (`RogueLearn.Scraper`)**
 
@@ -52,14 +48,14 @@ graph TD
     end
 
     subgraph "Backend Services (Azure Container Apps)"
-        CoreService[".NET Core Service<br/>(User, Quests, Social, AI Proxy)"]
-        MeetingService["Meeting Service (Go)"]
+        UserService[.NET UserService<br/>(User, Quests, Social, Meeting, AI Proxy)]
         EventService["Event Service (Go)"]
-        ScraperService["Scraping Service (Python, Internal Only)"]
+        ScrapingService["Scraping Service (Python, Internal Only)"]
     end
 
     subgraph "External Dependencies"
         Gemini["Gemini API"]
+        GoogleMeet["Google Meet API"]
         ExternalWeb["External University Websites"]
     end
 
@@ -76,24 +72,23 @@ graph TD
     Unity -- HTTP --> Gateway
     Unity -- "loads assets from" --> GameAssets
     
-    Gateway --> CoreService
-    Gateway --> MeetingService
+    Gateway --> UserService
     Gateway --> EventService
-
-    Realtime --> CoreService
-
-    CoreService --> DB
-    CoreService --> Store
-    CoreService --> ScraperService
-    CoreService --> Gemini
     
-    MeetingService --> DB
+    Realtime --> UserService
+
+    UserService -- Sync Trigger & All Core Logic --> DB
+    UserService --> Store
+    UserService --> ScrapingService
+    UserService --> Gemini
+    UserService --> GoogleMeet
+    
     EventService --> DB
     ScraperService --> ExternalWeb
 
     %% Event-driven interactions for isolated services
-    CoreService -. "publish code.submission" .-> EventService
-    EventService -. "publish code.evaluation.completed" .-> CoreService
-    CoreService -. "publish reward.triggered" .-> WebApp
-    CoreService -. "publish skilltree.updated" .-> WebApp
-```
+    UserService -. "publish code.submission" .-> EventService
+    EventService -. "publish code.evaluation.completed" .-> UserService
+    UserService -. "publish reward.triggered" .-> WebApp
+    UserService -. "publish skilltree.updated" .-> WebApp
+    ```

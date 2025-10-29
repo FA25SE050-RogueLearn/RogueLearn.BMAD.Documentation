@@ -1,15 +1,15 @@
 # Meeting Service API Specification
 
-This document defines the API for the specialized, real-time **.NET Meeting Service**. This service is responsible for managing the live aspects of a meeting. Note that all data persistence (creating and storing meetings, participants, transcripts, etc.) is handled by the consolidated `RogueLearn.UserService`.
+This document defines the API endpoints for the **Meeting Domain** within the consolidated `RogueLearn.UserService`. This domain manages meeting scheduling, persistence, and integration with external providers like Google Meet.
 
 ```yaml
 openapi: 3.0.0
 info:
-  title: RogueLearn Meeting Service API
+  title: RogueLearn Core Service API - Meeting Domain
   version: v1.0.0
   description: |
-    Manages the real-time aspects of meetings (e.g., WebSocket communication for live sessions). 
-    This service is stateless and calls the main RogueLearn.UserService for all data persistence.
+    Manages meeting scheduling, participants, and summaries. 
+    This is a logical domain within the consolidated RogueLearn.UserService.
 servers:
   - url: https://api.roguelearn.com/v1
     description: Production Server
@@ -47,27 +47,6 @@ components:
         join_time: { type: string, format: date-time, nullable: true }
         leave_time: { type: string, format: date-time, nullable: true }
         role_in_meeting: { type: string }
-    TranscriptSegment:
-      type: object
-      properties:
-        segment_id: { type: string, format: uuid }
-        meeting_id: { type: string, format: uuid }
-        speaker_id: { type: string, format: uuid }
-        start_time: { type: string, format: date-time }
-        end_time: { type: string, format: date-time }
-        transcript_text: { type: string }
-        chunk_number: { type: integer }
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }
-    SummaryChunk:
-      type: object
-      properties:
-        summary_chunk_id: { type: string, format: uuid }
-        meeting_id: { type: string, format: uuid }
-        chunk_number: { type: integer }
-        summary_text: { type: string }
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }
     MeetingSummary:
       type: object
       properties:
@@ -86,7 +65,6 @@ paths:
   /meetings:
     get:
       summary: List meetings for current user or party
-      description: This endpoint delegates to the RogueLearn.UserService to retrieve meeting data.
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -106,7 +84,6 @@ paths:
                   $ref: '#/components/schemas/Meeting'
     post:
       summary: Schedule a meeting for a party
-      description: This endpoint delegates to the RogueLearn.UserService to create and persist the meeting.
       tags: [Meetings]
       security:
         - BearerAuth: []
@@ -130,7 +107,6 @@ paths:
   /meetings/{meetingId}:
     get:
       summary: Get meeting by ID
-      description: This endpoint delegates to the RogueLearn.UserService to retrieve meeting data.
       tags: [Meetings]
       parameters:
         - name: meetingId
@@ -144,22 +120,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Meeting'
-    post:
-      summary: Meeting lifecycle actions
-      description: Use subroutes for start and end.
-      tags: [Meetings]
-      parameters:
-        - name: meetingId
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-      responses:
-        '405':
-          description: Use /start or /end subroutes.
   /meetings/{meetingId}/start:
     post:
       summary: Start a scheduled meeting
-      description: This endpoint triggers the real-time logic and delegates to the RogueLearn.UserService to update the meeting status.
+      description: Updates the meeting status to 'InProgress'.
       tags: [Meetings]
       parameters:
         - name: meetingId
@@ -171,8 +135,8 @@ paths:
           description: Meeting started
   /meetings/{meetingId}/end:
     post:
-      summary: End an ongoing meeting and trigger AI summary processing
-      description: This endpoint stops the real-time logic and delegates to the RogueLearn.UserService to finalize the meeting and trigger summarization.
+      summary: End an ongoing meeting
+      description: Finalizes the meeting and may trigger external summary processing (e.g., via Google Meet API).
       tags: [Meetings]
       parameters:
         - name: meetingId
@@ -181,11 +145,10 @@ paths:
           schema: { type: string, format: uuid }
       responses:
         '200':
-          description: Meeting ended; summary processing triggered
+          description: Meeting ended
   /meetings/{meetingId}/participants:
     get:
       summary: List participants
-      description: This endpoint delegates to the RogueLearn.UserService to retrieve participant data.
       tags: [Participants]
       parameters:
         - name: meetingId
@@ -201,29 +164,9 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MeetingParticipant'
-  /meetings/{meetingId}/transcripts:
-    get:
-      summary: List transcript segments
-      description: This endpoint delegates to the RogueLearn.UserService to retrieve transcript data.
-      tags: [Transcripts]
-      parameters:
-        - name: meetingId
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-      responses:
-        '200':
-          description: Transcript segments
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TranscriptSegment'
   /meetings/{meetingId}/summary:
     get:
       summary: Get meeting summary
-      description: This endpoint delegates to the RogueLearn.UserService to retrieve summary data.
       tags: [Summaries]
       parameters:
         - name: meetingId
@@ -237,4 +180,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MeetingSummary'
-```

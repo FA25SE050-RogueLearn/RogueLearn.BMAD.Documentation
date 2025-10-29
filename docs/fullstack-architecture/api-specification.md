@@ -1,6 +1,6 @@
 # **API Specification**
 
-This document provides an overview of RogueLearn's API structure, which is divided between a main **Consolidated Core API** (`RogueLearn.UserService`) and specialized service APIs.
+This document provides an overview of RogueLearn's API structure, which is divided between a main **Consolidated Core API** (`RogueLearn.UserService`) and a specialized API for the Event Service.
 
 ## **Common Conventions**
 - API standard: OpenAPI `3.0.0` across all service specs.
@@ -27,7 +27,7 @@ The **`RogueLearn.UserService`** provides a unified API for all primary applicat
 - **Representative APIs:** `POST /parties`, `GET /guilds/{guildId}`, `POST /messages`
 
 #### **Meeting Domain (`/api/meetings`)**
-- Manages meeting lifecycles, participants, transcripts, and summaries.
+- Manages meeting scheduling, persistence, and integration with external providers (e.g., Google Meet).
 - **Representative APIs:** `POST /meetings`, `GET /meetings/{meetingId}/summary`
 
 #### **Notes/Arsenal Domain (`/api/notes`)**

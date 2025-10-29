@@ -4,9 +4,8 @@
 
 RogueLearn will be implemented as a cloud-native application featuring a decoupled frontend and a targeted microservices backend. The architecture is defined by:
 - A **Next.js frontend application** for all user-facing experiences.
-- A **consolidated .NET 9 Core Service** that manages the majority of business logic, including the User, Quests, and Social domains.
+- A **consolidated .NET 9 `RogueLearn.UserService`** that manages the majority of business logic, including the User, Quests, Social, and Meeting domains.
 - A specialized, isolated **Go Event Service** for secure code execution and competitive programming events.
-- A specialized, isolated **Go Meeting Service** for real-time meeting collaboration.
 - An internal **Python Scraping Service** for data ingestion.
 - **Supabase** providing the PostgreSQL database, storage, and authentication.
 
@@ -25,9 +24,8 @@ This approach centralizes core business logic for simplicity and transactional i
 *   **`RogueLearn.Frontend`**: The Next.js frontend application.
 *   **`RogueLearn.BMAD.Documentation`**: The source of truth documentation.
 *   **`roguelearn-unity-games`**: The Unity project for "Boss Fights".
-*   **`RogueLearn.UserService` (the core backend service)**: The consolidated .NET service containing User, Quest, and Social domains.
+*   **`RogueLearn.UserService`**: The consolidated .NET service containing User, Quest, Social, and Meeting domains.
 *   **`RogueLearn.EventService`**: The isolated Go microservice for code battles.
-*   **`RogueLearn.MeetingService`**: The isolated Go microservice for meetings.
 *   **`RogueLearn.Scraper`**: The isolated Python microservice for scraping.
 *   **`RogueLearn.Protos`**: Centralized repository for any gRPC/Protobuf definitions.
 *   **`RogueLearn.Kubernetes`**: GitOps repository for deployment configurations.
@@ -50,6 +48,7 @@ graph TD
 
     subgraph "External Services"
         Gemini[Gemini API]
+        GoogleMeet[Google Meet API]
     end
 
     subgraph "Backend Layer (Azure)"
@@ -57,9 +56,8 @@ graph TD
         RealtimeHub[Real-time Hub WebSockets]
         
         subgraph "Services"
-            CoreService[.NET Core Service<br/>(User, Quests, Social, AI Proxy)]
+            UserService[.NET UserService<br/>(User, Quests, Social, Meeting, AI Proxy)]
             EventService[Go Event Service<br/>(Code Battles)]
-            MeetingService[.NET Meeting Service<br/>(Meetings)]
             ScrapingService[Python Scraping Service<br/>(Internal)]
         end
     end
@@ -81,33 +79,32 @@ graph TD
     UnityClient --> GameAssetHosting
     UnityClient --> APIGateway
     
-    APIGateway --> CoreService
+    APIGateway --> UserService
     APIGateway --> EventService
-    APIGateway --> MeetingService
     
-    RealtimeHub --> CoreService
+    RealtimeHub --> UserService
 
-    CoreService -- Sync Trigger & All Core Logic --> Database
-    CoreService --> FileStorage
-    CoreService --> ScrapingService
-    CoreService --> Gemini
+    UserService -- Sync Trigger & All Core Logic --> Database
+    UserService --> FileStorage
+    UserService --> ScrapingService
+    UserService --> Gemini
+    UserService --> GoogleMeet
     
-    MeetingService --> Database
     EventService --> Database
     ScraperService --> ExternalWeb
 
     %% Event Bus interactions for isolated services
-    CoreService -. "publish code.submission" .-> EventService
-    EventService -. "publish code.evaluation.completed" .-> CoreService
-    CoreService -. "publish reward.triggered" .-> WebApp
-    CoreService -. "publish skilltree.updated" .-> WebApp
+    UserService -. "publish code.submission" .-> EventService
+    EventService -. "publish code.evaluation.completed" .-> UserService
+    UserService -. "publish reward.triggered" .-> WebApp
+    UserService -. "publish skilltree.updated" .-> WebApp
 ```
 
 ### **Architectural and Design Patterns**
 
-*   **Consolidated Core Service:** The main backend follows a monolithic approach for the User, Quest, and Social domains. *Rationale:* This simplifies development, deployment, and data consistency for tightly coupled business logic.
-*   **Specialized Microservices:** Performance-critical or technologically distinct functions (Event, Meeting, Scraping) are isolated into separate microservices. *Rationale:* Allows using the best tool for the job (Go, Python) and independent scaling.
+*   **Consolidated Core Service:** The main backend follows a monolithic approach for the User, Quest, Social, and Meeting domains. *Rationale:* This simplifies development, deployment, and data consistency for tightly coupled business logic.
+*   **Specialized Microservices:** Performance-critical or technologically distinct functions (Event, Scraping) are isolated into separate microservices. *Rationale:* Allows using the best tool for the job (Go, Python) and independent scaling.
 *   **API Gateway:** A single entry point for all client requests. *Rationale:* Simplifies the client and centralizes cross-cutting concerns.
-*   **Clean Architecture (.NET):** The consolidated Core Service will be structured internally using Clean Architecture to maintain separation of concerns between its different domains.
+*   **Clean Architecture (.NET):** The consolidated `RogueLearn.UserService` will be structured internally using Clean Architecture to maintain a clear separation of concerns between its different domains.
 *   **Repository Pattern (.NET):** Data access within the Core Service will be abstracted.
 *   **Database Triggers:** A PostgreSQL trigger will be used to sync new users from Supabase's `auth.users` table to our application's `UserProfiles` table. *Rationale:* Provides a reliable, event-driven way to create user profiles without webhooks.
