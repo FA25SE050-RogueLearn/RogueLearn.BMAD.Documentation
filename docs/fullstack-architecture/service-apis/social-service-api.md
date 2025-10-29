@@ -1,11 +1,13 @@
 # Social Service API Specification
 
+This document defines the API endpoints for the **Social Domain** within the consolidated `RogueLearn.UserService`. This domain manages parties, guilds, messaging, social events, and shared resources.
+
 ```yaml
 openapi: 3.0.0
 info:
-  title: RogueLearn Social Service API
+  title: RogueLearn Core Service API - Social Domain
   version: v1.0.0
-  description: Parties, guilds, messaging, social events, and shared resources.
+  description: Manages parties, guilds, messaging, social events, and shared resources. Part of the consolidated RogueLearn.UserService.
 servers:
   - url: https://api.roguelearn.com/v1
     description: Production Server

@@ -1,13 +1,19 @@
+# Quests Service API Specification
+
+This document defines the API endpoints for the **Quest Domain** within the consolidated `RogueLearn.UserService`. This domain manages the core learning loop: quests, learning paths, ephemeral boss fights, and game sessions.
+
+```yaml
 openapi: 3.0.0
 info:
-  title: RogueLearn Quests Service API
+  title: RogueLearn Core Service API - Quest Domain
   version: 1.0.0
   description: |
     Manages the core learning loop: quests, learning paths, ephemeral boss fights,
     and game sessions. All IDs are UUIDs. All endpoints
-    require BearerAuth unless otherwise noted.
+    require BearerAuth unless otherwise noted. Part of the consolidated RogueLearn.UserService.
 servers:
-  - url: https://api.roguelearn.local/quests
+  - url: https://api.roguelearn.com/v1
+    description: Production
 security:
   - BearerAuth: []
 tags:

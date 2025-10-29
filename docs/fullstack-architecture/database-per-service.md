@@ -1,11 +1,17 @@
-# **Database Architecture Documentation**
+# **Database Architecture & Service Ownership**
 
-This document outlines the database architecture for the RogueLearn platform, which uses a consolidated User Service approach with a specialized Event Service.
+This document outlines the database architecture for the RogueLearn platform, which uses a **consolidated database for its core `RogueLearn.UserService`** and an **isolated database for the specialized Event service**.
+
+## **Database Strategy Overview**
+
+1.  **Consolidated Core Database (PostgreSQL):** The main application features (User, Quests, Social, AI Proxy, and Meeting functionalities) are managed by a single **.NET `RogueLearn.UserService`** that connects to a unified PostgreSQL database. This allows for efficient transactions and data access across these tightly integrated domains.
+2.  **Isolated Event Service Database (PostgreSQL):** The **Go Event Service** (for code battles and competitions) maintains its own separate PostgreSQL database. This isolates the performance-intensive and specialized workload of code judging.
+3.  **Stateless Services:** The **Scraping Service (Python)** is designed to be stateless and does not have its own database.
 
 ## **PostgreSQL Tables by Service**
 
-### **User Service** (`roguelearn-user-service`)
-**Purpose**: Consolidated business logic service managing user profiles, authentication, academic structure, quests, social features, meetings, achievements, and user progress tracking
+### **RogueLearn.UserService (.NET)**
+**Purpose**: The consolidated business logic service managing user profiles, authentication, academic structure, quests, social features, meetings, achievements, and user progress tracking. All tables listed below reside in a single PostgreSQL database.
 
 **PostgreSQL Tables**:
 - `user_profiles` - Core user profile data linked to Supabase auth.users (auth_user_id as primary key)
@@ -54,9 +60,7 @@ This document outlines the database architecture for the RogueLearn platform, wh
 **Meeting Management**:
 - `meeting` - Core meeting definitions with scheduling and organizer information
 - `meeting_participant` - Participant tracking with join/leave times and role assignments
-- `transcript_segment` - AI-generated transcript segments with speaker identification and timing
-- `summary_chunk` - Chunked meeting summaries for efficient processing and retrieval
-- `meeting_summary` - Complete meeting summaries generated from transcript analysis
+- `meeting_summary` - Complete meeting summaries (e.g., from Google Meet API).
 
 **Skills & Progress**:
 - `skills` - Skill Catalog of named competencies with domain/tier metadata
@@ -76,14 +80,11 @@ This document outlines the database architecture for the RogueLearn platform, wh
 - `achievements` - Central catalog of all possible achievements with type categorization
 - `user_achievements` - Links users to earned achievements with context and timestamps
 - `notifications` - User notification system with type-based categorization
-- `transcript_segment` - AI-generated transcript segments with speaker identification and timing
-- `summary_chunk` - Chunked meeting summaries for efficient processing and retrieval
-- `meeting_summary` - Complete meeting summaries generated from transcript analysis
 
-### **Event Service** (`roguelearn-event-service`)
-**Purpose**: Manages code problems, real-time battles, compilation, execution, and competitive programming
+### **Event Service (Go)**
+**Purpose**: Manages code problems, real-time battles, compilation, execution, and competitive programming in an isolated environment.
 
-**PostgreSQL Tables**:
+**PostgreSQL Tables (Separate Database)**:
 - `events` - Event definitions for competitions and activities
 - `languages` - Supported programming languages with execution configurations
 - `code_problems` - Code challenge problem definitions with statements and difficulty
@@ -106,40 +107,40 @@ This document outlines the database architecture for the RogueLearn platform, wh
 
 ## **Data Access Patterns**
 
-### **Cross-Service Communication**
+### **Internal `RogueLearn.UserService` Communication**
 The consolidated architecture simplifies data access patterns:
 
-- **User Service** manages all business logic and provides consolidated user context
-- **Event Service** receives user context via API calls for code evaluation
-- Cross-service references handled via API calls with soft references rather than direct database access
+- **`RogueLearn.UserService`** manages all business logic and provides consolidated user context.
+- **Direct Database Access**: All domains (User, Quest, Social, Meeting) within the `RogueLearn.UserService` can access the shared, consolidated database directly.
+- **Transactional Operations**: Cross-domain operations (e.g., quest completion affecting social stats) can use database transactions for consistency.
 
 ### **Data Synchronization**
-- Code submission events flow from User Service to Event Service via Azure Service Bus
-- Evaluation results and achievements flow back from Event Service to User Service
-- User context is provided to Event Service through API calls when needed
+- Code submission events flow from `RogueLearn.UserService` to Event Service via an event bus (e.g., Azure Service Bus).
+- Evaluation results and achievements flow back from Event Service to `RogueLearn.UserService`.
+- User context is provided to Event Service through API calls when needed.
 
 ## **Database Connection Strategy**
 
 ### **Service Database Ownership**
-- **User Service**: Full ownership of consolidated PostgreSQL database with all business logic tables
-- **Event Service**: Isolated PostgreSQL database for code execution and competition data
-- **Qdrant Access**: Only the Event Service has direct access to Qdrant collections for vector operations
+- **`RogueLearn.UserService`**: Full ownership of the consolidated PostgreSQL database containing all core business logic tables.
+- **Event Service**: Isolated PostgreSQL database for code execution and competition data.
+- **Qdrant Access**: Only the Event Service has direct access to Qdrant collections for vector operations.
 
 ### **Cross-Service Data Access**
-- Services communicate via API calls rather than direct database access
-- Event-driven communication through Azure Service Bus for loose coupling
-- No shared database access between services ensures clear boundaries
+- Services communicate via API calls rather than direct database access.
+- Event-driven communication for loose coupling.
+- No shared database access between services ensures clear boundaries.
 
 ## **Future Considerations**
 
 ### **Database Scaling**
 As the system scales, consider:
-- Sharding user data by geographic region or user ID ranges
-- Separating read replicas for analytics and reporting
-- Moving high-frequency data (notifications, real-time features) to dedicated instances
+- Sharding user data by geographic region or user ID ranges.
+- Separating read replicas for analytics and reporting.
+- Moving high-frequency data (notifications, real-time features) to dedicated instances.
 
 ### **Service Evolution**
 Future architectural evolution may include:
-- Further service decomposition if specific domains require independent scaling
-- Implementing CQRS patterns for complex read/write scenarios
-- Enhanced event-driven patterns for cross-service communication
+- Further service decomposition if specific domains require independent scaling.
+- Implementing CQRS patterns for complex read/write scenarios.
+- Enhanced event-driven patterns for cross-service communication.
