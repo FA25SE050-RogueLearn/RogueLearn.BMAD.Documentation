@@ -1,5 +1,5 @@
 ### **Story 4.1: Backend - Generate QuestLine from Curriculum**
--   **Status:** To Do
+-   **Status:** Done
 -   **Ownership:** An (Backend), with support from Minh Anh
 -   **Target Deadline:** End of Weekend
 
