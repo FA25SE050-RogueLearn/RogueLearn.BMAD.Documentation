@@ -98,7 +98,7 @@ CREATE TABLE quest_prerequisites (
 ```
 
 #### quest_steps
-Individual, actionable tasks a user must complete to finish a single Quest.
+Individual, actionable tasks a user must complete to finish a single Quest. The `content` field's structure is determined by the `step_type`.
 ```sql
 CREATE TABLE quest_steps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -332,6 +332,88 @@ CREATE TABLE game_session_question_events (
 );
 ```
 
+## Quest Step `content` Schemas
+
+This section defines the mandatory JSON structure for the `content` field within the `quest_steps` table. The structure is determined by the `step_type`. The AI generation prompt MUST be configured to adhere strictly to these schemas.
+
+### `skillTag` Property
+**All** `content` objects for every `stepType` **MUST** include a `skillTag` property. This tag is a `string` that corresponds to the `name` of a skill in the central `skills` table. It is used to dynamically award XP to the correct skill upon step completion.
+
+### `Reading`
+Used for delivering articles, summaries, and text-based learning materials.
+```json
+{
+  "skillTag": "string",
+  "articleTitle": "string",
+  "summary": "string (main content)",
+  "url": "string (optional link to full article)"
+}
+```
+
+### `Interactive`
+Used for scenario-based questions and simple user interactions.
+```json
+{
+  "skillTag": "string",
+  "challenge": "string (the scenario description)",
+  "questions": [
+    {
+      "task": "string (the question to the user)",
+      "options": ["string"],
+      "answer": "string (the correct option)"
+    }
+  ]
+}
+```
+
+### `Quiz`
+Used for multiple-choice knowledge checks.
+```json
+{
+  "skillTag": "string",
+  "questions": [
+    {
+      "question": "string",
+      "options": ["string"],
+      "correctAnswer": "string (the correct option)",
+      "explanation": "string (feedback for the user)"
+    }
+  ]
+}
+```
+
+### `Coding`
+Used for descriptive coding challenges. This is **not** an executable environment.
+```json
+{
+  "skillTag": "string",
+  "challenge": "string (the problem statement)",
+  "template": "string (starter code)",
+  "expectedOutput": "string (the desired outcome)"
+}
+```
+
+### `Submission`
+Used for tasks that require the user to submit text or a link for review.
+```json
+{
+  "skillTag": "string",
+  "challenge": "string (the task description)",
+  "submissionFormat": "string (e.g., 'Submit a URL to your GitHub repository.')"
+}
+```
+
+### `Reflection`
+Used for prompts that encourage the user to think critically about a topic.
+```json
+{
+  "skillTag": "string",
+  "challenge": "string (the context for the reflection)",
+  "reflectionPrompt": "string (the specific question to answer)",
+  "expectedOutcome": "string (guidance on what the reflection should cover)"
+}
+```
+
 ## Enums and Types
 ```sql
 CREATE TYPE quest_type AS ENUM ('Tutorial', 'Practice', 'Challenge', 'Project', 'Assessment', 'Exploration');
@@ -418,6 +500,7 @@ CREATE INDEX idx_game_session_question_events_sequence ON game_session_question_
 - Learning path design and progression tracking
 - User progress monitoring and analytics
 - Assessment and validation systems
+- Syllabus content analysis and mapping to learning objectives and skills
 - Skill-based quest recommendations
 - Publish Reward Cascade events (XP, Skill Points, Unlocks) per PRD FR58
 
