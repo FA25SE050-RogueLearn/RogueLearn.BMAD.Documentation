@@ -1,303 +1,167 @@
 # Frontend Implementation Stories — Party Management (Learning Community — Flow 4)
 
-This document focuses on Study Party-related UI for Flow 4. It provides actionable user stories with acceptance criteria, UI scope, data/state expectations, and error handling.
-
-## Scope and Assumptions
-- Platform: Web SPA using the design tokens and patterns from docs/front-end-spec.
-- Routes and components align with the visual and screen specifications.
-- API paths are placeholders and must be replaced with actual endpoints under docs/fullstack-architecture/service-apis/.
-- Accessibility (WCAG AA) and responsiveness are required.
+This document outlines the frontend implementation for the Party Management feature, based on the existing `RogueLearn.Frontend` codebase. It details the page composition, component responsibilities, API wiring, and authentication flow necessary to build a cohesive user experience.
 
 ---
 
-## P-FE-001 — Create Study Party
-As a Student, I want to create a study party so I can collaborate with peers around specific topics.
+## 1. Top-Level Routes & Page Composition
 
-Acceptance Criteria
-- Given I click “Create Party” from guild or global actions, then a modal/form appears with name, description, visibility (guild-only or private), topics/tags, and rules.
-- Given I provide a valid name and description, when I submit, then the party space is created and I’m set as Party Leader.
-- Given visibility is guild-only, then the party appears under the guild’s parties list; otherwise in my profile’s parties.
+The party management feature is primarily accessed through two top-level routes:
 
-UI Scope
-- Route: /parties/new
-- Components: PartyCreateForm, VisibilitySelector, TagSelector, RulesEditor
+-   **`/party`**: The main party management page.
+-   **`/party/[partyId]`**: The detail page for a specific party.
 
-State & Data
-- Form state: { name, description, visibility: "GuildOnly"|"Private", tags[], rules[] }
-- Party: { id, leaderId, guildId?, visibility, createdAt }
+### 1.1. `/party` — Party Management Overview
 
-APIs
-- POST /parties { name, description, visibility, tags, rules, guildId? }
+This page serves as the central hub for users to view their parties and create new ones, designed to be engaging and intuitive.
 
-Error Handling
-- Validation: name required; description min length.
-- Server: duplicate name within guild -> suggest alternative.
+-   **File Location**: `src/app/party/page.tsx`
+-   **Layout**: `DashboardLayout` (`src/components/layout/DashboardLayout.tsx`) provides the overall page structure.
+-   **Core Component**: `PartyManagementClient` (`src/components/party/PartyManagementClient.tsx`)
+    -   **UI Vision**: A two-column layout.
+        -   **Left Column (Sticky Sidebar)**:
+            -   A prominent "Create New Party" button with a unique icon that opens the `PartyCreationWizard`.
+            -   A filterable list of the user's parties, rendered as `PartyCard` components. Each card displays the party's emblem, name, and member count.
+        -   **Right Column (Main Content)**:
+            -   **Default View**: A welcoming component that perhaps shows notifications or a summary of recent activities across all parties.
+            -   **On Party Selection**: Displays a preview of the selected party's dashboard, showing recent messages, upcoming meetings, or newly added stash items.
 
-Analytics
-- Track party creation success/failure.
+### 1.2. `/party/[partyId]` — Party Detail Page
 
----
+This page provides an immersive, detailed view of a single party.
 
-## P-FE-002 — Invite Members to Party
-As a Party Leader, I want to invite members so my party can onboard collaborators.
-
-Acceptance Criteria
-- Given I open the party members tab, then I can search students by name or username and send invites.
-- Given I invite a member, then an in-app notification and email (if enabled) is sent; the invite appears with status Pending.
-- Given an invitee accepts, then status becomes Accepted and they are added to the member list.
-
-UI Scope
-- Route: /parties/:partyId/members
-- Components: MemberList, InvitePanel, SearchAndSelect, InviteStatusBadge
-
-State & Data
-- Invite: { id, partyId, inviteeUserId, status: "Pending"|"Accepted"|"Declined"|"Expired" }
-
-APIs
-- POST /parties/:id/invitations { inviteeUserId }
-- POST /parties/invitations/:inviteId/respond { action: "accept"|"decline" }
-
-Error Handling
-- Capacity full: show message and disable invites.
-- Invalid invite link: show “Invite expired or invalid”.
-
-Analytics
-- Track invites sent, accept/decline rates.
+-   **File Location**: `src/app/party/[partyId]/page.tsx`
+-   **Layout**: `DashboardLayout` is used, with the main content area dedicated to the party details.
+-   **Core Component**: `PartyDetailPageClient` (`src/pages/party/PartyDetailPageClient.tsx`)
+    -   **Functionality**: Fetches party data via `partiesApi.getById(partyId)`.
+    -   **UI Vision**: A persistent header displays the party's name, emblem, and primary actions (e.g., "Invite Member," "Leave Party"). Below the header, `PartyDetailClient` renders a rich, tabbed interface.
 
 ---
 
-## P-FE-003 — Materials Library (Files and Links)
-As a Party Member, I want to share and browse materials so we can learn collaboratively.
+## 2. Core Components & Responsibilities
 
-Acceptance Criteria
-- Given I open the Materials tab, then I can upload files, add links, and tag content by topic.
-- Given I add or update material, then it appears in the list with versioning and tags.
-- Given I filter by tag or type, then the list updates accordingly.
+This section breaks down the key components and their roles in the party management feature.
 
-UI Scope
-- Route: /parties/:partyId/materials
-- Components: MaterialList, UploadButton, LinkAddForm, TagFilter, VersionBadge
+### 2.1. `PartyManagementClient.tsx`
 
-State & Data
-- Material: { id, type: "file"|"link", title, url?, fileMeta?, tags[], version, createdBy, createdAt }
+-   **Responsibility**: Manages the two-column layout for the `/party` page, orchestrating the `PartyListClient` and the main content area.
+-   **State**: Manages the currently selected party for the preview display.
 
-APIs
-- GET /parties/:id/materials
-- POST /parties/:id/materials { type, title, url?, file }
-- PUT /parties/materials/:materialId { title?, tags? }
+### 2.2. `PartyListClient.tsx`
 
-Error Handling
-- Upload failures: show retry & max size guidance.
-- Malicious link checks: show warning if flagged.
+-   **Responsibility**: Fetches and displays a list of parties using the `PartyCard` component.
+-   **UI**: A vertical list of `PartyCard`s with a search/filter bar at the top.
+-   **API Interaction**: `partiesApi.getMine()` or `partiesApi.admin.getAll()`.
 
-Analytics
-- Track uploads, downloads, link clicks.
+### 2.3. `PartyCard.tsx` (New Component)
 
----
+-   **Responsibility**: A reusable component to display a summary of a party.
+-   **UI**: A visually appealing card with the party's emblem, name, number of members, and perhaps a progress bar for a shared goal.
 
-## P-FE-004 — Schedule and Meeting Links
-As a Party Leader, I want to schedule recurring meetings and share join links so members can attend regularly.
+### 2.4. `PartyCreationWizard.tsx` (Replaces `PartyCreationForm`)
 
-Acceptance Criteria
-- Given I open the Schedule tab, then I can create one-off or weekly recurring events with title, date/time, duration, and meeting link.
-- Given I create an event, then all members receive a notification; the calendar displays upcoming sessions.
-- Given I edit or cancel an event, then updates propagate to members with notifications.
+-   **Responsibility**: A multi-step modal for a guided party creation experience.
+-   **UI**:
+    -   **Step 1: Core Identity**: Form fields for `name`, `description`, and an emblem/icon uploader.
+    -   **Step 2: Configuration**: Sliders and toggles for `partyType`, `visibility`, and `maxMembers`.
+    -   **Step 3: Invite Members**: An interface to search for and invite initial members.
+-   **API Interaction**: `partiesApi.create(partyData)` on the final step.
 
-UI Scope
-- Route: /parties/:partyId/schedule
-- Components: CalendarView, EventFormModal, RecurrenceSelector, EventCard
+### 2.5. `PartyDetailClient.tsx`
 
-State & Data
-- Event: { id, title, startAt, endAt, recurrence?: "none"|"weekly", meetingLink, notes? }
+-   **Responsibility**: Renders the main content of the party detail page with a visually engaging tabbed layout.
+-   **UI**: Tabs with icons for each section:
+    -   **Dashboard**: `PartyDashboard`
+    -   **Stash**: `PartyStash`
+    -   **Scheduler**: `MeetingScheduler`
+    -   **Live Meeting**: `LiveMeeting`
 
-APIs
-- GET /parties/:id/events
-- POST /parties/:id/events { title, startAt, endAt, recurrence, meetingLink }
-- PUT /parties/events/:eventId
-- DELETE /parties/events/:eventId
+### 2.6. `PartyDashboard.tsx`
 
-Error Handling
-- Timezone conflicts: show user-local time and party-default timezone.
-- Invalid meeting link: validation and inline warning.
+-   **Responsibility**: Provides a comprehensive overview of the party's status and activities.
+-   **UI**: A grid-based dashboard with components like:
+    -   `PartyStats`: Cards displaying key metrics (members, resources, quests).
+    -   `PartyMembersList`: A list of member avatars with names and roles.
+    -   `InvitationManagement`: A section to view pending invites and send new ones via a modal form.
 
-Analytics
-- Track event creation, edits, cancellations.
+### 2.7. `PartyStash.tsx`
 
----
+-   **Responsibility**: Manages the party's shared resources.
+-   **UI**: A rich interface with:
+    -   Grid or list view for resources, each as a `ResourceCard`.
+    -   Filtering by tags, file type, or member.
+    -   An "Add Resource" button that opens a dedicated `AddResourceForm` modal.
 
-## P-FE-005 — Live Notes and Action Items
-As a Party Member, I want live notes with action items so meetings capture decisions and follow-ups.
+### 2.8. `MeetingScheduler.tsx`
 
-Acceptance Criteria
-- Given a meeting is active, then members can add notes and mark action items with assignees and due dates.
-- Given the meeting ends, then a summary doc is generated and accessible from the Meeting History.
-- Given I update an action item, then the dashboard reflects completion status.
+-   **Responsibility**: A mock component to be fleshed out.
+-   **Future Vision**:
+    -   Integrate a calendar view (e.g., `react-big-calendar`).
+    -   Allow members to propose, vote on, and schedule meetings.
+    -   Display a list of upcoming and past meetings.
 
-UI Scope
-- Route: /parties/:partyId/notes
-- Components: NotesEditor (collab-ready), ActionItemList, AssignSelector, SummaryView
+### 2.9. `LiveMeeting.tsx`
 
-State & Data
-- Note: { id, content, authorId, createdAt }
-- ActionItem: { id, title, assigneeId, dueAt, status: "Open"|"Done" }
-- Summary: { id, meetingId, content }
-
-APIs
-- GET /parties/:id/notes
-- POST /parties/:id/notes
-- GET /parties/:id/action-items
-- POST /parties/:id/action-items
-- PUT /parties/action-items/:id
-
-Error Handling
-- Conflict resolution: last-write-wins with visual merge hints (basic); advanced collab via backend if supported.
-
-Analytics
-- Track note additions, action item completion.
+-   **Responsibility**: A mock component for real-time collaboration.
+-   **Future Vision**:
+    -   A layout with a main content area (for video/screen-sharing), a participant list, and a chat panel.
+    -   Integration with a WebRTC service like Jitsi.
 
 ---
 
-## P-FE-006 — Notifications (Party)
-As a Student, I want timely party notifications so I don’t miss invites, events, and summaries.
+## 3. API Contract & Data Models
 
-Acceptance Criteria
-- Given I receive an invite or event update, then I see a bell icon count and an inbox listing notifications by type and unread status.
-- Given I click a notification, then I’m taken to the relevant screen; unread becomes read.
+The frontend interacts with a set of party-related endpoints defined in `src/api/partiesApi.ts`. The data structures are defined in `src/types/parties.ts`.
 
-UI Scope
-- Global Components: NotificationBell, NotificationInbox
+### 3.1. User-Facing Endpoints
 
-APIs
-- GET /notifications?context=party
-- POST /notifications/:id/read
+-   **Get My Parties**: `GET /api/parties/mine`
+-   **Get Party by ID**: `GET /api/parties/{partyId}`
+-   **Create Party**: `POST /api/parties`
+-   **Get Members**: `GET /api/parties/{partyId}/members`
+-   **Get Resources**: `GET /api/parties/{partyId}/resources`
+-   **Add Resource**: `POST /api/parties/{partyId}/resources`
+-   **Invite Member**: `POST /api/parties/{partyId}/invitations`
+-   **Get Pending Invites**: `GET /api/parties/{partyId}/invitations/pending`
 
-Error Handling
-- Inbox fetch errors: retry and show partial offline cache if available.
+### 3.2. Admin-Only Endpoints
 
-Analytics
-- Track notification open rate and click-through.
+-   **Get All Parties**: `GET /api/admin/parties`
+-   **Admin Get Resources**: `GET /api/admin/parties/{partyId}/resources`
+-   **Admin Add Resource**: `POST /api/admin/parties/{partyId}/resources`
 
----
+### 3.3. Core Data Transfer Objects (DTOs)
 
-## P-FE-007 — Party Dashboard and Engagement Widgets
-As a Party Leader, I want a dashboard so I can understand engagement and outcomes.
-
-Acceptance Criteria
-- Given I open the Party Dashboard, then I see attendance rate, meeting frequency, shared materials count, topic coverage, action items completed, and study time per member.
-- Given I change date ranges or filters, then widgets update consistently.
-
-UI Scope
-- Route: /parties/:partyId/dashboard
-- Components: MetricsGrid, AttendanceChart, MaterialsCounter, TopicCoverageChart, ActionItemsChart, TimeSpentChart, DateRangePicker
-
-APIs
-- GET /parties/:id/metrics?range=…
-
-Error Handling
-- No data: show placeholders and guidance to schedule or share.
-
-Analytics
-- Track widget interactions and filter usage.
+-   `PartyDto`: Represents a party.
+-   `PartyMemberDto`: Represents a member of a party.
+-   `PartyInvitationDto`: Represents an invitation to a party.
+-   `PartyStashItemDto`: Represents an item in the party's stash.
 
 ---
 
-## P-FE-008 — Roles and Permissions (Leader/Member)
-As a Party Leader, I want to manage roles and permissions so the party is organized and safe.
+## 4. Authentication & API Client
 
-Acceptance Criteria
-- Given I am Leader, then I can promote Members to Co-Leaders and revoke roles.
-- Given I am Member, then restricted actions (e.g., removing others) are hidden/disabled.
-
-UI Scope
-- Route: /parties/:partyId/settings/roles
-- Components: RoleTable, RoleBadge, PromoteDemoteButtons
-
-APIs
-- GET /parties/:id/roles
-- POST /parties/:id/roles/update { userId, role }
-
-Error Handling
-- Permission errors: clearly surfaced with guidance.
-
-Analytics
-- Track role changes.
+-   **Axios Client**: A centralized Axios instance is configured in `src/api/axiosClient.ts`.
+-   **Base URL**: The `NEXT_PUBLIC_API_URL` environment variable sets the base URL for all API requests.
+-   **Auth Interceptor**: An interceptor automatically attaches the JWT bearer token from the logged-in Supabase user to every outgoing request. This handles authentication seamlessly for all API calls made through the client.
 
 ---
 
-## P-FE-009 — Moderation and Rules
-As a Party Leader, I want to set rules and moderate members so the environment remains constructive.
+## 5. Open Items & Assumptions
 
-Acceptance Criteria
-- Given I open Party Settings, then I can edit rules (markdown support), set visibility, and remove members with optional reason.
-- Given I remove a member, then the member sees a notification with reason (if provided).
-
-UI Scope
-- Route: /parties/:partyId/settings
-- Components: RulesEditor, VisibilityToggle, MemberModerationList
-
-APIs
-- PUT /parties/:id { rules, visibility }
-- POST /parties/:id/members/:userId/remove { reason? }
-
-Error Handling
-- Confirmation modals for destructive actions.
-
-Analytics
-- Track rule edits and moderation actions.
-
+-   **`MeetingScheduler.tsx` & `LiveMeeting.tsx`**: These components are currently mock implementations. The story for their full functionality, including backend integration for scheduling and real-time updates, needs to be defined.
+-   **Roles & Permissions**: The current implementation does not fully flesh out role-based access control within a party (e.g., Leader vs. Member permissions). The UI should be updated to conditionally render actions based on the user's role.
+-   **State Management**: For a more robust implementation, consider a centralized state management solution (like Zustand or Redux Toolkit) to manage party data, especially if real-time updates (e.g., via WebSockets) are introduced.
+-   **UX & Error Handling**: Comprehensive loading states, error boundaries, and user-friendly error messages should be implemented for all API interactions.
+-   **Testing**: A full suite of unit and integration tests should be written for these components to ensure they are reliable and maintainable.
+   
 ---
 
-## P-FE-010 — Attendance Tracking and Check-in
-As a Party Member, I want to check in to meetings so attendance is tracked.
+## 6. UI/UX Enhancements & Open Items
 
-Acceptance Criteria
-- Given a scheduled meeting with check-in token, then I can check in within the event window; my attendance is recorded.
-- Given I miss the window, then the check-in is disabled with a clear message.
-
-UI Scope
-- Route: /parties/:partyId/events/:eventId
-- Components: CheckInPanel, AttendanceList, TokenStatus
-
-APIs
-- POST /parties/events/:eventId/check-in { token }
-- GET /parties/events/:eventId/attendance
-
-Error Handling
-- Invalid/expired token: show error and guidance.
-
-Analytics
-- Track check-in rates.
-
----
-
-## P-FE-011 — Responsive Design and Accessibility (Party)
-As a Student, I want party screens to work on any device and be accessible.
-
-Acceptance Criteria
-- Screens adapt to mobile/tablet/desktop breakpoints; critical actions remain reachable.
-- Keyboard navigation covers interactive controls; focus states visible; ARIA roles set.
-- Color contrast and font sizes meet AA standards.
-
-References
-- docs/front-end-spec/screen-specifications.md
-- docs/front-end-spec/visual-design-system.md
-
----
-
-## P-FE-012 — Error and Edge Case Handling (Party)
-As a Student, I want consistent handling of party-specific issues.
-
-Acceptance Criteria
-- Capacity reached: invites disabled; show waitlist and notification opt-in.
-- Invalid invite links: recovery options (request new invite, contact leader).
-- Permission denied: gated UI with explanation and next steps.
-- Offline mode: read-only caches for materials and schedule; sync banner when back online.
-
-UI Scope
-- Global error boundary components, toasts, banners.
-
-APIs
-- N/A
-
-Analytics
-- Track error occurrences and retry success.
+-   **Animations & Transitions**: Implement smooth transitions between views and subtle animations on interactive elements to create a more dynamic feel.
+-   **Gamification Elements**: Incorporate visual cues like progress bars for party goals or badges for member achievements.
+-   **Roles & Permissions**: The UI should dynamically adapt based on user roles (e.g., only a "Leader" sees the "Invite Member" button).
+-   **State Management**: Use a centralized state management solution (e.g., Zustand) for real-time updates.
+-   **Error Handling**: Implement comprehensive loading states and user-friendly error messages.
+-   **Testing**: Write unit and integration tests for all new and modified components.
