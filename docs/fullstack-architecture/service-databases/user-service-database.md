@@ -618,6 +618,217 @@ CREATE INDEX idx_notifications_user_unread ON notifications(auth_user_id, is_rea
 CREATE INDEX idx_curriculum_structure_version_semester ON curriculum_structure(curriculum_version_id, semester);
 ```
 
+
+# Database Alteration Script: Subject-to-Skill Mapping Implementation
+
+## Overview
+
+This document provides a detailed breakdown of the changes implemented by the provided SQL script. The primary architectural goal of this script is to transition the RogueLearn platform from a fragile, AI-driven skill generation model to a stable, deterministic, and admin-curated curriculum system.
+
+These changes are essential for ensuring data integrity, improving performance, and enabling critical features like weighted XP calculation. The script is designed to be idempotent and includes necessary data migration steps to preserve existing user progress.
+
+---
+
+## Breakdown of Changes
+
+The script is executed within a single transaction (`BEGIN; ... COMMIT;`) to ensure that all changes are applied successfully, or none are, guaranteeing the database remains in a consistent state.
+
+### 1. Creation of `subject_skill_mappings` Table
+
+This is the most significant addition and the architectural linchpin of the new system.
+
+*   **What it Does:** It creates a new "bridge" or "join" table named `subject_skill_mappings`.
+*   **Architectural Purpose:**
+    *   **Enables Many-to-Many Relationships:** It definitively solves the problem of a single subject teaching multiple skills, and a single skill being taught by multiple subjects. This was impossible with the previous schema.
+    *   **Stores Business Logic:** It introduces a `relevance_weight` column. This is where administrators will store the crucial data defining how important a skill is to a particular subject (e.g., "Procedural Programming" has a weight of `0.8` for `PRF192`). This is essential for the weighted XP calculation required by Story 5.A.
+    *   **Ensures Integrity:** A `UNIQUE` constraint on `(subject_id, skill_id)` prevents an admin from accidentally mapping the same skill to the same subject twice.
+
+### 2. Modification of `skills` Table
+
+This change adds a supporting column for administrative convenience.
+
+*   **What it Does:** It adds a new, nullable column named `source_subject_id` to the `skills` table.
+*   **Architectural Purpose:**
+    *   **Traceability:** This column's purpose is purely for admin tracking. When an AI suggests a new skill based on a syllabus, this field can store which subject it came from.
+    *   **Non-Structural:** It is intentionally **not** the primary link for the curriculum (that is the role of `subject_skill_mappings`). The `ON DELETE SET NULL` constraint ensures that if a source subject is deleted, the skill itself remains in the master catalog, correctly preserving its integrity.
+
+### 3. Migration of `user_skills` Table
+
+This is a critical data integrity and performance enhancement.
+
+*   **What it Does:** It fundamentally changes how a user's skill progress is linked to the master skill catalog.
+*   **Architectural Purpose:**
+    *   **From Brittle to Robust:** It replaces the dependency on `skill_name` (a string) with a foreign key to `skill_id` (a UUID). This prevents data corruption if a skill is ever renamed and is significantly more performant for database joins.
+    *   **Data Migration:** The `UPDATE` statement is a crucial step that **backfills** the new `skill_id` for all existing records by looking up the correct ID from the `skills` table based on the old `skill_name`. This ensures no user progress is lost during the transition.
+    *   **Enforces Integrity:** After migration, it adds a `NOT NULL` constraint and a new `UNIQUE` constraint on `(auth_user_id, skill_id)`, ensuring a user can only have one record per skill.
+
+### 4. Migration of `user_skill_rewards` Table
+
+This applies the same data integrity upgrade to the XP ledger.
+
+*   **What it Does:** It mirrors the changes made to the `user_skills` table, adding a `skill_id` foreign key.
+*   **Architectural Purpose:**
+    *   **Ledger Integrity:** This ensures that every XP reward event recorded in the system is tied to a valid, existing skill via a non-breakable ID link. It makes the XP ledger more reliable and auditable.
+    *   **Data Migration:** Similar to the `user_skills` migration, it includes an `UPDATE` statement to backfill `skill_id` for all historical reward records, preserving the integrity of the XP history.
+
+---
+
+## Final Impact
+
+These changes successfully refactor the database to support an administrator-defined curriculum. The system is no longer reliant on a volatile, AI-driven process for core structural data. This provides the stability, reliability, and accuracy required for a robust educational platform.
+
+## Full SQL Script (for reference)
+
+```sql
+-- This script updates the database schema to establish a deterministic,
+-- admin-curated relationship between academic subjects and gamified skills.
+-- It is designed to be idempotent and includes data migration steps.
+
+BEGIN;
+
+-- ====================================================================
+-- STEP 1: Create the new 'subject_skill_mappings' table.
+-- This table is the "bridge" that creates a many-to-many relationship
+-- between subjects and skills, and stores the relevance weight for XP calculations.
+-- ====================================================================
+CREATE TABLE IF NOT EXISTS public.subject_skill_mappings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    subject_id UUID NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
+    skill_id UUID NOT NULL REFERENCES public.skills(id) ON DELETE CASCADE,
+    -- The relevance of a skill to a subject (e.g., 0.7 for a core skill).
+    relevance_weight NUMERIC(3, 2) NOT NULL DEFAULT 1.00 CHECK (relevance_weight >= 0.00 AND relevance_weight <= 1.00),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    -- Ensures a subject can only be mapped to a skill once.
+    CONSTRAINT subject_skill_mappings_subject_id_skill_id_key UNIQUE (subject_id, skill_id)
+);
+
+-- Add comments for clarity
+COMMENT ON TABLE public.subject_skill_mappings IS 'Admin-curated mapping between academic subjects and gamified skills, forming the core of the curriculum design.';
+COMMENT ON COLUMN public.subject_skill_mappings.relevance_weight IS 'The relevance of a skill to a subject (0.00 to 1.00), used for weighted XP calculations.';
+
+-- Add indexes for performance
+CREATE INDEX IF NOT EXISTS idx_subject_skill_mappings_subject_id ON public.subject_skill_mappings(subject_id);
+CREATE INDEX IF NOT EXISTS idx_subject_skill_mappings_skill_id ON public.subject_skill_mappings(skill_id);
+
+
+-- ====================================================================
+-- STEP 2: Alter the 'skills' table to add 'source_subject_id'.
+-- This provides a way for admins to track the original subject from which
+-- a skill was first generated, aiding in content management.
+-- ====================================================================
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'skills' AND column_name = 'source_subject_id'
+    ) THEN
+        ALTER TABLE public.skills
+        ADD COLUMN source_subject_id UUID NULL REFERENCES public.subjects(id) ON DELETE SET NULL;
+
+        -- Add index for the new column
+        CREATE INDEX idx_skills_source_subject_id ON public.skills(source_subject_id);
+
+        COMMENT ON COLUMN public.skills.source_subject_id IS 'The original subject from which this skill was first suggested or generated, for admin tracking.';
+    END IF;
+END $$;
+
+
+-- ====================================================================
+-- STEP 3: Alter 'user_skills' to use skill_id instead of skill_name.
+-- This is a critical migration for data integrity, moving from a brittle
+-- string-based link to a robust foreign key relationship.
+-- ====================================================================
+
+-- 3.1: Add the new skill_id column, allowing it to be null initially.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'user_skills' AND column_name = 'skill_id'
+    ) THEN
+        ALTER TABLE public.user_skills ADD COLUMN skill_id UUID;
+    END IF;
+END $$;
+
+-- 3.2: Backfill the new skill_id column by joining with the skills table on the name.
+-- This is a one-time data migration step.
+UPDATE public.user_skills us
+SET skill_id = s.id
+FROM public.skills s
+WHERE us.skill_name = s.name AND us.skill_id IS NULL;
+
+-- 3.3: Now that data is backfilled, enforce the NOT NULL constraint.
+ALTER TABLE public.user_skills ALTER COLUMN skill_id SET NOT NULL;
+
+-- 3.4: Add the foreign key constraint.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'user_skills_skill_id_fkey'
+    ) THEN
+        ALTER TABLE public.user_skills
+        ADD CONSTRAINT user_skills_skill_id_fkey
+        FOREIGN KEY (skill_id) REFERENCES public.skills(id) ON DELETE CASCADE;
+    END IF;
+END $$;
+
+-- 3.5: Drop the old, name-based unique constraint if it exists.
+ALTER TABLE public.user_skills DROP CONSTRAINT IF EXISTS user_skills_auth_user_id_skill_name_key;
+
+-- 3.6: Add the new, id-based unique constraint.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'user_skills_auth_user_id_skill_id_key'
+    ) THEN
+        ALTER TABLE public.user_skills
+        ADD CONSTRAINT user_skills_auth_user_id_skill_id_key UNIQUE (auth_user_id, skill_id);
+    END IF;
+END $$;
+
+
+-- ====================================================================
+-- STEP 4: Alter 'user_skill_rewards' to also use skill_id.
+-- This ensures the XP ledger also has strong data integrity.
+-- ====================================================================
+
+-- 4.1: Add the new skill_id column, allowing it to be null initially.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'user_skill_rewards' AND column_name = 'skill_id'
+    ) THEN
+        ALTER TABLE public.user_skill_rewards ADD COLUMN skill_id UUID;
+    END IF;
+END $$;
+
+-- 4.2: Backfill the new skill_id column by joining with the skills table on the name.
+UPDATE public.user_skill_rewards usr
+SET skill_id = s.id
+FROM public.skills s
+WHERE usr.skill_name = s.name AND usr.skill_id IS NULL;
+
+-- 4.3: Now that data is backfilled, enforce the NOT NULL constraint.
+ALTER TABLE public.user_skill_rewards ALTER COLUMN skill_id SET NOT NULL;
+
+-- 4.4: Add the foreign key constraint.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'user_skill_rewards_skill_id_fkey'
+    ) THEN
+        ALTER TABLE public.user_skill_rewards
+        ADD CONSTRAINT user_skill_rewards_skill_id_fkey
+        FOREIGN KEY (skill_id) REFERENCES public.skills(id) ON DELETE CASCADE;
+    END IF;
+END $$;
+
+COMMIT;
+
 ## Service Responsibilities
 
 ### Primary Responsibilities
