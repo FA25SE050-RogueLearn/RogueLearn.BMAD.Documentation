@@ -1,10 +1,23 @@
 # Quests Service Database Schema
 
 ## Overview
-The Quests Service manages the gamified learning experience through quests, challenges, and learning paths. It provides structured learning activities aligned with academic curricula and skill development goals.
+The Quests Service manages the gamified learning experience through quests, challenges, and learning paths. It provides structured learning activities aligned with academic curricula and skill development goals. This schema represents the Quest domain's view of the unified backend database.
 
 -- Enable UUID generation if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+## Enums and Types
+```sql
+CREATE TYPE quest_type AS ENUM ('Tutorial', 'Practice', 'Challenge', 'Project', 'Assessment', 'Exploration');
+CREATE TYPE difficulty_level AS ENUM ('Beginner', 'Intermediate', 'Advanced', 'Expert');
+CREATE TYPE step_type AS ENUM ('Reading', 'Video', 'Interactive', 'Coding', 'Quiz', 'Discussion', 'Submission', 'Reflection');
+CREATE TYPE resource_type AS ENUM ('Document', 'Video', 'Audio', 'Interactive', 'Link', 'Code', 'Dataset');
+CREATE TYPE quest_attempt_status AS ENUM ('InProgress', 'Completed', 'Abandoned', 'Paused');
+CREATE TYPE step_completion_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Skipped');
+CREATE TYPE path_type AS ENUM ('Course', 'Specialization', 'Bootcamp', 'Custom');
+CREATE TYPE path_progress_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Paused');
+CREATE TYPE assessment_type AS ENUM ('Quiz', 'Assignment', 'Project', 'PeerReview', 'AutoGraded', 'ManualReview');
+```
 
 ## Database Tables
 
@@ -18,7 +31,7 @@ CREATE TABLE learning_paths (
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     path_type path_type NOT NULL,
-    curriculum_version_id UUID, -- Soft FK to User Service: curriculum_versions
+    curriculum_program_id UUID, -- Soft FK to User Service: curriculum_programs
     estimated_total_duration_hours INTEGER,
     total_experience_points INTEGER NOT NULL DEFAULT 0,
     is_published BOOLEAN NOT NULL DEFAULT FALSE,
@@ -44,31 +57,14 @@ CREATE TABLE quest_chapters (
 );
 ```
 
-#### learning_path_quests
-Defines which quests belong to a learning path and in what order.
-```sql
-CREATE TABLE learning_path_quests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    learning_path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
-    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
-    difficulty_level difficulty_level NOT NULL,
-    sequence_order INTEGER NOT NULL,
-    is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
-    unlock_criteria JSONB,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (learning_path_id, quest_id),
-    UNIQUE (learning_path_id, sequence_order)
-);
-```
-
 ### Quest Management
 
 #### quests
-Core quest definitions with metadata and configuration. Prerequisites are managed in the `quest_prerequisites` table.
+Core quest definitions with metadata and configuration. Each quest belongs to a single chapter.
 ```sql
 CREATE TABLE quests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quest_chapter_id UUID NOT NULL REFERENCES quest_chapters(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     quest_type quest_type NOT NULL,
@@ -414,19 +410,6 @@ Used for prompts that encourage the user to think critically about a topic.
 }
 ```
 
-## Enums and Types
-```sql
-CREATE TYPE quest_type AS ENUM ('Tutorial', 'Practice', 'Challenge', 'Project', 'Assessment', 'Exploration');
-CREATE TYPE difficulty_level AS ENUM ('Beginner', 'Intermediate', 'Advanced', 'Expert');
-CREATE TYPE step_type AS ENUM ('Reading', 'Video', 'Interactive', 'Coding', 'Quiz', 'Discussion', 'Submission', 'Reflection');
-CREATE TYPE resource_type AS ENUM ('Document', 'Video', 'Audio', 'Interactive', 'Link', 'Code', 'Dataset');
-CREATE TYPE quest_attempt_status AS ENUM ('InProgress', 'Completed', 'Abandoned', 'Paused');
-CREATE TYPE step_completion_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Skipped');
-CREATE TYPE path_type AS ENUM ('Course', 'Specialization', 'Bootcamp', 'Custom');
-CREATE TYPE path_progress_status AS ENUM ('NotStarted', 'InProgress', 'Completed', 'Paused');
-CREATE TYPE assessment_type AS ENUM ('Quiz', 'Assignment', 'Project', 'PeerReview', 'AutoGraded', 'ManualReview');
-```
-
 ## Triggers and Functions
 ```sql
 -- Automatically updates the 'updated_at' timestamp on any row modification.
@@ -438,16 +421,28 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Example of applying the trigger to a table.
-CREATE TRIGGER update_learning_path_quests_updated_at 
-    BEFORE UPDATE ON learning_path_quests 
+-- Add triggers to relevant tables
+CREATE TRIGGER update_learning_paths_updated_at 
+    BEFORE UPDATE ON learning_paths 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_quests_updated_at 
+    BEFORE UPDATE ON quests 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 ```
 
 ## Indexes for Performance
 ```sql
+-- Learning path and chapter indexes
+CREATE INDEX idx_learning_paths_path_type ON learning_paths(path_type);
+CREATE INDEX idx_learning_paths_curriculum_program_id ON learning_paths(curriculum_program_id);
+CREATE INDEX idx_learning_paths_is_published ON learning_paths(is_published);
+CREATE INDEX idx_quest_chapters_learning_path_id ON quest_chapters(learning_path_id);
+
 -- Quest indexes
+CREATE INDEX idx_quests_quest_chapter_id ON quests(quest_chapter_id);
 CREATE INDEX idx_quests_quest_type ON quests(quest_type);
 CREATE INDEX idx_quests_difficulty_level ON quests(difficulty_level);
 CREATE INDEX idx_quests_subject_id ON quests(subject_id);
@@ -467,19 +462,11 @@ CREATE INDEX idx_user_quest_attempts_auth_user_id ON user_quest_attempts(auth_us
 CREATE INDEX idx_user_quest_attempts_quest_id ON user_quest_attempts(quest_id);
 CREATE INDEX idx_user_quest_attempts_status ON user_quest_attempts(status);
 CREATE INDEX idx_user_quest_step_progress_attempt_id ON user_quest_step_progress(attempt_id);
-
--- Learning path and chapter indexes
-CREATE INDEX idx_learning_paths_path_type ON learning_paths(path_type);
-CREATE INDEX idx_learning_paths_subject_id ON learning_paths(subject_id);
-CREATE INDEX idx_learning_paths_is_published ON learning_paths(is_published);
-CREATE INDEX idx_quest_chapters_quest_line_id ON quest_chapters(quest_line_id);
-CREATE INDEX idx_learning_path_quests_learning_path_id ON learning_path_quests(learning_path_id);
 CREATE INDEX idx_user_learning_path_progress_auth_user_id ON user_learning_path_progress(auth_user_id);
 
 -- Assessment indexes
 CREATE INDEX idx_quest_assessments_quest_id ON quest_assessments(quest_id);
 CREATE INDEX idx_quest_submissions_attempt_id ON quest_submissions(attempt_id);
-CREATE INDEX idx_quest_submissions_assessment_id ON quest_submissions(assessment_id);
 
 -- Analytics indexes
 CREATE INDEX idx_quest_analytics_quest_id ON quest_analytics(quest_id);
@@ -505,24 +492,19 @@ CREATE INDEX idx_game_session_question_events_sequence ON game_session_question_
 - Publish Reward Cascade events (XP, Skill Points, Unlocks) per PRD FR58
 
 ### Cross-Service Integration
-- User Service: Retrieves user profiles, academic context, and skill levels; ingests reward events for authoritative ledgering in `user_skill_rewards` and skill progression updates in `user_skills`
-- Social Service: Consumes quest completion data for party/guild activities
-- Meeting Service: Integrates collaborative quests with meeting sessions
-- Event Service: Links coding challenges to quest progression
+- User Service: Retrieves user profiles, academic context (subjects, programs), and skill levels; ingests reward events for authoritative ledgering in `user_skill_rewards` and skill progression updates in `user_skills`.
+- Social Service: Consumes quest completion data for party/guild activities.
+- Meeting Service: Integrates collaborative quests with meeting sessions.
+- Event Service: Links coding challenges to quest progression.
 
 ### Data Access Patterns
-- Read/Write Access: All tables within Quests Service domain
-- External References: User profiles, subjects, curriculum data, and Skill Catalog from User Service
-- API Integration: Exposes quest data and progress tracking via REST APIs
-- Event Publishing: Emits `XPGranted`, `SkillPointsGranted`, `ChallengeUnlocked` with correlation IDs for Reward Cascade compliance
-- Vector Database Integration: Qdrant collections store quest content embeddings for semantic search and recommendations
+- Read/Write Access: All tables within Quests Service domain.
+- External References: User profiles, subjects, curriculum programs, and Skill Catalog from User Service.
+- API Integration: Exposes quest data and progress tracking via REST APIs.
+- Event Publishing: Emits `XPGranted`, `SkillPointsGranted`, `ChallengeUnlocked` with correlation IDs for auditability.
+- Vector Database Integration: Qdrant collections store quest content embeddings for semantic search and recommendations.
 
 ### Real-time Features
-- Optional WebSocket or server-sent events for live progress updates, attempt status changes, and assessment notifications
-- Live recommendations and unlock notifications based on Reward Cascade events
-
-## Ownership and Integration Notes
-- Notes (Arsenal) Non-Ownership: Quests Service does not own the `notes` table; links are managed via User Service APIs
-- Rewards Ledger Non-Ownership: Quests Service defines rewards but does not own the authoritative XP ledger; User Service persists in `user_skill_rewards`
-- Reward Cascade Compliance (FR58): Objective completion triggers `XPGranted`, `SkillPointsGranted`, `ChallengeUnlocked` events with correlation IDs for auditability
-- Skill Tree Catalog Non-Ownership: Quests Service consumes the Skill Catalog (skills, dependencies) from User Service and does not define those tables
+- Optional WebSocket or server-sent events for live progress updates, attempt status changes, and assessment notifications.
+- Live recommendations and unlock notifications based on Reward Cascade events.
+```
