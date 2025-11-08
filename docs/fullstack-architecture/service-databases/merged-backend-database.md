@@ -3,7 +3,7 @@
 ## Overview
 This document defines the unified database schema that merges the User Service, Quests Service, Social Service, and Meeting Service databases into a single comprehensive backend database. This consolidation simplifies data management, reduces cross-service complexity, and improves performance while maintaining clear domain boundaries through table organization.
 
-**Note**: The Code Event Service database remains separate and is not included in this merge.
+**Note**: The Event Service database remains separate and is not included in this merge.
 
 -- Enable UUID generation if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -16,9 +16,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TYPE user_role_type AS ENUM ('Student', 'Lecturer', 'Admin', 'SuperAdmin');
 CREATE TYPE verification_status AS ENUM ('Pending', 'Approved', 'Rejected');
 CREATE TYPE enrollment_status AS ENUM ('Active', 'Inactive', 'Graduated', 'Dropped', 'Suspended');
-CREATE TYPE semester_status AS ENUM ('Enrolled', 'Completed', 'Failed', 'Withdrawn');
 CREATE TYPE skill_relationship_type AS ENUM ('Prerequisite', 'Corequisite', 'Recommended');
-CREATE TYPE skill_reward_source_type AS ENUM ('QuestComplete', 'BossFight', 'PartyActivity', 'GuildActivity', 'MeetingParticipation', 'CodeChallenge');
+CREATE TYPE skill_reward_source_type AS ENUM ('QuestComplete', 'BossFight', 'PartyActivity', 'GuildActivity', 'MeetingParticipation', 'CodeChallenge', 'AcademicRecord');
 CREATE TYPE skill_tier_level AS ENUM ('Foundation', 'Intermediate', 'Advanced', 'Expert');
 CREATE TYPE notification_type AS ENUM ('Achievement', 'QuestComplete', 'PartyInvite', 'GuildInvite', 'FriendRequest', 'System', 'Reminder');
 CREATE TYPE degree_level AS ENUM ('Associate', 'Bachelor', 'Master', 'Doctorate');
@@ -186,32 +185,34 @@ CREATE TABLE lecturer_verification_requests (
 );
 ```
 
-##### curriculum_versions
-Versioned curriculum definitions.
-```sql
-CREATE TABLE curriculum_versions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    program_id UUID NOT NULL REFERENCES curriculum_programs(id) ON DELETE CASCADE,
-    version_code VARCHAR(50) NOT NULL,
-    effective_year INTEGER NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    description TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (program_id, version_code)
-);
-```
-
 ##### subjects
-University subjects and courses.
+University subjects and courses. Each record is unique per version.
 ```sql
 CREATE TABLE subjects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    subject_code VARCHAR(50) NOT NULL UNIQUE,
+    subject_code VARCHAR(50) NOT NULL,
     subject_name VARCHAR(255) NOT NULL,
     credits INTEGER NOT NULL,
     description TEXT,
+    version VARCHAR(50) NOT NULL, -- e.g., '2019', '2022'
+    content JSONB, -- Stores the syllabus content
+    semester INTEGER NOT NULL, -- The semester this subject belongs to in an ideal curriculum
+    prerequisite_subject_ids UUID[], -- Array of subject UUIDs that must be taken before this one
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (subject_code, version) -- A subject is unique by its code and version
+);
+```
+
+##### curriculum_program_subjects
+Many-to-many relationship between curriculum programs and subjects.
+```sql
+CREATE TABLE curriculum_program_subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    program_id UUID NOT NULL REFERENCES curriculum_programs(id) ON DELETE CASCADE,
+    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (program_id, subject_id)
 );
 ```
 
@@ -227,85 +228,38 @@ CREATE TABLE class_specialization_subjects (
 );
 ```
 
-##### curriculum_structure
-Defines which subjects belong to which curriculum version and semester.
-```sql
-CREATE TABLE curriculum_structure (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
-    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    semester INTEGER NOT NULL,
-    is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
-    prerequisite_subject_ids UUID[],
-    prerequisites_text TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (curriculum_version_id, subject_id)
-);
-```
-
-##### syllabus_versions
-Versioned syllabus content for subjects.
-```sql
-CREATE TABLE syllabus_versions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    version_number INTEGER NOT NULL,
-    content JSONB NOT NULL,
-    effective_date DATE NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_by UUID REFERENCES user_profiles(auth_user_id),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (subject_id, version_number)
-);
-```
-
-#### Admin-Owned Educational Governance
-
-##### curriculum_version_activations
-Tracks curriculum version activations by administrators.
-```sql
-CREATE TABLE curriculum_version_activations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
-    effective_year INTEGER NOT NULL,
-    activated_by UUID REFERENCES user_profiles(auth_user_id),
-    activated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    notes TEXT,
-    UNIQUE (curriculum_version_id, effective_year)
-);
-```
+#### Student Enrollment & Progress
 
 ##### student_enrollments
-Student enrollment in curriculum programs.
+Tracks a student's enrollment period at the institution.
 ```sql
 CREATE TABLE student_enrollments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    curriculum_version_id UUID NOT NULL REFERENCES curriculum_versions(id) ON DELETE CASCADE,
     enrollment_date DATE NOT NULL,
     expected_graduation_date DATE,
     status enrollment_status NOT NULL DEFAULT 'Active',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (auth_user_id, curriculum_version_id)
+    UNIQUE (auth_user_id) -- Assuming a student can only have one active enrollment period
 );
 ```
 
 ##### student_semester_subjects
-Tracks student enrollment in specific subjects per semester.
+Serves as the student's primary gradebook, tracking performance in each subject.
 ```sql
 CREATE TABLE student_semester_subjects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    enrollment_id UUID NOT NULL REFERENCES student_enrollments(id) ON DELETE CASCADE,
+    auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
     subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
     academic_year VARCHAR(10) NOT NULL,
-    semester INTEGER NOT NULL,
+    learned_at_semester INTEGER NOT NULL, -- The actual semester the student took this subject
     status subject_enrollment_status NOT NULL DEFAULT 'Enrolled',
     grade VARCHAR(5),
     credits_earned INTEGER DEFAULT 0,
     enrolled_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     completed_at TIMESTAMPTZ,
-    UNIQUE (enrollment_id, subject_id, academic_year, semester)
+    UNIQUE (auth_user_id, subject_id, academic_year, learned_at_semester)
 );
 ```
 
@@ -320,7 +274,7 @@ CREATE TABLE skills (
     domain VARCHAR(100), -- e.g., Programming, Mathematics, Design
     tier skill_tier_level NOT NULL DEFAULT 'Foundation', -- Foundation, Intermediate, Advanced, Expert
     description TEXT,
-    -- NEW COLUMN: For admin tracking, links a skill to the subject it was first suggested from.
+    -- For admin tracking, links a skill to the subject it was first suggested from.
     source_subject_id UUID REFERENCES public.subjects(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -340,7 +294,7 @@ CREATE TABLE skill_dependencies (
 );
 ```
 
-##### subject_skill_mappings -- NEW TABLE
+##### subject_skill_mappings
 Admin-curated mapping between academic subjects and gamified skills.
 ```sql
 CREATE TABLE subject_skill_mappings (
@@ -355,30 +309,6 @@ CREATE TABLE subject_skill_mappings (
 ```
 
 #### Notes Management (Arsenal)
-
-### Quests Service Tables (moved earlier for dependency order)
-
-#### Quest Management
-
-##### quests (moved earlier)
-Core quest definitions with metadata and configuration.
-```sql
-CREATE TABLE quests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    quest_type quest_type NOT NULL,
-    difficulty_level difficulty_level NOT NULL,
-    estimated_duration_minutes INTEGER,
-    experience_points_reward INTEGER NOT NULL DEFAULT 0,
-    skill_tags TEXT[],
-    subject_id UUID REFERENCES subjects(id),
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_by UUID NOT NULL REFERENCES user_profiles(auth_user_id),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
 
 ##### notes
 User-created learning notes and resources.
@@ -399,7 +329,7 @@ Links notes to specific quests.
 ```sql
 CREATE TABLE note_quests (
     note_id UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
-    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE, -- This references quests.id in the Quests Service. No FK constraint.
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE, 
     PRIMARY KEY (note_id, quest_id)
 );
 ```
@@ -443,24 +373,22 @@ User skill progression and levels.
 CREATE TABLE user_skills (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    -- MODIFIED: skill_id is now the primary link to the skills table.
     skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
     skill_name VARCHAR(255) NOT NULL,
     experience_points INTEGER NOT NULL DEFAULT 0,
     level INTEGER NOT NULL DEFAULT 1,
     last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    -- MODIFIED: Unique constraint is now based on user and skill ID.
     UNIQUE (auth_user_id, skill_id)
 );
 ```
 
 ##### user_quest_progress
-Tracks user progress on quests (cross-reference with Quests Service).
+Tracks user progress on quests.
 ```sql
 CREATE TABLE user_quest_progress (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     auth_user_id UUID NOT NULL REFERENCES user_profiles(auth_user_id) ON DELETE CASCADE,
-    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE, -- This references quests.id in the Quests Service. No FK constraint.
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
     status quest_status NOT NULL,
     completed_at TIMESTAMPTZ,
     last_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -477,7 +405,6 @@ CREATE TABLE user_skill_rewards (
     source_service VARCHAR(100) NOT NULL, -- e.g., QuestsService, CodeBattleService, MeetingService
     source_type skill_reward_source_type NOT NULL, -- e.g., QuestComplete, BossFight, PartyActivity
     source_id UUID, -- Optional reference to the originating entity
-    -- MODIFIED: skill_id is now the primary link to the skills table.
     skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
     skill_name VARCHAR(255) NOT NULL, -- Name from skills catalog
     points_awarded INTEGER NOT NULL,
@@ -548,7 +475,7 @@ CREATE TABLE learning_paths (
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     path_type path_type NOT NULL,
-    curriculum_version_id UUID REFERENCES curriculum_versions(id),
+    curriculum_program_id UUID REFERENCES curriculum_programs(id),
     estimated_total_duration_hours INTEGER,
     total_experience_points INTEGER NOT NULL DEFAULT 0,
     is_published BOOLEAN NOT NULL DEFAULT FALSE,
@@ -574,25 +501,28 @@ CREATE TABLE quest_chapters (
 );
 ```
 
-##### learning_path_quests
-Defines which quests belong to a learning path and in what order.
+#### Quest Management
+
+##### quests
+Core quest definitions with metadata and configuration. Directly linked to a quest chapter.
 ```sql
-CREATE TABLE learning_path_quests (
+CREATE TABLE quests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    learning_path_id UUID NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
-    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    quest_chapter_id UUID NOT NULL REFERENCES quest_chapters(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    quest_type quest_type NOT NULL,
     difficulty_level difficulty_level NOT NULL,
-    sequence_order INTEGER NOT NULL,
-    is_mandatory BOOLEAN NOT NULL DEFAULT TRUE,
-    unlock_criteria JSONB,
+    estimated_duration_minutes INTEGER,
+    experience_points_reward INTEGER NOT NULL DEFAULT 0,
+    skill_tags TEXT[],
+    subject_id UUID REFERENCES subjects(id),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by UUID NOT NULL REFERENCES user_profiles(auth_user_id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    UNIQUE (learning_path_id, quest_id),
-    UNIQUE (learning_path_id, sequence_order)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ```
-
-#### Quest Management
 
 ##### quest_prerequisites
 A join table to define the many-to-many relationship for quest dependencies.
@@ -820,7 +750,7 @@ CREATE TABLE party_invitations (
 );
 ```
 
-##### meetings (moved earlier)
+##### meetings
 Core meeting definitions and scheduling.
 ```sql
 CREATE TABLE meetings (
@@ -1130,53 +1060,33 @@ CREATE INDEX idx_class_spec_subjects_semester ON class_specialization_subjects(s
 
 -- Curriculum programs
 CREATE INDEX idx_curriculum_programs_code ON curriculum_programs(program_code);
-CREATE INDEX idx_curriculum_programs_active ON curriculum_programs(is_active);
 CREATE INDEX idx_curriculum_programs_degree_level ON curriculum_programs(degree_level);
-
--- Curriculum versions
-CREATE INDEX idx_curriculum_versions_program_id ON curriculum_versions(program_id);
-CREATE INDEX idx_curriculum_versions_effective_year ON curriculum_versions(effective_year);
-CREATE INDEX idx_curriculum_versions_active ON curriculum_versions(is_active);
-CREATE INDEX idx_curriculum_versions_created_by ON curriculum_versions(created_by);
 
 -- Subjects
 CREATE INDEX idx_subjects_code ON subjects(subject_code);
 CREATE INDEX idx_subjects_name ON subjects(subject_name);
-CREATE INDEX idx_subjects_active ON subjects(is_active);
 CREATE INDEX idx_subjects_credits ON subjects(credits);
+CREATE INDEX idx_subjects_version ON subjects(version);
+CREATE INDEX idx_subjects_semester ON subjects(semester);
 
--- Curriculum structure
-CREATE INDEX idx_curriculum_structure_version_id ON curriculum_structure(curriculum_version_id);
-CREATE INDEX idx_curriculum_structure_subject_id ON curriculum_structure(subject_id);
-CREATE INDEX idx_curriculum_structure_semester ON curriculum_structure(semester);
-CREATE INDEX idx_curriculum_structure_mandatory ON curriculum_structure(is_mandatory);
-
--- Syllabus versions
-CREATE INDEX idx_syllabus_versions_subject_id ON syllabus_versions(subject_id);
-CREATE INDEX idx_syllabus_versions_active ON syllabus_versions(is_active);
-CREATE INDEX idx_syllabus_versions_effective_date ON syllabus_versions(effective_date);
-CREATE INDEX idx_syllabus_versions_created_by ON syllabus_versions(created_by);
+-- Curriculum Program Subjects
+CREATE INDEX idx_curriculum_program_subjects_program_id ON curriculum_program_subjects(program_id);
+CREATE INDEX idx_curriculum_program_subjects_subject_id ON curriculum_program_subjects(subject_id);
 ```
 
 #### Student Management
 ```sql
--- Curriculum activations
-CREATE INDEX idx_curriculum_activations_version_id ON curriculum_version_activations(curriculum_version_id);
-CREATE INDEX idx_curriculum_activations_effective_year ON curriculum_version_activations(effective_year);
-CREATE INDEX idx_curriculum_activations_activated_by ON curriculum_version_activations(activated_by);
-
 -- Student enrollments
 CREATE INDEX idx_student_enrollments_user_id ON student_enrollments(auth_user_id);
-CREATE INDEX idx_student_enrollments_curriculum_version_id ON student_enrollments(curriculum_version_id);
 CREATE INDEX idx_student_enrollments_status ON student_enrollments(status);
 CREATE INDEX idx_student_enrollments_enrollment_date ON student_enrollments(enrollment_date);
 CREATE INDEX idx_student_enrollments_expected_graduation ON student_enrollments(expected_graduation_date);
 
 -- Student semester subjects
-CREATE INDEX idx_student_semester_subjects_enrollment_id ON student_semester_subjects(enrollment_id);
+CREATE INDEX idx_student_semester_subjects_auth_user_id ON student_semester_subjects(auth_user_id);
 CREATE INDEX idx_student_semester_subjects_subject_id ON student_semester_subjects(subject_id);
 CREATE INDEX idx_student_semester_subjects_academic_year ON student_semester_subjects(academic_year);
-CREATE INDEX idx_student_semester_subjects_semester ON student_semester_subjects(semester);
+CREATE INDEX idx_student_semester_subjects_learned_at_semester ON student_semester_subjects(learned_at_semester);
 CREATE INDEX idx_student_semester_subjects_status ON student_semester_subjects(status);
 CREATE INDEX idx_student_semester_subjects_grade ON student_semester_subjects(grade);
 ```
@@ -1187,15 +1097,14 @@ CREATE INDEX idx_student_semester_subjects_grade ON student_semester_subjects(gr
 CREATE INDEX idx_skills_name ON skills(name);
 CREATE INDEX idx_skills_domain ON skills(domain);
 CREATE INDEX idx_skills_tier ON skills(tier);
-CREATE INDEX idx_skills_active ON skills(is_active);
-CREATE INDEX idx_skills_source_subject_id ON skills(source_subject_id); -- NEW
+CREATE INDEX idx_skills_source_subject_id ON skills(source_subject_id);
 
 -- Skill dependencies
 CREATE INDEX idx_skill_dependencies_skill_id ON skill_dependencies(skill_id);
 CREATE INDEX idx_skill_dependencies_prerequisite_skill_id ON skill_dependencies(prerequisite_skill_id);
 CREATE INDEX idx_skill_dependencies_relationship_type ON skill_dependencies(relationship_type);
 
--- Subject-Skill Mappings -- NEW
+-- Subject-Skill Mappings
 CREATE INDEX idx_subject_skill_mappings_subject_id ON subject_skill_mappings(subject_id);
 CREATE INDEX idx_subject_skill_mappings_skill_id ON subject_skill_mappings(skill_id);
 
@@ -1267,7 +1176,7 @@ CREATE INDEX idx_notifications_created_at ON notifications(created_at);
 -- Learning paths
 CREATE INDEX idx_learning_paths_name ON learning_paths(name);
 CREATE INDEX idx_learning_paths_path_type ON learning_paths(path_type);
-CREATE INDEX idx_learning_paths_curriculum_version_id ON learning_paths(curriculum_version_id);
+CREATE INDEX idx_learning_paths_curriculum_program_id ON learning_paths(curriculum_program_id);
 CREATE INDEX idx_learning_paths_is_published ON learning_paths(is_published);
 CREATE INDEX idx_learning_paths_created_by ON learning_paths(created_by);
 CREATE INDEX idx_learning_paths_created_at ON learning_paths(created_at);
@@ -1276,18 +1185,12 @@ CREATE INDEX idx_learning_paths_created_at ON learning_paths(created_at);
 CREATE INDEX idx_quest_chapters_learning_path_id ON quest_chapters(learning_path_id);
 CREATE INDEX idx_quest_chapters_sequence ON quest_chapters(learning_path_id, sequence);
 CREATE INDEX idx_quest_chapters_status ON quest_chapters(status);
-
--- Learning path quests
-CREATE INDEX idx_learning_path_quests_path_id ON learning_path_quests(learning_path_id);
-CREATE INDEX idx_learning_path_quests_quest_id ON learning_path_quests(quest_id);
-CREATE INDEX idx_learning_path_quests_sequence ON learning_path_quests(learning_path_id, sequence_order);
-CREATE INDEX idx_learning_path_quests_difficulty ON learning_path_quests(difficulty_level);
-CREATE INDEX idx_learning_path_quests_mandatory ON learning_path_quests(is_mandatory);
 ```
 
 #### Quest Management
 ```sql
 -- Quests
+CREATE INDEX idx_quests_quest_chapter_id ON quests(quest_chapter_id);
 CREATE INDEX idx_quests_title ON quests(title);
 CREATE INDEX idx_quests_type ON quests(quest_type);
 CREATE INDEX idx_quests_difficulty ON quests(difficulty_level);
@@ -1517,7 +1420,7 @@ CREATE INDEX idx_meeting_summaries_created_at ON meeting_summaries(created_at);
 #### User Activity and Progress
 ```sql
 -- User comprehensive activity tracking
-CREATE INDEX idx_user_activity_comprehensive ON user_profiles(auth_user_id, level, total_experience_points, created_at);
+CREATE INDEX idx_user_activity_comprehensive ON user_profiles(auth_user_id, level, experience_points, created_at);
 CREATE INDEX idx_user_quest_skill_progress ON user_quest_progress(auth_user_id, status, last_updated_at);
 CREATE INDEX idx_user_social_activity ON party_members(auth_user_id, status, joined_at, contribution_score);
 
@@ -1536,156 +1439,8 @@ CREATE INDEX idx_recent_guild_posts ON guild_posts(created_at DESC, post_type) W
 CREATE INDEX idx_recent_achievements ON user_achievements(earned_at DESC);
 
 -- Leaderboard and ranking queries
-CREATE INDEX idx_user_level_ranking ON user_profiles(level DESC, total_experience_points DESC);
+CREATE INDEX idx_user_level_ranking ON user_profiles(level DESC, experience_points DESC);
 CREATE INDEX idx_guild_ranking ON guilds(level DESC, experience_points DESC);
 CREATE INDEX idx_party_contribution_ranking ON party_members(party_id, contribution_score DESC) WHERE status = 'Active';
 CREATE INDEX idx_skill_level_ranking ON user_skills(skill_id, level DESC, experience_points DESC);
 ```
-
-## Service Responsibilities and Cross-Service Integration
-
-### Merged Database Benefits
-
-This unified database schema consolidates four previously separate services (User, Quests, Social, and Meeting) into a single, cohesive data layer that provides:
-
-1. **Simplified Data Management**: Single database instance reduces operational complexity
-2. **Enhanced Performance**: Eliminates cross-service database queries and joins
-3. **ACID Compliance**: Full transactional integrity across all business operations
-4. **Reduced Latency**: Direct table joins instead of service-to-service API calls
-5. **Simplified Backup and Recovery**: Single database backup strategy
-
-### Primary Service Responsibilities
-
-#### User Management Domain
-- **Authentication & Authorization**: User profiles, roles, and permissions
-- **Academic Structure**: Classes, curriculum programs, subjects, and academic hierarchy
-- **Student Lifecycle**: Enrollments, semester subjects, and academic progress
-- **Skills System**: Skill definitions, dependencies, and user skill tracking
-- **Arsenal (Notes)**: Personal knowledge management and note-taking
-- **Achievements**: Recognition system for user accomplishments
-- **Notifications**: System-wide notification management
-
-#### Quest Management Domain
-- **Learning Path Design**: Structured learning journeys and curriculum integration
-- **Quest Creation**: Interactive learning content with steps and resources
-- **Progress Tracking**: User attempts, step completion, and learning path progress
-- **Assessment System**: Quest evaluations and submission management
-- **Analytics**: Quest performance metrics and completion analytics
-
-#### Social Interaction Domain
-- **Party System**: Small group collaboration and shared activities
-- **Guild System**: Large community management and hierarchical structures
-- **Friendship Management**: Direct user-to-user social connections
-- **Communication**: Messaging system across parties, guilds, and direct messages
-- **Social Engagement**: Reactions, interactions, and community features
-
-#### Meeting Management Domain
-- **Meeting Coordination**: Scheduling and participant management
-- **AI-Powered Processing**: Transcript generation and content analysis
-- **Summary Generation**: Automated meeting summaries and insights
-- **Collaboration Tools**: Meeting-based learning and discussion features
-
-### Cross-Service Data Integration Patterns
-
-#### User-Centric Integration
-```sql
--- Example: Get comprehensive user profile with all activities
-SELECT 
-    up.username, up.level, up.total_experience_points,
-    COUNT(DISTINCT uqa.id) as completed_quests,
-    COUNT(DISTINCT pm.id) as party_memberships,
-    COUNT(DISTINCT gm.id) as guild_memberships,
-    COUNT(DISTINCT mp.id) as meeting_participations
-FROM user_profiles up
-LEFT JOIN user_quest_attempts uqa ON up.auth_user_id = uqa.auth_user_id 
-    AND uqa.status = 'Completed'
-LEFT JOIN party_members pm ON up.auth_user_id = pm.auth_user_id 
-    AND pm.status = 'Active'
-LEFT JOIN guild_members gm ON up.auth_user_id = gm.auth_user_id 
-    AND gm.status = 'Active'
-LEFT JOIN meeting_participants mp ON up.auth_user_id = mp.user_id
-WHERE up.auth_user_id = $1
-GROUP BY up.auth_user_id, up.username, up.level, up.total_experience_points;
-```
-
-#### Activity-Based Integration
-```sql
--- Example: Get party activities with quest and meeting details
-SELECT 
-    pa.activity_type,
-    pa.started_at,
-    pa.completed_at,
-    q.title as quest_title,
-    m.title as meeting_title,
-    array_agg(up.username) as participants
-FROM party_activities pa
-LEFT JOIN quests q ON pa.quest_id = q.id
-LEFT JOIN meetings m ON pa.meeting_id = m.id
-JOIN user_profiles up ON up.auth_user_id = ANY(pa.participants)
-WHERE pa.party_id = $1
-GROUP BY pa.id, pa.activity_type, pa.started_at, pa.completed_at, q.title, m.title
-ORDER BY pa.started_at DESC;
-```
-
-### Data Access Patterns
-
-#### High-Frequency Queries
-- User authentication and profile lookups
-- Quest progress tracking and updates
-- Social message retrieval and posting
-- Real-time notification delivery
-- Meeting participant management
-
-#### Analytical Queries
-- User engagement metrics across all services
-- Quest completion rates and learning analytics
-- Social interaction patterns and community health
-- Meeting effectiveness and participation trends
-
-#### Batch Operations
-- Daily/weekly progress summaries
-- Achievement calculation and awarding
-- Skill level updates based on quest completions
-- Community ranking and leaderboard updates
-
-### Real-Time Features Support
-
-The merged schema supports real-time features through:
-
-1. **Optimized Indexes**: Comprehensive indexing strategy for fast lookups
-2. **Efficient Joins**: Direct table relationships eliminate service boundaries
-3. **Trigger-Based Updates**: Automatic timestamp and status management
-4. **Composite Queries**: Single queries spanning multiple domains
-
-### Migration and Deployment Considerations
-
-#### From Microservices to Monolithic Database
-1. **Data Migration**: Systematic migration of data from four separate databases
-2. **Foreign Key Establishment**: Creation of cross-service relationships
-3. **Index Optimization**: Comprehensive index strategy for merged queries
-4. **Application Layer Updates**: Service layer modifications to use single database
-
-#### Performance Monitoring
-- Query performance across merged domains
-- Index utilization and optimization
-- Connection pooling and resource management
-- Backup and recovery procedures for larger dataset
-
-### Future Extensibility
-
-The merged schema maintains extensibility through:
-- **Modular Table Design**: Clear domain separation within single database
-- **Flexible Relationships**: Support for future cross-domain features
-- **Scalable Indexing**: Index strategy that supports growth
-- **Service Boundary Preservation**: Logical separation maintained for potential future splitting
-
-This unified database architecture provides a solid foundation for the RogueLearn platform while maintaining the flexibility to evolve with changing requirements and scale with user growth.
-```
-
-I have updated the primary architecture document. The key changes are:
-*   **A new `subject_skill_mappings` table** has been added to create a deterministic, many-to-many relationship between subjects and skills.
-*   **The `skills` table** now includes a nullable `source_subject_id` for administrative tracking.
-*   **The `user_skills` and `user_skill_rewards` tables** have been modified to use a robust `skill_id` foreign key instead of a string-based name, with the unique constraints updated accordingly.
-*   **Indexes** have been added for the new table and columns to ensure query performance.
-
-Please review this document. Once you confirm, I will proceed to provide the implementation files in the next response.
