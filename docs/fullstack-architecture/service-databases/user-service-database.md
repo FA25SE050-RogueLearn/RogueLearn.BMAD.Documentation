@@ -191,9 +191,20 @@ CREATE TABLE subjects (
 Many-to-many relationship between curriculum programs and subjects.
 ```sql
 CREATE TABLE curriculum_program_subjects (
-    program_id UUID NOT NULL REFERENCES curriculum_programs(id) ON DELETE CASCADE,
-    subject_id UUID NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
-    PRIMARY KEY (program_id, subject_id)
+     -- A single UUID primary key, consistent with other entities in the domain.
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Foreign key linking to the curriculum program (the "what" to study).
+    program_id UUID NOT NULL REFERENCES public.curriculum_programs(id) ON DELETE CASCADE,
+
+    -- Foreign key linking to the specific versioned subject.
+    subject_id UUID NOT NULL REFERENCES public.subjects(id) ON DELETE CASCADE,
+
+    -- Audit timestamp.
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    -- Business rule: A subject can only be mapped to a program once.
+    CONSTRAINT curriculum_program_subjects_program_id_subject_id_key UNIQUE (program_id, subject_id)
 );
 ```
 

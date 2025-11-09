@@ -62,21 +62,26 @@ CREATE TABLE quest_chapters (
 #### quests
 Core quest definitions with metadata and configuration. Each quest belongs to a single chapter.
 ```sql
-CREATE TABLE quests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    quest_chapter_id UUID NOT NULL REFERENCES quest_chapters(id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    quest_type quest_type NOT NULL,
-    difficulty_level difficulty_level NOT NULL,
-    estimated_duration_minutes INTEGER,
-    experience_points_reward INTEGER NOT NULL DEFAULT 0,
-    skill_tags TEXT[],
-    subject_id UUID, -- Soft FK to User Service: subjects
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_by UUID NOT NULL, -- Soft FK to User Service: user_profiles(auth_user_id)
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+CREATE TABLE public.quests (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title character varying NOT NULL,
+  description text NOT NULL,
+  quest_type USER-DEFINED NOT NULL,
+  difficulty_level USER-DEFINED NOT NULL,
+  estimated_duration_minutes integer,
+  experience_points_reward integer NOT NULL DEFAULT 0,
+  subject_id uuid,
+  is_active boolean NOT NULL DEFAULT true,
+  created_by uuid NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  quest_chapter_id uuid,
+  sequence integer,
+  quest_status USER-DEFINED DEFAULT 'NotStarted'::quest_status,
+  CONSTRAINT quests_pkey PRIMARY KEY (id),
+  CONSTRAINT quests_subject_id_fkey FOREIGN KEY (subject_id) REFERENCES public.subjects(id),
+  CONSTRAINT quests_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.user_profiles(auth_user_id),
+  CONSTRAINT quests_quest_chapter_id_fkey FOREIGN KEY (quest_chapter_id) REFERENCES public.quest_chapters(id)
 );
 ```
 
@@ -99,11 +104,12 @@ Individual, actionable tasks a user must complete to finish a single Quest. The 
 CREATE TABLE quest_steps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    skill_id UUID NOT NULL REFERENCES skills(id) ON DELETE CASCADE, -- ADDED: The direct link to the skill this step teaches.
     step_number INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     step_type step_type NOT NULL,
-    content JSONB,
+    content JSONB, -- This now only contains non-relational data like text prompts and questions.
     validation_criteria JSONB,
     experience_points INTEGER NOT NULL DEFAULT 0,
     is_optional BOOLEAN NOT NULL DEFAULT FALSE,
