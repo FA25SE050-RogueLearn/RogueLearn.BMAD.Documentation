@@ -762,7 +762,8 @@ Core meeting definitions and scheduling.
 ```sql
 CREATE TABLE meetings (
     meeting_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    party_id UUID NOT NULL REFERENCES parties(id) ON DELETE CASCADE,
+    party_id UUID REFERENCES parties(id) ON DELETE CASCADE,
+    guild_id UUID REFERENCES guilds(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     scheduled_start_time TIMESTAMPTZ NOT NULL,
     scheduled_end_time TIMESTAMPTZ NOT NULL,
