@@ -1,5 +1,5 @@
 ﻿### **Story 4.16: Frontend - Arsenal Management Refinement (v1.1)**
-- **Status:** Draft
+- **Status:** Done
 - **Ownership:** Frontend Team (TBD)
 - **Target Deadline:** TBD
 
@@ -83,15 +83,15 @@ emove routes and response shapes.
   - Role enforcement handled by backend; UI gates based on responses (403) and role hints where available.
 
 #### **Tasks / Subtasks**
-- [ ] Virtualized notes list + memoization (AC 1)
-- [ ] Debounced search & tag filters; client-side sort (AC 1)
-- [ ] Autosave + offline queue with local persistence and retry (AC 2)
-- [ ] Tag sidebar: attach/detach/create with validation and clear errors (AC 3)
-- [ ] AI suggest/apply flows with aligned endpoints and error states (AC 4)
-- [ ] Public toggle + link copy (AC 5)
-- [ ] "Share to Party Stash" modal + API integration (AC 6)
-- [ ] Accessibility pass: labels, focus mgmt, contrast, shortcuts (AC 7)
-- [ ] Update 
+- [x] Virtualized notes list + memoization (AC 1)
+- [x] Debounced search & tag filters; client-side sort (AC 1)
+- [x] Autosave + offline queue with local persistence and retry (AC 2)
+- [x] Tag sidebar: attach/detach/create with validation and clear errors (AC 3)
+- [x] AI suggest/apply flows with aligned endpoints and error states (AC 4)
+- [x] Public toggle + link copy (AC 5)
+- [x] "Share to Party Stash" modal + API integration (AC 6)
+- [x] Accessibility pass: labels, focus mgmt, contrast, shortcuts (AC 7)
+- [x] Update 
 otesApi/	agsApi/partiesApi to current backend routes (API Alignment)
 - [ ] Unit, integration, and E2E tests (Testing)
 
