@@ -1,5 +1,5 @@
 ### **Story 4.19: Party & Guild — Meetings Management Logic Review and Space Name**
-- **Status:** Proposed
+- **Status:** Done
 - **Ownership:** Frontend + Backend (TBD)
 - **Target Deadline:** TBD
 
@@ -131,13 +131,13 @@ public class Participant
   - Lists: `GET /api/meetings/party/{partyId}` and `GET /api/meetings/guild/{guildId}` via `meetingsApi.getPartyMeetings(partyId)` / `meetingsApi.getGuildMeetings(guildId)`.
 
 #### **Tasks / Subtasks**
-- [ ] Configure Google Cloud + OAuth scopes; Supabase offline consent and callback
+- [x] Configure Google Cloud + OAuth scopes; Supabase offline consent and callback
  - [x] Add .NET models and Supabase Postgres migrations (`meetingCode`, `spaceName`, `MeetingStatus`)
-- [ ] Implement backend routes for upsert, participants, artifacts, summary, and details
-- [ ] Update Party/Guild meetings UI lists and forms with `spaceName` and `meetingCode`
-- [ ] Implement dashboard states and actions for lifecycle statuses
-- [ ] Error handling and accessibility pass across flows
-- [ ] Wire frontend data to `src/api/meetingsApi.ts`; update `@/types/meetings`
+- [x] Implement backend routes for upsert, participants, artifacts, summary, and details
+- [x] Update Party/Guild meetings UI lists and forms with `spaceName` and `meetingCode`
+- [x] Implement dashboard states and actions for lifecycle statuses
+- [x] Error handling and accessibility pass across flows
+- [x] Wire frontend data to `src/api/meetingsApi.ts`; update `@/types/meetings`
 
 #### **Testing**
  - Unit: DTO mapping; .NET models; form validation.
