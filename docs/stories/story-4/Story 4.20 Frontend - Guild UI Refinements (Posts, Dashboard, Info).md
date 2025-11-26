@@ -1,5 +1,5 @@
 ### **Story 4.20: Frontend - Guild UI Refinements (Posts, Dashboard, Info)**
-- **Status:** Proposed
+- **Status:** Done
 - **Ownership:** Frontend Team (TBD)
 - **Target Deadline:** TBD
 
@@ -48,10 +48,10 @@
 - Dashboard: `/api/guilds/:guildId/dashboard` composite endpoint or individual fetches.
 
 #### **Tasks / Subtasks**
-- [ ] Refactor post management UI and moderation gating (AC 1)
-- [ ] Add dashboard tiles and deep links (AC 2)
-- [ ] Add guild info modal (AC 3)
-- [ ] Error handling & accessibility pass (AC 4)
+- [x] Refactor post management UI and moderation gating (AC 1)
+- [x] Add dashboard tiles and deep links (AC 2)
+- [x] Add guild info modal (AC 3)
+- [x] Error handling & accessibility pass (AC 4)
 
 #### **Testing**
 - Unit: post forms and moderation actions; dashboard tiles.
