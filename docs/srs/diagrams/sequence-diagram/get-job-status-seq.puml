@@ -1,0 +1,18 @@
+' get-job-status-seq.puml
+@startuml
+actor Client
+participant "QuestsController" as Controller
+participant "Hangfire\nStorage" as DB
+
+Client -> Controller : GET /generation-status/{jobId}
+Controller -> DB : GetJobData(jobId)
+DB --> Controller : Job Data (State)
+
+alt State == Succeeded
+    Controller --> Client : { Status: "Succeeded" }
+else State == Processing
+    Controller --> Client : { Status: "Processing" }
+else State == Failed
+    Controller --> Client : { Status: "Failed", Error: "..." }
+end
+@enduml

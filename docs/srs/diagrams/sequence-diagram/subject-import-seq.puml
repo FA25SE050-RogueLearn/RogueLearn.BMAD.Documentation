@@ -1,0 +1,44 @@
+' subject-import-seq.puml
+@startuml
+actor Admin
+participant "AdminConsole" as UI
+participant "SubjectsController" as Controller
+participant "ImportSubject\nHandler" as Handler
+participant "HtmlCleaning\nService" as Cleaner
+participant "AI Extraction\nPlugin" as AI
+participant "ReadingUrl\nService" as UrlService
+participant "Database" as DB
+
+Admin -> UI : 1. Upload Syllabus HTML
+UI -> Controller : 2. Request Import (POST)
+Controller -> Handler : 3. Handle(command)
+
+activate Handler
+    Handler -> Cleaner : 4. Clean HTML garbage
+    Cleaner --> Handler : cleanText
+    
+    Handler -> AI : 5. Extract Syllabus Structure
+    note right: Uses Gemini to parse JSON
+    AI --> Handler : SyllabusData (Topics, Sessions)
+    
+    group URL Enrichment (Batch Process)
+        Handler -> Handler : 6. Analyze Context (e.g. "Java")
+        loop For Each Session
+            Handler -> UrlService : 7. Find Valid Resource
+            UrlService -> UrlService : Generate Queries -> Search -> Filter -> Ping
+            UrlService --> Handler : Validated URL
+        end
+    end
+    
+    Handler -> DB : 8. Check if Subject exists
+    alt Exists
+        Handler -> DB : 9. Update Content & Semester
+    else New
+        Handler -> DB : 10. Create new Subject record
+    end
+    
+    Handler --> Controller : 11. Return Success
+deactivate Handler
+
+Controller --> UI : 12. Show "Import Successful"
+@enduml

@@ -1,0 +1,23 @@
+' get-my-quests-seq.puml
+@startuml
+actor Student
+participant "QuestsController" as Controller
+participant "GetMyQuests\nHandler" as Handler
+participant "QuestRepository" as Q_Repo
+participant "SubjectRepository" as S_Repo
+
+Student -> Controller : GET /api/quests/me
+Controller -> Handler : Handle(Query)
+
+activate Handler
+    Handler -> Q_Repo : GetAllAsync()
+    Handler -> Handler : Filter by CreatedBy == AuthUserId
+    
+    Handler -> S_Repo : GetAllAsync()
+    Handler -> Handler : Join Quests with Subjects
+    
+    Handler --> Controller : List<MyQuestWithSubjectDto>
+deactivate Handler
+
+Controller --> Student : 200 OK
+@enduml

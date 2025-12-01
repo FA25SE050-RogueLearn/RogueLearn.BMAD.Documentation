@@ -1,0 +1,56 @@
+' quiz-submission-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class QuestsController {
+        +SubmitQuizAnswer()
+    }
+}
+
+package "Application Layer" {
+    class SubmitQuizAnswerCommand {
+        +QuestId
+        +Answers
+    }
+
+    class SubmitQuizAnswerHandler {
+        +Handle()
+    }
+
+    interface IQuizValidationService {
+        +EvaluateQuizSubmission()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    class QuizValidationService
+    
+    interface IQuestSubmissionRepository
+    interface IUserQuestStepProgressRepository
+    class QuestSubmission {
+        +Grade
+        +IsPassed
+    }
+}
+
+' Formatting
+QuestsController -[hidden]- SubmitQuizAnswerCommand
+SubmitQuizAnswerHandler -[hidden]- IQuestSubmissionRepository
+
+' Relationships
+QuestsController ..> SubmitQuizAnswerCommand : Creates
+QuestsController ..> SubmitQuizAnswerHandler : Sends
+
+SubmitQuizAnswerHandler ..> SubmitQuizAnswerCommand : Uses
+SubmitQuizAnswerHandler --> IQuizValidationService
+SubmitQuizAnswerHandler --> IQuestSubmissionRepository
+SubmitQuizAnswerHandler --> IUserQuestStepProgressRepository
+
+IQuizValidationService <|.. QuizValidationService
+IQuestSubmissionRepository ..> QuestSubmission : Stores
+@enduml

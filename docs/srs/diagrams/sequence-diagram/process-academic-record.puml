@@ -1,0 +1,37 @@
+' process-academic-record-seq.puml
+@startuml
+actor Student
+participant "Frontend UI" as UI
+participant "UsersController" as Controller
+participant "ProcessAcademicRecord\nHandler" as Handler
+participant "HtmlCleaning\nService" as Cleaner
+participant "FapExtraction\nPlugin (AI)" as AI
+participant "Database" as DB
+
+Student -> UI : 1. Upload HTML Transcript
+UI -> Controller : 2. Request Sync (POST)
+Controller -> Handler : 3. Handle(command)
+
+activate Handler
+    Handler -> Cleaner : 4. ExtractCleanText(html)
+    Cleaner --> Handler : cleanText
+
+    Handler -> AI : 5. ExtractFapRecordJsonAsync(cleanText)
+    note right: Calls Google Gemini
+    AI --> Handler : FapRecordData (JSON)
+
+    Handler -> DB : 6. Get existing Student Subjects
+    
+    loop For each subject in JSON
+        Handler -> DB : 7. Upsert StudentSemesterSubject
+        note right: Update Status/Grade
+    end
+
+    Handler -> Handler : 8. Dispatch GenerateQuestLine
+    
+    Handler --> Controller : 9. Return Success
+deactivate Handler
+
+Controller --> UI : 10. 200 OK
+UI --> Student : 11. Show "Sync Complete"
+@enduml

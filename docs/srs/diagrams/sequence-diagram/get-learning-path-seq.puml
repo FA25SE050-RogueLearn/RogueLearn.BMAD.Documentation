@@ -1,0 +1,30 @@
+' get-learning-path-seq.puml
+@startuml
+actor Student
+participant "LearningPaths\nController" as Controller
+participant "GetMyLearningPath\nHandler" as Handler
+participant "LearningPath\nRepository" as LP_Repo
+participant "QuestChapter\nRepository" as QC_Repo
+participant "Quest\nRepository" as Q_Repo
+
+Student -> Controller : GET /api/learning-paths/me
+Controller -> Handler : Handle(GetMyLearningPathQuery)
+
+activate Handler
+    Handler -> LP_Repo : GetLatestByUserAsync(userId)
+    
+    alt Not Found
+        Handler --> Controller : null
+        Controller --> Student : 404 Not Found
+    else Found
+        Handler -> QC_Repo : GetChaptersByLearningPathIdOrderedAsync(pathId)
+        Handler -> Q_Repo : GetQuestsByChapterIdsAsync(chapterIds)
+        
+        Handler -> Handler : Map Entity to DTO
+        note right: Organize Quests into Chapters
+        
+        Handler --> Controller : LearningPathDto
+        Controller --> Student : 200 OK (JSON)
+    end
+deactivate Handler
+@enduml

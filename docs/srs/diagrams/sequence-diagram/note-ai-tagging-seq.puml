@@ -1,0 +1,34 @@
+' note-ai-tagging-seq.puml
+@startuml
+actor User
+participant "Arsenal UI" as UI
+participant "NotesController" as Controller
+participant "CreateNoteWithAI\nHandler" as Handler
+participant "Summarization\nPlugin" as Summarizer
+participant "Tagging\nService" as Tagger
+participant "Database" as DB
+
+User -> UI : 1. Upload File / Paste Text
+UI -> Controller : 2. Request Create (POST)
+Controller -> Handler : 3. Handle(command)
+
+activate Handler
+    Handler -> Summarizer : 4. Summarize Content
+    Summarizer --> Handler : Structured Content (BlockNote JSON)
+
+    Handler -> DB : 5. Save Note (Content Only)
+    
+    Handler -> Tagger : 6. Request Tag Suggestions
+    Tagger -> Tagger : 7. Call AI (Gemini)
+    Tagger --> Handler : List of Tags (e.g. ["C#", "Web"])
+    
+    loop For Each Tag
+        Handler -> DB : 8. Find or Create Tag
+        Handler -> DB : 9. Link Tag to Note
+    end
+    
+    Handler --> Controller : 10. Return Note + Tags
+deactivate Handler
+
+Controller --> UI : 11. Display Note in Library
+@enduml

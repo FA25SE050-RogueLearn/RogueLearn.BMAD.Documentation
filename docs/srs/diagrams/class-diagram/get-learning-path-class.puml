@@ -1,0 +1,43 @@
+' get-learning-path-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class LearningPathsController {
+        +GetMyLearningPath()
+    }
+}
+
+package "Application Layer" {
+    class GetMyLearningPathQuery {
+        +AuthUserId
+    }
+
+    class GetMyLearningPathQueryHandler {
+        +Handle()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ILearningPathRepository
+    interface IQuestChapterRepository
+    interface IQuestRepository
+    
+    class LearningPathDto
+}
+
+' Relationships
+LearningPathsController ..> GetMyLearningPathQuery : Creates
+LearningPathsController ..> GetMyLearningPathQueryHandler : Sends
+
+GetMyLearningPathQueryHandler ..> GetMyLearningPathQuery : Uses
+GetMyLearningPathQueryHandler --> ILearningPathRepository
+GetMyLearningPathQueryHandler --> IQuestChapterRepository
+GetMyLearningPathQueryHandler --> IQuestRepository
+GetMyLearningPathQueryHandler ..> LearningPathDto : Returns
+
+@enduml

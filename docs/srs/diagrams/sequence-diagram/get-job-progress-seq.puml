@@ -1,0 +1,13 @@
+' get-job-progress-seq.puml
+@startuml
+actor Client
+participant "QuestsController" as Controller
+participant "Hangfire\nStorage" as DB
+
+Client -> Controller : GET /generation-progress/{jobId}
+Controller -> DB : GetJobParameter(jobId, "Progress")
+DB --> Controller : JSON String
+
+Controller -> Controller : Deserialize JSON
+Controller --> Client : QuestGenerationProgressDto
+@enduml

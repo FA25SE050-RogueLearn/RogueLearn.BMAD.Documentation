@@ -1,0 +1,24 @@
+' get-job-progress-class.puml
+@startuml
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class QuestsController {
+        +GetGenerationProgress(jobId)
+    }
+}
+
+package "Infrastructure Layer" {
+    class JobStorage {
+        +GetConnection()
+    }
+    class IStorageConnection {
+        +GetJobParameter(jobId, "Progress")
+    }
+}
+
+QuestsController --> JobStorage
+JobStorage --> IStorageConnection
+@enduml

@@ -1,0 +1,45 @@
+' onboarding-completion.puml
+@startuml
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+package "API Layer" {
+    class OnboardingController {
+        +CompleteOnboarding(command)
+    }
+}
+
+package "Application Layer" {
+    class CompleteOnboardingCommand {
+        +AuthUserId
+        +CurriculumProgramId
+        +CareerRoadmapId
+    }
+
+    class CompleteOnboardingCommandHandler {
+        +Handle(command)
+    }
+}
+
+package "Domain Layer" {
+    interface IUserProfileRepository
+    interface ICurriculumProgramRepository
+    interface IClassRepository
+    
+    class UserProfile {
+        +RouteId
+        +ClassId
+        +OnboardingCompleted
+    }
+}
+
+' Relationships
+OnboardingController .down.> CompleteOnboardingCommand : Creates
+OnboardingController .down.> CompleteOnboardingCommandHandler : Sends via Mediator
+
+CompleteOnboardingCommandHandler -down-> IUserProfileRepository
+CompleteOnboardingCommandHandler -down-> ICurriculumProgramRepository
+CompleteOnboardingCommandHandler -down-> IClassRepository
+CompleteOnboardingCommandHandler .down.> UserProfile : Updates
+
+@enduml

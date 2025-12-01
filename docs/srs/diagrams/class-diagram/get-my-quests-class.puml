@@ -1,0 +1,40 @@
+' get-my-quests-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class QuestsController {
+        +GetMyQuestsWithSubjects()
+    }
+}
+
+package "Application Layer" {
+    class GetMyQuestsWithSubjectsQuery {
+        +AuthUserId
+    }
+
+    class GetMyQuestsWithSubjectsQueryHandler {
+        +Handle()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface IQuestRepository
+    interface ISubjectRepository
+    
+    class MyQuestWithSubjectDto
+}
+
+' Relationships
+QuestsController ..> GetMyQuestsWithSubjectsQuery : Creates
+QuestsController ..> GetMyQuestsWithSubjectsQueryHandler : Sends
+
+GetMyQuestsWithSubjectsQueryHandler ..> GetMyQuestsWithSubjectsQuery : Uses
+GetMyQuestsWithSubjectsQueryHandler --> IQuestRepository
+GetMyQuestsWithSubjectsQueryHandler --> ISubjectRepository
+GetMyQuestsWithSubjectsQueryHandler ..> MyQuestWithSubjectDto : Returns
+@enduml

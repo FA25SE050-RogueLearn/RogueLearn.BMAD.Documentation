@@ -1,0 +1,66 @@
+' subject-import-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class SubjectsController {
+        +ImportFromText(request)
+    }
+}
+
+package "Application Layer" {
+    class ImportSubjectFromTextCommand {
+        +RawText
+        +Semester
+    }
+
+    class ImportSubjectFromTextCommandHandler {
+        +Handle()
+        -EnrichUrlsWithBatchQueries()
+    }
+
+    interface ISyllabusExtractionPlugin {
+        +ExtractSyllabusJsonAsync()
+    }
+    
+    interface IReadingUrlService {
+        +GetValidUrlForTopicAsync()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    class SyllabusExtractionPlugin
+    class ReadingUrlService
+    class HtmlCleaningService
+    interface ISubjectRepository
+    interface ICurriculumImportStorage
+    
+    class Subject {
+        +Content (JSONB)
+        +Semester
+    }
+}
+
+' Formatting
+SubjectsController -[hidden]- ImportSubjectFromTextCommand
+ImportSubjectFromTextCommandHandler -[hidden]- ISubjectRepository
+
+' Relationships
+SubjectsController ..> ImportSubjectFromTextCommand : Creates
+SubjectsController ..> ImportSubjectFromTextCommandHandler : Sends
+
+ImportSubjectFromTextCommandHandler ..> ImportSubjectFromTextCommand : Uses
+ImportSubjectFromTextCommandHandler --> ISyllabusExtractionPlugin
+ImportSubjectFromTextCommandHandler --> IReadingUrlService
+ImportSubjectFromTextCommandHandler --> HtmlCleaningService
+ImportSubjectFromTextCommandHandler --> ISubjectRepository
+ImportSubjectFromTextCommandHandler --> ICurriculumImportStorage
+
+ISyllabusExtractionPlugin <|.. SyllabusExtractionPlugin
+IReadingUrlService <|.. ReadingUrlService
+ISubjectRepository ..> Subject : Manages
+@enduml

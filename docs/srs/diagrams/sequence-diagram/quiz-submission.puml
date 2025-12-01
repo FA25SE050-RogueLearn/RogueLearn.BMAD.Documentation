@@ -1,0 +1,35 @@
+' quiz-submission-seq.puml
+@startuml
+actor Student
+participant "Frontend UI" as UI
+participant "QuestsController" as Controller
+participant "SubmitQuizAnswer\nHandler" as Handler
+participant "QuizValidation\nService" as Validator
+participant "Database" as DB
+
+Student -> UI : 1. Submit Answers
+UI -> Controller : 2. POST /submit-quiz
+Controller -> Handler : 3. Handle(command)
+
+activate Handler
+    Handler -> DB : 4. Validate Quest/Step exists
+    
+    Handler -> Validator : 5. Evaluate(Answers)
+    Validator --> Handler : Result (Score, IsPassed)
+    
+    Handler -> DB : 6. Save QuestSubmission
+    
+    alt IsPassed == True
+        Handler -> DB : 7. Mark Activity as Complete
+        Handler -> DB : 8. Check Module Completion
+        opt All Activities Done
+            Handler -> DB : 9. Update Step Status = Completed
+        end
+    end
+    
+    Handler --> Controller : 10. Return Result
+deactivate Handler
+
+Controller --> UI : 11. 200 OK (Result)
+UI --> Student : 12. Show Score/Feedback
+@enduml

@@ -1,0 +1,51 @@
+' curriculum-management-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class CurriculumImportController {
+        +ImportCurriculum(file)
+    }
+}
+
+package "Application Layer" {
+    class ImportCurriculumCommand {
+        +RawText
+    }
+    class ImportCurriculumHandler {
+        +Handle()
+    }
+    
+    interface ICurriculumExtractionPlugin {
+        +ExtractCurriculumJsonAsync()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    class CurriculumExtractionPlugin
+    interface ICurriculumProgramRepository
+    interface ISubjectRepository
+    interface ICurriculumProgramSubjectRepository
+    
+    class CurriculumProgram
+}
+
+' Formatting: Force vertical layout
+CurriculumImportController -[hidden]- ImportCurriculumCommand
+
+' Relationships
+CurriculumImportController ..> ImportCurriculumCommand : Creates
+CurriculumImportController ..> ImportCurriculumHandler : Sends
+
+ImportCurriculumHandler --> ICurriculumExtractionPlugin
+ImportCurriculumHandler --> ICurriculumProgramRepository
+ImportCurriculumHandler --> ISubjectRepository
+ImportCurriculumHandler --> ICurriculumProgramSubjectRepository
+
+ICurriculumExtractionPlugin <|.. CurriculumExtractionPlugin
+ICurriculumProgramRepository ..> CurriculumProgram : Manages
+@enduml

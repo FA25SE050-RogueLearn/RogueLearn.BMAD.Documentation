@@ -1,0 +1,58 @@
+' note-ai-tagging-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class NotesController {
+        +CreateWithAiTags(request)
+    }
+}
+
+package "Application Layer" {
+    class CreateNoteWithAiTagsCommand {
+        +RawText
+        +FileStream
+        +ApplySuggestions
+    }
+
+    class CreateNoteWithAiTagsCommandHandler {
+        +Handle()
+    }
+
+    interface ITaggingSuggestionService {
+        +SuggestAsync()
+        +SuggestFromFileAsync()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    class TaggingSuggestionPlugin
+    interface INoteRepository
+    interface ITagRepository
+    
+    class Note {
+        +Content
+        +Tags
+    }
+}
+
+' Formatting
+NotesController -[hidden]- CreateNoteWithAiTagsCommand
+CreateNoteWithAiTagsCommandHandler -[hidden]- INoteRepository
+
+' Relationships
+NotesController ..> CreateNoteWithAiTagsCommand : Creates
+NotesController ..> CreateNoteWithAiTagsCommandHandler : Sends
+
+CreateNoteWithAiTagsCommandHandler ..> CreateNoteWithAiTagsCommand : Uses
+CreateNoteWithAiTagsCommandHandler --> ITaggingSuggestionService
+CreateNoteWithAiTagsCommandHandler --> INoteRepository
+CreateNoteWithAiTagsCommandHandler --> ITagRepository
+
+ITaggingSuggestionService <|.. TaggingSuggestionPlugin
+INoteRepository ..> Note : Manages
+@enduml

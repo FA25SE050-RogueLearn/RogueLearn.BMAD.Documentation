@@ -1,0 +1,31 @@
+' generate-quest-line-seq.puml
+@startuml
+participant "System Trigger" as Sys
+participant "GenerateQuestLine\nHandler" as Handler
+participant "Subject\nRepositories" as SubjectDB
+participant "Gradebook\nRepository" as GradeDB
+participant "Quest\nRepository" as QuestDB
+
+Sys -> Handler : 1. Execute Command
+activate Handler
+
+    Handler -> SubjectDB : 2. Get Route Subjects
+    Handler -> SubjectDB : 3. Get Class Specialization Subjects
+    note right: Override semesters here
+
+    Handler -> GradeDB : 4. Get Student Grades
+    Handler -> QuestDB : 5. Get Existing Quests
+
+    loop For Each Subject
+        Handler -> Handler : 6. Check Recommendation Logic
+        
+        alt Quest Not Found
+            Handler -> QuestDB : 7. Create Quest Shell
+        else Quest Exists
+            Handler -> QuestDB : 8. Update Metadata
+        end
+    end
+
+    Handler --> Sys : 9. Complete
+deactivate Handler
+@enduml

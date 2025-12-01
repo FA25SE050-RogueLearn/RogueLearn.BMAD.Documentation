@@ -1,0 +1,33 @@
+' onboarding-completion.puml
+@startuml
+actor Student
+participant "OnboardingUI" as UI
+participant "OnboardingController" as Controller
+participant "CompleteOnboarding\nHandler" as Handler
+participant "Database" as DB
+
+Student -> UI : 1. Select Program & Class, Click "Start Journey"
+UI -> Controller : 2. Send CompleteOnboarding request
+Controller -> Handler : 3. Call Handle(command)
+
+Handler -> DB : 4. Fetch User Profile
+alt Profile Not Found OR Already Completed
+    DB --> Handler : Return Error / Validation Fail
+    Handler --> Controller : Return Bad Request
+    Controller --> UI : 5.1 Display Error
+else Valid Profile
+    Handler -> DB : 6. Validate Program ID exists
+    Handler -> DB : 7. Validate Class ID exists
+    
+    Handler -> DB : 8. Update User Profile
+    note right
+        Set RouteId = ProgramId
+        Set ClassId = CareerRoadmapId
+        Set OnboardingCompleted = true
+    end note
+    
+    Handler --> Controller : 9. Return Success (204 No Content)
+    Controller --> UI : 10. Redirect to Dashboard
+    UI --> Student : 11. Show Main Dashboard
+end
+@enduml

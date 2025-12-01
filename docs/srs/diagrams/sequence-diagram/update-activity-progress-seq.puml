@@ -1,0 +1,33 @@
+' update-activity-progress-seq.puml
+@startuml
+actor Student
+participant "QuestsController" as Controller
+participant "UpdateActivity\nHandler" as Handler
+participant "ActivityValidation\nService" as Validator
+participant "Database" as DB
+
+Student -> Controller : POST /progress (Completed)
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> DB : Get Quest Step & Attempt
+    Handler -> DB : Get/Create StepProgress Record
+    
+    Handler -> Validator : ValidateActivityCompletion()
+    Validator -> DB : Check Quiz Submission (if Quiz)
+    Validator --> Handler : Valid/Invalid
+    
+    alt Invalid
+        Handler -> Controller : Throw ValidationException
+        Controller -> Student : 400 Bad Request
+    else Valid
+        Handler -> DB : Update StepProgress (Add ActivityID)
+        Handler -> Handler : Check if All Activities Done
+        opt All Done
+            Handler -> DB : Mark Step Completed
+        end
+        Handler --> Controller : Success
+        Controller --> Student : 204 No Content
+    end
+deactivate Handler
+@enduml

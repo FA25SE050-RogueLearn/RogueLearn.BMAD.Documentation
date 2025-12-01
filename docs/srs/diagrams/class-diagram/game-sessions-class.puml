@@ -1,0 +1,52 @@
+' game-sessions-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class GameSessionsController {
+        +CreateSession()
+        +GetPack()
+    }
+}
+
+package "Application Layer" {
+    class CreateGameSessionCommand {
+        +SubjectId
+        +Difficulty
+    }
+    class CreateGameSessionHandler {
+        +Handle()
+        -GenerateQuestionPack()
+    }
+    
+    interface ISubjectRepository
+}
+
+package "Domain & Infrastructure Layer" {
+    class Subject {
+        +Content (JSON Syllabus)
+    }
+    class GameSession {
+        +SessionId
+        +QuestionPack (JSONB)
+    }
+    interface IGameSessionRepository
+}
+
+' Formatting: Force vertical layout
+GameSessionsController -[hidden]- CreateGameSessionCommand
+
+' Relationships
+GameSessionsController ..> CreateGameSessionCommand : Creates
+GameSessionsController ..> CreateGameSessionHandler : Sends
+
+CreateGameSessionHandler --> ISubjectRepository
+CreateGameSessionHandler --> IGameSessionRepository
+
+CreateGameSessionHandler ..> Subject : Reads Content
+IGameSessionRepository ..> GameSession : Creates
+@enduml

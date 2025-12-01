@@ -1,0 +1,59 @@
+' xp-ingestion-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class UserSkillsController {
+        +IngestXpEvent(command)
+    }
+}
+
+package "Application Layer" {
+    class IngestXpEventCommand {
+        +AuthUserId
+        +SkillId
+        +Points
+        +SourceType
+    }
+
+    class IngestXpEventCommandHandler {
+        +Handle()
+        -CalculateLevel(xp)
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface IUserSkillRepository
+    interface IUserSkillRewardRepository
+    interface ISkillRepository
+    
+    class UserSkill {
+        +ExperiencePoints
+        +Level
+    }
+    class UserSkillReward {
+        +PointsAwarded
+        +Reason
+    }
+}
+
+' Formatting
+UserSkillsController -[hidden]- IngestXpEventCommand
+IngestXpEventCommandHandler -[hidden]- IUserSkillRepository
+
+' Relationships
+UserSkillsController ..> IngestXpEventCommand : Creates
+UserSkillsController ..> IngestXpEventCommandHandler : Sends
+
+IngestXpEventCommandHandler ..> IngestXpEventCommand : Uses
+IngestXpEventCommandHandler --> IUserSkillRepository
+IngestXpEventCommandHandler --> IUserSkillRewardRepository
+IngestXpEventCommandHandler --> ISkillRepository
+
+IUserSkillRepository ..> UserSkill : Updates
+IUserSkillRewardRepository ..> UserSkillReward : Logs History
+@enduml

@@ -1,0 +1,45 @@
+' generate-quest-line-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "Application Layer" {
+    class GenerateQuestLineCommand {
+        +AuthUserId
+    }
+
+    class GenerateQuestLineHandler {
+        +Handle()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ISubjectRepository
+    interface IClassSpecializationSubjectRepository
+    interface IStudentSemesterSubjectRepository
+    interface IQuestRepository
+    interface IQuestChapterRepository
+    
+    class Quest {
+        +Status
+        +IsRecommended
+    }
+}
+
+' Formatting: Force vertical layers
+GenerateQuestLineCommand -[hidden]- ISubjectRepository
+
+' Relationships
+GenerateQuestLineHandler ..> GenerateQuestLineCommand : Uses
+
+GenerateQuestLineHandler --> ISubjectRepository
+GenerateQuestLineHandler --> IClassSpecializationSubjectRepository
+GenerateQuestLineHandler --> IStudentSemesterSubjectRepository
+GenerateQuestLineHandler --> IQuestRepository
+GenerateQuestLineHandler --> IQuestChapterRepository
+
+IQuestRepository ..> Quest : Manages
+@enduml
