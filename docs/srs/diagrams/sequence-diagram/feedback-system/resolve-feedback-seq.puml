@@ -1,0 +1,27 @@
+' resolve-feedback-seq.puml
+@startuml
+actor Admin
+participant "Admin Dashboard" as UI
+participant "Feedback\nController" as Controller
+participant "ResolveFeedback\nHandler" as Handler
+participant "Feedback\nRepository" as DB
+
+Admin -> UI : Click "Mark Resolved"
+UI -> Controller : PATCH /feedback/{id}
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> DB : GetByIdAsync(id)
+    
+    alt Not Found
+        Handler --> Controller : Throw NotFoundException
+    else Found
+        Handler -> Handler : Update Status & Notes
+        Handler -> DB : UpdateAsync(entity)
+        Handler --> Controller : Return Success
+    end
+deactivate Handler
+
+Controller --> UI : 204 No Content
+UI --> Admin : Remove from "Unresolved" list
+@enduml

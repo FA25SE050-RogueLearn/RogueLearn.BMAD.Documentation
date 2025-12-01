@@ -1,0 +1,27 @@
+' get-user-quest-progress-seq.puml
+@startuml
+actor Student
+participant "UserProgress\nController" as Controller
+participant "GetProgress\nHandler" as Handler
+participant "Attempt\nRepository" as AttemptDB
+participant "StepProgress\nRepository" as StepDB
+
+Student -> Controller : GET /quests/{questId}
+Controller -> Handler : Handle(Query)
+
+activate Handler
+    Handler -> AttemptDB : Get(AuthUserId, QuestId)
+    
+    alt Attempt Not Found
+        Handler --> Controller : Default "NotStarted" Response
+    else Found
+        Handler -> StepDB : Find(AttemptId)
+        note right: Get status of all steps
+        
+        Handler -> Handler : Map to Dictionary<StepId, Status>
+        Handler --> Controller : ProgressResponse
+    end
+deactivate Handler
+
+Controller --> Student : 200 OK
+@enduml

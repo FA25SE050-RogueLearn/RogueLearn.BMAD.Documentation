@@ -1,0 +1,26 @@
+' update-subject-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "SubjectsController" as Controller
+participant "UpdateSubject\nHandler" as Handler
+participant "SubjectRepository" as DB
+
+Admin -> UI : Edit Subject -> Save
+UI -> Controller : PUT /api/admin/subjects/{id}
+Controller -> Handler : Handle(UpdateSubjectCommand)
+
+activate Handler
+    Handler -> DB : GetByIdAsync(id)
+    alt Not Found
+        Handler --> Controller : Throw NotFoundException
+    else Found
+        Handler -> Handler : Update properties
+        Handler -> DB : UpdateAsync(subject)
+        Handler --> Controller : UpdateSubjectResponse
+    end
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Show Updated Details
+@enduml

@@ -1,0 +1,28 @@
+' get-skill-mappings-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "SubjectsController" as Controller
+participant "GetSkillMappings\nHandler" as Handler
+participant "MappingRepo" as MapDB
+participant "SkillRepo" as SkillDB
+
+Admin -> UI : View Subject Skills
+UI -> Controller : GET /subjects/{id}/skills
+Controller -> Handler : Handle(query)
+
+activate Handler
+    Handler -> MapDB : FindAsync(subjectId)
+    note right: Get Link Table records
+    
+    Handler -> SkillDB : GetAllAsync()
+    note right: Get Skill Names
+    
+    Handler -> Handler : Map IDs to Names
+    Handler -> Handler : Fetch Prerequisites (if needed)
+    
+    Handler --> Controller : List<SubjectSkillMappingDto>
+deactivate Handler
+
+Controller --> UI : 200 OK
+@enduml

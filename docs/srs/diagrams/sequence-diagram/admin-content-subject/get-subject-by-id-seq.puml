@@ -1,0 +1,27 @@
+' get-subject-by-id-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "SubjectsController" as Controller
+participant "GetSubjectById\nHandler" as Handler
+participant "SubjectRepository" as DB
+
+Admin -> UI : Click Subject Details
+UI -> Controller : GET /api/admin/subjects/{id}
+Controller -> Handler : Handle(GetSubjectByIdQuery)
+
+activate Handler
+    Handler -> DB : GetByIdAsync(id)
+    
+    alt Not Found
+        Handler --> Controller : Return null
+        Controller --> UI : 404 Not Found
+    else Found
+        Handler -> Handler : Map Entity to DTO
+        Handler --> Controller : SubjectDto
+    end
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Show Details Form
+@enduml

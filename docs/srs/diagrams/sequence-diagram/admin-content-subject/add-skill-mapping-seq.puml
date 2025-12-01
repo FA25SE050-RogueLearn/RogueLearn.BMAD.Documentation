@@ -1,0 +1,35 @@
+' add-skill-mapping-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "SubjectsController" as Controller
+participant "AddSkillMapping\nHandler" as Handler
+participant "SubjectRepository" as SubDB
+participant "SkillRepository" as SkillDB
+participant "MappingRepository" as MapDB
+
+Admin -> UI : Select Skill -> Add
+UI -> Controller : POST /subjects/{id}/skills
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> SubDB : ExistsAsync(SubjectId)
+    Handler -> SkillDB : ExistsAsync(SkillId)
+    
+    alt Not Found
+        Handler --> Controller : Throw NotFoundException
+    else Found
+        Handler -> MapDB : FindAsync(subjectId, skillId)
+        
+        alt Mapping Exists
+            Handler --> Controller : Throw ConflictException
+        else New
+            Handler -> MapDB : AddAsync(Mapping)
+            Handler --> Controller : Return CreatedDto
+        end
+    end
+deactivate Handler
+
+Controller --> UI : 201 Created
+UI --> Admin : Update List
+@enduml

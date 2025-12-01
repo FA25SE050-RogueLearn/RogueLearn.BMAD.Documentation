@@ -1,0 +1,26 @@
+' get-step-activities-seq.puml
+@startuml
+actor Student
+participant "UserProgress\nController" as Controller
+participant "GetActivities\nHandler" as Handler
+participant "QuestStep\nRepository" as StepDB
+participant "StepProgress\nRepository" as ProgDB
+
+Student -> Controller : GET /activities
+Controller -> Handler : Handle(Query)
+
+activate Handler
+    Handler -> StepDB : GetById(StepId)
+    note right: Contains JSON Content
+    
+    Handler -> ProgDB : Get(AttemptId, StepId)
+    note right: Contains CompletedActivityIds[]
+    
+    Handler -> Handler : Parse JSON Activities
+    Handler -> Handler : Map IsCompleted = Id in CompletedArray
+    
+    Handler --> Controller : List<ActivityProgressDto>
+deactivate Handler
+
+Controller --> Student : 200 OK
+@enduml

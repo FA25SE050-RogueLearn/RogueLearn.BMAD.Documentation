@@ -1,0 +1,39 @@
+' get-feedback-list-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class QuestFeedbackController {
+        +AdminGetFeedback(query)
+    }
+}
+
+package "Application Layer" {
+    class GetQuestFeedbackListQuery {
+        +SubjectId
+        +QuestId
+        +UnresolvedOnly
+    }
+
+    class GetQuestFeedbackListQueryHandler {
+        +Handle()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface IUserQuestStepFeedbackRepository
+    class QuestFeedbackDto
+}
+
+' Relationships
+QuestFeedbackController ..> GetQuestFeedbackListQuery : Creates
+QuestFeedbackController ..> GetQuestFeedbackListQueryHandler : Sends
+
+GetQuestFeedbackListQueryHandler ..> GetQuestFeedbackListQuery : Uses
+GetQuestFeedbackListQueryHandler --> IUserQuestStepFeedbackRepository
+GetQuestFeedbackListQueryHandler ..> QuestFeedbackDto : Returns List
+@enduml

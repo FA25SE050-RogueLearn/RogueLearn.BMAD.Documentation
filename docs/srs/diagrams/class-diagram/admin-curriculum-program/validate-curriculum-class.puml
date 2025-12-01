@@ -1,0 +1,45 @@
+' validate-curriculum-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class CurriculumImportController {
+        +ValidateCurriculum(rawText)
+    }
+}
+
+package "Application Layer" {
+    class ValidateCurriculumQuery {
+        +RawText
+    }
+
+    class ValidateCurriculumQueryHandler {
+        +Handle(query)
+    }
+    
+    class ValidateCurriculumResponse {
+        +IsValid
+        +ExtractedData
+        +ValidationErrors
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ICurriculumImportStorage
+    interface ICurriculumExtractionPlugin
+    class CurriculumImportDataValidator
+}
+
+CurriculumImportController ..> ValidateCurriculumQuery : Creates
+CurriculumImportController ..> ValidateCurriculumQueryHandler : Sends
+
+ValidateCurriculumQueryHandler --> ICurriculumImportStorage
+ValidateCurriculumQueryHandler --> ICurriculumExtractionPlugin
+ValidateCurriculumQueryHandler --> CurriculumImportDataValidator
+
+ValidateCurriculumQueryHandler ..> ValidateCurriculumResponse : Returns
+@enduml

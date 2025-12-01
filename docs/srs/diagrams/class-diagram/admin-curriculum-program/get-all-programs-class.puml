@@ -1,0 +1,37 @@
+' get-all-programs-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class CurriculumProgramsController {
+        +GetAll()
+    }
+}
+
+package "Application Layer" {
+    class GetAllCurriculumProgramsQuery {
+    }
+
+    class GetAllCurriculumProgramsQueryHandler {
+        +Handle()
+    }
+    
+    class CurriculumProgramDto
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ICurriculumProgramRepository
+    class CurriculumProgram
+}
+
+CurriculumProgramsController ..> GetAllCurriculumProgramsQuery : Creates
+CurriculumProgramsController ..> GetAllCurriculumProgramsQueryHandler : Sends
+
+GetAllCurriculumProgramsQueryHandler --> ICurriculumProgramRepository
+GetAllCurriculumProgramsQueryHandler ..> CurriculumProgramDto : Returns List
+ICurriculumProgramRepository ..> CurriculumProgram : Manages
+@enduml

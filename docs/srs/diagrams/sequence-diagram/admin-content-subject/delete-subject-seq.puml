@@ -1,0 +1,25 @@
+' delete-subject-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "SubjectsController" as Controller
+participant "DeleteSubject\nHandler" as Handler
+participant "SubjectRepository" as DB
+
+Admin -> UI : Click "Delete"
+UI -> Controller : DELETE /api/admin/subjects/{id}
+Controller -> Handler : Handle(DeleteSubjectCommand)
+
+activate Handler
+    Handler -> DB : GetByIdAsync(id)
+    alt Not Found
+        Handler --> Controller : Throw NotFoundException
+    else Found
+        Handler -> DB : DeleteAsync(id)
+        Handler --> Controller : Return Success
+    end
+deactivate Handler
+
+Controller --> UI : 204 No Content
+UI --> Admin : Remove from List
+@enduml

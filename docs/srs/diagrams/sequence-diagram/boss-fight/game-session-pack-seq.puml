@@ -1,0 +1,23 @@
+' game-session-pack-seq.puml
+@startuml
+participant "Unity Game Client" as Game
+participant "GameSessions\nController" as Controller
+participant "GetPack\nHandler" as Handler
+participant "GameSession\nRepository" as DB
+
+Game -> Controller : GET /sessions/{sessionId}/pack
+Controller -> Handler : Handle(query)
+
+activate Handler
+    Handler -> DB : GetBySessionIdAsync(sessionId)
+    
+    alt Session Found
+        Handler -> Handler : Extract QuestionPack (JSONB)
+        Handler --> Controller : QuestionPackDto
+        Controller --> Game : 200 OK (JSON)
+    else Not Found
+        Handler --> Controller : null
+        Controller --> Game : 404 Not Found
+    end
+deactivate Handler
+@enduml

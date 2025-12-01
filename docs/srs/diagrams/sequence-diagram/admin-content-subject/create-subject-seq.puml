@@ -1,0 +1,21 @@
+' create-subject-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "SubjectsController" as Controller
+participant "CreateSubject\nHandler" as Handler
+participant "SubjectRepository" as DB
+
+Admin -> UI : Submit New Subject Form
+UI -> Controller : POST /api/admin/subjects
+Controller -> Handler : Handle(CreateSubjectCommand)
+
+activate Handler
+    Handler -> DB : AddAsync(newSubject)
+    DB --> Handler : Created Entity
+    Handler --> Controller : CreateSubjectResponse
+deactivate Handler
+
+Controller --> UI : 201 Created
+UI --> Admin : Show Success Message
+@enduml

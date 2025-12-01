@@ -1,0 +1,23 @@
+' get-all-subjects-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "SubjectsController" as Controller
+participant "GetAllSubjects\nHandler" as Handler
+participant "SubjectRepository" as DB
+
+Admin -> UI : View Subject List
+UI -> Controller : GET /api/admin/subjects
+Controller -> Handler : Handle(GetAllSubjectsQuery)
+
+activate Handler
+    Handler -> DB : GetPagedSubjectsAsync(search, page, size)
+    DB --> Handler : List<Subject>, TotalCount
+    
+    Handler -> Handler : Map to DTOs
+    Handler --> Controller : PaginatedSubjectsResponse
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Render Table
+@enduml

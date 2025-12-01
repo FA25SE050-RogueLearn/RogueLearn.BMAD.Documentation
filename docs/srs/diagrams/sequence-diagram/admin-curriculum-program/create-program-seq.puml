@@ -1,0 +1,22 @@
+' create-program-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "Programs\nController" as Controller
+participant "CreateProgram\nHandler" as Handler
+participant "Program\nRepository" as DB
+
+Admin -> UI : Fill Form -> "Create"
+UI -> Controller : POST /api/admin/programs
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> DB : AddAsync(newProgram)
+    DB --> Handler : Created Entity
+    
+    Handler -> Handler : Map to Response
+    Handler --> Controller : CreateResponse
+deactivate Handler
+
+Controller --> UI : 201 Created
+@enduml

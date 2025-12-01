@@ -1,0 +1,39 @@
+' resolve-feedback-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class QuestFeedbackController {
+        +ResolveFeedback(command)
+    }
+}
+
+package "Application Layer" {
+    class ResolveQuestStepFeedbackCommand {
+        +FeedbackId
+        +IsResolved
+        +AdminNotes
+    }
+
+    class ResolveQuestStepFeedbackCommandHandler {
+        +Handle()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface IUserQuestStepFeedbackRepository
+    class UserQuestStepFeedback
+}
+
+' Relationships
+QuestFeedbackController ..> ResolveQuestStepFeedbackCommand : Creates
+QuestFeedbackController ..> ResolveQuestStepFeedbackCommandHandler : Sends
+
+ResolveQuestStepFeedbackCommandHandler ..> ResolveQuestStepFeedbackCommand : Uses
+ResolveQuestStepFeedbackCommandHandler --> IUserQuestStepFeedbackRepository
+ResolveQuestStepFeedbackCommandHandler ..> UserQuestStepFeedback : Updates
+@enduml

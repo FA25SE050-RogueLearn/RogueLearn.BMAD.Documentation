@@ -1,0 +1,31 @@
+' get-subject-content-seq.puml
+@startuml
+actor Admin
+participant "Syllabus Editor" as UI
+participant "ContentEditor\nController" as Controller
+participant "GetSubjectContent\nHandler" as Handler
+participant "SubjectRepository" as DB
+
+Admin -> UI : Open Content Editor
+UI -> Controller : GET /subjects/{id}/content
+Controller -> Handler : Handle(GetSubjectContentQuery)
+
+activate Handler
+    Handler -> DB : GetByIdAsync(id)
+    
+    alt Found
+        Handler -> Handler : Convert Dictionary to JSON String
+        note right: Uses Newtonsoft (DB format)
+        
+        Handler -> Handler : Deserialize to DTO
+        note right: Uses System.Text.Json (API format)
+        
+        Handler --> Controller : SyllabusContent
+    else Not Found
+        Handler --> Controller : Throw NotFoundException
+    end
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Render JSON Editor
+@enduml

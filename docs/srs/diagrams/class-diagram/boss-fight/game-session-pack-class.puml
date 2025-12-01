@@ -1,0 +1,42 @@
+' game-session-pack-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class GameSessionsController {
+        +GetQuestionPack(sessionId)
+    }
+}
+
+package "Application Layer" {
+    class GetGameSessionPackQuery {
+        +SessionId
+    }
+
+    class GetGameSessionPackQueryHandler {
+        +Handle()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface IGameSessionRepository
+    class GameSession {
+        +QuestionPack
+    }
+}
+
+' Formatting
+GameSessionsController -[hidden]- GetGameSessionPackQuery
+
+' Relationships
+GameSessionsController ..> GetGameSessionPackQuery : Creates
+GameSessionsController ..> GetGameSessionPackQueryHandler : Sends
+
+GetGameSessionPackQueryHandler ..> GetGameSessionPackQuery : Uses
+GetGameSessionPackQueryHandler --> IGameSessionRepository
+GetGameSessionPackQueryHandler ..> GameSession : Reads
+@enduml

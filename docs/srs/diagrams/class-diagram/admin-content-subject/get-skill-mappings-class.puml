@@ -1,0 +1,45 @@
+' get-skill-mappings-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class SubjectsController {
+        +GetSkillMappings(subjectId)
+    }
+}
+
+package "Application Layer" {
+    class GetSubjectSkillMappingsQuery {
+        +SubjectId
+    }
+
+    class GetSubjectSkillMappingsHandler {
+        +Handle(query)
+    }
+    
+    class SubjectSkillMappingDto {
+        +SkillName
+        +RelevanceWeight
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ISubjectSkillMappingRepository
+    interface ISkillRepository
+    interface ISkillDependencyRepository
+}
+
+SubjectsController ..> GetSubjectSkillMappingsQuery : Creates
+SubjectsController ..> GetSubjectSkillMappingsHandler : Sends
+
+GetSubjectSkillMappingsHandler ..> GetSubjectSkillMappingsQuery : Uses
+GetSubjectSkillMappingsHandler --> ISubjectSkillMappingRepository
+GetSubjectSkillMappingsHandler --> ISkillRepository
+GetSubjectSkillMappingsHandler --> ISkillDependencyRepository
+GetSubjectSkillMappingsHandler ..> SubjectSkillMappingDto : Returns List
+
+@enduml

@@ -1,0 +1,41 @@
+' game-session-create-seq.puml
+@startuml
+actor Player
+participant "Web Lobby" as UI
+participant "GameSessions\nController" as Controller
+participant "CreateGameSession\nHandler" as Handler
+participant "Subject\nRepository" as SubjectDB
+participant "GameSession\nRepository" as GameDB
+
+Player -> UI : Select Subject & Click "Start Boss Fight"
+UI -> Controller : POST /sessions/create
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> SubjectDB : GetByIdAsync(SubjectId)
+    
+    alt Subject Has Content
+        Handler -> Handler : Parse Syllabus JSON
+        Handler -> Handler : Extract Questions & Options
+        note right
+            Filter by Bloom Level/Difficulty
+            Randomize Selection (e.g. 10 questions)
+        end note
+        
+        Handler -> Handler : Generate JoinCode (e.g. "123456")
+        
+        Handler -> GameDB : AddAsync(GameSession)
+        note right
+            Store generated QuestionPack
+            Status: Created
+        end note
+        
+        Handler --> Controller : Return SessionId + JoinCode
+    else No Content
+        Handler --> Controller : Throw BadRequestException
+    end
+deactivate Handler
+
+Controller --> UI : 200 OK { joinCode: "123456" }
+UI --> Player : Launch Unity Client with Code
+@enduml

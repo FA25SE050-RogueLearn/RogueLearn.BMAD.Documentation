@@ -1,0 +1,29 @@
+' get-step-progress-seq.puml
+@startuml
+actor Student
+participant "UserProgress\nController" as Controller
+participant "GetStepProgress\nHandler" as Handler
+participant "QuestStep\nRepository" as QuestStepDB
+participant "StepProgress\nRepository" as ProgressDB
+
+Student -> Controller : GET /steps/{stepId}
+Controller -> Handler : Handle(Query)
+
+activate Handler
+    Handler -> QuestStepDB : GetById(stepId)
+    Handler -> Handler : Parse Content JSON -> Total Activities
+    
+    Handler -> ProgressDB : Get(AttemptId, StepId)
+    
+    alt Progress Found
+        Handler -> Handler : Count CompletedActivityIds
+        Handler -> Handler : Calculate Percentage
+    else Not Found
+        Handler -> Handler : Percentage = 0
+    end
+    
+    Handler --> Controller : GetStepProgressResponse
+deactivate Handler
+
+Controller --> Student : 200 OK
+@enduml

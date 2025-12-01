@@ -1,0 +1,33 @@
+' game-session-result-seq.puml
+@startuml
+participant "Unity Game Server" as Game
+participant "GameSessions\nController" as Controller
+participant "ProcessMatchResult\nHandler" as Handler
+participant "GameSession\nRepository" as SessionDB
+participant "MatchResult\nRepository" as ResultDB
+participant "Mediator" as Med
+
+Game -> Controller : POST /unity-match-result
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> SessionDB : GetBySessionId(sessionId)
+    
+    Handler -> ResultDB : AddAsync(MatchResult)
+    note right: Log win/loss, time, score
+    
+    Handler -> SessionDB : Update Status = Completed
+    
+    loop For Each Player in Result
+        Handler -> Med : Send(IngestXpEventCommand)
+        note right
+            Source: BossFight
+            Points: Calculated from Score
+        end note
+    end
+    
+    Handler --> Controller : Success
+deactivate Handler
+
+Controller --> Game : 200 OK
+@enduml

@@ -1,0 +1,23 @@
+' get-all-programs-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "Programs\nController" as Controller
+participant "GetAllPrograms\nHandler" as Handler
+participant "Program\nRepository" as DB
+
+Admin -> UI : Open "Curricula" Page
+UI -> Controller : GET /api/admin/programs
+Controller -> Handler : Handle(query)
+
+activate Handler
+    Handler -> DB : GetAllAsync()
+    DB --> Handler : List<CurriculumProgram>
+    
+    Handler -> Handler : Map to DTOs
+    Handler --> Controller : List<CurriculumProgramDto>
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Display List
+@enduml

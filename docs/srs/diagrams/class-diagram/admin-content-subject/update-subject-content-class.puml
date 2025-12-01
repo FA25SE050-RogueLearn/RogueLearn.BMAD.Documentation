@@ -1,0 +1,47 @@
+' update-subject-content-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class SubjectContentEditorController {
+        +UpdateSubjectContent(id, content)
+    }
+}
+
+package "Application Layer" {
+    class UpdateSubjectContentCommand {
+        +SubjectId
+        +Content (SyllabusContent)
+    }
+
+    class UpdateSubjectContentHandler {
+        +Handle(command)
+    }
+    
+    class SyllabusContent {
+        +CourseDescription
+        +SessionSchedule
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ISubjectRepository
+    class Subject {
+        +Content
+        +UpdatedAt
+    }
+}
+
+SubjectContentEditorController ..> UpdateSubjectContentCommand : Creates
+SubjectContentEditorController ..> UpdateSubjectContentHandler : Sends
+
+UpdateSubjectContentHandler ..> UpdateSubjectContentCommand : Uses
+UpdateSubjectContentHandler --> ISubjectRepository
+UpdateSubjectContentHandler ..> SyllabusContent : Serializes
+
+ISubjectRepository ..> Subject : Updates
+@enduml

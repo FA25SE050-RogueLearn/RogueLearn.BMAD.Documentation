@@ -1,0 +1,58 @@
+' import-curriculum-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class CurriculumImportController {
+        +ImportCurriculum(rawText)
+    }
+}
+
+package "Application Layer" {
+    class ImportCurriculumCommand {
+        +RawText
+    }
+
+    class ImportCurriculumCommandHandler {
+        +Handle(command)
+    }
+    
+    interface ICurriculumExtractionPlugin {
+        +ExtractCurriculumJsonAsync()
+    }
+    
+    class CurriculumImportData {
+        +Program
+        +Subjects
+        +Structure
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    class CurriculumExtractionPlugin
+    class HtmlCleaningService
+    
+    interface ICurriculumProgramRepository
+    interface ISubjectRepository
+    interface ICurriculumProgramSubjectRepository
+    
+    class CurriculumProgram
+    class CurriculumProgramSubject
+}
+
+CurriculumImportController ..> ImportCurriculumCommand : Creates
+CurriculumImportController ..> ImportCurriculumCommandHandler : Sends
+
+ImportCurriculumCommandHandler --> HtmlCleaningService
+ImportCurriculumCommandHandler --> ICurriculumExtractionPlugin
+ImportCurriculumCommandHandler --> ICurriculumProgramRepository
+ImportCurriculumCommandHandler --> ISubjectRepository
+ImportCurriculumCommandHandler --> ICurriculumProgramSubjectRepository
+
+ICurriculumExtractionPlugin <|.. CurriculumExtractionPlugin
+ICurriculumExtractionPlugin ..> CurriculumImportData : Returns
+@enduml

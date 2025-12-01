@@ -1,0 +1,48 @@
+' get-step-progress-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class UserQuestProgressController {
+        +GetStepProgress(questId, stepId)
+    }
+}
+
+package "Application Layer" {
+    class GetStepProgressQuery {
+        +AuthUserId
+        +QuestId
+        +StepId
+    }
+
+    class GetStepProgressQueryHandler {
+        +Handle()
+        -ExtractActivityCount(content)
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface IUserQuestAttemptRepository
+    interface IUserQuestStepProgressRepository
+    interface IQuestStepRepository
+    
+    class GetStepProgressResponse {
+        +CompletedActivitiesCount
+        +TotalActivitiesCount
+        +ProgressPercentage
+    }
+}
+
+' Relationships
+UserQuestProgressController ..> GetStepProgressQuery : Creates
+UserQuestProgressController ..> GetStepProgressQueryHandler : Sends
+
+GetStepProgressQueryHandler --> IUserQuestAttemptRepository
+GetStepProgressQueryHandler --> IUserQuestStepProgressRepository
+GetStepProgressQueryHandler --> IQuestStepRepository
+GetStepProgressQueryHandler ..> GetStepProgressResponse : Returns
+@enduml

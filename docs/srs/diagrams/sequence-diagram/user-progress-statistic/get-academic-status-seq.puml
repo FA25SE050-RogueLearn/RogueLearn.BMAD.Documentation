@@ -1,0 +1,31 @@
+' get-academic-status-seq.puml
+@startuml
+actor Student
+participant "UsersController" as Controller
+participant "GetAcademicStatus\nHandler" as Handler
+participant "Enrollment\nRepository" as EnrollDB
+participant "SemesterSubject\nRepository" as GradeDB
+participant "Subject\nRepository" as SubjectDB
+
+Student -> Controller : GET /academic-status
+Controller -> Handler : Handle(Query)
+
+activate Handler
+    Handler -> EnrollDB : GetActiveForAuthUserAsync()
+    
+    Handler -> GradeDB : FindAsync(AuthUserId)
+    note right: Get all grades
+    
+    Handler -> SubjectDB : GetByIdsAsync()
+    note right: Get credit info for calc
+    
+    Handler -> Handler : Calculate GPA
+    note right: (Grade * Credits) / TotalCredits
+    
+    Handler -> Handler : Count Completed/Failed
+    
+    Handler --> Controller : GetAcademicStatusResponse
+deactivate Handler
+
+Controller --> Student : 200 OK
+@enduml

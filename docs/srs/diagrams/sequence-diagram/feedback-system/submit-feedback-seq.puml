@@ -1,0 +1,34 @@
+' submit-feedback-seq.puml
+@startuml
+actor Student
+participant "Quest UI" as UI
+participant "Feedback\nController" as Controller
+participant "SubmitFeedback\nHandler" as Handler
+participant "QuestStep\nRepository" as StepDB
+participant "Quest\nRepository" as QuestDB
+participant "Feedback\nRepository" as FeedbackDB
+
+Student -> UI : Click "Report Issue"
+UI -> Controller : POST /feedback
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> StepDB : Validate Step Exists
+    
+    Handler -> QuestDB : GetById(QuestId)
+    note right
+        Retrieve SubjectId to link
+        feedback to content source
+    end note
+    
+    Handler -> FeedbackDB : AddAsync(Feedback)
+    note right
+        Status: Unresolved
+    end note
+    
+    Handler --> Controller : Return Success (201 Created)
+deactivate Handler
+
+Controller --> UI : Success Response
+UI --> Student : Show "Thank you" Toast
+@enduml

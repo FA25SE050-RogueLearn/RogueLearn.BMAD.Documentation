@@ -1,0 +1,40 @@
+' validate-curriculum-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "Import\nController" as Controller
+participant "Validate\nHandler" as Handler
+participant "Curriculum\nStorage" as Cache
+participant "AI Plugin" as AI
+participant "DataValidator" as Val
+
+Admin -> UI : Paste Text -> "Preview"
+UI -> Controller : POST /api/admin/curriculum/validate
+Controller -> Handler : Handle(query)
+
+activate Handler
+    Handler -> Handler : ComputeHash(text)
+    
+    Handler -> Cache : TryGetByHashJsonAsync(hash)
+    
+    alt Cache Miss
+        Handler -> AI : ExtractCurriculumJsonAsync(text)
+        AI --> Handler : JSON
+    end
+    
+    Handler -> Handler : Deserialize JSON
+    
+    Handler -> Val : ValidateAsync(data)
+    Val --> Handler : ValidationResult
+    
+    alt IsValid
+        Handler -> Cache : SaveLatestAsync(data, hash)
+        note right: Cache for actual import
+    end
+    
+    Handler --> Controller : ValidateCurriculumResponse
+deactivate Handler
+
+Controller --> UI : 200 OK (JSON Preview)
+UI --> Admin : Display Parsed Data
+@enduml

@@ -1,0 +1,27 @@
+' get-feedback-list-seq.puml
+@startuml
+actor Admin
+participant "Admin Dashboard" as UI
+participant "Feedback\nController" as Controller
+participant "GetFeedbackList\nHandler" as Handler
+participant "Feedback\nRepository" as DB
+
+Admin -> UI : View "Content Issues"
+UI -> Controller : GET /admin/quests/feedback?subjectId=...
+Controller -> Handler : Handle(Query)
+
+activate Handler
+    alt SubjectId Provided
+        Handler -> DB : GetBySubjectIdAsync(id)
+        note right: Aggregate all issues for this subject
+    else Unresolved Only
+        Handler -> DB : GetUnresolvedAsync()
+    end
+    
+    Handler -> Handler : Map to DTOs
+    Handler --> Controller : List<QuestFeedbackDto>
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Display Table
+@enduml

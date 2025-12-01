@@ -1,0 +1,45 @@
+' import-curriculum-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "Import\nController" as Controller
+participant "ImportCurriculum\nHandler" as Handler
+participant "HtmlCleaning\nService" as Cleaner
+participant "AI Plugin" as AI
+participant "Database" as DB
+
+Admin -> UI : Paste Curriculum HTML -> Import
+UI -> Controller : POST /api/admin/curriculum
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> Cleaner : ExtractCleanText()
+    Cleaner --> Handler : Clean Text
+    
+    Handler -> AI : ExtractCurriculumJsonAsync()
+    AI -> AI : Call Gemini
+    AI --> Handler : CurriculumImportData (JSON)
+    
+    Handler -> Handler : Validate Data (FluentValidation)
+    
+    Handler -> DB : Create/Update CurriculumProgram
+    
+    loop For Each Subject in Data
+        Handler -> DB : Find Subject by Code
+        alt Not Found
+            Handler -> DB : Create New Subject
+        else Found
+            Handler -> DB : Update Metadata
+        end
+        
+        Handler -> DB : Check Link Existence
+        alt Not Linked
+            Handler -> DB : AddAsync(CurriculumProgramSubject)
+        end
+    end
+    
+    Handler --> Controller : ImportResponse (Ids)
+deactivate Handler
+
+Controller --> UI : 200 OK
+@enduml

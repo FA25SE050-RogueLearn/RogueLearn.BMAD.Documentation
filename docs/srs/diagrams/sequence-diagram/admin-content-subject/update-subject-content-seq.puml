@@ -1,0 +1,32 @@
+' update-subject-content-seq.puml
+@startuml
+actor Admin
+participant "Syllabus Editor" as UI
+participant "ContentEditor\nController" as Controller
+participant "UpdateContent\nHandler" as Handler
+participant "SubjectRepository" as DB
+
+Admin -> UI : Save Changes
+UI -> Controller : PUT /subjects/{id}/content
+Controller -> Handler : Handle(UpdateSubjectContentCommand)
+
+activate Handler
+    Handler -> DB : GetByIdAsync(id)
+    
+    alt Not Found
+        Handler --> Controller : Throw NotFoundException
+    else Found
+        Handler -> Handler : Serialize DTO -> JSON String
+        note right: System.Text.Json (CamelCase)
+        
+        Handler -> Handler : Deserialize -> Dictionary<string, obj>
+        note right: Newtonsoft (for DB JSONB compatibility)
+        
+        Handler -> DB : UpdateAsync(Subject)
+        Handler --> Controller : Return Updated Content
+    end
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Show "Saved" Notification
+@enduml

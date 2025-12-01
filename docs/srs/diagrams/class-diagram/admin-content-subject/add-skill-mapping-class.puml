@@ -1,0 +1,44 @@
+' add-skill-mapping-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class SubjectsController {
+        +AddSkillMapping(id, command)
+    }
+}
+
+package "Application Layer" {
+    class AddSubjectSkillMappingCommand {
+        +SubjectId
+        +SkillId
+        +RelevanceWeight
+    }
+
+    class AddSubjectSkillMappingHandler {
+        +Handle(command)
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ISubjectRepository
+    interface ISkillRepository
+    interface ISubjectSkillMappingRepository
+    
+    class SubjectSkillMapping
+}
+
+SubjectsController ..> AddSubjectSkillMappingCommand : Creates
+SubjectsController ..> AddSubjectSkillMappingHandler : Sends
+
+AddSubjectSkillMappingHandler ..> AddSubjectSkillMappingCommand : Uses
+AddSubjectSkillMappingHandler --> ISubjectRepository
+AddSubjectSkillMappingHandler --> ISkillRepository
+AddSubjectSkillMappingHandler --> ISubjectSkillMappingRepository
+AddSubjectSkillMappingHandler ..> SubjectSkillMapping : Creates
+
+@enduml
