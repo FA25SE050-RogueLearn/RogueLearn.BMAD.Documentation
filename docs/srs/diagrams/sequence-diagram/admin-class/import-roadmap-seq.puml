@@ -1,0 +1,39 @@
+' import-roadmap-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "Roadmap\nController" as Controller
+participant "ImportRoadmap\nHandler" as Handler
+participant "PdfText\nExtractor" as PDF
+participant "AI Plugin" as AI
+participant "Database" as DB
+participant "Storage" as S3
+
+Admin -> UI : Upload "backend.pdf"
+UI -> Controller : POST /roadmap/class
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> PDF : ExtractTextAsync(stream)
+    PDF --> Handler : Raw Text
+    
+    Handler -> AI : ExtractClassRoadmapJsonAsync(text)
+    AI -> AI : Call Gemini
+    AI --> Handler : RoadmapData (Hierarchy)
+    
+    Handler -> DB : Upsert Class (Career Track)
+    
+    loop Recursive Node Creation
+        Handler -> DB : Upsert ClassNode (Root)
+        Handler -> DB : Upsert ClassNode (Children)
+    end
+    
+    Handler -> S3 : SavePdfAttachmentAsync()
+    note right: Archive original file
+    
+    Handler --> Controller : Success Response
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Show "Imported Successfully"
+@enduml

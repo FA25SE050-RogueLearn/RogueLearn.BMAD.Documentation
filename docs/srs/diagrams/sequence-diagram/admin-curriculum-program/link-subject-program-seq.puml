@@ -1,0 +1,30 @@
+' link-subject-program-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "Link\nController" as Controller
+participant "AddSubject\nHandler" as Handler
+participant "Program\nRepository" as ProgDB
+participant "Subject\nRepository" as SubDB
+participant "JoinTable\nRepository" as JoinDB
+
+Admin -> UI : Select Subject -> "Add to Program"
+UI -> Controller : POST /programs/{pid}/subjects
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> ProgDB : ExistsAsync(ProgramId)
+    Handler -> SubDB : ExistsAsync(SubjectId)
+    
+    Handler -> JoinDB : AnyAsync(pid, sid)
+    
+    alt Already Linked
+        Handler --> Controller : Throw ConflictException
+    else Not Linked
+        Handler -> JoinDB : AddAsync(new Link)
+        Handler --> Controller : Return Success
+    end
+deactivate Handler
+
+Controller --> UI : 201 Created
+@enduml

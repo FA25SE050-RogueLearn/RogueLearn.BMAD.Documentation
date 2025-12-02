@@ -1,0 +1,38 @@
+' get-program-details-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "Programs\nController" as Controller
+participant "GetDetails\nHandler" as Handler
+participant "Program\nRepository" as ProgDB
+participant "JoinTable\nRepository" as JoinDB
+participant "Subject\nRepository" as SubDB
+
+Admin -> UI : Click Program Details
+UI -> Controller : GET /api/admin/programs/{id}/details
+Controller -> Handler : Handle(query)
+
+activate Handler
+    Handler -> ProgDB : GetByIdAsync(id)
+    
+    Handler -> JoinDB : FindAsync(p => p.ProgramId == id)
+    note right: Get all linked Subject IDs
+    
+    Handler -> SubDB : GetByIdsAsync(subjectIds)
+    
+    loop For Each Subject
+        Handler -> Handler : Check Content != null
+        Handler -> Handler : Calculate Completion %
+    end
+    
+    Handler -> Handler : Build Analysis DTO
+    note right
+        e.g. "Missing Content: PRF192, MAE101"
+    end note
+    
+    Handler --> Controller : CurriculumProgramDetailsResponse
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Show Stats Dashboard
+@enduml

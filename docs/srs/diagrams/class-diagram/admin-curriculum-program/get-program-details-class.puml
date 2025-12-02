@@ -1,0 +1,49 @@
+' get-program-details-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class CurriculumProgramsController {
+        +GetDetails(id)
+    }
+}
+
+package "Application Layer" {
+    class GetCurriculumProgramDetailsQuery {
+        +ProgramId
+    }
+
+    class GetCurriculumProgramDetailsQueryHandler {
+        +Handle(query)
+        -AnalyzeCurriculumProgram(response)
+    }
+    
+    class CurriculumProgramDetailsResponse {
+        +CurriculumVersions
+        +Analysis (Stats)
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ICurriculumProgramRepository
+    interface ICurriculumProgramSubjectRepository
+    interface ISubjectRepository
+    
+    class Subject {
+        +Content
+    }
+}
+
+CurriculumProgramsController ..> GetCurriculumProgramDetailsQuery : Creates
+CurriculumProgramsController ..> GetCurriculumProgramDetailsQueryHandler : Sends
+
+GetCurriculumProgramDetailsQueryHandler ..> GetCurriculumProgramDetailsQuery : Uses
+GetCurriculumProgramDetailsQueryHandler --> ICurriculumProgramRepository
+GetCurriculumProgramDetailsQueryHandler --> ICurriculumProgramSubjectRepository
+GetCurriculumProgramDetailsQueryHandler --> ISubjectRepository
+GetCurriculumProgramDetailsQueryHandler ..> CurriculumProgramDetailsResponse : Returns
+@enduml

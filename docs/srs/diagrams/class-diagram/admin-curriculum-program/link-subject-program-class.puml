@@ -1,0 +1,42 @@
+' link-subject-program-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class CurriculumProgramSubjectsController {
+        +AddSubjectToProgram(programId, request)
+    }
+}
+
+package "Application Layer" {
+    class AddSubjectToProgramCommand {
+        +ProgramId
+        +SubjectId
+    }
+
+    class AddSubjectToProgramCommandHandler {
+        +Handle(command)
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ICurriculumProgramRepository
+    interface ISubjectRepository
+    interface ICurriculumProgramSubjectRepository
+    
+    class CurriculumProgramSubject
+}
+
+CurriculumProgramSubjectsController ..> AddSubjectToProgramCommand : Creates
+CurriculumProgramSubjectsController ..> AddSubjectToProgramCommandHandler : Sends
+
+AddSubjectToProgramCommandHandler ..> AddSubjectToProgramCommand : Uses
+AddSubjectToProgramCommandHandler --> ICurriculumProgramRepository
+AddSubjectToProgramCommandHandler --> ISubjectRepository
+AddSubjectToProgramCommandHandler --> ICurriculumProgramSubjectRepository
+AddSubjectToProgramCommandHandler ..> CurriculumProgramSubject : Creates
+@enduml

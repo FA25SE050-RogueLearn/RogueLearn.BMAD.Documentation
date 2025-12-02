@@ -1,0 +1,34 @@
+' manage-specialization-subjects-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "Specialization\nController" as Controller
+participant "AddSubject\nHandler" as Handler
+participant "ClassRepository" as ClassDB
+participant "SubjectRepository" as SubDB
+participant "JoinTableRepo" as JoinDB
+
+Admin -> UI : Select Class -> Add Subject
+UI -> Controller : POST /specialization-subjects
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> ClassDB : Validate Class Exists
+    Handler -> SubDB : Validate Subject Exists
+    
+    Handler -> JoinDB : Check Duplicate
+    
+    alt Duplicate
+        Handler --> Controller : Throw Conflict
+    else New
+        Handler -> JoinDB : AddAsync(Link)
+        note right
+            Semester Override: 3
+            PlaceholderCode: "C-LANG"
+        end note
+        Handler --> Controller : Return Success
+    end
+deactivate Handler
+
+Controller --> UI : 201 Created
+@enduml

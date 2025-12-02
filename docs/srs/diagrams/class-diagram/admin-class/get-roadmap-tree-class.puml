@@ -1,0 +1,45 @@
+' get-roadmap-tree-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class ClassNodesController {
+        +GetTree(classId)
+    }
+}
+
+package "Application Layer" {
+    class GetTreeClassNodesQuery {
+        +ClassId
+    }
+
+    class GetTreeClassNodesQueryHandler {
+        +Handle(query)
+        -BuildTree(flatNodes)
+    }
+    
+    class ClassNodeTreeItemDto {
+        +Node
+        +Children
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface IClassNodeRepository
+    class ClassNode {
+        +ParentId
+        +Sequence
+    }
+}
+
+ClassNodesController ..> GetTreeClassNodesQuery : Creates
+ClassNodesController ..> GetTreeClassNodesQueryHandler : Sends
+
+GetTreeClassNodesQueryHandler ..> GetTreeClassNodesQuery : Uses
+GetTreeClassNodesQueryHandler --> IClassNodeRepository
+GetTreeClassNodesQueryHandler ..> ClassNodeTreeItemDto : Returns Recursive
+@enduml

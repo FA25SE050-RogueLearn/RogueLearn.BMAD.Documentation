@@ -1,0 +1,26 @@
+' get-roadmap-tree-seq.puml
+@startuml
+actor User
+participant "Roadmap UI" as UI
+participant "Nodes\nController" as Controller
+participant "GetTree\nHandler" as Handler
+participant "Node\nRepository" as DB
+
+User -> UI : View Class Roadmap
+UI -> Controller : GET /classes/{id}/nodes/tree
+Controller -> Handler : Handle(query)
+
+activate Handler
+    Handler -> DB : FindAsync(classId)
+    note right: Fetches flat list
+    DB --> Handler : List<ClassNode>
+    
+    Handler -> Handler : Group By ParentId
+    Handler -> Handler : Recursively Build Tree
+    
+    Handler --> Controller : List<ClassNodeTreeItemDto>
+deactivate Handler
+
+Controller --> UI : 200 OK (JSON Tree)
+UI --> User : Render Visual Graph
+@enduml

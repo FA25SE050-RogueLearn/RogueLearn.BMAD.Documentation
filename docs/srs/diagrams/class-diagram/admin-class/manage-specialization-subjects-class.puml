@@ -1,0 +1,52 @@
+' manage-specialization-subjects-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class ClassSpecializationController {
+        +AddSpecializationSubject()
+        +RemoveSpecializationSubject()
+    }
+}
+
+package "Application Layer" {
+    class AddSpecializationSubjectCommand {
+        +ClassId
+        +SubjectId
+        +Semester
+    }
+    class RemoveSpecializationSubjectCommand {
+        +ClassId
+        +SubjectId
+    }
+
+    class AddSpecializationSubjectCommandHandler {
+        +Handle()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface IClassSpecializationSubjectRepository
+    interface IClassRepository
+    interface ISubjectRepository
+    
+    class ClassSpecializationSubject {
+        +PlaceholderSubjectCode
+        +Semester
+    }
+}
+
+ClassSpecializationController ..> AddSpecializationSubjectCommand : Creates
+ClassSpecializationController ..> AddSpecializationSubjectCommandHandler : Sends
+
+AddSpecializationSubjectCommandHandler ..> AddSpecializationSubjectCommand : Uses
+AddSpecializationSubjectCommandHandler --> IClassSpecializationSubjectRepository
+AddSpecializationSubjectCommandHandler --> IClassRepository
+AddSpecializationSubjectCommandHandler --> ISubjectRepository
+
+IClassSpecializationSubjectRepository ..> ClassSpecializationSubject : Creates
+@enduml

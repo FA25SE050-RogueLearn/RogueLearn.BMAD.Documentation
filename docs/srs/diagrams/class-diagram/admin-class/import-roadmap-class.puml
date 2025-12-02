@@ -1,0 +1,59 @@
+' import-roadmap-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class RoadmapImportController {
+        +ImportClassRoadmap(pdfFile)
+    }
+}
+
+package "Application Layer" {
+    class ImportClassRoadmapCommand {
+        +PdfStream
+        +RoadmapUrl
+    }
+
+    class ImportClassRoadmapHandler {
+        +Handle(command)
+        -UpsertNodeRecursiveAsync()
+    }
+    
+    interface IPdfTextExtractor {
+        +ExtractTextAsync(stream)
+    }
+    interface IRoadmapExtractionPlugin {
+        +ExtractClassRoadmapJsonAsync(text)
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    class PdfTextExtractor
+    class RoadmapExtractionPlugin
+    interface IRoadmapImportStorage
+    interface IClassRepository
+    interface IClassNodeRepository
+    
+    class Class
+    class ClassNode
+}
+
+RoadmapImportController ..> ImportClassRoadmapCommand : Creates
+RoadmapImportController ..> ImportClassRoadmapHandler : Sends
+
+ImportClassRoadmapHandler ..> ImportClassRoadmapCommand : Uses
+ImportClassRoadmapHandler --> IPdfTextExtractor
+ImportClassRoadmapHandler --> IRoadmapExtractionPlugin
+ImportClassRoadmapHandler --> IRoadmapImportStorage
+ImportClassRoadmapHandler --> IClassRepository
+ImportClassRoadmapHandler --> IClassNodeRepository
+
+IPdfTextExtractor <|.. PdfTextExtractor
+IRoadmapExtractionPlugin <|.. RoadmapExtractionPlugin
+IClassRepository ..> Class : Creates
+IClassNodeRepository ..> ClassNode : Creates Tree
+@enduml

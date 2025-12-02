@@ -1,0 +1,27 @@
+' get-step-content-admin-seq.puml
+@startuml
+actor Admin
+participant "Quest Inspector" as UI
+participant "AdminSteps\nController" as Controller
+participant "GetContent\nHandler" as Handler
+participant "Step\nRepository" as DB
+
+Admin -> UI : Inspect "Week 1"
+UI -> Controller : GET /admin/quest-steps/{id}/content
+Controller -> Handler : Handle(query)
+
+activate Handler
+    Handler -> DB : GetByIdAsync(id)
+    
+    alt Not Found
+        Handler --> Controller : Throw NotFoundException
+    else Found
+        Handler -> Handler : Extract Content Property
+        note right: Raw JSON Object
+        Handler --> Controller : Return Content
+    end
+deactivate Handler
+
+Controller --> UI : 200 OK
+UI --> Admin : Display JSON Viewer
+@enduml
