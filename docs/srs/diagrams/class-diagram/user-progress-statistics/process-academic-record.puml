@@ -1,4 +1,3 @@
-' process-academic-record-class.puml
 @startuml
 skinparam linetype ortho
 skinparam ranksep 50
@@ -8,61 +7,87 @@ hide empty members
 
 package "API Layer" {
     class UsersController {
-        +ProcessMyAcademicRecord()
+        - _mediator : IMediator
+        + ProcessMyAcademicRecord(fapHtmlContent, curriculumProgramId)
     }
 }
 
 package "Application Layer" {
     class ProcessAcademicRecordCommand {
-        +AuthUserId
-        +HtmlContent
-        +ProgramId
+        + AuthUserId : Guid
+        + FapHtmlContent : string
+        + CurriculumProgramId : Guid
     }
 
     class ProcessAcademicRecordHandler {
-        +Handle()
+        + Handle(command, cancellationToken)
+    }
+    
+    class ProcessAcademicRecordResponse {
+        + IsSuccess : boolean
+        + SubjectsProcessed : int
+        + CalculatedGpa : double?
+        + XpAwarded : XpAwardedSummary
     }
 
     interface IHtmlCleaningService {
-        +ExtractCleanText()
+        + ExtractCleanText(html)
     }
 
     interface IFapExtractionPlugin {
-        +ExtractFapRecordJsonAsync()
+        + ExtractFapRecordJsonAsync(cleanText)
+    }
+    
+    interface IGradeExperienceCalculator {
+        + CalculateXpForGrade(grade)
     }
 }
 
 package "Domain & Infrastructure Layer" {
     class HtmlCleaningService
     class FapExtractionPlugin
+    class GradeExperienceCalculator
     
     interface IStudentSemesterSubjectRepository
+    interface IStudentEnrollmentRepository
     interface ISubjectRepository
-    class CurriculumImportStorage
+    interface IUserSkillRepository
+    interface IUserSkillRewardRepository
     
     class StudentSemesterSubject {
-        +Status
-        +Grade
+        + Status : string
+        + Grade : string
+        + CreditsEarned : int
+    }
+    
+    class UserSkillReward {
+        + PointsAwarded : int
+        + Reason : string
     }
 }
 
-' Formatting: Force vertical layers
-UsersController -[hidden]- ProcessAcademicRecordCommand
-ProcessAcademicRecordCommand -[hidden]- IHtmlCleaningService
-
 ' Relationships
 UsersController ..> ProcessAcademicRecordCommand : Creates
-UsersController ..> ProcessAcademicRecordHandler : Sends
+UsersController ..> ProcessAcademicRecordHandler : Sends via Mediator
 
 ProcessAcademicRecordHandler ..> ProcessAcademicRecordCommand : Uses
+ProcessAcademicRecordHandler ..> ProcessAcademicRecordResponse : Returns
+
 ProcessAcademicRecordHandler --> IHtmlCleaningService
 ProcessAcademicRecordHandler --> IFapExtractionPlugin
+ProcessAcademicRecordHandler --> IGradeExperienceCalculator
+
 ProcessAcademicRecordHandler --> IStudentSemesterSubjectRepository
+ProcessAcademicRecordHandler --> IStudentEnrollmentRepository
 ProcessAcademicRecordHandler --> ISubjectRepository
-ProcessAcademicRecordHandler --> CurriculumImportStorage
+ProcessAcademicRecordHandler --> IUserSkillRepository
+ProcessAcademicRecordHandler --> IUserSkillRewardRepository
 
 IHtmlCleaningService <|.. HtmlCleaningService
 IFapExtractionPlugin <|.. FapExtractionPlugin
-IStudentSemesterSubjectRepository ..> StudentSemesterSubject : Manages
+IGradeExperienceCalculator <|.. GradeExperienceCalculator
+
+IStudentSemesterSubjectRepository ..> StudentSemesterSubject : Persists
+IUserSkillRewardRepository ..> UserSkillReward : Persists
 
 @enduml

@@ -1,39 +1,54 @@
-### **UC-05: System & Content Administration**
+### **UC-05: System Administration & Content Governance**
 
-This use case covers the essential backend tasks performed by an Admin to manage the platform's academic content.
+This use case details the "God Mode" operations performed by the System Admin (Game Master) to build and maintain the academic game world and competitive infrastructure.
 
-**Actor:** System Admin
+**Actor:** System Admin (Game Master)
 
 ---
 
 ## Transactions
 
-1.  **Admin Accesses the Content Management Dashboard**
-    *   The Admin logs into the Admin Panel and navigates to "Content Management".
-    *   They see an overview of all curricula, subjects, and their content status.
+1.  **Curriculum "Big Bang" Import (Foundation Layer)**
+    *   **Context:** The university releases a new curriculum PDF ("K20 Software Engineering").
+    *   **Action:** Admin navigates to "Curriculum Management" and uploads the raw file.
+    *   **System Process:** The `ImportCurriculumCommandHandler` triggers the **Curriculum Extraction AI**. It parses the text to create the program structure and empty `Subject` entities for all 50+ courses.
+    *   **Outcome:** The academic skeleton is created instantly.
 
-2.  **Admin Imports a New Curriculum**
-    *   The university releases a new curriculum ("K20 Software Engineering"). The Admin receives the raw text file.
-    *   They upload the file. The `ImportCurriculumCommandHandler` runs, using an AI plugin to parse the text, create new `subjects` records (with null content), and link them to a new "K20" `curriculum_program`.
+2.  **Syllabus & Resource Enrichment (Detail Layer)**
+    *   **Context:** The Admin needs to populate "CSD201 - Data Structures" with actual learning content.
+    *   **Action:** Admin selects "CSD201" and uploads its specific Syllabus HTML.
+    *   **System Process:**
+        *   **Extraction:** The AI extracts learning outcomes, session schedules, and assessment weights.
+        *   **Enrichment:** The system performs a live web search to find and link valid, non-paywalled tutorial links (e.g., GeeksForGeeks) for every session topic.
+    *   **Outcome:** The subject is now fully populated with a structured learning path.
 
-3.  **Admin Imports a Detailed Syllabus for a Subject**
-    *   The Admin receives an updated syllabus for the "PRJ301" subject.
-    *   They find "PRJ301" in the subject list and upload the raw HTML of the new syllabus.
-    *   The `ImportSubjectFromTextCommandHandler` runs, using an AI plugin to parse the detailed content (learning outcomes, session topics) and updates the `content` field for the "PRJ301" `subjects` record.
+3.  **Competitive Problem Bank Generation (Event Layer)**
+    *   **Context:** Admin wants to stock the "Code Battle" problem bank with new challenges for upcoming guild wars.
+    *   **Action:** Admin navigates to "Code Battle Management" -> "Generate Problems".
+    *   **Input:** Admin selects a topic (e.g., "Dynamic Programming") and Difficulty (e.g., "Hard").
+    *   **System Process:** The AI generates a set of **LeetCode-style Coding Challenges**:
+        *   **Problem Statement:** "Climbing Stairs with Variable Steps."
+        *   **Boilerplate Code:** C# method signature.
+        *   **Test Cases:** A JSON array of 10 hidden test cases (Input/Output pairs) for the auto-grader.
+        *   **Reference Solution:** An optimal solution for validation.
+    *   **Action:** Admin reviews the problems, edits the test cases if needed, and saves them to the global **Problem Bank**.
+    *   **Outcome:** These problems are now available for Guild Masters to select when creating Code Battle events.
 
-4.  **Admin Curates the Official Skill Mappings**
-    *   The Admin navigates to the "Skill Mappings" page for the "PRJ301" subject.
-    *   Based on the new syllabus, they link a new official skill, "Advanced Agile Metrics", to the subject. This is saved in the `subject_skill_mappings` table.
+4.  **Career Class & Roadmap Definition (Strategic Layer)**
+    *   **Action:** Admin creates a new Class: ".NET Backend Developer".
+    *   **Input:** Admin uploads a "Roadmap.sh" PDF for Backend Development.
+    *   **System Process:** The AI extracts the visual tree nodes (C# -> SQL -> APIs).
+    *   **Action:** Admin maps university subjects to these nodes (e.g., "PRN211" maps to "Basic C#").
+    *   **Outcome:** Students can visualize how their academic subjects contribute to their career goals.
 
-5.  **Admin Creates a New Master Skill**
-    *   While curating, the Admin decides a new core skill is needed for the whole platform.
-    *   They go to the master "Skills" catalog and create a new skill named "Cloud Cost Management" with a description and tier level.
+5.  **Skill Tree & Dependency Governance (RPG Layer)**
+    *   **Action:** Admin navigates to "Skill Management".
+    *   **Action:** Admin defines "Data Structures" as a prerequisite for "Algorithms".
+    *   **Action:** Admin links "CSD201" to the "Data Structures" master skill in the `subject_skill_mappings` table.
+    *   **Outcome:** This configuration drives the user's Skill Tree visualization and XP progression logic.
 
-6.  **Admin Manages Game Content Mappings**
-    *   The system flags that the "Agile Quest" is mapped to an older version of the PRJ301 syllabus.
-    *   The Admin reviews a comparison of the old vs. new syllabus content.
-
-7.  **Admin Triggers AI-Powered Content Generation**
-    *   The Admin clicks "Generate Content Updates with AI".
-    *   They configure the AI to create new chapters for the new topics ("DevOps Integration") and modify existing chapters.
-    *   The AI generates a new JSON structure for the game with updated chapters, challenges, and quizzes. The Admin reviews and approves the content.
+6.  **Quest Feedback & Quality Control (Maintenance Layer)**
+    *   **Context:** Users report a bug in a standard quest quiz question.
+    *   **Action:** Admin checks the "Feedback Dashboard" and sees a heat map of errors for "CSD201 - Week 3".
+    *   **Action:** Admin opens the Quest Step Editor, corrects the JSON content, and marks the feedback as "Resolved".
+    *   **System Process:** All affected users receive a notification that the issue has been fixed.

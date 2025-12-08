@@ -1,44 +1,46 @@
 ' generate-quest-steps-seq.puml
 @startuml
-actor Student
-participant "Frontend UI" as UI
+actor Admin
+participant "AdminConsole" as UI
 participant "QuestsController" as Controller
-participant "Hangfire\n(Background Job)" as Job
-participant "GenerateQuestSteps\nHandler" as Handler
-participant "AI & Search\nServices" as Services
+participant "Hangfire" as JobQueue
+participant "QuestStepGeneration\nService" as Service
+participant "TopicGrouper" as Grouper
+participant "QuestGeneration\nPlugin (AI)" as AI
 participant "Database" as DB
 
-Student -> UI : 1. Click "Start Quest"
-UI -> Controller : 2. POST /generate-steps
-Controller -> DB : 3. Check if steps exist
-alt Exists
-    Controller --> UI : 4. Error: Already Generated
-else New
-    Controller -> Job : 5. Schedule Job
-    Job --> Controller : JobId
-    Controller --> UI : 6. 202 Accepted
-    UI --> Student : 7. Show Loading Spinner
-    
-    note over Job : Async Execution
-    Job -> Handler : 8. Handle(command)
-    activate Handler
-        Handler -> DB : 9. Build Academic Context
-        
-        loop Each Week
-            Handler -> Services : 10. Search & Validate URLs
-            Handler -> Services : 11. Generate AI Content
-            Services --> Handler : JSON Data
-            Handler -> DB : 12. Save QuestStep
-            Handler -> Job : 13. Update Progress
-        end
-        
-    deactivate Handler
-end
+Admin -> UI : 1. Click "Generate Steps"
+UI -> Controller : 2. POST /api/quests/{id}/generate-steps
+Controller -> JobQueue : 3. Schedule(GenerateQuestStepsAsync)
+JobQueue --> Controller : JobId
+Controller --> UI : 4. 202 Accepted (JobId)
 
-loop Polling
-    UI -> Controller : 14. Check Status
-    Controller --> UI : 15. Return Progress
-end
+note right of JobQueue: Async Background Process
 
-UI --> Student : 16. Show Content
+JobQueue -> Service : 5. Execute GenerateQuestStepsAsync
+
+activate Service
+    Service -> DB : 6. GetQuestById(questId)
+    DB --> Service : quest (with Subject/Syllabus)
+
+    Service -> Grouper : 7. GroupSessionsIntoModules(syllabus)
+    Grouper --> Service : modules (List of Topics)
+
+    loop For each Module
+        Service -> AI : 8. GenerateWeeklyContentAsync(topic, syllabus)
+        note right: Calls Gemini to generate\nStandard, Supportive, Challenging tracks
+        AI --> Service : contentJson (3 variants)
+
+        Service -> Service : 9. Create 3 QuestStep entities
+        note right: Map JSON to DifficultyVariant:\nStandard, Supportive, Challenging
+    end
+
+    Service -> DB : 10. AddRangeAsync(newSteps)
+    DB --> Service : Success
+deactivate Service
+
+UI -> Controller : 11. Poll Status (JobId)
+Controller -> JobQueue : Check Status
+JobQueue --> Controller : Succeeded
+Controller --> UI : 12. Show "Generation Complete"
 @enduml

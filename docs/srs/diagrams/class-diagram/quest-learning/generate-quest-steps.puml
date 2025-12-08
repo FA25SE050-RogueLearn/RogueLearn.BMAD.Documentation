@@ -8,54 +8,71 @@ hide empty members
 
 package "API Layer" {
     class QuestsController {
-        +GenerateQuestSteps()
+        - _backgroundJobClient: IBackgroundJobClient
+        + GenerateQuestSteps(questId): Task<IActionResult>
     }
 }
 
 package "Application Layer" {
-    class GenerateQuestStepsCommand {
-        +QuestId
-        +UserId
+    interface IQuestStepGenerationService {
+        + GenerateQuestStepsAsync(authUserId, questId, context)
     }
 
-    class GenerateQuestStepsHandler {
-        +Handle()
+    class QuestStepGenerationService {
+        + GenerateQuestStepsAsync()
+        - CreateStepEntities()
     }
     
-    interface IQuestStepGenerationService
-    interface IQuestGenerationPlugin
-    interface IReadingUrlService
-    class AcademicContextBuilder
+    interface IQuestGenerationPlugin {
+        + GenerateWeeklyContentAsync(topic, syllabus)
+    }
+
+    interface ITopicGrouperService {
+        + GroupSessionsIntoModules(syllabus)
+    }
+
+    class QuestStepsPromptBuilder {
+        + BuildWeeklyContentPrompt()
+    }
 }
 
 package "Domain & Infrastructure Layer" {
     class HangfireBackgroundJob
     class QuestGenerationPlugin
-    class ReadingUrlService
+    class TopicGrouperService
+    
     interface IQuestStepRepository
+    interface IQuestRepository
     
     class QuestStep {
-        +Content (JSON)
+        + Content (JSON)
+        + DifficultyVariant
+        + ModuleNumber
+    }
+    
+    class Quest {
+        + Title
+        + SubjectId
     }
 }
 
 ' Formatting
-QuestsController -[hidden]- GenerateQuestStepsCommand
-GenerateQuestStepsHandler -[hidden]- IQuestStepRepository
+QuestsController -[hidden]- IQuestStepGenerationService
+QuestStepGenerationService -[hidden]- IQuestStepRepository
 
 ' Relationships
-QuestsController ..> IQuestStepGenerationService : Schedules
-IQuestStepGenerationService <|.. HangfireBackgroundJob
+QuestsController ..> IQuestStepGenerationService : Schedules via Hangfire
+IQuestStepGenerationService <|.. QuestStepGenerationService
+QuestStepGenerationService <.. HangfireBackgroundJob : Executes
 
-HangfireBackgroundJob ..> GenerateQuestStepsHandler : Executes
-
-GenerateQuestStepsHandler ..> GenerateQuestStepsCommand : Uses
-GenerateQuestStepsHandler --> AcademicContextBuilder
-GenerateQuestStepsHandler --> IQuestGenerationPlugin
-GenerateQuestStepsHandler --> IReadingUrlService
-GenerateQuestStepsHandler --> IQuestStepRepository
+QuestStepGenerationService --> IQuestGenerationPlugin
+QuestStepGenerationService --> ITopicGrouperService
+QuestStepGenerationService --> IQuestRepository
+QuestStepGenerationService --> IQuestStepRepository
+QuestStepGenerationService ..> QuestStepsPromptBuilder : Uses
 
 IQuestGenerationPlugin <|.. QuestGenerationPlugin
-IReadingUrlService <|.. ReadingUrlService
+ITopicGrouperService <|.. TopicGrouperService
 IQuestStepRepository ..> QuestStep : Manages
+IQuestRepository ..> Quest : Retrieves
 @enduml

@@ -1,0 +1,31 @@
+' RougeLearn.BMAD.Documentation/docs/srs/diagrams/sequence-diagram/admin-skills/manage-skills-seq.puml
+@startuml
+actor Admin
+participant "Admin UI" as UI
+participant "AdminSkills\nController" as Controller
+participant "AddDependency\nHandler" as Handler
+participant "SkillDependency\nRepository" as DepDB
+
+Admin -> UI : Link "C# Basics" -> "ASP.NET Core"
+UI -> Controller : POST /api/admin/skills/{id}/dependencies
+Controller -> Handler : Handle(command)
+
+activate Handler
+    Handler -> DepDB : AnyAsync(SkillId, PrereqId)
+    
+    alt Dependency Exists
+        Handler --> Controller : Throw ConflictException
+    else New Dependency
+        Handler -> Handler : Validate Not Self-Referencing
+        
+        Handler -> DepDB : AddAsync(Dependency)
+        note right
+            RelationshipType: Prerequisite
+        end note
+        
+        Handler --> Controller : Success Response
+    end
+deactivate Handler
+
+Controller --> UI : 201 Created
+@enduml

@@ -1,4 +1,3 @@
-' process-academic-record-seq.puml
 @startuml
 actor Student
 participant "Frontend UI" as UI
@@ -6,32 +5,48 @@ participant "UsersController" as Controller
 participant "ProcessAcademicRecord\nHandler" as Handler
 participant "HtmlCleaning\nService" as Cleaner
 participant "FapExtraction\nPlugin (AI)" as AI
-participant "Database" as DB
+participant "Subject\nRepository" as SubRepo
+participant "StudentSubject\nRepository" as StuSubRepo
+participant "GradeExperience\nCalculator" as GpaCalc
+participant "UserSkill\nRepository" as SkillRepo
 
-Student -> UI : 1. Upload HTML Transcript
-UI -> Controller : 2. Request Sync (POST)
-Controller -> Handler : 3. Handle(command)
+Student -> UI : 1. Upload FAP HTML & Select Program
+UI -> Controller : 2. POST /api/users/me/academic-record\n(Multipart Form Data)
+Controller -> Handler : 3. Handle(ProcessAcademicRecordCommand)
 
 activate Handler
     Handler -> Cleaner : 4. ExtractCleanText(html)
     Cleaner --> Handler : cleanText
 
     Handler -> AI : 5. ExtractFapRecordJsonAsync(cleanText)
-    note right: Calls Google Gemini
-    AI --> Handler : FapRecordData (JSON)
+    note right: Calls Google Gemini to parse transcript
+    AI --> Handler : FapRecordData (List of Subjects & Grades)
 
-    Handler -> DB : 6. Get existing Student Subjects
-    
-    loop For each subject in JSON
-        Handler -> DB : 7. Upsert StudentSemesterSubject
-        note right: Update Status/Grade
+    Handler -> SubRepo : 6. Get Curriculum Subjects
+    note right: Verify subject codes exist in system
+
+    Handler -> StuSubRepo : 7. Get User's Existing Records
+
+    loop For each subject in FapRecordData
+        alt Subject exists in System
+            Handler -> StuSubRepo : 8. Upsert StudentSemesterSubject
+            note right: Update Status (Passed/Studying) & Grade
+            
+            opt Status changed to Passed
+                Handler -> GpaCalc : 9. CalculateXpForGrade(grade)
+                GpaCalc --> Handler : xpAmount
+                
+                Handler -> SkillRepo : 10. Award XP to User Skills
+                note right: Map Subject -> Skills -> Add XP
+            end
+        end
     end
 
-    Handler -> Handler : 8. Dispatch GenerateQuestLine
+    Handler -> Handler : 11. Calculate Cumulative GPA
     
-    Handler --> Controller : 9. Return Success
+    Handler --> Controller : 12. ProcessAcademicRecordResponse\n(SubjectsProcessed, GPA, XP Summary)
 deactivate Handler
 
-Controller --> UI : 10. 200 OK
-UI --> Student : 11. Show "Sync Complete"
+Controller --> UI : 13. 200 OK (JSON)
+UI --> Student : 14. Show "Sync Complete", GPA, and XP Gains
 @enduml

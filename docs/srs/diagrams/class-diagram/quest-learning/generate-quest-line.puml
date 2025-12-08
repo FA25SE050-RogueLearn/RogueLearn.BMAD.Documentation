@@ -1,4 +1,4 @@
-' generate-quest-line-class.puml
+' RougeLearn.BMAD.Documentation/docs/srs/diagrams/class-diagram/quest-learning/generate-quest-line-class.puml
 @startuml
 skinparam linetype ortho
 skinparam ranksep 50
@@ -11,8 +11,9 @@ package "Application Layer" {
         +AuthUserId
     }
 
-    class GenerateQuestLineHandler {
+    class GenerateQuestLineCommandHandler {
         +Handle()
+        -DetermineRecommendationReason()
     }
 }
 
@@ -24,22 +25,19 @@ package "Domain & Infrastructure Layer" {
     interface IQuestChapterRepository
     
     class Quest {
-        +Status
         +IsRecommended
+        +RecommendationReason
     }
 }
 
-' Formatting: Force vertical layers
-GenerateQuestLineCommand -[hidden]- ISubjectRepository
-
 ' Relationships
-GenerateQuestLineHandler ..> GenerateQuestLineCommand : Uses
+GenerateQuestLineCommandHandler ..> GenerateQuestLineCommand : Uses
 
-GenerateQuestLineHandler --> ISubjectRepository
-GenerateQuestLineHandler --> IClassSpecializationSubjectRepository
-GenerateQuestLineHandler --> IStudentSemesterSubjectRepository
-GenerateQuestLineHandler --> IQuestRepository
-GenerateQuestLineHandler --> IQuestChapterRepository
+GenerateQuestLineCommandHandler --> ISubjectRepository
+GenerateQuestLineCommandHandler --> IClassSpecializationSubjectRepository
+GenerateQuestLineCommandHandler --> IStudentSemesterSubjectRepository
+GenerateQuestLineCommandHandler --> IQuestRepository
+GenerateQuestLineCommandHandler --> IQuestChapterRepository
 
 IQuestRepository ..> Quest : Manages
 @enduml

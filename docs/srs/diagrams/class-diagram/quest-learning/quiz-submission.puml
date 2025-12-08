@@ -8,33 +8,53 @@ hide empty members
 
 package "API Layer" {
     class QuestsController {
-        +SubmitQuizAnswer()
+        - _mediator: IMediator
+        + SubmitQuizAnswer(questId, stepId, activityId, body): Task<IActionResult>
     }
 }
 
 package "Application Layer" {
     class SubmitQuizAnswerCommand {
-        +QuestId
-        +Answers
+        + AuthUserId: Guid
+        + QuestId: Guid
+        + StepId: Guid
+        + ActivityId: Guid
+        + Answers: Dictionary<string, string>
+        + CorrectAnswerCount: int
+        + TotalQuestions: int
     }
 
     class SubmitQuizAnswerHandler {
-        +Handle()
+        + Handle(command, cancellationToken)
+        - CalculateGrade()
     }
-
-    interface IQuizValidationService {
-        +EvaluateQuizSubmission()
+    
+    class SubmitQuizAnswerResponse {
+        + SubmissionId: Guid
+        + ScorePercentage: double
+        + IsPassed: boolean
+        + Message: string
     }
 }
 
 package "Domain & Infrastructure Layer" {
-    class QuizValidationService
-    
     interface IQuestSubmissionRepository
     interface IUserQuestStepProgressRepository
+    interface IUserSkillRewardRepository
+    interface IQuestStepRepository
+    
     class QuestSubmission {
-        +Grade
-        +IsPassed
+        + Id: Guid
+        + AttemptId: Guid
+        + SubmissionData: string (JSON)
+        + Grade: double
+        + IsPassed: boolean
+    }
+    
+    class UserQuestStepProgress {
+        + Id: Guid
+        + CompletedActivityIds: List<Guid>
+        + Status: StepCompletionStatus
     }
 }
 
@@ -44,13 +64,16 @@ SubmitQuizAnswerHandler -[hidden]- IQuestSubmissionRepository
 
 ' Relationships
 QuestsController ..> SubmitQuizAnswerCommand : Creates
-QuestsController ..> SubmitQuizAnswerHandler : Sends
+QuestsController ..> SubmitQuizAnswerHandler : Sends via Mediator
 
 SubmitQuizAnswerHandler ..> SubmitQuizAnswerCommand : Uses
-SubmitQuizAnswerHandler --> IQuizValidationService
+SubmitQuizAnswerHandler ..> SubmitQuizAnswerResponse : Returns
+
 SubmitQuizAnswerHandler --> IQuestSubmissionRepository
 SubmitQuizAnswerHandler --> IUserQuestStepProgressRepository
+SubmitQuizAnswerHandler --> IUserSkillRewardRepository
+SubmitQuizAnswerHandler --> IQuestStepRepository
 
-IQuizValidationService <|.. QuizValidationService
 IQuestSubmissionRepository ..> QuestSubmission : Stores
+IUserQuestStepProgressRepository ..> UserQuestStepProgress : Updates
 @enduml

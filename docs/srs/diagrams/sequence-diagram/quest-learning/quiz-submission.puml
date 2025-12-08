@@ -1,35 +1,40 @@
 ' quiz-submission-seq.puml
 @startuml
-actor Student
+actor User
 participant "Frontend UI" as UI
 participant "QuestsController" as Controller
 participant "SubmitQuizAnswer\nHandler" as Handler
-participant "QuizValidation\nService" as Validator
+participant "UserQuestStep\nProgressRepo" as ProgressRepo
+participant "QuestSubmission\nRepo" as SubmissionRepo
+participant "UserSkillReward\nRepo" as XpRepo
 participant "Database" as DB
 
-Student -> UI : 1. Submit Answers
-UI -> Controller : 2. POST /submit-quiz
-Controller -> Handler : 3. Handle(command)
+User -> UI : 1. Submit Quiz Answers
+UI -> Controller : 2. POST /api/quests/{qid}/steps/{sid}/activities/{aid}/submit-quiz
+Controller -> Handler : 3. Handle(SubmitQuizAnswerCommand)
 
 activate Handler
-    Handler -> DB : 4. Validate Quest/Step exists
+    Handler -> Handler : 4. Calculate Score (Correct/Total)
     
-    Handler -> Validator : 5. Evaluate(Answers)
-    Validator --> Handler : Result (Score, IsPassed)
+    Handler -> ProgressRepo : 5. GetByAttemptAndStepAsync()
+    ProgressRepo --> Handler : stepProgress
     
-    Handler -> DB : 6. Save QuestSubmission
+    Handler -> SubmissionRepo : 6. AddAsync(new QuestSubmission)
+    SubmissionRepo -> DB : INSERT QuestSubmissions...
     
-    alt IsPassed == True
-        Handler -> DB : 7. Mark Activity as Complete
-        Handler -> DB : 8. Check Module Completion
-        opt All Activities Done
-            Handler -> DB : 9. Update Step Status = Completed
-        end
+    alt Score >= Passing Threshold (e.g. 70%)
+        Handler -> ProgressRepo : 7. UpdateCompletedActivities(activityId)
+        note right: Adds ActivityId to\nCompletedActivityIds list
+        ProgressRepo -> DB : UPDATE UserQuestStepProgress...
+        
+        Handler -> XpRepo : 8. AddAsync(new UserSkillReward)
+        note right: Awards XP for this specific activity
+        XpRepo -> DB : INSERT UserSkillRewards...
     end
     
-    Handler --> Controller : 10. Return Result
+    Handler --> Controller : 9. Return Response (Passed/Failed, Score)
 deactivate Handler
 
-Controller --> UI : 11. 200 OK (Result)
-UI --> Student : 12. Show Score/Feedback
+Controller --> UI : 10. 200 OK
+UI --> User : 11. Show Result & XP Gain
 @enduml

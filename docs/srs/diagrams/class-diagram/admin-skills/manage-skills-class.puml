@@ -1,0 +1,58 @@
+' RougeLearn.BMAD.Documentation/docs/srs/diagrams/class-diagram/admin-skills/manage-skills-class.puml
+@startuml
+skinparam linetype ortho
+skinparam ranksep 50
+skinparam nodesep 50
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class AdminSkillsController {
+        +Create(command)
+        +AddDependency(id, command)
+        +RemoveDependency(id, prereqId)
+    }
+}
+
+package "Application Layer" {
+    class CreateSkillCommand {
+        +Name
+        +Domain
+        +Tier
+    }
+    
+    class AddSkillDependencyCommand {
+        +SkillId
+        +PrerequisiteSkillId
+        +RelationshipType
+    }
+
+    class CreateSkillCommandHandler {
+        +Handle()
+    }
+    
+    class AddSkillDependencyCommandHandler {
+        +Handle()
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    interface ISkillRepository
+    interface ISkillDependencyRepository
+    
+    class Skill
+    class SkillDependency
+}
+
+' Relationships
+AdminSkillsController ..> CreateSkillCommand : Creates
+AdminSkillsController ..> AddSkillDependencyCommand : Creates
+AdminSkillsController ..> CreateSkillCommandHandler : Sends
+AdminSkillsController ..> AddSkillDependencyCommandHandler : Sends
+
+CreateSkillCommandHandler --> ISkillRepository
+AddSkillDependencyCommandHandler --> ISkillDependencyRepository
+
+ISkillRepository ..> Skill : Manages
+ISkillDependencyRepository ..> SkillDependency : Manages
+@enduml

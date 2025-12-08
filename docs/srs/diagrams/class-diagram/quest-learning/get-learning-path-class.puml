@@ -1,43 +1,67 @@
-' get-learning-path-class.puml
-@startuml
-skinparam linetype ortho
-skinparam ranksep 50
-skinparam nodesep 50
-skinparam classAttributeIconSize 0
-hide empty members
-
-package "API Layer" {
+classDiagram
     class LearningPathsController {
-        +GetMyLearningPath()
+        + GetMyLearningPath(cancellationToken)
     }
-}
 
-package "Application Layer" {
     class GetMyLearningPathQuery {
-        +AuthUserId
+        - AuthUserId: Guid
+        --
+        + getter()
+        + setter()
     }
 
     class GetMyLearningPathQueryHandler {
-        +Handle()
+        + Handle(request, cancellationToken)
     }
-}
 
-package "Domain & Infrastructure Layer" {
-    interface ILearningPathRepository
-    interface IQuestChapterRepository
-    interface IQuestRepository
+    class LearningPathDto {
+        - Id: Guid
+        - Name: string
+        - Chapters: List<QuestChapterDto>
+        - CompletionPercentage: double
+        --
+        + getter()
+        + setter()
+    }
+
+    class IUserProfileRepository {
+        <<interface>>
+        + GetByAuthIdAsync(authId)
+    }
+
+    class ISubjectRepository {
+        <<interface>>
+        + GetByIdsAsync(ids)
+    }
+
+    class IQuestRepository {
+        <<interface>>
+        + GetAllAsync()
+    }
+
+    class IStudentSemesterSubjectRepository {
+        <<interface>>
+        + FindAsync(predicate)
+    }
+
+    class IUserQuestAttemptRepository {
+        <<interface>>
+        + FindAsync(predicate)
+    }
+
+    %% Relationships
+    LearningPathsController ..> GetMyLearningPathQuery : Creates
+    LearningPathsController ..> GetMyLearningPathQueryHandler : Sends
+
+    GetMyLearningPathQueryHandler ..> GetMyLearningPathQuery : Uses
+    GetMyLearningPathQueryHandler ..> LearningPathDto : Returns
     
-    class LearningPathDto
-}
+    GetMyLearningPathQueryHandler --> IUserProfileRepository
+    GetMyLearningPathQueryHandler --> ISubjectRepository
+    GetMyLearningPathQueryHandler --> IQuestRepository
+    GetMyLearningPathQueryHandler --> IStudentSemesterSubjectRepository
+    GetMyLearningPathQueryHandler --> IUserQuestAttemptRepository
 
-' Relationships
-LearningPathsController ..> GetMyLearningPathQuery : Creates
-LearningPathsController ..> GetMyLearningPathQueryHandler : Sends
-
-GetMyLearningPathQueryHandler ..> GetMyLearningPathQuery : Uses
-GetMyLearningPathQueryHandler --> ILearningPathRepository
-GetMyLearningPathQueryHandler --> IQuestChapterRepository
-GetMyLearningPathQueryHandler --> IQuestRepository
-GetMyLearningPathQueryHandler ..> LearningPathDto : Returns
-
-@enduml
+    %% Apply style
+    classDef blueFill fill:#198CC4,stroke:#333,stroke-width:1px,color:white;
+    class LearningPathsController, GetMyLearningPathQuery, GetMyLearningPathQueryHandler, LearningPathDto, IUserProfileRepository, ISubjectRepository, IQuestRepository, IStudentSemesterSubjectRepository, IUserQuestAttemptRepository blueFill
