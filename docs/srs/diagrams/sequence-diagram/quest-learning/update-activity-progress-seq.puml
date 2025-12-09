@@ -1,33 +1,76 @@
-' update-activity-progress-seq.puml
 @startuml
-actor Student
-participant "QuestsController" as Controller
-participant "UpdateActivity\nHandler" as Handler
-participant "ActivityValidation\nService" as Validator
-participant "Database" as DB
+actor User
+participant ":QuestsController" as Controller
+participant ":IMediator" as Med
+participant ":UpdateQuestActivityProgress\nCommandHandler" as Handler
+participant ":IQuestStepRepository" as StepDB
+participant ":IUserQuestAttempt\nRepository" as AttemptDB
+participant ":ActivityValidationService" as Validator
+participant ":IUserQuestStepProgress\nRepository" as ProgressDB
+participant ":ISubjectSkillMapping\nRepository" as MappingDB
+database ":Database" as DB
 
-Student -> Controller : POST /progress (Completed)
-Controller -> Handler : Handle(command)
+User -> Controller : Complete Activity
+activate Controller
 
+Controller -> Med : Send(UpdateQuestActivityProgressCommand)
+activate Med
+
+Med -> Handler : Handle(command)
 activate Handler
-    Handler -> DB : Get Quest Step & Attempt
-    Handler -> DB : Get/Create StepProgress Record
+
+' 1. Validate Context
+Handler -> StepDB : GetByIdAsync(StepId)
+Handler -> AttemptDB : FirstOrDefaultAsync(UserId, QuestId)
+
+' 2. Get/Create Progress
+Handler -> ProgressDB : FirstOrDefaultAsync(AttemptId, StepId)
+activate ProgressDB
+ProgressDB -> DB : SELECT * FROM user_quest_step_progress...
+DB --> ProgressDB : Progress?
+ProgressDB --> Handler : Progress (or null)
+deactivate ProgressDB
+
+alt New Progress
+    Handler -> Handler : Initialize New Record
+end
+
+' 3. Update Activity List
+Handler -> Handler : Add ActivityId to CompletedActivityIds
+Handler -> Handler : Check Completion Logic (Quiz vs Count)
+
+alt Step Completed
+    Handler -> Handler : Set Status = Completed
+    Handler -> AttemptDB : UpdateAsync(Attempt)
+    note right: Add Step XP to Attempt Total
+
+    ' 4. Distribute Skill XP
+    Handler -> MappingDB : GetMappingsBySubjectIdsAsync()
+    activate MappingDB
+    MappingDB --> Handler : SkillMappings
+    deactivate MappingDB
     
-    Handler -> Validator : ValidateActivityCompletion()
-    Validator -> DB : Check Quiz Submission (if Quiz)
-    Validator --> Handler : Valid/Invalid
-    
-    alt Invalid
-        Handler -> Controller : Throw ValidationException
-        Controller -> Student : 400 Bad Request
-    else Valid
-        Handler -> DB : Update StepProgress (Add ActivityID)
-        Handler -> Handler : Check if All Activities Done
-        opt All Done
-            Handler -> DB : Mark Step Completed
-        end
-        Handler --> Controller : Success
-        Controller --> Student : 204 No Content
+    loop For Each Mapped Skill
+        Handler -> Med : Send(IngestXpEventCommand)
+        note right
+            Award XP proportional to relevance
+        end note
     end
+end
+
+' 5. Persist
+Handler -> ProgressDB : UpdateAsync(Progress)
+activate ProgressDB
+ProgressDB -> DB : UPDATE...
+DB --> ProgressDB : Success
+deactivate ProgressDB
+
+Handler --> Med : Success
 deactivate Handler
+
+Med --> Controller : 204 No Content
+deactivate Med
+
+Controller --> User : Updated
+deactivate Controller
 @enduml

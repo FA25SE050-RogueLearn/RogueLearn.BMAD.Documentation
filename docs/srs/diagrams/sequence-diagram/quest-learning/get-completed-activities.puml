@@ -1,0 +1,92 @@
+@startuml
+actor User
+participant ":UserQuestProgress\nController" as Controller
+participant ":IMediator" as Med
+participant ":GetCompletedActivities\nQueryHandler" as Handler
+participant ":IQuestStepRepository" as IStepRepo
+participant ":QuestStepRepository" as StepRepo
+participant ":IUserQuestAttempt\nRepository" as IAttemptRepo
+participant ":UserQuestAttempt\nRepository" as AttemptRepo
+participant ":IUserQuestStepProgress\nRepository" as IProgressRepo
+participant ":UserQuestStepProgress\nRepository" as ProgressRepo
+database ":Database" as DB
+
+User -> Controller : View Step Content
+activate Controller
+
+Controller -> Med : Send(GetCompletedActivitiesQuery)
+activate Med
+
+Med -> Handler : Handle(Query)
+activate Handler
+
+' 1. Fetch Master Content
+Handler -> IStepRepo : GetByIdAsync(StepId)
+activate IStepRepo
+IStepRepo -> StepRepo : GetByIdAsync(StepId)
+activate StepRepo
+StepRepo -> DB : SELECT * FROM quest_steps...
+activate DB
+DB --> StepRepo : QuestStep (Content JSON)
+deactivate DB
+StepRepo --> IStepRepo : QuestStep
+deactivate StepRepo
+IStepRepo --> Handler : QuestStep
+deactivate IStepRepo
+
+' 2. Fetch User Context
+Handler -> IAttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate IAttemptRepo
+IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate AttemptRepo
+AttemptRepo -> DB : SELECT * FROM user_quest_attempts...
+activate DB
+DB --> AttemptRepo : UserQuestAttempt
+deactivate DB
+AttemptRepo --> IAttemptRepo : UserQuestAttempt
+deactivate AttemptRepo
+IAttemptRepo --> Handler : UserQuestAttempt
+deactivate IAttemptRepo
+
+alt Attempt Not Found
+    Handler -> Handler : ExtractAndMapActivities(Content, empty)
+    Handler --> Med : DTO (All Uncompleted)
+else Attempt Found
+    ' 3. Fetch Specific Progress
+    Handler -> IProgressRepo : FirstOrDefaultAsync(AttemptId, StepId)
+    activate IProgressRepo
+    IProgressRepo -> ProgressRepo : FirstOrDefaultAsync(AttemptId, StepId)
+    activate ProgressRepo
+    ProgressRepo -> DB : SELECT * FROM user_quest_step_progress...
+    activate DB
+    DB --> ProgressRepo : UserQuestStepProgress
+    deactivate DB
+    ProgressRepo --> IProgressRepo : UserQuestStepProgress
+    deactivate ProgressRepo
+    IProgressRepo --> Handler : UserQuestStepProgress
+    deactivate IProgressRepo
+
+    alt Progress Not Found
+         Handler -> Handler : ExtractAndMapActivities(Content, empty)
+    else Progress Found
+         ' 4. Map Completion
+         Handler -> Handler : ExtractAndMapActivities(Content, CompletedIds)
+         note right
+            1. Parse 'Content' JSONB
+            2. Extract 'activities' array
+            3. For each activity:
+               IsCompleted = CompletedIds.Contains(id)
+         end note
+    end
+    
+    Handler --> Med : CompletedActivitiesDto
+end
+
+deactivate Handler
+
+Med --> Controller : Response
+deactivate Med
+
+Controller --> User : 200 OK (Activity List)
+deactivate Controller
+@enduml

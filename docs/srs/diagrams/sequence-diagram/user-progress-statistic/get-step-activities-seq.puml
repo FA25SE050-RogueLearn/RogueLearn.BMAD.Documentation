@@ -1,26 +1,66 @@
-' get-step-activities-seq.puml
 @startuml
+title 3.18.2 Sequence Diagram - Get Step Activities
 actor Student
-participant "UserProgress\nController" as Controller
-participant "GetActivities\nHandler" as Handler
-participant "QuestStep\nRepository" as StepDB
-participant "StepProgress\nRepository" as ProgDB
+participant "UserQuestProgress\nController" as Controller
+participant "GetCompletedActivities\nQueryHandler" as Handler
+participant "IQuestStep\nRepository" as StepDB
+participant "IUserQuestAttempt\nRepository" as AttemptDB
+participant "IUserQuestStepProgress\nRepository" as ProgressDB
 
-Student -> Controller : GET /activities
+Student -> Controller : GET /quests/{qid}/steps/{sid}/activities
+activate Controller
+
 Controller -> Handler : Handle(Query)
-
 activate Handler
-    Handler -> StepDB : GetById(StepId)
-    note right: Contains JSON Content
+
+' 1. Fetch Master Content
+Handler -> StepDB : GetByIdAsync(StepId)
+activate StepDB
+StepDB --> Handler : QuestStep (contains JSON Content)
+deactivate StepDB
+
+' 2. Fetch User Context
+Handler -> AttemptDB : FirstOrDefaultAsync(UserId, QuestId)
+activate AttemptDB
+AttemptDB --> Handler : UserQuestAttempt
+deactivate AttemptDB
+
+alt Attempt Not Found
+    ' Edge Case: User viewing content without starting quest
+    Handler -> Handler : ExtractAndMapActivities(Content, empty)
+    activate Handler
+    deactivate Handler
+    Handler --> Controller : DTO (All Activities Uncompleted)
+else Attempt Found
+    ' 3. Fetch Specific Progress
+    Handler -> ProgressDB : FirstOrDefaultAsync(AttemptId, StepId)
+    activate ProgressDB
+    ProgressDB --> Handler : UserQuestStepProgress (CompletedIds)
+    deactivate ProgressDB
+
+    alt Progress Not Found
+         ' Edge Case: User started quest but hasn't touched this specific step yet
+         Handler -> Handler : ExtractAndMapActivities(Content, empty)
+         activate Handler
+         deactivate Handler
+    else Progress Found
+         ' Normal Case: Map user progress against master content
+         Handler -> Handler : ExtractAndMapActivities(Content, CompletedIds)
+         activate Handler
+         note right
+            1. Parse 'Content' JSONB
+            2. Extract 'activities' array
+            3. For each activity:
+               IsCompleted = CompletedIds.Contains(id)
+         end note
+         deactivate Handler
+    end
     
-    Handler -> ProgDB : Get(AttemptId, StepId)
-    note right: Contains CompletedActivityIds[]
-    
-    Handler -> Handler : Parse JSON Activities
-    Handler -> Handler : Map IsCompleted = Id in CompletedArray
-    
-    Handler --> Controller : List<ActivityProgressDto>
+    Handler --> Controller : CompletedActivitiesDto
+end
+
 deactivate Handler
 
-Controller --> Student : 200 OK
+Controller --> Student : 200 OK (Activity List)
+deactivate Controller
 @enduml

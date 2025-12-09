@@ -1,23 +1,42 @@
-' get-all-programs-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "Programs\nController" as Controller
-participant "GetAllPrograms\nHandler" as Handler
-participant "Program\nRepository" as DB
+participant ":CurriculumPrograms\nController" as Controller
+participant ":IMediator" as Med
+participant ":GetAllCurriculumPrograms\nQueryHandler" as Handler
+participant ":ICurriculumProgram\nRepository" as IRepo
+participant ":CurriculumProgram\nRepository" as Repo
+database ":Database" as DB
 
-Admin -> UI : Open "Curricula" Page
-UI -> Controller : GET /api/admin/programs
-Controller -> Handler : Handle(query)
+Admin -> Controller : GET /api/admin/programs
+activate Controller
 
+Controller -> Med : Send(GetAllCurriculumProgramsQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> DB : GetAllAsync()
-    DB --> Handler : List<CurriculumProgram>
-    
-    Handler -> Handler : Map to DTOs
-    Handler --> Controller : List<CurriculumProgramDto>
+
+Handler -> IRepo : GetAllAsync()
+activate IRepo
+IRepo -> Repo : GetAllAsync()
+activate Repo
+Repo -> DB : SELECT * FROM curriculum_programs
+activate DB
+DB --> Repo : List<Entity>
+deactivate DB
+Repo --> IRepo : List<Entity>
+deactivate Repo
+IRepo --> Handler : List<Entity>
+deactivate IRepo
+
+Handler -> Handler : Map to DTOs
+
+Handler --> Med : List<CurriculumProgramDto>
 deactivate Handler
 
-Controller --> UI : 200 OK
-UI --> Admin : Display List
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
 @enduml

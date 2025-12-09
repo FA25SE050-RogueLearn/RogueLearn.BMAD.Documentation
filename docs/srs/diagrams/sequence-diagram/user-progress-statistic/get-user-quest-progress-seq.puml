@@ -1,27 +1,86 @@
-' get-user-quest-progress-seq.puml
 @startuml
-actor Student
-participant "UserProgress\nController" as Controller
-participant "GetProgress\nHandler" as Handler
-participant "Attempt\nRepository" as AttemptDB
-participant "StepProgress\nRepository" as StepDB
+actor User
+participant ":UserQuestProgress\nController" as Controller
+participant ":IMediator" as Med
+participant ":GetQuestProgress\nQueryHandler" as Handler
+participant ":IUserQuestAttemptRepository" as IAttemptRepo
+participant ":UserQuestAttemptRepository" as AttemptRepo
+participant ":IQuestStepRepository" as IStepRepo
+participant ":QuestStepRepository" as StepRepo
+participant ":IUserQuestStepProgressRepository" as IProgressRepo
+participant ":UserQuestStepProgressRepository" as ProgressRepo
+database ":Database" as DB
 
-Student -> Controller : GET /quests/{questId}
-Controller -> Handler : Handle(Query)
+User -> Controller : View Quest Progress
+activate Controller
 
+Controller -> Med : Send(GetQuestProgressQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> AttemptDB : Get(AuthUserId, QuestId)
-    
-    alt Attempt Not Found
-        Handler --> Controller : Default "NotStarted" Response
-    else Found
-        Handler -> StepDB : Find(AttemptId)
-        note right: Get status of all steps
-        
-        Handler -> Handler : Map to Dictionary<StepId, Status>
-        Handler --> Controller : ProgressResponse
+
+' 1. Get Attempt (Source of Truth)
+Handler -> IAttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate IAttemptRepo
+IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate AttemptRepo
+AttemptRepo -> DB : SELECT * FROM user_quest_attempts...
+activate DB
+DB --> AttemptRepo : Attempt
+deactivate DB
+AttemptRepo --> IAttemptRepo : Attempt
+deactivate AttemptRepo
+IAttemptRepo --> Handler : Attempt
+deactivate IAttemptRepo
+
+alt Attempt Found
+    ' 2. Get Steps for Track
+    Handler -> IStepRepo : GetByQuestIdAsync(QuestId)
+    activate IStepRepo
+    IStepRepo -> StepRepo : GetByQuestIdAsync(QuestId)
+    activate StepRepo
+    StepRepo -> DB : SELECT * FROM quest_steps...
+    activate DB
+    DB --> StepRepo : AllSteps
+    deactivate DB
+    StepRepo --> IStepRepo : AllSteps
+    deactivate StepRepo
+    IStepRepo --> Handler : AllSteps
+    deactivate IStepRepo
+
+    Handler -> Handler : Filter Steps by Attempt.AssignedDifficulty
+
+    ' 3. Get Progress Records
+    Handler -> IProgressRepo : GetByAttemptIdAsync(AttemptId)
+    activate IProgressRepo
+    IProgressRepo -> ProgressRepo : GetByAttemptIdAsync(AttemptId)
+    activate ProgressRepo
+    ProgressRepo -> DB : SELECT * FROM user_quest_step_progress...
+    activate DB
+    DB --> ProgressRepo : ProgressList
+    deactivate DB
+    ProgressRepo --> IProgressRepo : ProgressList
+    deactivate ProgressRepo
+    IProgressRepo --> Handler : ProgressList
+    deactivate IProgressRepo
+
+    ' 4. Merge & Calculate Lock State
+    loop For Each Step
+        Handler -> Handler : Map Status from ProgressList
+        Handler -> Handler : Calculate IsLocked (Logic: PrevStep.IsCompleted?)
     end
+
+    Handler --> Med : List<QuestStepProgressDto>
+else No Attempt
+    Handler --> Med : Throw NotFoundException
+end
+
 deactivate Handler
 
-Controller --> Student : 200 OK
+Med --> Controller : Response
+deactivate Med
+
+Controller --> User : 200 OK
+deactivate Controller
 @enduml

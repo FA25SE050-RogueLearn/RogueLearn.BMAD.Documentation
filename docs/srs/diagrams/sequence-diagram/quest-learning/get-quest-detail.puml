@@ -1,0 +1,87 @@
+@startuml
+actor User
+participant ":QuestsController" as Controller
+participant ":IMediator" as Med
+participant ":GetQuestById\nQueryHandler" as Handler
+participant ":IQuestRepository" as IQuestRepo
+participant ":QuestRepository" as QuestRepo
+participant ":IUserQuestAttemptRepository" as IAttemptRepo
+participant ":UserQuestAttemptRepository" as AttemptRepo
+participant ":IQuestStepRepository" as IStepRepo
+participant ":QuestStepRepository" as StepRepo
+database ":Database" as DB
+
+User -> Controller : View Quest Details
+activate Controller
+
+Controller -> Med : Send(GetQuestByIdQuery)
+activate Med
+
+Med -> Handler : Handle(query)
+activate Handler
+
+' 1. Fetch Quest Metadata
+Handler -> IQuestRepo : GetByIdAsync(QuestId)
+activate IQuestRepo
+IQuestRepo -> QuestRepo : GetByIdAsync(QuestId)
+activate QuestRepo
+QuestRepo -> DB : SELECT * FROM quests WHERE...
+activate DB
+DB --> QuestRepo : Quest Entity
+deactivate DB
+QuestRepo --> IQuestRepo : Quest Entity
+deactivate QuestRepo
+IQuestRepo --> Handler : Quest Entity
+deactivate IQuestRepo
+
+' 2. Determine Difficulty Context
+Handler -> IAttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate IAttemptRepo
+IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate AttemptRepo
+AttemptRepo -> DB : SELECT * FROM user_quest_attempts...
+activate DB
+DB --> AttemptRepo : Attempt?
+deactivate DB
+AttemptRepo --> IAttemptRepo : Attempt?
+deactivate AttemptRepo
+IAttemptRepo --> Handler : Attempt?
+deactivate IAttemptRepo
+
+alt Attempt Exists
+    Handler -> Handler : TargetDifficulty = Attempt.AssignedDifficulty
+else No Attempt
+    Handler -> Handler : TargetDifficulty = Quest.ExpectedDifficulty (or Standard)
+end
+
+' 3. Fetch & Filter Steps
+Handler -> IStepRepo : GetByQuestIdAsync(QuestId)
+activate IStepRepo
+IStepRepo -> StepRepo : GetByQuestIdAsync(QuestId)
+activate StepRepo
+StepRepo -> DB : SELECT * FROM quest_steps WHERE...
+activate DB
+DB --> StepRepo : All Steps
+deactivate DB
+StepRepo --> IStepRepo : All Steps
+deactivate StepRepo
+IStepRepo --> Handler : All Steps
+deactivate IStepRepo
+
+Handler -> Handler : Filter Steps by TargetDifficulty
+note right
+    Only returns steps matching
+    Standard, Supportive, or Challenging
+end note
+
+Handler -> Handler : Map to DTO
+
+Handler --> Med : QuestDetailsDto
+deactivate Handler
+
+Med --> Controller : Response
+deactivate Med
+
+Controller --> User : 200 OK
+deactivate Controller
+@enduml

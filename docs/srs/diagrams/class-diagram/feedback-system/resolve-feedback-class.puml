@@ -1,39 +1,55 @@
-' resolve-feedback-class.puml
 @startuml
+title 3.22.1 Class Diagram - Resolve Feedback (Admin)
 skinparam linetype ortho
-skinparam ranksep 50
-skinparam nodesep 50
+skinparam ranksep 60
+skinparam nodesep 60
 skinparam classAttributeIconSize 0
 hide empty members
 
 package "API Layer" {
     class QuestFeedbackController {
-        +ResolveFeedback(command)
+        +ResolveFeedback(id, command)
     }
 }
 
 package "Application Layer" {
     class ResolveQuestStepFeedbackCommand {
-        +FeedbackId
-        +IsResolved
-        +AdminNotes
+        +FeedbackId: Guid
+        +IsResolved: bool
+        +AdminNotes: string?
     }
 
     class ResolveQuestStepFeedbackCommandHandler {
-        +Handle()
+        +Handle(command, cancellationToken)
+    }
+
+    class ResolveQuestStepFeedbackCommandValidator {
+        +Validate(command)
     }
 }
 
 package "Domain & Infrastructure Layer" {
-    interface IUserQuestStepFeedbackRepository
-    class UserQuestStepFeedback
+    class UserQuestStepFeedback {
+        +Id: Guid
+        +IsResolved: bool
+        +AdminNotes: string?
+        +UpdatedAt: DateTimeOffset
+    }
+
+    interface IUserQuestStepFeedbackRepository {
+        +GetByIdAsync(id)
+        +UpdateAsync(entity)
+    }
 }
+
+' Formatting
+QuestFeedbackController -[hidden]- ResolveQuestStepFeedbackCommandHandler
 
 ' Relationships
 QuestFeedbackController ..> ResolveQuestStepFeedbackCommand : Creates
-QuestFeedbackController ..> ResolveQuestStepFeedbackCommandHandler : Sends
+QuestFeedbackController ..> ResolveQuestStepFeedbackCommandHandler : Sends (Mediator)
+ResolveQuestStepFeedbackCommand ..> ResolveQuestStepFeedbackCommandValidator : Validated By
 
-ResolveQuestStepFeedbackCommandHandler ..> ResolveQuestStepFeedbackCommand : Uses
-ResolveQuestStepFeedbackCommandHandler --> IUserQuestStepFeedbackRepository
-ResolveQuestStepFeedbackCommandHandler ..> UserQuestStepFeedback : Updates
+ResolveQuestStepFeedbackCommandHandler --> IUserQuestStepFeedbackRepository : Uses
+IUserQuestStepFeedbackRepository ..> UserQuestStepFeedback : Manages
 @enduml

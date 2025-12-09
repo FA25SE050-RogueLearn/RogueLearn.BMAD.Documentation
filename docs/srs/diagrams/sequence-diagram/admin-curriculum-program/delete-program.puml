@@ -1,0 +1,60 @@
+@startuml
+actor Admin
+participant ":CurriculumPrograms\nController" as Controller
+participant ":IMediator" as Med
+participant ":DeleteCurriculumProgram\nCommandHandler" as Handler
+participant ":ICurriculumProgram\nRepository" as IRepo
+participant ":CurriculumProgram\nRepository" as Repo
+database ":Database" as DB
+
+Admin -> Controller : DELETE /api/admin/programs/{id}
+activate Controller
+
+Controller -> Med : Send(DeleteCurriculumProgramCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Check Existence
+Handler -> IRepo : GetByIdAsync(Id)
+activate IRepo
+IRepo -> Repo : GetByIdAsync(Id)
+activate Repo
+Repo -> DB : SELECT * FROM curriculum_programs...
+activate DB
+DB --> Repo : Entity?
+deactivate DB
+Repo --> IRepo : Entity?
+deactivate Repo
+IRepo --> Handler : Entity?
+deactivate IRepo
+
+alt Not Found
+    Handler --> Med : Throw NotFoundException
+    Med --> Controller : 404 Not Found
+else Found
+    ' 2. Delete
+    Handler -> IRepo : DeleteAsync(Id)
+    activate IRepo
+    IRepo -> Repo : DeleteAsync(Id)
+    activate Repo
+    Repo -> DB : DELETE FROM curriculum_programs...
+    activate DB
+    DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : Success
+    deactivate Repo
+    IRepo --> Handler : Success
+    deactivate IRepo
+
+    Handler --> Med : Unit.Value
+end
+
+deactivate Handler
+Med --> Controller : Success
+deactivate Med
+
+Controller --> Admin : 204 No Content
+deactivate Controller
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+actor Admin
+participant ":SubjectsController" as Controller
+participant ":IMediator" as Med
+participant ":AddSubjectSkillMapping\nHandler" as Handler
+participant ":ISubjectRepository" as SubDB
+participant ":ISkillRepository" as SkillDB
+participant ":ISubjectSkillMapping\nRepository" as MapDB
+database ":Database" as DB
+
+Admin -> Controller : POST /subjects/{id}/skills
+activate Controller
+
+Controller -> Med : Send(AddSubjectSkillMappingCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Validate Existence
+Handler -> SubDB : ExistsAsync(SubjectId)
+Handler -> SkillDB : ExistsAsync(SkillId)
+
+alt Not Found
+    Handler --> Med : Throw NotFoundException
+else Found
+    ' 2. Check Duplicate
+    Handler -> MapDB : FirstOrDefaultAsync(SubjectId, SkillId)
+    activate MapDB
+    MapDB -> DB : SELECT...
+    DB --> MapDB : Existing?
+    deactivate MapDB
+
+    alt Exists
+        Handler --> Med : Throw ConflictException
+    else New Mapping
+        ' 3. Create
+        Handler -> MapDB : AddAsync(NewMapping)
+        activate MapDB
+        MapDB -> DB : INSERT...
+        DB --> MapDB : Success
+        deactivate MapDB
+        
+        Handler --> Med : CreatedDto
+    end
+end
+
+deactivate Handler
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 201 Created
+deactivate Controller
+@enduml

@@ -1,31 +1,145 @@
-' generate-quest-line-seq.puml
 @startuml
-participant "System Trigger" as Sys
-participant "GenerateQuestLine\nHandler" as Handler
-participant "Subject\nRepositories" as SubjectDB
-participant "Gradebook\nRepository" as GradeDB
-participant "Quest\nRepository" as QuestDB
+actor "System (Academic Sync)" as Sys
+participant ":UsersController" as Controller
+participant ":IMediator" as Med
+participant ":GenerateQuestLine\nCommandHandler" as Handler
+participant ":IUserProfileRepository" as IProfileRepo
+participant ":UserProfileRepository" as ProfileRepo
+participant ":ISubjectRepository" as ISubjectRepo
+participant ":SubjectRepository" as SubjectRepo
+participant ":IStudentSemesterSubject\nRepository" as IGradeRepo
+participant ":StudentSemesterSubject\nRepository" as GradeRepo
+participant ":IQuestRepository" as IQuestRepo
+participant ":QuestRepository" as QuestRepo
+participant ":IQuestDifficultyResolver" as IResolver
+participant ":QuestDifficultyResolver" as Resolver
+participant ":IUserQuestAttemptRepository" as IAttemptRepo
+participant ":UserQuestAttemptRepository" as AttemptRepo
+database ":Database" as DB
 
-Sys -> Handler : 1. Execute Command
+Sys -> Controller : ProcessMyAcademicRecord()
+activate Controller
+
+Controller -> Med : Send(GenerateQuestLineCommand)
+activate Med
+
+Med -> Handler : Handle(command)
 activate Handler
 
-    Handler -> SubjectDB : 2. Get Route Subjects
-    Handler -> SubjectDB : 3. Get Class Specialization Subjects
-    note right: Override semesters here
+' 1. Get Context
+Handler -> IProfileRepo : GetByAuthIdAsync(userId)
+activate IProfileRepo
+IProfileRepo -> ProfileRepo : GetByAuthIdAsync(userId)
+activate ProfileRepo
+ProfileRepo -> DB : SELECT * FROM user_profiles WHERE...
+activate DB
+DB --> ProfileRepo : Record
+deactivate DB
+ProfileRepo --> IProfileRepo : UserProfile
+deactivate ProfileRepo
+IProfileRepo --> Handler : UserProfile (RouteId, ClassId)
+deactivate IProfileRepo
 
-    Handler -> GradeDB : 4. Get Student Grades
-    Handler -> QuestDB : 5. Get Existing Quests
+Handler -> ISubjectRepo : GetSubjectsByRoute(RouteId)
+activate ISubjectRepo
+ISubjectRepo -> SubjectRepo : GetSubjectsByRoute(RouteId)
+activate SubjectRepo
+SubjectRepo -> DB : SELECT * FROM subjects...
+activate DB
+DB --> SubjectRepo : Records
+deactivate DB
+SubjectRepo --> ISubjectRepo : List<Subject>
+deactivate SubjectRepo
+ISubjectRepo --> Handler : List<Subject>
+deactivate ISubjectRepo
 
-    loop For Each Subject
-        Handler -> Handler : 6. Check Recommendation Logic
+Handler -> IGradeRepo : FindAsync(userId)
+activate IGradeRepo
+IGradeRepo -> GradeRepo : FindAsync(userId)
+activate GradeRepo
+GradeRepo -> DB : SELECT * FROM student_semester_subjects WHERE...
+activate DB
+DB --> GradeRepo : Records
+deactivate DB
+GradeRepo --> IGradeRepo : List<StudentSemesterSubject>
+deactivate GradeRepo
+IGradeRepo --> Handler : List<StudentSemesterSubject>
+deactivate IGradeRepo
+
+' 2. Process Subjects
+loop For Each Subject
+    Handler -> IQuestRepo : FindAsync(SubjectId)
+    activate IQuestRepo
+    IQuestRepo -> QuestRepo : FindAsync(SubjectId)
+    activate QuestRepo
+    QuestRepo -> DB : SELECT * FROM quests WHERE...
+    activate DB
+    DB --> QuestRepo : Record
+    deactivate DB
+    QuestRepo --> IQuestRepo : MasterQuest
+    deactivate QuestRepo
+    IQuestRepo --> Handler : MasterQuest
+    deactivate IQuestRepo
+
+    alt Master Quest Found
+        Handler -> IResolver : ResolveDifficulty(GradeRecord)
+        activate IResolver
+        IResolver -> Resolver : ResolveDifficulty(GradeRecord)
+        activate Resolver
+        Resolver --> IResolver : DifficultyInfo (e.g., "Challenging")
+        deactivate Resolver
+        IResolver --> Handler : DifficultyInfo
+        deactivate IResolver
+
+        Handler -> IAttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+        activate IAttemptRepo
+        IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+        activate AttemptRepo
+        AttemptRepo -> DB : SELECT * FROM user_quest_attempts WHERE...
+        activate DB
+        DB --> AttemptRepo : ExistingAttempt?
+        deactivate DB
+        AttemptRepo --> IAttemptRepo : ExistingAttempt?
+        deactivate AttemptRepo
+        IAttemptRepo --> Handler : ExistingAttempt?
+        deactivate IAttemptRepo
         
-        alt Quest Not Found
-            Handler -> QuestDB : 7. Create Quest Shell
-        else Quest Exists
-            Handler -> QuestDB : 8. Update Metadata
+        alt Attempt Not Exists
+            Handler -> IAttemptRepo : AddAsync(NewAttempt)
+            activate IAttemptRepo
+            IAttemptRepo -> AttemptRepo : AddAsync(NewAttempt)
+            activate AttemptRepo
+            AttemptRepo -> DB : INSERT INTO user_quest_attempts...
+            activate DB
+            DB --> AttemptRepo : Success
+            deactivate DB
+            AttemptRepo --> IAttemptRepo : Success
+            deactivate AttemptRepo
+            IAttemptRepo --> Handler : Success
+            deactivate IAttemptRepo
+        else Attempt Exists
+            Handler -> IAttemptRepo : UpdateAsync(ExistingAttempt)
+            activate IAttemptRepo
+            IAttemptRepo -> AttemptRepo : UpdateAsync(ExistingAttempt)
+            activate AttemptRepo
+            AttemptRepo -> DB : UPDATE user_quest_attempts SET...
+            activate DB
+            DB --> AttemptRepo : Success
+            deactivate DB
+            AttemptRepo --> IAttemptRepo : Success
+            deactivate AttemptRepo
+            IAttemptRepo --> Handler : Success
+            deactivate IAttemptRepo
         end
     end
+end
 
-    Handler --> Sys : 9. Complete
+Handler --> Med : Response
 deactivate Handler
+
+Med --> Controller : Success
+deactivate Med
+
+Controller --> Sys : 200 OK
+deactivate Controller
 @enduml

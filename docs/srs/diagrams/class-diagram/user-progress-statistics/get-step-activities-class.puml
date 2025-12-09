@@ -1,41 +1,70 @@
-' get-step-activities-class.puml
 @startuml
+title 3.18.1 Class Diagram - Get Step Activities
 skinparam linetype ortho
-skinparam ranksep 50
-skinparam nodesep 50
+skinparam ranksep 60
+skinparam nodesep 60
 skinparam classAttributeIconSize 0
 hide empty members
 
 package "API Layer" {
     class UserQuestProgressController {
-        +GetStepActivities()
+        +GetStepActivities(questId: Guid, stepId: Guid)
     }
 }
 
 package "Application Layer" {
-    class GetCompletedActivitiesQuery {
-        +StepId
+    class GetCompletedActivitiesQueryHandler {
+        +Handle(request, cancellationToken)
+        -ExtractAndMapActivities(content, completedIds)
     }
 
-    class GetCompletedActivitiesQueryHandler {
-        +Handle()
-        -ExtractAndMapActivities()
+    class GetCompletedActivitiesQuery {
+        +AuthUserId: Guid
+        +QuestId: Guid
+        +StepId: Guid
     }
 }
 
 package "Domain & Infrastructure Layer" {
-    interface IQuestStepRepository
-    interface IUserQuestStepProgressRepository
-    
     class CompletedActivitiesDto {
-        +List<ActivityProgressDto>
+        +StepId: Guid
+        +Activities: List<ActivityProgressDto>
+        +CompletedCount: int
+        +TotalCount: int
+    }
+
+    class ActivityProgressDto {
+        +ActivityId: Guid
+        +ActivityType: string
+        +IsCompleted: bool
+        +Title: string
+        +ExperiencePoints: int
+    }
+
+    interface IUserQuestStepProgressRepository {
+        +FirstOrDefaultAsync(predicate, token)
+    }
+
+    interface IQuestStepRepository {
+        +GetByIdAsync(id, token)
+    }
+    
+    interface IUserQuestAttemptRepository {
+        +FirstOrDefaultAsync(predicate, token)
     }
 }
 
-UserQuestProgressController ..> GetCompletedActivitiesQuery : Creates
-UserQuestProgressController ..> GetCompletedActivitiesQueryHandler : Sends
+' Formatting constraints
+UserQuestProgressController -[hidden]- GetCompletedActivitiesQueryHandler
 
-GetCompletedActivitiesQueryHandler --> IQuestStepRepository
-GetCompletedActivitiesQueryHandler --> IUserQuestStepProgressRepository
+' Relationships
+UserQuestProgressController ..> GetCompletedActivitiesQuery : Creates
+UserQuestProgressController ..> GetCompletedActivitiesQueryHandler : Sends (via Mediator)
+
 GetCompletedActivitiesQueryHandler ..> CompletedActivitiesDto : Returns
+GetCompletedActivitiesQueryHandler --> IUserQuestStepProgressRepository : Uses
+GetCompletedActivitiesQueryHandler --> IQuestStepRepository : Uses
+GetCompletedActivitiesQueryHandler --> IUserQuestAttemptRepository : Uses
+
+CompletedActivitiesDto *-- ActivityProgressDto : Contains
 @enduml

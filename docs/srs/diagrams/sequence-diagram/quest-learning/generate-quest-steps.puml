@@ -1,46 +1,91 @@
-' generate-quest-steps-seq.puml
 @startuml
 actor Admin
-participant "AdminConsole" as UI
-participant "QuestsController" as Controller
-participant "Hangfire" as JobQueue
-participant "QuestStepGeneration\nService" as Service
-participant "TopicGrouper" as Grouper
-participant "QuestGeneration\nPlugin (AI)" as AI
-participant "Database" as DB
+participant ":AdminQuestsController" as Controller
+participant ":IBackgroundJobClient" as JobQueue
+participant ":IQuestStepGenerationService" as IService
+participant ":QuestStepGenerationService" as Service
+participant ":IMediator" as Med
+participant ":GenerateQuestSteps\nCommandHandler" as Handler
+participant ":ITopicGrouperService" as IGrouper
+participant ":TopicGrouperService" as Grouper
+participant ":IQuestGenerationPlugin" as IPlugin
+participant ":QuestGenerationPlugin" as Plugin
+participant ":IQuestStepRepository" as IStepRepo
+participant ":QuestStepRepository" as StepRepo
+database ":Database" as DB
 
-Admin -> UI : 1. Click "Generate Steps"
-UI -> Controller : 2. POST /api/quests/{id}/generate-steps
-Controller -> JobQueue : 3. Schedule(GenerateQuestStepsAsync)
+Admin -> Controller : Click "Generate Steps"
+activate Controller
+
+Controller -> JobQueue : Schedule(GenerateQuestStepsAsync)
+activate JobQueue
 JobQueue --> Controller : JobId
-Controller --> UI : 4. 202 Accepted (JobId)
+deactivate JobQueue
+
+Controller --> Admin : 202 Accepted
+deactivate Controller
 
 note right of JobQueue: Async Background Process
 
-JobQueue -> Service : 5. Execute GenerateQuestStepsAsync
-
+JobQueue -> IService : GenerateQuestStepsAsync()
+activate IService
+IService -> Service : GenerateQuestStepsAsync()
 activate Service
-    Service -> DB : 6. GetQuestById(questId)
-    DB --> Service : quest (with Subject/Syllabus)
 
-    Service -> Grouper : 7. GroupSessionsIntoModules(syllabus)
-    Grouper --> Service : modules (List of Topics)
+Service -> Med : Send(GenerateQuestStepsCommand)
+activate Med
 
-    loop For each Module
-        Service -> AI : 8. GenerateWeeklyContentAsync(topic, syllabus)
-        note right: Calls Gemini to generate\nStandard, Supportive, Challenging tracks
-        AI --> Service : contentJson (3 variants)
+Med -> Handler : Handle(command)
+activate Handler
 
-        Service -> Service : 9. Create 3 QuestStep entities
-        note right: Map JSON to DifficultyVariant:\nStandard, Supportive, Challenging
-    end
+' 1. Group Syllabus
+Handler -> IGrouper : GroupSessionsIntoModules(Syllabus)
+activate IGrouper
+IGrouper -> Grouper : GroupSessionsIntoModules(Syllabus)
+activate Grouper
+Grouper --> IGrouper : List<Module>
+deactivate Grouper
+IGrouper --> Handler : List<Module>
+deactivate IGrouper
 
-    Service -> DB : 10. AddRangeAsync(newSteps)
-    DB --> Service : Success
+' 2. Generate Content
+loop For Each Module
+    Handler -> IPlugin : GenerateFromPromptAsync(Prompt)
+    activate IPlugin
+    IPlugin -> Plugin : GenerateFromPromptAsync(Prompt)
+    activate Plugin
+    note right
+        Generates 3 Variants:
+        Standard, Supportive, Challenging
+    end note
+    Plugin --> IPlugin : JSON Content
+    deactivate Plugin
+    IPlugin --> Handler : JSON Content
+    deactivate IPlugin
+
+    Handler -> Handler : Create 3 QuestSteps
+    
+    Handler -> IStepRepo : AddRangeAsync(Steps)
+    activate IStepRepo
+    IStepRepo -> StepRepo : AddRangeAsync(Steps)
+    activate StepRepo
+    StepRepo -> DB : INSERT INTO quest_steps...
+    activate DB
+    DB --> StepRepo : Success
+    deactivate DB
+    StepRepo --> IStepRepo : Success
+    deactivate StepRepo
+    IStepRepo --> Handler : Success
+    deactivate IStepRepo
+end
+
+Handler --> Med : Success
+deactivate Handler
+Med --> Service : Success
+deactivate Med
+
+Service --> IService : Success
 deactivate Service
-
-UI -> Controller : 11. Poll Status (JobId)
-Controller -> JobQueue : Check Status
-JobQueue --> Controller : Succeeded
-Controller --> UI : 12. Show "Generation Complete"
+IService --> JobQueue : Success
+deactivate IService
 @enduml

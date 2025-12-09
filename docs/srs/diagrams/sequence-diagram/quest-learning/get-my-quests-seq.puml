@@ -1,23 +1,64 @@
-' get-my-quests-seq.puml
 @startuml
-actor Student
-participant "QuestsController" as Controller
-participant "GetMyQuests\nHandler" as Handler
-participant "QuestRepository" as Q_Repo
-participant "SubjectRepository" as S_Repo
+actor User
+participant ":QuestsController" as Controller
+participant ":IMediator" as Med
+participant ":GetMyQuestsWithSubjects\nQueryHandler" as Handler
+participant ":IQuestRepository" as IQuestRepo
+participant ":QuestRepository" as QuestRepo
+participant ":ISubjectRepository" as ISubjectRepo
+participant ":SubjectRepository" as SubjectRepo
+database ":Database" as DB
 
-Student -> Controller : GET /api/quests/me
-Controller -> Handler : Handle(Query)
+User -> Controller : View "My Quests"
+activate Controller
 
+Controller -> Med : Send(GetMyQuestsWithSubjectsQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> Q_Repo : GetAllAsync()
-    Handler -> Handler : Filter by CreatedBy == AuthUserId
-    
-    Handler -> S_Repo : GetAllAsync()
-    Handler -> Handler : Join Quests with Subjects
-    
-    Handler --> Controller : List<MyQuestWithSubjectDto>
+
+' 1. Fetch User Quests
+Handler -> IQuestRepo : GetAllAsync()
+activate IQuestRepo
+IQuestRepo -> QuestRepo : GetAllAsync()
+activate QuestRepo
+QuestRepo -> DB : SELECT * FROM quests...
+activate DB
+DB --> QuestRepo : All Quests
+deactivate DB
+QuestRepo --> IQuestRepo : All Quests
+deactivate QuestRepo
+IQuestRepo --> Handler : All Quests
+deactivate IQuestRepo
+
+Handler -> Handler : Filter by CreatedBy == AuthUserId (or linked via Attempt)
+
+' 2. Fetch Subjects
+Handler -> Handler : Extract Subject IDs from User Quests
+Handler -> ISubjectRepo : GetAllAsync()
+activate ISubjectRepo
+ISubjectRepo -> SubjectRepo : GetAllAsync()
+activate SubjectRepo
+SubjectRepo -> DB : SELECT * FROM subjects...
+activate DB
+DB --> SubjectRepo : All Subjects
+deactivate DB
+SubjectRepo --> ISubjectRepo : All Subjects
+deactivate SubjectRepo
+ISubjectRepo --> Handler : All Subjects
+deactivate ISubjectRepo
+
+' 3. Join & Map
+Handler -> Handler : Match Quests to Subjects
+Handler -> Handler : Map to MyQuestWithSubjectDto List
+
+Handler --> Med : List<MyQuestWithSubjectDto>
 deactivate Handler
 
-Controller --> Student : 200 OK
+Med --> Controller : Response
+deactivate Med
+
+Controller --> User : 200 OK
+deactivate Controller
 @enduml

@@ -1,0 +1,77 @@
+@startuml
+actor User
+participant ":SkillsController" as Controller
+participant ":IMediator" as Med
+participant ":GetSkillTree\nQueryHandler" as Handler
+participant ":ISkillRepository" as ISkillRepo
+participant ":SkillRepository" as SkillRepo
+participant ":IUserSkillRepository" as IUserSkillRepo
+participant ":UserSkillRepository" as UserSkillRepo
+participant ":ISkillDependencyRepository" as IDepRepo
+participant ":SkillDependencyRepository" as DepRepo
+database ":Database" as DB
+
+User -> Controller : View Skill Tree
+activate Controller
+
+Controller -> Med : Send(GetSkillTreeQuery)
+activate Med
+
+Med -> Handler : Handle(query)
+activate Handler
+
+' 1. Fetch All Skills (Nodes)
+Handler -> ISkillRepo : GetAllAsync()
+activate ISkillRepo
+ISkillRepo -> SkillRepo : GetAllAsync()
+activate SkillRepo
+SkillRepo -> DB : SELECT * FROM skills...
+activate DB
+DB --> SkillRepo : List<Skill>
+deactivate DB
+SkillRepo --> ISkillRepo : List<Skill>
+deactivate SkillRepo
+ISkillRepo --> Handler : List<Skill>
+deactivate ISkillRepo
+
+' 2. Fetch User Progress
+Handler -> IUserSkillRepo : GetSkillsByAuthIdAsync(UserId)
+activate IUserSkillRepo
+IUserSkillRepo -> UserSkillRepo : GetSkillsByAuthIdAsync(UserId)
+activate UserSkillRepo
+UserSkillRepo -> DB : SELECT * FROM user_skills...
+activate DB
+DB --> UserSkillRepo : List<UserSkill>
+deactivate DB
+UserSkillRepo --> IUserSkillRepo : List<UserSkill>
+deactivate UserSkillRepo
+IUserSkillRepo --> Handler : List<UserSkill>
+deactivate IUserSkillRepo
+
+' 3. Fetch Dependencies (Edges)
+Handler -> IDepRepo : GetAllAsync()
+activate IDepRepo
+IDepRepo -> DepRepo : GetAllAsync()
+activate DepRepo
+DepRepo -> DB : SELECT * FROM skill_dependencies...
+activate DB
+DB --> DepRepo : List<Dependency>
+deactivate DB
+DepRepo --> IDepRepo : List<Dependency>
+deactivate DepRepo
+IDepRepo --> Handler : List<Dependency>
+deactivate IDepRepo
+
+' 4. Build Tree DTO
+Handler -> Handler : Merge Skills + UserSkills -> SkillNodeDto
+Handler -> Handler : Map Dependencies -> SkillDependencyDto
+
+Handler --> Med : SkillTreeDto
+deactivate Handler
+
+Med --> Controller : Response
+deactivate Med
+
+Controller --> User : 200 OK
+deactivate Controller
+@enduml

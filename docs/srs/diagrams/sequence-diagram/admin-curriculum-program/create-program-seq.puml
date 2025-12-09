@@ -1,22 +1,50 @@
-' create-program-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "Programs\nController" as Controller
-participant "CreateProgram\nHandler" as Handler
-participant "Program\nRepository" as DB
+participant ":CurriculumPrograms\nController" as Controller
+participant ":IMediator" as Med
+participant ":CreateCurriculumProgram\nCommandHandler" as Handler
+participant ":ICurriculumProgram\nRepository" as IRepo
+participant ":CurriculumProgram\nRepository" as Repo
+database ":Database" as DB
 
-Admin -> UI : Fill Form -> "Create"
-UI -> Controller : POST /api/admin/programs
-Controller -> Handler : Handle(command)
+Admin -> Controller : POST /api/admin/programs
+activate Controller
 
+Controller -> Med : Send(CreateCurriculumProgramCommand)
+activate Med
+
+Med -> Handler : Handle(command)
 activate Handler
-    Handler -> DB : AddAsync(newProgram)
-    DB --> Handler : Created Entity
-    
-    Handler -> Handler : Map to Response
-    Handler --> Controller : CreateResponse
+
+' 1. Create Entity
+Handler -> Handler : Initialize CurriculumProgram
+note right
+    Map fields from command
+    Set CreatedAt = UtcNow
+end note
+
+' 2. Persist
+Handler -> IRepo : AddAsync(Entity)
+activate IRepo
+IRepo -> Repo : AddAsync(Entity)
+activate Repo
+Repo -> DB : INSERT INTO curriculum_programs...
+activate DB
+DB --> Repo : Success
+deactivate DB
+Repo --> IRepo : Created Entity
+deactivate Repo
+IRepo --> Handler : Created Entity
+deactivate IRepo
+
+Handler -> Handler : Map to Response DTO
+
+Handler --> Med : CreateCurriculumProgramResponse
 deactivate Handler
 
-Controller --> UI : 201 Created
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 201 Created
+deactivate Controller
 @enduml

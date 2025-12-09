@@ -1,40 +1,134 @@
-' quiz-submission-seq.puml
 @startuml
 actor User
-participant "Frontend UI" as UI
-participant "QuestsController" as Controller
-participant "SubmitQuizAnswer\nHandler" as Handler
-participant "UserQuestStep\nProgressRepo" as ProgressRepo
-participant "QuestSubmission\nRepo" as SubmissionRepo
-participant "UserSkillReward\nRepo" as XpRepo
-participant "Database" as DB
+participant ":QuestsController" as Controller
+participant ":IMediator" as Med
+participant ":SubmitQuizAnswer\nCommandHandler" as Handler
+participant ":IQuestRepository" as IQuestRepo
+participant ":QuestRepository" as QuestRepo
+participant ":IQuestStepRepository" as IStepRepo
+participant ":QuestStepRepository" as StepRepo
+participant ":IUserQuestAttempt\nRepository" as IAttemptRepo
+participant ":UserQuestAttempt\nRepository" as AttemptRepo
+participant ":IQuizValidationService" as IValidator
+participant ":QuizValidationService" as Validator
+participant ":IQuestSubmission\nRepository" as ISubmissionRepo
+participant ":QuestSubmission\nRepository" as SubmissionRepo
+participant ":IUserQuestStepProgress\nRepository" as IProgressRepo
+participant ":UserQuestStepProgress\nRepository" as ProgressRepo
+database ":Database" as DB
 
-User -> UI : 1. Submit Quiz Answers
-UI -> Controller : 2. POST /api/quests/{qid}/steps/{sid}/activities/{aid}/submit-quiz
-Controller -> Handler : 3. Handle(SubmitQuizAnswerCommand)
+User -> Controller : Submit Quiz Answers
+activate Controller
 
+Controller -> Med : Send(SubmitQuizAnswerCommand)
+activate Med
+
+Med -> Handler : Handle(command)
 activate Handler
-    Handler -> Handler : 4. Calculate Score (Correct/Total)
+
+' 1. Validate Context
+Handler -> IQuestRepo : GetByIdAsync(QuestId)
+activate IQuestRepo
+IQuestRepo -> QuestRepo : GetByIdAsync(QuestId)
+activate QuestRepo
+QuestRepo -> DB : SELECT * FROM quests...
+activate DB
+DB --> QuestRepo : Quest
+deactivate DB
+QuestRepo --> IQuestRepo : Quest
+deactivate QuestRepo
+IQuestRepo --> Handler : Quest
+deactivate IQuestRepo
+
+Handler -> IStepRepo : GetByIdAsync(StepId)
+activate IStepRepo
+IStepRepo -> StepRepo : GetByIdAsync(StepId)
+activate StepRepo
+StepRepo -> DB : SELECT * FROM quest_steps...
+activate DB
+DB --> StepRepo : Step
+deactivate DB
+StepRepo --> IStepRepo : Step
+deactivate StepRepo
+IStepRepo --> Handler : Step
+deactivate IStepRepo
+
+' 2. Get/Create Attempt
+Handler -> IAttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate IAttemptRepo
+IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate AttemptRepo
+AttemptRepo -> DB : SELECT * FROM user_quest_attempts...
+activate DB
+DB --> AttemptRepo : Attempt
+deactivate DB
+AttemptRepo --> IAttemptRepo : Attempt
+deactivate AttemptRepo
+IAttemptRepo --> Handler : Attempt
+deactivate IAttemptRepo
+
+' 3. Evaluate
+Handler -> IValidator : EvaluateQuizSubmission(Correct, Total)
+activate IValidator
+IValidator -> Validator : EvaluateQuizSubmission(Correct, Total)
+activate Validator
+Validator --> IValidator : (IsPassed, Score%)
+deactivate Validator
+IValidator --> Handler : (IsPassed, Score%)
+deactivate IValidator
+
+' 4. Record Submission
+Handler -> ISubmissionRepo : AddAsync(QuestSubmission)
+activate ISubmissionRepo
+ISubmissionRepo -> SubmissionRepo : AddAsync(QuestSubmission)
+activate SubmissionRepo
+SubmissionRepo -> DB : INSERT INTO quest_submissions...
+activate DB
+DB --> SubmissionRepo : Success
+deactivate DB
+SubmissionRepo --> ISubmissionRepo : CreatedSubmission
+deactivate SubmissionRepo
+ISubmissionRepo --> Handler : CreatedSubmission
+deactivate ISubmissionRepo
+
+' 5. Update Progress (If Passed)
+alt IsPassed
+    Handler -> IProgressRepo : GetByAttemptAndStepAsync(AttemptId, StepId)
+    activate IProgressRepo
+    IProgressRepo -> ProgressRepo : GetByAttemptAndStepAsync(AttemptId, StepId)
+    activate ProgressRepo
+    ProgressRepo -> DB : SELECT...
+    activate DB
+    DB --> ProgressRepo : Progress
+    deactivate DB
+    ProgressRepo --> IProgressRepo : Progress
+    deactivate ProgressRepo
+    IProgressRepo --> Handler : Progress
+    deactivate IProgressRepo
+
+    Handler -> Handler : Update Status = Completed
+    Handler -> IProgressRepo : UpdateAsync(Progress)
+    activate IProgressRepo
+    IProgressRepo -> ProgressRepo : UpdateAsync(Progress)
+    activate ProgressRepo
+    ProgressRepo -> DB : UPDATE...
+    activate DB
+    DB --> ProgressRepo : Success
+    deactivate DB
+    ProgressRepo --> IProgressRepo : Success
+    deactivate ProgressRepo
+    IProgressRepo --> Handler : Success
+    deactivate IProgressRepo
     
-    Handler -> ProgressRepo : 5. GetByAttemptAndStepAsync()
-    ProgressRepo --> Handler : stepProgress
-    
-    Handler -> SubmissionRepo : 6. AddAsync(new QuestSubmission)
-    SubmissionRepo -> DB : INSERT QuestSubmissions...
-    
-    alt Score >= Passing Threshold (e.g. 70%)
-        Handler -> ProgressRepo : 7. UpdateCompletedActivities(activityId)
-        note right: Adds ActivityId to\nCompletedActivityIds list
-        ProgressRepo -> DB : UPDATE UserQuestStepProgress...
-        
-        Handler -> XpRepo : 8. AddAsync(new UserSkillReward)
-        note right: Awards XP for this specific activity
-        XpRepo -> DB : INSERT UserSkillRewards...
-    end
-    
-    Handler --> Controller : 9. Return Response (Passed/Failed, Score)
+    Handler -> Handler : Distribute XP (via Mediator/IngestXpEvent)
+end
+
+Handler --> Med : SubmitQuizAnswerResponse
 deactivate Handler
 
-Controller --> UI : 10. 200 OK
-UI --> User : 11. Show Result & XP Gain
+Med --> Controller : Response
+deactivate Med
+
+Controller --> User : 200 OK (Score & Result)
+deactivate Controller
 @enduml

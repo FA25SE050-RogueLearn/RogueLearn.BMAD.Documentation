@@ -1,29 +1,88 @@
-' get-step-progress-seq.puml
 @startuml
-actor Student
-participant "UserProgress\nController" as Controller
-participant "GetStepProgress\nHandler" as Handler
-participant "QuestStep\nRepository" as QuestStepDB
-participant "StepProgress\nRepository" as ProgressDB
+actor User
+participant ":UserQuestProgress\nController" as Controller
+participant ":IMediator" as Med
+participant ":GetStepProgress\nQueryHandler" as Handler
+participant ":IQuestStepRepository" as IStepRepo
+participant ":QuestStepRepository" as StepRepo
+participant ":IUserQuestAttemptRepository" as IAttemptRepo
+participant ":UserQuestAttemptRepository" as AttemptRepo
+participant ":IUserQuestStepProgressRepository" as IProgressRepo
+participant ":UserQuestStepProgressRepository" as ProgressRepo
+database ":Database" as DB
 
-Student -> Controller : GET /steps/{stepId}
-Controller -> Handler : Handle(Query)
+User -> Controller : View Step Details
+activate Controller
 
+Controller -> Med : Send(GetStepProgressQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> QuestStepDB : GetById(stepId)
-    Handler -> Handler : Parse Content JSON -> Total Activities
+
+' 1. Verify Step
+Handler -> IStepRepo : GetByIdAsync(StepId)
+activate IStepRepo
+IStepRepo -> StepRepo : GetByIdAsync(StepId)
+activate StepRepo
+StepRepo -> DB : SELECT * FROM quest_steps...
+activate DB
+DB --> StepRepo : QuestStep
+deactivate DB
+StepRepo --> IStepRepo : QuestStep
+deactivate StepRepo
+IStepRepo --> Handler : QuestStep
+deactivate IStepRepo
+
+' 2. Verify Attempt
+Handler -> IAttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate IAttemptRepo
+IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate AttemptRepo
+AttemptRepo -> DB : SELECT * FROM user_quest_attempts...
+activate DB
+DB --> AttemptRepo : Attempt
+deactivate DB
+AttemptRepo --> IAttemptRepo : Attempt
+deactivate AttemptRepo
+IAttemptRepo --> Handler : Attempt
+deactivate IAttemptRepo
+
+alt Attempt Found
+    ' 3. Get Step Progress
+    Handler -> IProgressRepo : FirstOrDefaultAsync(AttemptId, StepId)
+    activate IProgressRepo
+    IProgressRepo -> ProgressRepo : FirstOrDefaultAsync(AttemptId, StepId)
+    activate ProgressRepo
+    ProgressRepo -> DB : SELECT * FROM user_quest_step_progress...
+    activate DB
+    DB --> ProgressRepo : StepProgress?
+    deactivate DB
+    ProgressRepo --> IProgressRepo : StepProgress?
+    deactivate ProgressRepo
+    IProgressRepo --> Handler : StepProgress?
+    deactivate IProgressRepo
+
+    ' 4. Calculate Details
+    Handler -> Handler : Extract Total Activities from QuestStep.Content
     
-    Handler -> ProgressDB : Get(AttemptId, StepId)
-    
-    alt Progress Found
+    alt Progress Exists
         Handler -> Handler : Count CompletedActivityIds
         Handler -> Handler : Calculate Percentage
-    else Not Found
-        Handler -> Handler : Percentage = 0
+    else No Progress
+        Handler -> Handler : Set Default (NotStarted, 0%)
     end
-    
-    Handler --> Controller : GetStepProgressResponse
+
+    Handler --> Med : GetStepProgressResponse
+else No Attempt
+    Handler --> Med : Throw NotFoundException
+end
+
 deactivate Handler
 
-Controller --> Student : 200 OK
+Med --> Controller : Response
+deactivate Med
+
+Controller --> User : 200 OK
+deactivate Controller
 @enduml

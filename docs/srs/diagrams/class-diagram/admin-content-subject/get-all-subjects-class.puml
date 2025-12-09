@@ -1,40 +1,62 @@
-' get-all-subjects-class.puml
 @startuml
+title 3.25.2.1 Class Diagram - Get All Subjects
 skinparam linetype ortho
-skinparam ranksep 50
-skinparam nodesep 50
+skinparam ranksep 60
+skinparam nodesep 60
 skinparam classAttributeIconSize 0
 hide empty members
 
 package "API Layer" {
     class SubjectsController {
-        +GetAllSubjects(query)
+        +GetAllSubjects(page, pageSize, search)
     }
 }
 
 package "Application Layer" {
     class GetAllSubjectsQuery {
-        +Page
-        +PageSize
-        +Search
+        +Page: int
+        +PageSize: int
+        +Search: string?
     }
 
     class GetAllSubjectsHandler {
-        +Handle(query)
+        +Handle(query, cancellationToken)
     }
-    
-    class PaginatedSubjectsResponse
+
+    class PaginatedSubjectsResponse {
+        +Items: List<SubjectDto>
+        +TotalCount: int
+        +TotalPages: int
+    }
+
+    class SubjectDto {
+        +Id: Guid
+        +SubjectCode: string
+        +SubjectName: string
+        +Credits: int
+    }
 }
 
 package "Domain & Infrastructure Layer" {
-    interface ISubjectRepository
-    class Subject
+    interface ISubjectRepository {
+        +GetPagedSubjectsAsync(search, page, size)
+    }
+    
+    class Subject {
+        +SubjectCode: string
+        +SubjectName: string
+    }
 }
 
-SubjectsController ..> GetAllSubjectsQuery : Creates
-SubjectsController ..> GetAllSubjectsHandler : Sends
+' Formatting
+SubjectsController -[hidden]- GetAllSubjectsHandler
 
-GetAllSubjectsHandler ..> GetAllSubjectsQuery : Uses
-GetAllSubjectsHandler --> ISubjectRepository
+' Relationships
+SubjectsController ..> GetAllSubjectsQuery : Creates
+SubjectsController ..> GetAllSubjectsHandler : Sends (Mediator)
 GetAllSubjectsHandler ..> PaginatedSubjectsResponse : Returns
+GetAllSubjectsHandler --> ISubjectRepository : Uses
+
+ISubjectRepository ..> Subject : Manages
+PaginatedSubjectsResponse *-- SubjectDto : Contains
 @enduml

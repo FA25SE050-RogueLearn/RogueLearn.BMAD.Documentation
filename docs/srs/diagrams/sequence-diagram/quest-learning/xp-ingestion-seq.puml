@@ -1,0 +1,100 @@
+@startuml
+actor "System/User" as Client
+participant ":UserSkillsController" as Controller
+participant ":IMediator" as Med
+participant ":IngestXpEvent\nCommandHandler" as Handler
+participant ":IUserSkillReward\nRepository" as IRewardRepo
+participant ":UserSkillReward\nRepository" as RewardRepo
+participant ":ISkillRepository" as ISkillRepo
+participant ":SkillRepository" as SkillRepo
+participant ":IUserSkillRepository" as IUserSkillRepo
+participant ":UserSkillRepository" as UserSkillRepo
+database ":Database" as DB
+
+Client -> Controller : POST /api/users/skills/xp
+activate Controller
+
+Controller -> Med : Send(IngestXpEventCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Idempotency Check
+Handler -> IRewardRepo : GetBySourceAndSkillAsync(UserId, SourceId, SkillId)
+activate IRewardRepo
+IRewardRepo -> RewardRepo : GetBySourceAndSkillAsync(...)
+activate RewardRepo
+RewardRepo -> DB : SELECT * FROM user_skill_rewards...
+activate DB
+DB --> RewardRepo : ExistingReward?
+deactivate DB
+RewardRepo --> IRewardRepo : ExistingReward?
+deactivate RewardRepo
+IRewardRepo --> Handler : ExistingReward?
+deactivate IRewardRepo
+
+alt Already Processed
+    Handler --> Med : Response (Processed=false)
+else New Event
+    ' 2. Validate Skill
+    Handler -> ISkillRepo : GetByIdAsync(SkillId)
+    activate ISkillRepo
+    ISkillRepo -> SkillRepo : GetByIdAsync(SkillId)
+    activate SkillRepo
+    SkillRepo -> DB : SELECT * FROM skills...
+    activate DB
+    DB --> SkillRepo : Skill
+    deactivate DB
+    SkillRepo --> ISkillRepo : Skill
+    deactivate SkillRepo
+    ISkillRepo --> Handler : Skill
+    deactivate ISkillRepo
+
+    ' 3. Record History
+    Handler -> IRewardRepo : AddAsync(UserSkillReward)
+    activate IRewardRepo
+    IRewardRepo -> RewardRepo : AddAsync(Reward)
+    activate RewardRepo
+    RewardRepo -> DB : INSERT INTO user_skill_rewards...
+    activate DB
+    DB --> RewardRepo : Success
+    deactivate DB
+    RewardRepo --> IRewardRepo : Success
+    deactivate RewardRepo
+    IRewardRepo --> Handler : Success
+    deactivate IRewardRepo
+
+    ' 4. Update User Progress
+    Handler -> IUserSkillRepo : FirstOrDefaultAsync(UserId, SkillId)
+    activate IUserSkillRepo
+    IUserSkillRepo -> UserSkillRepo : FirstOrDefaultAsync(...)
+    activate UserSkillRepo
+    UserSkillRepo -> DB : SELECT * FROM user_skills...
+    activate DB
+    DB --> UserSkillRepo : UserSkill?
+    deactivate DB
+    UserSkillRepo --> IUserSkillRepo : UserSkill?
+    deactivate UserSkillRepo
+    IUserSkillRepo --> Handler : UserSkill?
+    deactivate IUserSkillRepo
+
+    alt Skill Not Started
+        Handler -> Handler : Create New UserSkill
+        Handler -> IUserSkillRepo : AddAsync(NewUserSkill)
+    else Skill Exists
+        Handler -> Handler : Add XP
+        Handler -> Handler : CalculateLevel(TotalXP)
+        Handler -> IUserSkillRepo : UpdateAsync(UserSkill)
+    end
+
+    Handler --> Med : IngestXpEventResponse
+end
+
+deactivate Handler
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Client : 200 OK
+deactivate Controller
+@enduml

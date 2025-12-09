@@ -1,0 +1,44 @@
+@startuml
+actor Admin
+participant ":SubjectsController" as Controller
+participant ":IMediator" as Med
+participant ":RemoveSubjectSkillMapping\nHandler" as Handler
+participant ":ISubjectSkillMapping\nRepository" as MapDB
+database ":Database" as DB
+
+Admin -> Controller : DELETE /subjects/{sid}/skills/{kid}
+activate Controller
+
+Controller -> Med : Send(RemoveSkillMappingCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Find Mapping
+Handler -> MapDB : FirstOrDefaultAsync(SubjectId, SkillId)
+activate MapDB
+MapDB -> DB : SELECT...
+DB --> MapDB : Mapping?
+deactivate MapDB
+
+alt Not Found
+    Handler --> Med : Throw NotFoundException
+else Found
+    ' 2. Delete
+    Handler -> MapDB : DeleteAsync(MappingId)
+    activate MapDB
+    MapDB -> DB : DELETE...
+    DB --> MapDB : Success
+    deactivate MapDB
+    
+    Handler --> Med : Unit.Value
+end
+
+deactivate Handler
+Med --> Controller : Success
+deactivate Med
+
+Controller --> Admin : 204 No Content
+deactivate Controller
+@enduml

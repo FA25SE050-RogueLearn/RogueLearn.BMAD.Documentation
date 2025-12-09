@@ -1,0 +1,52 @@
+@startuml
+actor User
+participant ":SkillsController" as Controller
+participant ":IMediator" as Med
+participant ":GetSkillDetail\nQueryHandler" as Handler
+participant ":ISkillRepository" as SkillRepo
+participant ":IUserSkillRepository" as UserSkillRepo
+participant ":ISkillDependency\nRepository" as DepRepo
+participant ":ISubjectSkillMapping\nRepository" as MapRepo
+participant ":IQuestRepository" as QuestRepo
+database ":Database" as DB
+
+User -> Controller : Click Skill Icon
+activate Controller
+
+Controller -> Med : Send(GetSkillDetailQuery)
+activate Med
+
+Med -> Handler : Handle(query)
+activate Handler
+
+' 1. Master Data
+Handler -> SkillRepo : GetByIdAsync(SkillId)
+
+' 2. User Progress
+Handler -> UserSkillRepo : GetSkillsByAuthIdAsync(UserId)
+note right: Find specific UserSkill record
+
+' 3. Dependencies
+Handler -> DepRepo : GetAllAsync()
+Handler -> Handler : Filter Prerequisites & Unlocks
+
+' 4. Linked Quests (The path to learn this skill)
+Handler -> MapRepo : GetAllAsync()
+Handler -> Handler : Find Subjects mapping to this Skill
+Handler -> QuestRepo : GetAllAsync()
+Handler -> Handler : Find Quests linked to those Subjects
+
+' 5. Assemble DTO
+Handler -> Handler : Calculate Progress %
+Handler -> Handler : Determine "IsMet" for Prereqs
+Handler -> Handler : Determine "IsAvailable" for Unlocks
+
+Handler --> Med : SkillDetailDto
+deactivate Handler
+
+Med --> Controller : Response
+deactivate Med
+
+Controller --> User : 200 OK
+deactivate Controller
+@enduml

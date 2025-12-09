@@ -1,0 +1,57 @@
+@startuml
+title 3.25.1 Class Diagram - Admin Manage Subject Content
+skinparam linetype ortho
+skinparam ranksep 60
+skinparam nodesep 60
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "API Layer" {
+    class SubjectContentEditorController {
+        +GetSubjectContent(subjectId)
+        +UpdateSubjectContent(subjectId, content)
+    }
+}
+
+package "Application Layer" {
+    class UpdateSubjectContentCommand {
+        +SubjectId: Guid
+        +Content: SyllabusContent
+    }
+
+    class UpdateSubjectContentHandler {
+        +Handle(command, cancellationToken)
+    }
+
+    class SyllabusContent {
+        +CourseDescription: string
+        +SessionSchedule: List<SyllabusSessionDto>
+        +CourseLearningOutcomes: List<CLO>
+        +Assessments: List<AssessmentDto>
+    }
+}
+
+package "Domain & Infrastructure Layer" {
+    class Subject {
+        +Id: Guid
+        +Content: Dictionary<string, object>
+    }
+
+    interface ISubjectRepository {
+        +GetByIdAsync(id)
+        +UpdateAsync(entity)
+    }
+}
+
+' Formatting
+SubjectContentEditorController -[hidden]- UpdateSubjectContentHandler
+
+' Relationships
+SubjectContentEditorController ..> UpdateSubjectContentCommand : Creates
+SubjectContentEditorController ..> UpdateSubjectContentHandler : Sends (Mediator)
+
+UpdateSubjectContentHandler --> ISubjectRepository : Uses
+UpdateSubjectContentCommand --> SyllabusContent : Contains
+ISubjectRepository ..> Subject : Manages
+
+@enduml

@@ -1,0 +1,82 @@
+@startuml
+actor Admin
+participant ":AdminQuestsController" as Controller
+participant ":IMediator" as Med
+participant ":EnsureMasterQuests\nCommandHandler" as Handler
+participant ":ISubjectRepository" as ISubjectRepo
+participant ":SubjectRepository" as SubjectRepo
+participant ":IQuestRepository" as IQuestRepo
+participant ":QuestRepository" as QuestRepo
+database ":Database" as DB
+
+Admin -> Controller : Click "Sync Master Quests"
+activate Controller
+
+Controller -> Med : Send(EnsureMasterQuestsCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Fetch All Subjects
+Handler -> ISubjectRepo : GetAllAsync()
+activate ISubjectRepo
+ISubjectRepo -> SubjectRepo : GetAllAsync()
+activate SubjectRepo
+SubjectRepo -> DB : SELECT * FROM subjects...
+activate DB
+DB --> SubjectRepo : All Subjects
+deactivate DB
+SubjectRepo --> ISubjectRepo : All Subjects
+deactivate SubjectRepo
+ISubjectRepo --> Handler : All Subjects
+deactivate ISubjectRepo
+
+' 2. Fetch Existing Quests
+Handler -> IQuestRepo : GetAllAsync()
+activate IQuestRepo
+IQuestRepo -> QuestRepo : GetAllAsync()
+activate QuestRepo
+QuestRepo -> DB : SELECT * FROM quests...
+activate DB
+DB --> QuestRepo : All Quests
+deactivate DB
+QuestRepo --> IQuestRepo : All Quests
+deactivate QuestRepo
+IQuestRepo --> Handler : All Quests
+deactivate IQuestRepo
+
+' 3. Sync Logic
+Handler -> Handler : Identify Missing Subjects
+
+loop For Each Missing Subject
+    Handler -> Handler : Create Quest Shell
+    note right
+        Title = Subject Code + Name
+        Status = NotStarted
+        Difficulty = Intermediate
+    end note
+    
+    Handler -> IQuestRepo : AddAsync(NewQuest)
+    activate IQuestRepo
+    IQuestRepo -> QuestRepo : AddAsync(NewQuest)
+    activate QuestRepo
+    QuestRepo -> DB : INSERT INTO quests...
+    activate DB
+    DB --> QuestRepo : Success
+    deactivate DB
+    QuestRepo --> IQuestRepo : Success
+    deactivate QuestRepo
+    IQuestRepo --> Handler : Success
+    deactivate IQuestRepo
+end
+
+Handler --> Med : EnsureMasterQuestsResponse
+deactivate Handler
+
+Med --> Controller : Response (Counts)
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
+@enduml

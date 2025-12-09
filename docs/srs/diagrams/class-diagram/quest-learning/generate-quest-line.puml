@@ -1,43 +1,69 @@
-' RougeLearn.BMAD.Documentation/docs/srs/diagrams/class-diagram/quest-learning/generate-quest-line-class.puml
 @startuml
 skinparam linetype ortho
-skinparam ranksep 50
-skinparam nodesep 50
+skinparam ranksep 60
+skinparam nodesep 60
 skinparam classAttributeIconSize 0
 hide empty members
 
+package "API Layer" {
+    class UsersController {
+        - _mediator: IMediator
+        + ProcessMyAcademicRecord(fapHtmlContent, programId)
+    }
+}
+
 package "Application Layer" {
     class GenerateQuestLineCommand {
-        +AuthUserId
+        + AuthUserId: Guid
     }
 
     class GenerateQuestLineCommandHandler {
-        +Handle()
-        -DetermineRecommendationReason()
+        + Handle(command, cancellationToken)
+    }
+
+    class GenerateQuestLineResponse {
+        + LearningPathId: Guid
+    }
+
+    interface IQuestDifficultyResolver {
+        + ResolveDifficulty(subjectRecord)
+    }
+
+    class QuestDifficultyResolver {
+        + ResolveDifficulty(subjectRecord)
+        - TryParseGrade(grade)
     }
 }
 
 package "Domain & Infrastructure Layer" {
+    interface IUserProfileRepository
     interface ISubjectRepository
-    interface IClassSpecializationSubjectRepository
     interface IStudentSemesterSubjectRepository
     interface IQuestRepository
-    interface IQuestChapterRepository
-    
-    class Quest {
-        +IsRecommended
-        +RecommendationReason
-    }
+    interface IUserQuestAttemptRepository
+
+    class UserProfile
+    class Subject
+    class StudentSemesterSubject
+    class Quest
+    class UserQuestAttempt
 }
 
 ' Relationships
-GenerateQuestLineCommandHandler ..> GenerateQuestLineCommand : Uses
+UsersController ..> GenerateQuestLineCommand : Creates
+UsersController ..> GenerateQuestLineCommandHandler : Sends via Mediator
 
+GenerateQuestLineCommandHandler ..> GenerateQuestLineCommand : Uses
+GenerateQuestLineCommandHandler ..> GenerateQuestLineResponse : Returns
+GenerateQuestLineCommandHandler --> IQuestDifficultyResolver
+IQuestDifficultyResolver <|.. QuestDifficultyResolver
+
+GenerateQuestLineCommandHandler --> IUserProfileRepository
 GenerateQuestLineCommandHandler --> ISubjectRepository
-GenerateQuestLineCommandHandler --> IClassSpecializationSubjectRepository
 GenerateQuestLineCommandHandler --> IStudentSemesterSubjectRepository
 GenerateQuestLineCommandHandler --> IQuestRepository
-GenerateQuestLineCommandHandler --> IQuestChapterRepository
+GenerateQuestLineCommandHandler --> IUserQuestAttemptRepository
 
-IQuestRepository ..> Quest : Manages
+IUserQuestAttemptRepository ..> UserQuestAttempt : Persists
+IQuestRepository ..> Quest : Reads
 @enduml

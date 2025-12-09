@@ -1,0 +1,87 @@
+@startuml
+actor User
+participant ":QuestsController" as Controller
+participant ":IMediator" as Med
+participant ":StartQuestCommandHandler" as Handler
+participant ":IQuestRepository" as IQuestRepo
+participant ":QuestRepository" as QuestRepo
+participant ":IUserQuestAttemptRepository" as IAttemptRepo
+participant ":UserQuestAttemptRepository" as AttemptRepo
+database ":Database" as DB
+
+User -> Controller : Click "Start Quest"
+activate Controller
+
+Controller -> Med : Send(StartQuestCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Validate Quest
+Handler -> IQuestRepo : GetByIdAsync(QuestId)
+activate IQuestRepo
+IQuestRepo -> QuestRepo : GetByIdAsync(QuestId)
+activate QuestRepo
+QuestRepo -> DB : SELECT * FROM quests WHERE id = ...
+activate DB
+DB --> QuestRepo : Quest Entity
+deactivate DB
+QuestRepo --> IQuestRepo : Quest Entity
+deactivate QuestRepo
+IQuestRepo --> Handler : Quest Entity
+deactivate IQuestRepo
+
+alt Quest Found
+    ' 2. Check Existing Attempt
+    Handler -> IAttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+    activate IAttemptRepo
+    IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+    activate AttemptRepo
+    AttemptRepo -> DB : SELECT * FROM user_quest_attempts WHERE...
+    activate DB
+    DB --> AttemptRepo : ExistingAttempt?
+    deactivate DB
+    AttemptRepo --> IAttemptRepo : ExistingAttempt?
+    deactivate AttemptRepo
+    IAttemptRepo --> Handler : ExistingAttempt?
+    deactivate IAttemptRepo
+
+    alt Attempt Not Found
+        ' 3. Create New Attempt
+        Handler -> Handler : Create UserQuestAttempt
+        note right
+            Status = "InProgress"
+            AssignedDifficulty = Quest.ExpectedDifficulty
+            StartedAt = UtcNow
+        end note
+
+        Handler -> IAttemptRepo : AddAsync(NewAttempt)
+        activate IAttemptRepo
+        IAttemptRepo -> AttemptRepo : AddAsync(NewAttempt)
+        activate AttemptRepo
+        AttemptRepo -> DB : INSERT INTO user_quest_attempts...
+        activate DB
+        DB --> AttemptRepo : CreatedAttempt
+        deactivate DB
+        AttemptRepo --> IAttemptRepo : CreatedAttempt
+        deactivate AttemptRepo
+        IAttemptRepo --> Handler : CreatedAttempt
+        deactivate IAttemptRepo
+        
+        Handler --> Med : Response (IsNew=true)
+    else Attempt Found
+        Handler --> Med : Response (IsNew=false)
+    end
+else Quest Not Found
+    Handler --> Med : Throw NotFoundException
+end
+
+deactivate Handler
+
+Med --> Controller : Result
+deactivate Med
+
+Controller --> User : 200 OK
+deactivate Controller
+@enduml

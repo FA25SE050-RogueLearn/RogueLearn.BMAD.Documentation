@@ -1,51 +1,68 @@
-' submit-feedback-class.puml
 @startuml
+title 3.20.1 Class Diagram - Submit Quest Step Feedback
 skinparam linetype ortho
-skinparam ranksep 50
-skinparam nodesep 50
+skinparam ranksep 60
+skinparam nodesep 60
 skinparam classAttributeIconSize 0
 hide empty members
 
 package "API Layer" {
     class QuestFeedbackController {
-        +SubmitFeedback(command)
+        +SubmitFeedback(questId, stepId, command)
     }
 }
 
 package "Application Layer" {
     class SubmitQuestStepFeedbackCommand {
-        +AuthUserId
-        +QuestId
-        +StepId
-        +Rating
-        +Category
-        +Comment
+        +AuthUserId: Guid
+        +QuestId: Guid
+        +StepId: Guid
+        +Rating: int
+        +Category: string
+        +Comment: string
     }
 
     class SubmitQuestStepFeedbackCommandHandler {
-        +Handle()
+        +Handle(command, cancellationToken)
+    }
+
+    class SubmitQuestStepFeedbackCommandValidator {
+        +Validate(command)
     }
 }
 
 package "Domain & Infrastructure Layer" {
-    interface IUserQuestStepFeedbackRepository
-    interface IQuestRepository
-    interface IQuestStepRepository
-    
     class UserQuestStepFeedback {
-        +SubjectId
-        +IsResolved
+        +Id: Guid
+        +SubjectId: Guid
+        +Category: string
+        +IsResolved: bool
+    }
+
+    interface IQuestStepRepository {
+        +GetByIdAsync(id)
+    }
+
+    interface IQuestRepository {
+        +GetByIdAsync(id)
+    }
+
+    interface IUserQuestStepFeedbackRepository {
+        +AddAsync(entity)
     }
 }
 
+' Formatting
+QuestFeedbackController -[hidden]- SubmitQuestStepFeedbackCommandHandler
+
 ' Relationships
 QuestFeedbackController ..> SubmitQuestStepFeedbackCommand : Creates
-QuestFeedbackController ..> SubmitQuestStepFeedbackCommandHandler : Sends
+QuestFeedbackController ..> SubmitQuestStepFeedbackCommandHandler : Sends (Mediator)
+SubmitQuestStepFeedbackCommand ..> SubmitQuestStepFeedbackCommandValidator : Validated By
 
-SubmitQuestStepFeedbackCommandHandler ..> SubmitQuestStepFeedbackCommand : Uses
-SubmitQuestStepFeedbackCommandHandler --> IUserQuestStepFeedbackRepository
-SubmitQuestStepFeedbackCommandHandler --> IQuestRepository
-SubmitQuestStepFeedbackCommandHandler --> IQuestStepRepository
-SubmitQuestStepFeedbackCommandHandler ..> UserQuestStepFeedback : Creates
+SubmitQuestStepFeedbackCommandHandler --> IQuestStepRepository : Validates Step
+SubmitQuestStepFeedbackCommandHandler --> IQuestRepository : Fetches SubjectId
+SubmitQuestStepFeedbackCommandHandler --> IUserQuestStepFeedbackRepository : Persists
 
+IUserQuestStepFeedbackRepository ..> UserQuestStepFeedback : Manages
 @enduml

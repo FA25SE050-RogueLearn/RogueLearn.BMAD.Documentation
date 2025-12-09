@@ -1,0 +1,60 @@
+@startuml
+title 3.25.2 Sequence Diagram - Update Subject Content
+actor Admin
+participant "SubjectContentEditor\nController" as Controller
+participant "UpdateSubjectContent\nHandler" as Handler
+participant "ISubjectRepository" as DB
+
+Admin -> Controller : PUT /api/admin/subjects/{id}/content
+activate Controller
+
+Controller -> Handler : Handle(Command)
+activate Handler
+
+' 1. Fetch Existing
+Handler -> DB : GetByIdAsync(SubjectId)
+activate DB
+DB --> Handler : Subject Entity
+deactivate DB
+
+alt Subject Not Found
+    Handler --> Controller : Throw NotFoundException
+    Controller --> Admin : 404 Not Found
+else Subject Found
+    ' 2. Serialization Logic (Critical for JSONB)
+    Handler -> Handler : Serialize DTO -> JSON String
+    activate Handler
+    note right
+        Uses System.Text.Json
+        Respects camelCase naming
+    end note
+    deactivate Handler
+
+    Handler -> Handler : Deserialize JSON -> Dictionary
+    activate Handler
+    note right
+        Uses Newtonsoft.Json
+        Converts to Dictionary<string, object>
+        Required for Supabase JSONB compatibility
+    end note
+    deactivate Handler
+
+    ' 3. Update Entity
+    Handler -> Handler : Subject.Content = Dictionary
+    activate Handler
+    deactivate Handler
+
+    ' 4. Persist
+    Handler -> DB : UpdateAsync(Subject)
+    activate DB
+    DB --> Handler : Updated Entity
+    deactivate DB
+
+    Handler --> Controller : SyllabusContent (Echo)
+end
+
+deactivate Handler
+
+Controller --> Admin : 200 OK
+deactivate Controller
+@enduml

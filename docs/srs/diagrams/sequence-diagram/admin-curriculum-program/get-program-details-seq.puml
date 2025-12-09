@@ -1,38 +1,83 @@
-' get-program-details-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "Programs\nController" as Controller
-participant "GetDetails\nHandler" as Handler
-participant "Program\nRepository" as ProgDB
-participant "JoinTable\nRepository" as JoinDB
-participant "Subject\nRepository" as SubDB
+participant ":CurriculumPrograms\nController" as Controller
+participant ":IMediator" as Med
+participant ":GetCurriculumProgramDetails\nQueryHandler" as Handler
+participant ":ICurriculumProgram\nRepository" as IProgRepo
+participant ":CurriculumProgram\nRepository" as ProgRepo
+participant ":ICurriculumProgramSubject\nRepository" as ILinkRepo
+participant ":CurriculumProgramSubject\nRepository" as LinkRepo
+participant ":ISubjectRepository" as ISubRepo
+participant ":SubjectRepository" as SubRepo
+database ":Database" as DB
 
-Admin -> UI : Click Program Details
-UI -> Controller : GET /api/admin/programs/{id}/details
-Controller -> Handler : Handle(query)
+Admin -> Controller : GET /api/admin/programs/{id}/details
+activate Controller
 
+Controller -> Med : Send(GetCurriculumProgramDetailsQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> ProgDB : GetByIdAsync(id)
-    
-    Handler -> JoinDB : FindAsync(p => p.ProgramId == id)
-    note right: Get all linked Subject IDs
-    
-    Handler -> SubDB : GetByIdsAsync(subjectIds)
-    
-    loop For Each Subject
-        Handler -> Handler : Check Content != null
-        Handler -> Handler : Calculate Completion %
-    end
-    
-    Handler -> Handler : Build Analysis DTO
-    note right
-        e.g. "Missing Content: PRF192, MAE101"
-    end note
-    
-    Handler --> Controller : CurriculumProgramDetailsResponse
+
+' 1. Fetch Program
+Handler -> IProgRepo : GetByIdAsync(ProgramId)
+activate IProgRepo
+IProgRepo -> ProgRepo : GetByIdAsync(ProgramId)
+activate ProgRepo
+ProgRepo -> DB : SELECT * FROM curriculum_programs...
+activate DB
+DB --> ProgRepo : Program
+deactivate DB
+ProgRepo --> IProgRepo : Program
+deactivate ProgRepo
+IProgRepo --> Handler : Program
+deactivate IProgRepo
+
+' 2. Find Linked Subjects
+Handler -> ILinkRepo : FindAsync(p => p.ProgramId == Id)
+activate ILinkRepo
+ILinkRepo -> LinkRepo : FindAsync(...)
+activate LinkRepo
+LinkRepo -> DB : SELECT * FROM curriculum_program_subjects...
+activate DB
+DB --> LinkRepo : Links
+deactivate DB
+LinkRepo --> ILinkRepo : Links
+deactivate LinkRepo
+ILinkRepo --> Handler : Links
+deactivate ILinkRepo
+
+' 3. Fetch Subject Details
+Handler -> Handler : Extract Subject IDs
+Handler -> ISubRepo : GetByIdsAsync(SubjectIds)
+activate ISubRepo
+ISubRepo -> SubRepo : GetByIdsAsync(SubjectIds)
+activate SubRepo
+SubRepo -> DB : SELECT * FROM subjects WHERE id IN...
+activate DB
+DB --> SubRepo : Subjects
+deactivate DB
+SubRepo --> ISubRepo : Subjects
+deactivate SubRepo
+ISubRepo --> Handler : Subjects
+deactivate ISubRepo
+
+' 4. Analyze Content
+loop For Each Subject
+    Handler -> Handler : Check Subject.Content != null
+    Handler -> Handler : Map to SubjectDetailsDto
+end
+
+Handler -> Handler : Calculate Completion %
+Handler -> Handler : Identify Missing Subjects
+
+Handler --> Med : CurriculumProgramDetailsResponse
 deactivate Handler
 
-Controller --> UI : 200 OK
-UI --> Admin : Show Stats Dashboard
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
 @enduml

@@ -1,0 +1,47 @@
+@startuml
+actor Admin
+participant ":SubjectsController" as Controller
+participant ":IMediator" as Med
+participant ":GetSubjectSkillMappings\nHandler" as Handler
+participant ":ISubjectSkillMapping\nRepository" as MapDB
+participant ":ISkillRepository" as SkillDB
+database ":Database" as DB
+
+Admin -> Controller : GET /subjects/{id}/skills
+activate Controller
+
+Controller -> Med : Send(GetSubjectSkillMappingsQuery)
+activate Med
+
+Med -> Handler : Handle(query)
+activate Handler
+
+' 1. Get Links
+Handler -> MapDB : FindAsync(SubjectId)
+activate MapDB
+MapDB -> DB : SELECT * FROM subject_skill_mappings...
+DB --> MapDB : List<Mapping>
+deactivate MapDB
+
+' 2. Get Skill Details
+Handler -> Handler : Extract Skill IDs
+Handler -> SkillDB : GetAllAsync()
+note right: Or GetByIdsAsync if available
+activate SkillDB
+SkillDB -> DB : SELECT * FROM skills...
+DB --> SkillDB : List<Skill>
+deactivate SkillDB
+
+' 3. Map to DTO
+Handler -> Handler : Join Mappings with Skill Names
+Handler -> Handler : Fetch Prerequisites (Optional Context)
+
+Handler --> Med : List<SubjectSkillMappingDto>
+deactivate Handler
+
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
+@enduml

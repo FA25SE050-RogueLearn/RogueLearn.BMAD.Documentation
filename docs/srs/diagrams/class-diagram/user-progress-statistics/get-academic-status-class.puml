@@ -1,43 +1,75 @@
-' get-academic-status-class.puml
 @startuml
+title 3.19.1 Class Diagram - Get Academic Status
 skinparam linetype ortho
-skinparam ranksep 50
-skinparam nodesep 50
+skinparam ranksep 60
+skinparam nodesep 60
 skinparam classAttributeIconSize 0
 hide empty members
 
 package "API Layer" {
     class UsersController {
-        +GetMyAcademicStatus()
+        +GetMyAcademicStatus(cancellationToken)
     }
 }
 
 package "Application Layer" {
-    class GetAcademicStatusQuery {
-        +AuthUserId
+    class GetAcademicStatusQueryHandler {
+        +Handle(request, cancellationToken)
     }
 
-    class GetAcademicStatusQueryHandler {
-        +Handle()
+    class GetAcademicStatusQuery {
+        +AuthUserId: Guid
     }
 }
 
 package "Domain & Infrastructure Layer" {
-    interface IStudentEnrollmentRepository
-    interface IStudentSemesterSubjectRepository
-    interface ISubjectRepository
-    
     class GetAcademicStatusResponse {
-        +CurrentGpa
-        +CompletedSubjects
+        +EnrollmentId: Guid?
+        +CurrentGpa: double
+        +TotalSubjects: int
+        +CompletedSubjects: int
+        +InProgressSubjects: int
+        +FailedSubjects: int
+    }
+
+    interface IStudentEnrollmentRepository {
+        +FirstOrDefaultAsync(predicate, token)
+    }
+
+    interface IStudentSemesterSubjectRepository {
+        +FindAsync(predicate, token)
+    }
+
+    interface ISubjectRepository {
+        +GetAllAsync(token)
+    }
+
+    class StudentEnrollment {
+        +Id: Guid
+        +AuthUserId: Guid
+        +Status: EnrollmentStatus
+    }
+
+    class StudentSemesterSubject {
+        +SubjectId: Guid
+        +Grade: string
+        +Status: SubjectEnrollmentStatus
+        +CreditsEarned: int
     }
 }
 
-UsersController ..> GetAcademicStatusQuery : Creates
-UsersController ..> GetAcademicStatusQueryHandler : Sends
+' Formatting constraints
+UsersController -[hidden]- GetAcademicStatusQueryHandler
 
-GetAcademicStatusQueryHandler --> IStudentEnrollmentRepository
-GetAcademicStatusQueryHandler --> IStudentSemesterSubjectRepository
-GetAcademicStatusQueryHandler --> ISubjectRepository
+' Relationships
+UsersController ..> GetAcademicStatusQuery : Creates
+UsersController ..> GetAcademicStatusQueryHandler : Sends (via Mediator)
+
 GetAcademicStatusQueryHandler ..> GetAcademicStatusResponse : Returns
+GetAcademicStatusQueryHandler --> IStudentEnrollmentRepository : Uses
+GetAcademicStatusQueryHandler --> IStudentSemesterSubjectRepository : Uses
+GetAcademicStatusQueryHandler --> ISubjectRepository : Uses
+
+IStudentEnrollmentRepository ..> StudentEnrollment : Manages
+IStudentSemesterSubjectRepository ..> StudentSemesterSubject : Manages
 @enduml

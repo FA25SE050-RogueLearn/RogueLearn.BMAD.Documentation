@@ -1,34 +1,89 @@
-' submit-feedback-seq.puml
 @startuml
 actor Student
-participant "Quest UI" as UI
-participant "Feedback\nController" as Controller
-participant "SubmitFeedback\nHandler" as Handler
-participant "QuestStep\nRepository" as StepDB
-participant "Quest\nRepository" as QuestDB
-participant "Feedback\nRepository" as FeedbackDB
+participant ":QuestFeedback\nController" as Controller
+participant ":IMediator" as Med
+participant ":SubmitQuestStepFeedback\nCommandHandler" as Handler
+participant ":IQuestStepRepository" as IStepRepo
+participant ":QuestStepRepository" as StepRepo
+participant ":IQuestRepository" as IQuestRepo
+participant ":QuestRepository" as QuestRepo
+participant ":IUserQuestStepFeedback\nRepository" as IFeedbackRepo
+participant ":UserQuestStepFeedback\nRepository" as FeedbackRepo
+database ":Database" as DB
 
-Student -> UI : Click "Report Issue"
-UI -> Controller : POST /feedback
-Controller -> Handler : Handle(command)
+Student -> Controller : POST /quests/{qid}/steps/{sid}/feedback
+activate Controller
 
+Controller -> Med : Send(SubmitQuestStepFeedbackCommand)
+activate Med
+
+Med -> Handler : Handle(command)
 activate Handler
-    Handler -> StepDB : Validate Step Exists
-    
-    Handler -> QuestDB : GetById(QuestId)
-    note right
-        Retrieve SubjectId to link
-        feedback to content source
-    end note
-    
-    Handler -> FeedbackDB : AddAsync(Feedback)
-    note right
-        Status: Unresolved
-    end note
-    
-    Handler --> Controller : Return Success (201 Created)
-deactivate Handler
 
-Controller --> UI : Success Response
-UI --> Student : Show "Thank you" Toast
+' 1. Validate Step Exists
+Handler -> IStepRepo : GetByIdAsync(StepId)
+activate IStepRepo
+IStepRepo -> StepRepo : GetByIdAsync(StepId)
+activate StepRepo
+StepRepo -> DB : SELECT * FROM quest_steps...
+activate DB
+DB --> StepRepo : QuestStep
+deactivate DB
+StepRepo --> IStepRepo : QuestStep
+deactivate StepRepo
+IStepRepo --> Handler : QuestStep
+deactivate IStepRepo
+
+alt Step Not Found or Mismatch
+    Handler --> Med : Throw NotFoundException
+    Med --> Controller : 404 Not Found
+else Valid Step
+    ' 2. Fetch Quest to get SubjectId (Critical for Analytics)
+    Handler -> IQuestRepo : GetByIdAsync(QuestId)
+    activate IQuestRepo
+    IQuestRepo -> QuestRepo : GetByIdAsync(QuestId)
+    activate QuestRepo
+    QuestRepo -> DB : SELECT * FROM quests...
+    activate DB
+    DB --> QuestRepo : Quest (SubjectId)
+    deactivate DB
+    QuestRepo --> IQuestRepo : Quest
+    deactivate QuestRepo
+    IQuestRepo --> Handler : Quest
+    deactivate IQuestRepo
+
+    alt Quest Missing SubjectId
+        Handler --> Med : Throw BadRequestException
+        Med --> Controller : 400 Bad Request
+    else Valid Quest
+        ' 3. Create Feedback Entity
+        Handler -> Handler : Create UserQuestStepFeedback
+        note right
+            Link to SubjectId
+            Set IsResolved = false
+        end note
+
+        ' 4. Persist
+        Handler -> IFeedbackRepo : AddAsync(Feedback)
+        activate IFeedbackRepo
+        IFeedbackRepo -> FeedbackRepo : AddAsync(Feedback)
+        activate FeedbackRepo
+        FeedbackRepo -> DB : INSERT INTO user_quest_step_feedback...
+        activate DB
+        DB --> FeedbackRepo : Created Entity (Id)
+        deactivate DB
+        FeedbackRepo --> IFeedbackRepo : Created Entity
+        deactivate FeedbackRepo
+        IFeedbackRepo --> Handler : Created Entity
+        deactivate IFeedbackRepo
+        
+        Handler --> Med : FeedbackId
+    end
+end
+
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Student : 201 Created
+deactivate Controller
 @enduml

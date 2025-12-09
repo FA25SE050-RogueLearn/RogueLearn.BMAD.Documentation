@@ -1,39 +1,51 @@
-' get-feedback-list-class.puml
 @startuml
+title 3.21.1 Class Diagram - Get Feedback List (Admin)
 skinparam linetype ortho
-skinparam ranksep 50
-skinparam nodesep 50
+skinparam ranksep 60
+skinparam nodesep 60
 skinparam classAttributeIconSize 0
 hide empty members
 
 package "API Layer" {
     class QuestFeedbackController {
-        +AdminGetFeedback(query)
+        +AdminGetFeedback(questId, subjectId, unresolvedOnly)
     }
 }
 
 package "Application Layer" {
     class GetQuestFeedbackListQuery {
-        +SubjectId
-        +QuestId
-        +UnresolvedOnly
+        +UnresolvedOnly: bool
+        +QuestId: Guid?
+        +SubjectId: Guid?
     }
 
     class GetQuestFeedbackListQueryHandler {
-        +Handle()
+        +Handle(query, cancellationToken)
+    }
+
+    class QuestFeedbackDto {
+        +Id: Guid
+        +Category: string
+        +Comment: string
+        +IsResolved: bool
     }
 }
 
 package "Domain & Infrastructure Layer" {
-    interface IUserQuestStepFeedbackRepository
-    class QuestFeedbackDto
+    interface IUserQuestStepFeedbackRepository {
+        +GetBySubjectIdAsync(subjectId)
+        +GetByQuestIdAsync(questId)
+        +GetUnresolvedAsync()
+        +GetAllAsync()
+    }
 }
+
+' Formatting
+QuestFeedbackController -[hidden]- GetQuestFeedbackListQueryHandler
 
 ' Relationships
 QuestFeedbackController ..> GetQuestFeedbackListQuery : Creates
-QuestFeedbackController ..> GetQuestFeedbackListQueryHandler : Sends
-
-GetQuestFeedbackListQueryHandler ..> GetQuestFeedbackListQuery : Uses
-GetQuestFeedbackListQueryHandler --> IUserQuestStepFeedbackRepository
+QuestFeedbackController ..> GetQuestFeedbackListQueryHandler : Sends (Mediator)
 GetQuestFeedbackListQueryHandler ..> QuestFeedbackDto : Returns List
+GetQuestFeedbackListQueryHandler --> IUserQuestStepFeedbackRepository : Queries
 @enduml
