@@ -1,52 +1,108 @@
 @startuml
 actor Student
-participant "Frontend UI" as UI
-participant "UsersController" as Controller
-participant "ProcessAcademicRecord\nHandler" as Handler
-participant "HtmlCleaning\nService" as Cleaner
-participant "FapExtraction\nPlugin (AI)" as AI
-participant "Subject\nRepository" as SubRepo
-participant "StudentSubject\nRepository" as StuSubRepo
-participant "GradeExperience\nCalculator" as GpaCalc
-participant "UserSkill\nRepository" as SkillRepo
+participant ":UsersController" as Controller
+participant ":IMediator" as Med
+participant ":ProcessAcademicRecord\nHandler" as Handler
+participant ":IHtmlCleaningService" as Cleaner
+participant ":ICurriculumImportStorage" as Cache
+participant ":IFapExtractionPlugin" as AIPlugin
+participant ":ISubjectRepository" as SubRepo
+participant ":IStudentSemesterSubject\nRepository" as GradeRepo
+participant ":ISubjectSkillMapping\nRepository" as MappingRepo
+participant ":IGradeExperienceCalculator" as Calc
+database ":Database" as DB
 
-Student -> UI : 1. Upload FAP HTML & Select Program
-UI -> Controller : 2. POST /api/users/me/academic-record\n(Multipart Form Data)
-Controller -> Handler : 3. Handle(ProcessAcademicRecordCommand)
+Student -> Controller : Upload Transcript (HTML)
+activate Controller
 
+Controller -> Med : Send(ProcessAcademicRecordCommand)
+activate Med
+
+Med -> Handler : Handle(command)
 activate Handler
-    Handler -> Cleaner : 4. ExtractCleanText(html)
-    Cleaner --> Handler : cleanText
 
-    Handler -> AI : 5. ExtractFapRecordJsonAsync(cleanText)
-    note right: Calls Google Gemini to parse transcript
-    AI --> Handler : FapRecordData (List of Subjects & Grades)
+' 1. Clean & Parse
+Handler -> Handler : Validate HTML Structure
+Handler -> Cleaner : ExtractCleanTextFromHtml(Html)
+activate Cleaner
+Cleaner --> Handler : CleanText
+deactivate Cleaner
 
-    Handler -> SubRepo : 6. Get Curriculum Subjects
-    note right: Verify subject codes exist in system
+Handler -> Handler : Compute Hash(RawText)
+Handler -> Cache : TryGetByHashJsonAsync(Hash)
+activate Cache
+Cache --> Handler : CachedJson?
+deactivate Cache
 
-    Handler -> StuSubRepo : 7. Get User's Existing Records
+alt Cache Miss
+    Handler -> AIPlugin : ExtractFapRecordJsonAsync(CleanText)
+    activate AIPlugin
+    note right: Calls Gemini to parse table
+    AIPlugin --> Handler : FapRecordData (JSON)
+    deactivate AIPlugin
+    Handler -> Cache : SaveLatestAsync(Json, Hash)
+end
 
-    loop For each subject in FapRecordData
-        alt Subject exists in System
-            Handler -> StuSubRepo : 8. Upsert StudentSemesterSubject
-            note right: Update Status (Passed/Studying) & Grade
-            
-            opt Status changed to Passed
-                Handler -> GpaCalc : 9. CalculateXpForGrade(grade)
-                GpaCalc --> Handler : xpAmount
-                
-                Handler -> SkillRepo : 10. Award XP to User Skills
-                note right: Map Subject -> Skills -> Add XP
-            end
-        end
-    end
+' 2. Process Subjects
+Handler -> SubRepo : GetAllAsync()
+activate SubRepo
+SubRepo -> DB : SELECT * FROM subjects...
+DB --> SubRepo : SubjectCatalog
+deactivate SubRepo
+SubRepo --> Handler : SubjectCatalog
+deactivate SubRepo
 
-    Handler -> Handler : 11. Calculate Cumulative GPA
+Handler -> GradeRepo : FindAsync(AuthUserId)
+activate GradeRepo
+GradeRepo -> DB : SELECT * FROM student_semester_subjects...
+DB --> GradeRepo : ExistingGrades
+deactivate GradeRepo
+GradeRepo --> Handler : ExistingGrades
+deactivate GradeRepo
+
+loop For Each Extracted Subject
+    Handler -> Handler : Map Status (Passed/Failed)
     
-    Handler --> Controller : 12. ProcessAcademicRecordResponse\n(SubjectsProcessed, GPA, XP Summary)
+    alt Exists
+        Handler -> GradeRepo : UpdateAsync(UpdatedRecord)
+    else New
+        Handler -> GradeRepo : AddAsync(NewRecord)
+    end
+end
+
+' 3. Award XP
+Handler -> MappingRepo : GetMappingsBySubjectIdsAsync(PassedIds)
+activate MappingRepo
+MappingRepo -> DB : SELECT * FROM subject_skill_mappings...
+DB --> MappingRepo : SkillMappings
+deactivate MappingRepo
+MappingRepo --> Handler : SkillMappings
+deactivate MappingRepo
+
+loop For Each Passed Subject
+    loop For Each Mapped Skill
+        Handler -> Calc : CalculateXpAward(Grade, Semester, Weight)
+        activate Calc
+        Calc --> Handler : Points
+        deactivate Calc
+        
+        Handler -> Med : Send(IngestXpEventCommand)
+        note right
+            Awards XP to user skill
+            Idempotent based on SubjectId
+        end note
+    end
+end
+
+' 4. Trigger Quest Generation
+Handler -> Med : Send(GenerateQuestLineCommand)
+
+Handler --> Med : ProcessAcademicRecordResponse
 deactivate Handler
 
-Controller --> UI : 13. 200 OK (JSON)
-UI --> Student : 14. Show "Sync Complete", GPA, and XP Gains
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Student : 200 OK
+deactivate Controller
 @enduml

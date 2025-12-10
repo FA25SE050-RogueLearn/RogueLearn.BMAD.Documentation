@@ -1,0 +1,34 @@
+@startuml
+actor Admin
+participant ":AdminSkillsController" as Controller
+participant ":IMediator" as Med
+participant ":GetSkillsQueryHandler" as Handler
+participant ":ISkillRepository" as Repo
+database ":Database" as DB
+
+Admin -> Controller : GET /api/admin/skills
+activate Controller
+
+Controller -> Med : Send(GetSkillsQuery)
+activate Med
+
+Med -> Handler : Handle(query)
+activate Handler
+
+Handler -> Repo : GetAllAsync()
+activate Repo
+Repo -> DB : SELECT * FROM skills
+DB --> Repo : List<Skill>
+deactivate Repo
+
+Handler -> Handler : Map to DTOs
+
+Handler --> Med : GetSkillsResponse
+deactivate Handler
+
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
+@enduml

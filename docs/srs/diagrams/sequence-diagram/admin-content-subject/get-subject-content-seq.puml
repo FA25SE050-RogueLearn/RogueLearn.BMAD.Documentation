@@ -1,31 +1,39 @@
-' get-subject-content-seq.puml
 @startuml
 actor Admin
-participant "Syllabus Editor" as UI
-participant "ContentEditor\nController" as Controller
-participant "GetSubjectContent\nHandler" as Handler
-participant "SubjectRepository" as DB
+participant ":SubjectContentEditor\nController" as Controller
+participant ":IMediator" as Med
+participant ":GetSubjectContent\nQueryHandler" as Handler
+participant ":ISubjectRepository" as Repo
+database ":Database" as DB
 
-Admin -> UI : Open Content Editor
-UI -> Controller : GET /subjects/{id}/content
-Controller -> Handler : Handle(GetSubjectContentQuery)
+Admin -> Controller : GET /api/admin/subjects/{id}/content
+activate Controller
 
+Controller -> Med : Send(GetSubjectContentQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> DB : GetByIdAsync(id)
-    
-    alt Found
-        Handler -> Handler : Convert Dictionary to JSON String
-        note right: Uses Newtonsoft (DB format)
-        
-        Handler -> Handler : Deserialize to DTO
-        note right: Uses System.Text.Json (API format)
-        
-        Handler --> Controller : SyllabusContent
-    else Not Found
-        Handler --> Controller : Throw NotFoundException
-    end
-deactivate Handler
 
-Controller --> UI : 200 OK
-UI --> Admin : Render JSON Editor
+Handler -> Repo : GetByIdAsync(SubjectId)
+activate Repo
+Repo -> DB : SELECT * FROM subjects...
+DB --> Repo : Subject
+deactivate Repo
+
+alt Not Found
+    Handler --> Med : Throw NotFoundException
+else Found
+    Handler -> Handler : Serialize Dictionary to JSON
+    Handler -> Handler : Deserialize JSON to SyllabusContent DTO
+    
+    Handler --> Med : SyllabusContent
+end
+
+deactivate Handler
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
 @enduml

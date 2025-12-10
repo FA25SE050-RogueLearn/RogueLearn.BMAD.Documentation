@@ -1,0 +1,44 @@
+@startuml
+actor Admin
+participant ":AdminSkillsController" as Controller
+participant ":IMediator" as Med
+participant ":CreateSkill\nCommandHandler" as Handler
+participant ":ISkillRepository" as Repo
+database ":Database" as DB
+
+Admin -> Controller : POST /api/admin/skills
+activate Controller
+
+Controller -> Med : Send(CreateSkillCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Check Duplicates
+Handler -> Repo : AnyAsync(Name)
+activate Repo
+Repo -> DB : SELECT 1...
+DB --> Repo : Exists?
+deactivate Repo
+
+alt Exists
+    Handler --> Med : Throw ConflictException
+else Unique
+    ' 2. Create
+    Handler -> Repo : AddAsync(Skill)
+    activate Repo
+    Repo -> DB : INSERT INTO skills...
+    DB --> Repo : Success
+    deactivate Repo
+    
+    Handler --> Med : CreateSkillResponse
+end
+
+deactivate Handler
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 201 Created
+deactivate Controller
+@enduml

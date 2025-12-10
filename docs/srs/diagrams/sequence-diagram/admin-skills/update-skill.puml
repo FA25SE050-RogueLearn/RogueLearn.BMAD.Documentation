@@ -1,15 +1,15 @@
 @startuml
 actor Admin
-participant ":SubjectsController" as Controller
+participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
-participant ":UpdateSubjectHandler" as Handler
-participant ":ISubjectRepository" as Repo
+participant ":UpdateSkill\nCommandHandler" as Handler
+participant ":ISkillRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : PUT /api/admin/subjects/{id}
+Admin -> Controller : PUT /api/admin/skills/{id}
 activate Controller
 
-Controller -> Med : Send(UpdateSubjectCommand)
+Controller -> Med : Send(UpdateSkillCommand)
 activate Med
 
 Med -> Handler : Handle(command)
@@ -18,8 +18,8 @@ activate Handler
 ' 1. Fetch
 Handler -> Repo : GetByIdAsync(Id)
 activate Repo
-Repo -> DB : SELECT * ...
-DB --> Repo : Subject?
+Repo -> DB : SELECT *...
+DB --> Repo : Skill?
 deactivate Repo
 
 alt Not Found
@@ -27,13 +27,13 @@ alt Not Found
 else Found
     ' 2. Update
     Handler -> Handler : Update Properties
-    Handler -> Repo : UpdateAsync(Subject)
+    Handler -> Repo : UpdateAsync(Skill)
     activate Repo
-    Repo -> DB : UPDATE subjects...
+    Repo -> DB : UPDATE skills...
     DB --> Repo : Success
     deactivate Repo
     
-    Handler --> Med : UpdateSubjectResponse
+    Handler --> Med : UpdateSkillResponse
 end
 
 deactivate Handler

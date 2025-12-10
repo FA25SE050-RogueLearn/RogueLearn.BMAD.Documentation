@@ -1,0 +1,42 @@
+@startuml
+actor Admin
+participant ":ClassSpecialization\nController" as Controller
+participant ":IMediator" as Med
+participant ":GetSpecializationSubjects\nHandler" as Handler
+participant ":IClassSpecializationSubject\nRepository" as IRepo
+participant ":ClassSpecializationSubject\nRepository" as Repo
+database ":Database" as DB
+
+Admin -> Controller : GET /classes/{id}/subjects
+activate Controller
+
+Controller -> Med : Send(GetSpecializationSubjectsQuery)
+activate Med
+
+Med -> Handler : Handle(query)
+activate Handler
+
+Handler -> IRepo : FindAsync(m => m.ClassId == Id)
+activate IRepo
+IRepo -> Repo : FindAsync(...)
+activate Repo
+Repo -> DB : SELECT * FROM class_specialization_subjects...
+activate DB
+DB --> Repo : List<Entity>
+deactivate DB
+Repo --> IRepo : List<Entity>
+deactivate Repo
+IRepo --> Handler : List<Entity>
+deactivate IRepo
+
+Handler -> Handler : Map to DTOs
+
+Handler --> Med : List<SpecializationSubjectDto>
+deactivate Handler
+
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
+@enduml

@@ -1,44 +1,81 @@
-' subject-import-seq.puml
 @startuml
 actor Admin
-participant "AdminConsole" as UI
-participant "SubjectsController" as Controller
-participant "ImportSubject\nHandler" as Handler
-participant "HtmlCleaning\nService" as Cleaner
-participant "AI Extraction\nPlugin" as AI
-participant "ReadingUrl\nService" as UrlService
-participant "Database" as DB
+participant ":SubjectsController" as Controller
+participant ":IMediator" as Med
+participant ":ImportSubjectFromText\nCommandHandler" as Handler
+participant ":IHtmlCleaningService" as Cleaner
+participant ":ISyllabusExtractionPlugin" as Plugin
+participant ":IAiQueryClassificationService" as QuerySvc
+participant ":IReadingUrlService" as UrlSvc
+participant ":ISubjectRepository" as Repo
+database ":Database" as DB
 
-Admin -> UI : 1. Upload Syllabus HTML
-UI -> Controller : 2. Request Import (POST)
-Controller -> Handler : 3. Handle(command)
+Admin -> Controller : POST /api/admin/subjects/import-from-text
+activate Controller
 
+Controller -> Med : Send(ImportSubjectFromTextCommand)
+activate Med
+
+Med -> Handler : Handle(command)
 activate Handler
-    Handler -> Cleaner : 4. Clean HTML garbage
-    Cleaner --> Handler : cleanText
-    
-    Handler -> AI : 5. Extract Syllabus Structure
-    note right: Uses Gemini to parse JSON
-    AI --> Handler : SyllabusData (Topics, Sessions)
-    
-    group URL Enrichment (Batch Process)
-        Handler -> Handler : 6. Analyze Context (e.g. "Java")
-        loop For Each Session
-            Handler -> UrlService : 7. Find Valid Resource
-            UrlService -> UrlService : Generate Queries -> Search -> Filter -> Ping
-            UrlService --> Handler : Validated URL
-        end
+
+' 1. Clean & Extract
+Handler -> Cleaner : ExtractCleanTextFromHtml(RawText)
+activate Cleaner
+Cleaner --> Handler : CleanText
+deactivate Cleaner
+
+Handler -> Plugin : ExtractSyllabusJsonAsync(CleanText)
+activate Plugin
+note right: Calls Gemini AI
+Plugin --> Handler : Syllabus JSON
+deactivate Plugin
+
+Handler -> Handler : Deserialize to SyllabusData
+
+' 2. URL Enrichment
+group URL Enrichment
+    Handler -> QuerySvc : GenerateBatchQueryVariantsAsync(Sessions)
+    activate QuerySvc
+    QuerySvc --> Handler : Query Variants
+    deactivate QuerySvc
+
+    loop For Each Session
+        Handler -> UrlSvc : GetValidUrlForTopicAsync()
+        activate UrlSvc
+        UrlSvc --> Handler : Validated URL
+        deactivate UrlSvc
+        Handler -> Handler : Update Session Data
     end
-    
-    Handler -> DB : 8. Check if Subject exists
-    alt Exists
-        Handler -> DB : 9. Update Content & Semester
-    else New
-        Handler -> DB : 10. Create new Subject record
-    end
-    
-    Handler --> Controller : 11. Return Success
+end
+
+' 3. Persist
+Handler -> Repo : FirstOrDefaultAsync(SubjectCode)
+activate Repo
+Repo -> DB : SELECT * FROM subjects...
+DB --> Repo : ExistingSubject?
+deactivate Repo
+
+alt Exists
+    Handler -> Repo : UpdateAsync(UpdatedSubject)
+    activate Repo
+    Repo -> DB : UPDATE subjects...
+    DB --> Repo : Success
+    deactivate Repo
+else New
+    Handler -> Repo : AddAsync(NewSubject)
+    activate Repo
+    Repo -> DB : INSERT INTO subjects...
+    DB --> Repo : Success
+    deactivate Repo
+end
+
+Handler --> Med : CreateSubjectResponse
 deactivate Handler
 
-Controller --> UI : 12. Show "Import Successful"
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
 @enduml

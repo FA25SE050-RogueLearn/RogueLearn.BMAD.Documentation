@@ -1,40 +1,55 @@
-' validate-curriculum-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "Import\nController" as Controller
-participant "Validate\nHandler" as Handler
-participant "Curriculum\nStorage" as Cache
-participant "AI Plugin" as AI
-participant "DataValidator" as Val
+participant ":CurriculumImport\nController" as Controller
+participant ":IMediator" as Med
+participant ":ValidateCurriculum\nQueryHandler" as Handler
+participant ":ICurriculumImportStorage" as Cache
+participant ":ICurriculumExtraction\nPlugin" as AIPlugin
+participant ":CurriculumImportData\nValidator" as Validator
 
-Admin -> UI : Paste Text -> "Preview"
-UI -> Controller : POST /api/admin/curriculum/validate
-Controller -> Handler : Handle(query)
+Admin -> Controller : POST /api/admin/curriculum/validate
+activate Controller
 
+Controller -> Med : Send(ValidateCurriculumQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> Handler : ComputeHash(text)
-    
-    Handler -> Cache : TryGetByHashJsonAsync(hash)
-    
-    alt Cache Miss
-        Handler -> AI : ExtractCurriculumJsonAsync(text)
-        AI --> Handler : JSON
-    end
-    
-    Handler -> Handler : Deserialize JSON
-    
-    Handler -> Val : ValidateAsync(data)
-    Val --> Handler : ValidationResult
-    
-    alt IsValid
-        Handler -> Cache : SaveLatestAsync(data, hash)
-        note right: Cache for actual import
-    end
-    
-    Handler --> Controller : ValidateCurriculumResponse
+
+' 1. Check Cache
+Handler -> Handler : ComputeHash(RawText)
+Handler -> Cache : TryGetByHashJsonAsync(Hash)
+activate Cache
+Cache --> Handler : Cached JSON?
+deactivate Cache
+
+alt Cache Miss
+    ' 2. AI Extraction
+    Handler -> AIPlugin : ExtractCurriculumJsonAsync(RawText)
+    activate AIPlugin
+    AIPlugin --> Handler : JSON String
+    deactivate AIPlugin
+end
+
+' 3. Parse & Validate
+Handler -> Handler : Deserialize JSON
+Handler -> Validator : ValidateAsync(Data)
+activate Validator
+Validator --> Handler : ValidationResult
+deactivate Validator
+
+' 4. Cache Result
+alt Is Valid
+    Handler -> Cache : SaveLatestAsync(Data, Hash)
+    note right: Cache successful parse for later import
+end
+
+Handler --> Med : ValidateCurriculumResponse
 deactivate Handler
 
-Controller --> UI : 200 OK (JSON Preview)
-UI --> Admin : Display Parsed Data
+Med --> Controller : Response (JSON Preview)
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
 @enduml

@@ -1,0 +1,44 @@
+@startuml
+actor Admin
+participant ":CurriculumProgramSubjects\nController" as Controller
+participant ":IMediator" as Med
+participant ":RemoveSubjectFromProgram\nCommandHandler" as Handler
+participant ":ICurriculumProgramSubject\nRepository" as LinkRepo
+database ":Database" as DB
+
+Admin -> Controller : DELETE /programs/{pid}/subjects/{sid}
+activate Controller
+
+Controller -> Med : Send(RemoveSubjectFromProgramCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Find Link
+Handler -> LinkRepo : FirstOrDefaultAsync(pid, sid)
+activate LinkRepo
+LinkRepo -> DB : SELECT * FROM curriculum_program_subjects...
+DB --> LinkRepo : Mapping?
+deactivate LinkRepo
+
+alt Not Found
+    Handler --> Med : Log Warning (Idempotent success)
+    ' Or throw NotFoundException depending on strictness
+else Found
+    ' 2. Delete
+    Handler -> LinkRepo : DeleteAsync(MappingId)
+    activate LinkRepo
+    LinkRepo -> DB : DELETE...
+    DB --> LinkRepo : Success
+    deactivate LinkRepo
+end
+
+Handler --> Med : Unit.Value
+deactivate Handler
+Med --> Controller : Success
+deactivate Med
+
+Controller --> Admin : 204 No Content
+deactivate Controller
+@enduml

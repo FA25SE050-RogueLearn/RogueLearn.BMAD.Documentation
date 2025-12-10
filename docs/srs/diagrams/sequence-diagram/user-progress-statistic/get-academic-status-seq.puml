@@ -1,31 +1,86 @@
-' get-academic-status-seq.puml
 @startuml
 actor Student
-participant "UsersController" as Controller
-participant "GetAcademicStatus\nHandler" as Handler
-participant "Enrollment\nRepository" as EnrollDB
-participant "SemesterSubject\nRepository" as GradeDB
-participant "Subject\nRepository" as SubjectDB
+participant ":UsersController" as Controller
+participant ":IMediator" as Med
+participant ":GetAcademicStatus\nQueryHandler" as Handler
+participant ":IStudentEnrollment\nRepository" as EnrollRepo
+participant ":StudentEnrollment\nRepository" as EnrollRepoImpl
+participant ":IStudentSemesterSubject\nRepository" as GradeRepo
+participant ":StudentSemesterSubject\nRepository" as GradeRepoImpl
+participant ":ISubjectRepository" as SubjectRepo
+participant ":SubjectRepository" as SubjectRepoImpl
+database ":Database" as DB
 
-Student -> Controller : GET /academic-status
-Controller -> Handler : Handle(Query)
+Student -> Controller : View Academic Status
+activate Controller
 
+Controller -> Med : Send(GetAcademicStatusQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> EnrollDB : GetActiveForAuthUserAsync()
-    
-    Handler -> GradeDB : FindAsync(AuthUserId)
-    note right: Get all grades
-    
-    Handler -> SubjectDB : GetByIdsAsync()
-    note right: Get credit info for calc
-    
-    Handler -> Handler : Calculate GPA
-    note right: (Grade * Credits) / TotalCredits
-    
-    Handler -> Handler : Count Completed/Failed
-    
-    Handler --> Controller : GetAcademicStatusResponse
+
+' 1. Get Enrollment
+Handler -> EnrollRepo : FirstOrDefaultAsync(AuthUserId)
+activate EnrollRepo
+EnrollRepo -> EnrollRepoImpl : FirstOrDefaultAsync(...)
+activate EnrollRepoImpl
+EnrollRepoImpl -> DB : SELECT * FROM student_enrollments...
+activate DB
+DB --> EnrollRepoImpl : Enrollment
+deactivate DB
+EnrollRepoImpl --> EnrollRepo : Enrollment
+deactivate EnrollRepoImpl
+EnrollRepo --> Handler : Enrollment
+deactivate EnrollRepo
+
+alt No Enrollment
+    Handler --> Med : Return null
+    Med --> Controller : 404 Not Found
+else Enrollment Found
+    ' 2. Get Grades
+    Handler -> GradeRepo : FindAsync(AuthUserId)
+    activate GradeRepo
+    GradeRepo -> GradeRepoImpl : FindAsync(...)
+    activate GradeRepoImpl
+    GradeRepoImpl -> DB : SELECT * FROM student_semester_subjects...
+    activate DB
+    DB --> GradeRepoImpl : List<Grade>
+    deactivate DB
+    GradeRepoImpl --> GradeRepo : List<Grade>
+    deactivate GradeRepoImpl
+    GradeRepo --> Handler : List<Grade>
+    deactivate GradeRepo
+
+    ' 3. Get Credit Info
+    Handler -> SubjectRepo : GetAllAsync()
+    activate SubjectRepo
+    SubjectRepo -> SubjectRepoImpl : GetAllAsync()
+    activate SubjectRepoImpl
+    SubjectRepoImpl -> DB : SELECT * FROM subjects...
+    activate DB
+    DB --> SubjectRepoImpl : List<Subject>
+    deactivate DB
+    SubjectRepoImpl --> SubjectRepo : List<Subject>
+    deactivate SubjectRepoImpl
+    SubjectRepo --> Handler : List<Subject>
+    deactivate SubjectRepo
+
+    ' 4. Calculate Stats
+    Handler -> Handler : Count Passed/Failed
+    Handler -> Handler : Calculate Weighted GPA
+    note right
+        Sum(Grade * Credits) / Sum(Credits)
+        (Only for Passed subjects)
+    end note
+
+    Handler --> Med : GetAcademicStatusResponse
+end
+
 deactivate Handler
+Med --> Controller : Response
+deactivate Med
 
 Controller --> Student : 200 OK
+deactivate Controller
 @enduml

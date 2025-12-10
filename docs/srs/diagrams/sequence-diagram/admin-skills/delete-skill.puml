@@ -1,27 +1,34 @@
 @startuml
 actor Admin
-participant ":SubjectsController" as Controller
+participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
-participant ":DeleteSubjectHandler" as Handler
-participant ":ISubjectRepository" as Repo
+participant ":DeleteSkill\nCommandHandler" as Handler
+participant ":ISkillRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : DELETE /api/admin/subjects/{id}
+Admin -> Controller : DELETE /api/admin/skills/{id}
 activate Controller
 
-Controller -> Med : Send(DeleteSubjectCommand)
+Controller -> Med : Send(DeleteSkillCommand)
 activate Med
 
 Med -> Handler : Handle(command)
 activate Handler
 
-Handler -> Repo : GetByIdAsync(Id)
+' 1. Check Existence
+Handler -> Repo : ExistsAsync(Id)
+activate Repo
+Repo -> DB : SELECT 1...
+DB --> Repo : Exists?
+deactivate Repo
+
 alt Not Found
     Handler --> Med : Throw NotFoundException
 else Found
+    ' 2. Delete
     Handler -> Repo : DeleteAsync(Id)
     activate Repo
-    Repo -> DB : DELETE FROM subjects...
+    Repo -> DB : DELETE FROM skills...
     DB --> Repo : Success
     deactivate Repo
     

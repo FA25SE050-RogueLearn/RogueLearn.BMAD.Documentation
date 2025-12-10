@@ -1,0 +1,58 @@
+@startuml
+actor Admin
+participant ":ClassSpecialization\nController" as Controller
+participant ":IMediator" as Med
+participant ":RemoveSpecializationSubject\nHandler" as Handler
+participant ":IClassSpecializationSubject\nRepository" as MappingRepo
+participant ":ClassSpecializationSubject\nRepository" as MappingRepoImpl
+database ":Database" as DB
+
+Admin -> Controller : DELETE /classes/{cid}/subjects/{sid}
+activate Controller
+
+Controller -> Med : Send(RemoveSpecializationSubjectCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Find Mapping
+Handler -> MappingRepo : FirstOrDefaultAsync(ClassId, SubjectId)
+activate MappingRepo
+MappingRepo -> MappingRepoImpl : FirstOrDefaultAsync(...)
+activate MappingRepoImpl
+MappingRepoImpl -> DB : SELECT * FROM class_specialization_subjects...
+activate DB
+DB --> MappingRepoImpl : Mapping?
+deactivate DB
+MappingRepoImpl --> MappingRepo : Mapping?
+deactivate MappingRepoImpl
+MappingRepo --> Handler : Mapping?
+deactivate MappingRepo
+
+alt Not Found
+    Handler --> Med : Throw NotFoundException
+else Found
+    ' 2. Delete
+    Handler -> MappingRepo : DeleteAsync(MappingId)
+    activate MappingRepo
+    MappingRepo -> MappingRepoImpl : DeleteAsync(MappingId)
+    activate MappingRepoImpl
+    MappingRepoImpl -> DB : DELETE FROM class_specialization_subjects...
+    activate DB
+    DB --> MappingRepoImpl : Success
+    deactivate DB
+    MappingRepoImpl --> MappingRepo : Success
+    deactivate MappingRepoImpl
+    MappingRepo --> Handler : Success
+    deactivate MappingRepo
+end
+
+Handler --> Med : Unit.Value
+deactivate Handler
+Med --> Controller : Success
+deactivate Med
+
+Controller --> Admin : 204 No Content
+deactivate Controller
+@enduml

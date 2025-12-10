@@ -1,45 +1,95 @@
-' import-curriculum-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "Import\nController" as Controller
-participant "ImportCurriculum\nHandler" as Handler
-participant "HtmlCleaning\nService" as Cleaner
-participant "AI Plugin" as AI
-participant "Database" as DB
+participant ":CurriculumImport\nController" as Controller
+participant ":IMediator" as Med
+participant ":ImportCurriculum\nCommandHandler" as Handler
+participant ":IHtmlCleaningService" as Cleaner
+participant ":ICurriculumExtraction\nPlugin" as AIPlugin
+participant ":ICurriculumProgram\nRepository" as ProgRepo
+participant ":ISubjectRepository" as SubRepo
+participant ":ICurriculumProgramSubject\nRepository" as LinkRepo
+database ":Database" as DB
 
-Admin -> UI : Paste Curriculum HTML -> Import
-UI -> Controller : POST /api/admin/curriculum
-Controller -> Handler : Handle(command)
+Admin -> Controller : POST /api/admin/curriculum (HTML)
+activate Controller
 
+Controller -> Med : Send(ImportCurriculumCommand)
+activate Med
+
+Med -> Handler : Handle(command)
 activate Handler
-    Handler -> Cleaner : ExtractCleanText()
-    Cleaner --> Handler : Clean Text
-    
-    Handler -> AI : ExtractCurriculumJsonAsync()
-    AI -> AI : Call Gemini
-    AI --> Handler : CurriculumImportData (JSON)
-    
-    Handler -> Handler : Validate Data (FluentValidation)
-    
-    Handler -> DB : Create/Update CurriculumProgram
-    
-    loop For Each Subject in Data
-        Handler -> DB : Find Subject by Code
-        alt Not Found
-            Handler -> DB : Create New Subject
-        else Found
-            Handler -> DB : Update Metadata
-        end
-        
-        Handler -> DB : Check Link Existence
-        alt Not Linked
-            Handler -> DB : AddAsync(CurriculumProgramSubject)
-        end
+
+' 1. Clean & Parse
+Handler -> Cleaner : ExtractCleanTextFromHtml(RawText)
+activate Cleaner
+Cleaner --> Handler : Clean Text
+deactivate Cleaner
+
+Handler -> AIPlugin : ExtractCurriculumJsonAsync(CleanText)
+activate AIPlugin
+note right: Calls AI to structure data
+AIPlugin --> Handler : CurriculumImportData (JSON)
+deactivate AIPlugin
+
+Handler -> Handler : Validate Data Structure
+
+' 2. Create/Update Program
+Handler -> ProgRepo : FirstOrDefaultAsync(ProgramCode)
+activate ProgRepo
+ProgRepo -> DB : SELECT...
+DB --> ProgRepo : Existing?
+deactivate ProgRepo
+
+alt Exists
+    Handler -> ProgRepo : UpdateAsync(Program)
+else New
+    Handler -> ProgRepo : AddAsync(Program)
+    activate ProgRepo
+    ProgRepo -> DB : INSERT...
+    DB --> ProgRepo : New Program
+    deactivate ProgRepo
+end
+
+' 3. Process Subjects
+loop For Each Subject in Data
+    Handler -> SubRepo : FirstOrDefaultAsync(SubjectCode)
+    activate SubRepo
+    SubRepo -> DB : SELECT...
+    DB --> SubRepo : ExistingSubject?
+    deactivate SubRepo
+
+    alt Exists
+        Handler -> SubRepo : UpdateAsync(UpdatedSubject)
+    else New
+        Handler -> SubRepo : AddAsync(NewSubject)
+        activate SubRepo
+        SubRepo -> DB : INSERT...
+        DB --> SubRepo : New Subject
+        deactivate SubRepo
     end
-    
-    Handler --> Controller : ImportResponse (Ids)
+
+    ' 4. Link to Program
+    Handler -> LinkRepo : AnyAsync(ProgramId, SubjectId)
+    activate LinkRepo
+    LinkRepo -> DB : SELECT 1...
+    DB --> LinkRepo : Linked?
+    deactivate LinkRepo
+
+    alt Not Linked
+        Handler -> LinkRepo : AddAsync(Link)
+        activate LinkRepo
+        LinkRepo -> DB : INSERT...
+        DB --> LinkRepo : Success
+        deactivate LinkRepo
+    end
+end
+
+Handler --> Med : ImportCurriculumResponse
 deactivate Handler
 
-Controller --> UI : 200 OK
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 200 OK
+deactivate Controller
 @enduml

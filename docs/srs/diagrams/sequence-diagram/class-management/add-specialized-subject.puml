@@ -1,0 +1,100 @@
+@startuml
+actor Admin
+participant ":ClassSpecialization\nController" as Controller
+participant ":IMediator" as Med
+participant ":AddSpecializationSubject\nHandler" as Handler
+participant ":IClassRepository" as ClassRepo
+participant ":ClassRepository" as ClassRepoImpl
+participant ":ISubjectRepository" as SubjectRepo
+participant ":SubjectRepository" as SubjectRepoImpl
+participant ":IClassSpecializationSubject\nRepository" as MappingRepo
+participant ":ClassSpecializationSubject\nRepository" as MappingRepoImpl
+database ":Database" as DB
+
+Admin -> Controller : POST /classes/{id}/specialization-subjects
+activate Controller
+
+Controller -> Med : Send(AddSpecializationSubjectCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Validate Parent Entities
+Handler -> ClassRepo : ExistsAsync(ClassId)
+activate ClassRepo
+ClassRepo -> ClassRepoImpl : ExistsAsync(ClassId)
+activate ClassRepoImpl
+ClassRepoImpl -> DB : SELECT 1 FROM classes...
+activate DB
+DB --> ClassRepoImpl : Exists?
+deactivate DB
+ClassRepoImpl --> ClassRepo : Exists?
+deactivate ClassRepoImpl
+ClassRepo --> Handler : Exists?
+deactivate ClassRepo
+
+alt Class Not Found
+    Handler --> Med : Throw NotFoundException
+end
+
+Handler -> SubjectRepo : ExistsAsync(SubjectId)
+activate SubjectRepo
+SubjectRepo -> SubjectRepoImpl : ExistsAsync(SubjectId)
+activate SubjectRepoImpl
+SubjectRepoImpl -> DB : SELECT 1 FROM subjects...
+activate DB
+DB --> SubjectRepoImpl : Exists?
+deactivate DB
+SubjectRepoImpl --> SubjectRepo : Exists?
+deactivate SubjectRepoImpl
+SubjectRepo --> Handler : Exists?
+deactivate SubjectRepo
+
+alt Subject Not Found
+    Handler --> Med : Throw NotFoundException
+end
+
+' 2. Check for Duplicate
+Handler -> MappingRepo : FirstOrDefaultAsync(ClassId, SubjectId)
+activate MappingRepo
+MappingRepo -> MappingRepoImpl : FirstOrDefaultAsync(...)
+activate MappingRepoImpl
+MappingRepoImpl -> DB : SELECT * FROM class_specialization_subjects...
+activate DB
+DB --> MappingRepoImpl : Existing?
+deactivate DB
+MappingRepoImpl --> MappingRepo : Existing?
+deactivate MappingRepoImpl
+MappingRepo --> Handler : Existing?
+deactivate MappingRepo
+
+alt Duplicate Found
+    Handler --> Med : Throw BadRequestException
+else New Mapping
+    ' 3. Persist
+    Handler -> Handler : Map Command to Entity
+    Handler -> MappingRepo : AddAsync(Entity)
+    activate MappingRepo
+    MappingRepo -> MappingRepoImpl : AddAsync(Entity)
+    activate MappingRepoImpl
+    MappingRepoImpl -> DB : INSERT INTO class_specialization_subjects...
+    activate DB
+    DB --> MappingRepoImpl : Created Entity
+    deactivate DB
+    MappingRepoImpl --> MappingRepo : Created Entity
+    deactivate MappingRepoImpl
+    MappingRepo --> Handler : Created Entity
+    deactivate MappingRepo
+
+    Handler -> Handler : Map to DTO
+    Handler --> Med : SpecializationSubjectDto
+end
+
+deactivate Handler
+Med --> Controller : Response
+deactivate Med
+
+Controller --> Admin : 201 Created
+deactivate Controller
+@enduml

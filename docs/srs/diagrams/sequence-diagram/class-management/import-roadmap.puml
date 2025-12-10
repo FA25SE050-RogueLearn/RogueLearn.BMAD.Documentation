@@ -1,0 +1,51 @@
+@startuml
+actor Admin
+participant ":RoadmapImport\nController" as Controller
+participant ":IMediator" as Med
+participant ":ImportClassRoadmap\nHandler" as Handler
+participant ":IPdfTextExtractor" as PDF
+participant ":IRoadmapExtractionPlugin" as AI
+participant ":IClassRepository" as ClassDB
+participant ":IRoadmapImportStorage" as S3
+
+Admin -> Controller : POST /roadmap/class (PDF)
+activate Controller
+
+Controller -> Med : Send(ImportClassRoadmapCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Extract Text
+Handler -> PDF : ExtractTextAsync(Stream)
+activate PDF
+PDF --> Handler : Raw Text
+deactivate PDF
+
+' 2. AI Parsing
+Handler -> AI : ExtractClassRoadmapJsonAsync(Text)
+activate AI
+note right: Calls Gemini to structure data
+AI --> Handler : ClassRoadmapData (JSON Tree)
+deactivate AI
+
+' 3. Persist
+Handler -> ClassDB : Upsert Class Entity
+note right: Create/Update Class based on PDF metadata
+
+Handler -> Handler : UpsertNodeRecursiveAsync(RootNodes)
+note right: Recursively create hierarchical nodes in DB
+
+' 4. Archive File
+Handler -> S3 : SavePdfAttachmentAsync()
+
+Handler --> Med : Success Response
+deactivate Handler
+
+Med --> Controller : 200 OK
+deactivate Med
+
+Controller --> Admin : Import Successful
+deactivate Controller
+@enduml
