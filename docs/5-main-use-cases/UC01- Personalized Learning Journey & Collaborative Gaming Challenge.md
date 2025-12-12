@@ -1,6 +1,6 @@
-### **UC-01: Personalized Learning Journey & Collaborative  Gaming Challenge**
+### **UC-01: Personalized Learning Journey & Collaborative Gaming Challenge**
 
-This use case combines your core value proposition: using a student's real academic data to create a personalized game, which then flows into a collaborative challenge to reinforce learning.
+This use case demonstrates the "Master Template Instantiation" model. The student receives a personalized difficulty track derived from their academic history, without waiting for real-time AI generation.
 
 **Actor:** Player (Student)
 
@@ -8,49 +8,50 @@ This use case combines your core value proposition: using a student's real acade
 
 ## Transactions
 
-1.  **Onboard and Sync Academic Record**
-    *   Student A logs into RogueLearn and navigates to the onboarding or dashboard page.
-    *   They are prompted to connect their academic profile. Student A clicks "Connect to FAP".
-    *   The system instructs the user on how to copy the full HTML of their academic record page.
-    *   Student A pastes the raw HTML into a text area and clicks "Sync My Record".
+1.  **Onboard and Choose Career Path**
+    *   **Action:** Student A logs in and navigates to the onboarding screen.
+    *   **Action:** Student A selects a **Curriculum Program** (e.g., "Software Engineering") and a **Class Specialization** (e.g., ".NET/React Fullstack").
+    *   **System Process:** The system updates the `user_profiles` table, linking the user to specific `classes` and `curriculum_programs`.
 
-2.  **System Analyzes Transcript and Generates Path**
-    *   The backend receives the HTML, cleans it, and uses an AI plugin to extract all subjects, grades, and statuses.
-    *   The system creates the `student_semester_subjects` records, forming a definitive "Student Gradebook".
-    *   Based on the gradebook, the system generates the user's high-level Learning Path, creating shell `quests` for every subject in their curriculum.
+2.  **Sync Academic Record (The Personalization Trigger)**
+    *   **Action:** Student A pastes their FAP academic record HTML.
+    *   **System Process (Analysis):** The `ProcessAcademicRecordCommandHandler` parses the HTML using the `FapExtractionPlugin`.
+    *   **System Process (Linking):** The system executes `GenerateQuestLine`. It iterates through the student's subjects (e.g., **PRF192**).
+    *   **System Process (Difficulty Resolution):** The `QuestDifficultyResolver` analyzes the student's history.
+        *   *Scenario:* Student A failed PRF192 previously.
+        *   *Result:* The system creates a `UserQuestAttempt` for PRF192 with `AssignedDifficulty = 'Supportive'`.
 
 3.  **Student Views Personalized Dashboard**
-    *   The dashboard displays Student A's calculated GPA and a visual overview of their progress.
-    *   The system highlights subjects with a "Not Passed" status (e.g., PRJ301).
-    *   An AI-powered recommendation appears: **"You struggled with PRJ301. Start the 'Agile Quest' to master the fundamentals."**
-    *   Student A clicks "Start Agile Quest".
+    *   **Display:** The dashboard shows the computed GPA and the "Programming Fundamentals (PRF192)" Quest.
+    *   **Visual Cue:** The quest is marked with a "Supportive Track" badge, indicating tailored content for reinforcement.
+    *   **Action:** Student A clicks "Start Quest".
 
-4.  **Student Plays Solo Quest Chapter**
-    *   The system loads the "Agile Quest" game, showing the chapter list.
-    *   Student A clicks "Start Chapter 1: Scrum Fundamentals".
-    *   The backend triggers the `GenerateQuestStepsCommandHandler` on-demand, creating detailed, interactive steps for Chapter 1.
-    *   Student A engages with the content, answering quiz questions and completing reading tasks.
+4.  **Student Plays Quest (Master Template Instantiation)**
+    *   **Action:** The system loads the Quest Map.
+    *   **System Process:** The `UserQuestProgressController` queries the **Master Quest** steps. It filters the content, returning *only* the **Supportive** difficulty variant steps (generated previously by Admin).
+    *   **Outcome:** The load is instant; no AI generation occurs at this moment.
 
-5.  **Student Completes Chapter and Receives XP**
-    *   Upon completing the final step, the system awards XP (+150) and updates the user's skill progression for "Scrum" and "Project Planning".
-    *   The user's progress for the PRJ301 quest is updated to 10% complete.
+5.  **Weekly Activity Completion (Reading & Knowledge Check)**
+    *   **Action:** Student A opens "Module 1: C Basics".
+    *   **Action:** Student A completes a **Reading** activity (enriched with a tutorial URL) and a **Knowledge Check** (formative assessment).
+    *   **System Process:** The `UpdateQuestActivityProgress` handler marks these activities as complete in `user_quest_step_progress`.
 
-6.  **System Recommends a Collaborative Boss Fight**
-    *   A new recommendation appears: **"You've mastered the basics. Challenge the 'PRJ301 Final Exam Simulator' boss fight with a friend to prepare for the final exam!"**
-    *   Student A clicks "Find Teammate".
+6.  **Summative Assessment (The 70% Rule)**
+    *   **Action:** Student A attempts the **Module Quiz** (Summative Assessment).
+    *   **Constraint:** The `ActivityValidationService` enforces that the quiz cannot be marked complete unless the score is **≥ 70%**.
+    *   **Action:** Student A scores 80%.
+    *   **System Process:**
+        *   The step is marked as `Completed`.
+        *   The system triggers an `IngestXpEventCommand`.
+        *   **XP Distribution:** 400 XP is awarded and distributed to the specific `UserSkills` (e.g., "C Programming") based on the `subject_skill_mappings`.
 
-7.  **Student A Invites Student B to the Boss Fight**
-    *   The system shows a lobby screen. Student A invites Student B, who is also in their guild.
-    *   Student B receives and accepts the invitation. Both players are placed in the boss fight room and ready up.
+7.  **Transition to Collaborative Boss Fight**
+    *   **Trigger:** Upon completing the module, the system unlocks the "Memory Allocation Boss Fight".
+    *   **Action:** Student A invites Student B (from their Guild) to a real-time lobby.
+    *   **System Process:** The system initializes a `GameSession` with a `RelayJoinCode`.
 
-8.  **Players Collaborate to Defeat the Boss**
-    *   The boss fight begins, consisting of multiple rounds: a synchronized quiz, a collaborative sprint planning problem, and a rapid-fire scenario challenge.
-    *   The players use the built-in chat to coordinate their answers.
+8.  **Collaborative Gameplay**
+    *   **Action:** Students A and B fight the boss using the Unity client.
+    *   **System Process:** The game server reports the match result to `SubmitUnityMatchResult`.
+    *   **Outcome:** Both students receive bonus XP, and the activity is marked complete in their respective learning paths.
 
-9.  **Boss Fight Completion and Rewards**
-    *   The team successfully completes the challenges and defeats the boss.
-    *   The system displays a victory screen and distributes rewards: both students earn XP (+450), level up, and unlock the "Dragon Slayer" achievement.
-
-10. **System Updates All Profiles and Suggests Next Steps**
-    *   The `student_semester_subjects` record for PRJ301 is updated for both students, showing improved mastery scores.
-    *   The dashboard now shows new recommendations, such as **"Create a Study Party to continue collaborating"** or **"Join the 'FCode - Java' Guild to find more teammates."**
