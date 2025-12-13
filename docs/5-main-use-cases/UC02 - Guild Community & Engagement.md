@@ -23,10 +23,10 @@ This use case defines the lifecycle of guild participation, from joining as a me
     *   They access the guild's main page, which features a post feed.
     *   They read a pinned "Welcome" post and a discussion thread about a difficult coding problem.
 
-4.  **Student A Creates a Post**
-    *   Student A has a question about a specific Java framework.
-    *   They click "Create Post", write their question, add the "Spring Boot" tag, and submit it.
-    *   The post appears on the guild feed for other members to see and answer.
+4.  **Student A Participates in a Post**
+    *   Student A views a post the Guild Master created.
+    *   They comment on the post, expressing their understanding of the problem.
+    *   Other members can also comments on the post or reply to student A comment.
 
 ## Transactions (Guild Master Experience)
 
@@ -39,3 +39,12 @@ This use case defines the lifecycle of guild participation, from joining as a me
     *   The Guild Master navigates to the guild settings.
     *   They update the guild's description and upload a new banner image.
     *   They decide to make joining easier and change the privacy setting from "Requires Approval" to "Public".
+  
+7.  **Guild Master Monitors and Moderates**
+    *   The Guild Master regularly checks the post feed for any inappropriate content.
+    *   They use the moderation tools to delete or warn users who break the rules.
+
+8.  **Guild Master Creates Meetings**
+    *   The Guild Master decides to host a regular meeting.
+    *   In the guild settings, they create a new meeting with a specified time and location.
+    *   They invite all relevant members to the meeting.

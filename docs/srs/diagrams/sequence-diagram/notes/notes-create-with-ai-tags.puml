@@ -1,0 +1,139 @@
+@startuml
+title Create Note With AI Tags (Raw or Upload)
+
+actor ":User" as User
+participant ":NoteManagementUI" as NoteUI
+participant ":NotesController" as Controller
+participant ":IMediator" as Med
+participant ":Mediator" as Mediator
+participant ":CreateNoteWithAiTagsCommandHandler" as Handler
+participant ":ISummarizationPlugin" as ISummarizer
+participant ":IFileSummarizationPlugin" as IFileSummarizer
+participant ":ContentSummarizationPlugin" as Summarizer
+participant ":INoteRepository" as INoteRepo
+participant ":ITaggingSuggestionService" as ISuggestionSvc
+participant ":TaggingSuggestionService" as SuggestionSvc
+participant ":ITagSuggestionPlugin" as ITagPlugin
+participant ":TagSuggestionPlugin" as TagPlugin
+participant ":IFileTagSuggestionPlugin" as IFileTagPlugin
+participant ":FileTagSuggestionPlugin" as FileTagPlugin
+participant ":IMediator" as Med2
+participant ":CommitNoteTagSelectionsCommandHandler" as CommitHandler
+participant ":ITagRepository" as ITagRepo
+participant ":INoteTagRepository" as INoteTagRepo
+
+User -> NoteUI : Create with AI tags
+activate NoteUI
+NoteUI -> Controller : POST /api/notes/create-with-ai-tags [JSON]
+activate Controller
+Controller -> Med : Send(CreateNoteWithAiTagsCommand)
+activate Med
+Med -> Mediator : Send(CreateNoteWithAiTagsCommand)
+activate Mediator
+Mediator -> Handler : Handle(command)
+activate Handler
+
+alt Raw text provided
+  Handler -> ISummarizer : SummarizeTextAsync(rawText)
+  activate ISummarizer
+  ISummarizer -> Summarizer : SummarizeTextAsync(rawText)
+  activate Summarizer
+  Summarizer --> ISummarizer : BlockNote JSON
+  deactivate Summarizer
+  ISummarizer --> Handler : BlockNote JSON
+  deactivate ISummarizer
+else File upload provided
+  Handler -> IFileSummarizer : SummarizeAsync(file attachment)
+  activate IFileSummarizer
+  IFileSummarizer -> Summarizer : SummarizeAsync(attachment)
+  activate Summarizer
+  Summarizer --> IFileSummarizer : BlockNote JSON
+  deactivate Summarizer
+  IFileSummarizer --> Handler : BlockNote JSON
+  deactivate IFileSummarizer
+end
+
+Handler -> INoteRepo : AddAsync(new Note)
+activate INoteRepo
+INoteRepo --> Handler : Created Note
+deactivate INoteRepo
+
+alt Raw text suggestions
+  Handler -> ISuggestionSvc : SuggestAsync(authUserId, rawText, maxTags)
+  activate ISuggestionSvc
+  ISuggestionSvc -> SuggestionSvc : SuggestAsync(...)
+  activate SuggestionSvc
+  SuggestionSvc -> ITagPlugin : GenerateTagSuggestionsJsonAsync(rawText, maxTags)
+  activate ITagPlugin
+  ITagPlugin -> TagPlugin : GenerateTagSuggestionsJsonAsync
+  activate TagPlugin
+  TagPlugin --> ITagPlugin : JSON
+  deactivate TagPlugin
+  ITagPlugin --> SuggestionSvc : JSON
+  deactivate ITagPlugin
+  SuggestionSvc -> ITagRepo : FindAsync(t => t.AuthUserId == authUserId)
+  activate ITagRepo
+  ITagRepo --> SuggestionSvc : Tags
+  deactivate ITagRepo
+  SuggestionSvc --> ISuggestionSvc : Suggestions
+  deactivate SuggestionSvc
+  ISuggestionSvc --> Handler : Suggestions
+  deactivate ISuggestionSvc
+else File suggestions
+  Handler -> ISuggestionSvc : SuggestFromFileAsync(authUserId, attachment, maxTags)
+  activate ISuggestionSvc
+  ISuggestionSvc -> SuggestionSvc : SuggestFromFileAsync(...)
+  activate SuggestionSvc
+  SuggestionSvc -> ITagRepo : FindAsync(t => t.AuthUserId == authUserId)
+  activate ITagRepo
+  ITagRepo --> SuggestionSvc : Tags
+  deactivate ITagRepo
+  SuggestionSvc -> IFileTagPlugin : GenerateTagSuggestionsJsonAsync(attachment, knownNames, maxTags)
+  activate IFileTagPlugin
+  IFileTagPlugin -> FileTagPlugin : GenerateTagSuggestionsJsonAsync
+  activate FileTagPlugin
+  FileTagPlugin --> IFileTagPlugin : JSON
+  deactivate FileTagPlugin
+  IFileTagPlugin --> SuggestionSvc : JSON
+  deactivate IFileTagPlugin
+  SuggestionSvc --> ISuggestionSvc : Suggestions
+  deactivate SuggestionSvc
+  ISuggestionSvc --> Handler : Suggestions
+  deactivate ISuggestionSvc
+end
+
+opt Apply suggestions
+  Handler -> Med2 : Send(CommitNoteTagSelectionsCommand)
+  activate Med2
+  Med2 -> CommitHandler : Handle(commit)
+  activate CommitHandler
+  CommitHandler -> ITagRepo : FindAsync(t => t.AuthUserId == authUserId)
+  activate ITagRepo
+  ITagRepo --> CommitHandler : Tags
+  deactivate ITagRepo
+  CommitHandler -> INoteTagRepo : GetTagIdsForNoteAsync(noteId)
+  activate INoteTagRepo
+  INoteTagRepo --> CommitHandler : TagIds
+  deactivate INoteTagRepo
+  CommitHandler -> INoteTagRepo : Add/Remove as needed
+  activate INoteTagRepo
+  INoteTagRepo --> CommitHandler : Success
+  deactivate INoteTagRepo
+  CommitHandler --> Med2 : CommitNoteTagSelectionsResponse
+  deactivate CommitHandler
+  Med2 --> Handler : Response
+  deactivate Med2
+end
+
+Handler -> Mediator : return CreateNoteWithAiTagsResponse
+deactivate Handler
+Mediator -> Med : Response
+deactivate Mediator
+Med -> Controller : Created
+deactivate Med
+Controller -> NoteUI : 201 Created
+deactivate Controller
+NoteUI -> User : Created
+deactivate NoteUI
+
+@enduml

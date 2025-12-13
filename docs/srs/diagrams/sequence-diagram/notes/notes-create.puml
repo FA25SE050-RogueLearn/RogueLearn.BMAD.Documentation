@@ -1,0 +1,48 @@
+@startuml
+title Create Note
+
+actor ":User" as User
+participant ":NoteManagementUI" as NoteUI
+participant ":NotesController" as Controller
+participant ":IMediator" as Med
+participant ":Mediator" as Mediator
+participant ":CreateNoteHandler" as Handler
+participant ":INoteRepository" as INoteRepo
+participant ":INoteTagRepository" as INoteTagRepo
+
+User -> NoteUI : Create note
+activate NoteUI
+NoteUI -> Controller : POST /api/notes
+activate Controller
+Controller -> Med : Send(CreateNoteCommand)
+activate Med
+Med -> Mediator : Send(CreateNoteCommand)
+activate Mediator
+Mediator -> Handler : Handle(command)
+activate Handler
+
+Handler -> Handler : Normalize content to BlockNote array
+Handler -> INoteRepo : AddAsync(new Note)
+activate INoteRepo
+INoteRepo --> Handler : Created Note
+deactivate INoteRepo
+
+opt Assign tags
+Handler -> INoteTagRepo : AddAsync(noteId, tagId) [for each tag]
+activate INoteTagRepo
+INoteTagRepo --> Handler : Success
+deactivate INoteTagRepo
+end
+
+Handler -> Mediator : return CreateNoteResponse
+deactivate Handler
+Mediator -> Med : Response
+deactivate Mediator
+Med -> Controller : Created
+deactivate Med
+Controller -> NoteUI : 201 Created
+deactivate Controller
+NoteUI -> User : Created
+deactivate NoteUI
+
+@enduml

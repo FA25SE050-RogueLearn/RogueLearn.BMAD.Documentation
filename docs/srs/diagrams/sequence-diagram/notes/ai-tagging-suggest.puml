@@ -1,0 +1,61 @@
+@startuml
+title Suggest Note Tags
+
+actor ":User" as User
+participant ":NoteManagementUI" as NoteUI
+participant ":NotesController" as Controller
+participant ":IMediator" as Med
+participant ":Mediator" as Mediator
+participant ":SuggestNoteTagsQueryHandler" as QueryHandler
+participant ":SuggestNoteTagsFromUploadQueryHandler" as UploadHandler
+participant ":ITaggingSuggestionService" as ISuggestionSvc
+participant ":TaggingSuggestionService" as SuggestionSvc
+participant ":ITagSuggestionPlugin" as ITagPlugin
+participant ":TagSuggestionPlugin" as TagPlugin
+participant ":IFileTagSuggestionPlugin" as IFileTagPlugin
+participant ":FileTagSuggestionPlugin" as FileTagPlugin
+participant ":ITagRepository" as ITagRepo
+
+User -> NoteUI : Request tag suggestions
+activate NoteUI
+NoteUI -> Controller : POST /api/ai/tagging/suggest [JSON]
+activate Controller
+Controller -> Med : Send(SuggestNoteTagsQuery)
+activate Med
+Med -> Mediator : Send(SuggestNoteTagsQuery)
+activate Mediator
+Mediator -> QueryHandler : Handle(query)
+activate QueryHandler
+QueryHandler -> ISuggestionSvc : SuggestAsync(authUserId, rawText OR note content, maxTags)
+activate ISuggestionSvc
+ISuggestionSvc -> SuggestionSvc : SuggestAsync(...)
+activate SuggestionSvc
+SuggestionSvc -> ITagPlugin : GenerateTagSuggestionsJsonAsync(rawText, maxTags)
+activate ITagPlugin
+ITagPlugin -> TagPlugin : GenerateTagSuggestionsJsonAsync
+activate TagPlugin
+TagPlugin --> ITagPlugin : JSON
+deactivate TagPlugin
+ITagPlugin --> SuggestionSvc : JSON
+deactivate ITagPlugin
+SuggestionSvc -> ITagRepo : FindAsync(t => t.AuthUserId == authUserId)
+activate ITagRepo
+ITagRepo --> SuggestionSvc : Tags
+deactivate ITagRepo
+SuggestionSvc --> ISuggestionSvc : Suggestions
+deactivate SuggestionSvc
+ISuggestionSvc --> QueryHandler : Suggestions
+deactivate ISuggestionSvc
+QueryHandler --> Mediator : SuggestNoteTagsResponse
+deactivate QueryHandler
+Mediator --> Med : Response
+deactivate Mediator
+Med --> Controller : 200 OK
+deactivate Med
+Controller --> NoteUI : 200 OK
+deactivate Controller
+NoteUI --> User : Suggestions displayed
+deactivate NoteUI
+
+
+@enduml

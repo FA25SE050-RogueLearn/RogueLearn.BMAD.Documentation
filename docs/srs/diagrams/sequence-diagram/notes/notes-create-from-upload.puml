@@ -1,0 +1,50 @@
+@startuml
+title Create Note From Upload
+
+actor ":User" as User
+participant ":NoteManagementUI" as NoteUI
+participant ":NotesController" as Controller
+participant ":IMediator" as Med
+participant ":Mediator" as Mediator
+participant ":CreateNoteFromUploadCommandHandler" as Handler
+participant ":IFileSummarizationPlugin" as IFileSummarizer
+participant ":ContentSummarizationPlugin" as FileSummarizer
+participant ":INoteRepository" as INoteRepo
+
+User -> NoteUI : Upload and create note
+activate NoteUI
+NoteUI -> Controller : POST /api/notes/upload-and-create
+activate Controller
+Controller -> Med : Send(CreateNoteFromUploadCommand)
+activate Med
+Med -> Mediator : Send(CreateNoteFromUploadCommand)
+activate Mediator
+Mediator -> Handler : Handle(command)
+activate Handler
+
+Handler -> IFileSummarizer : SummarizeAsync(file attachment)
+activate IFileSummarizer
+IFileSummarizer -> FileSummarizer : SummarizeAsync(attachment)
+activate FileSummarizer
+FileSummarizer --> IFileSummarizer : BlockNote JSON
+deactivate FileSummarizer
+IFileSummarizer --> Handler : BlockNote JSON
+deactivate IFileSummarizer
+
+Handler -> INoteRepo : AddAsync(new Note)
+activate INoteRepo
+INoteRepo --> Handler : Created Note
+deactivate INoteRepo
+
+Handler -> Mediator : return CreateNoteResponse
+deactivate Handler
+Mediator -> Med : Response
+deactivate Mediator
+Med -> Controller : Created
+deactivate Med
+Controller -> NoteUI : 201 Created
+deactivate Controller
+NoteUI -> User : Created
+deactivate NoteUI
+
+@enduml
