@@ -3,8 +3,12 @@ actor Admin
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":GetSubjectSkillMappings\nHandler" as Handler
-participant ":ISubjectSkillMapping\nRepository" as MapDB
-participant ":ISkillRepository" as SkillDB
+participant ":ISubjectSkillMapping\nRepository" as IMapRepo
+participant ":SubjectSkillMapping\nRepository" as MapRepo
+participant ":ISkillRepository" as ISkillRepo
+participant ":SkillRepository" as SkillRepo
+participant ":ISkillDependency\nRepository" as IDepRepo
+participant ":SkillDependency\nRepository" as DepRepo
 database ":Database" as DB
 
 Admin -> Controller : GET /subjects/{id}/skills
@@ -17,24 +21,51 @@ Med -> Handler : Handle(query)
 activate Handler
 
 ' 1. Get Links
-Handler -> MapDB : FindAsync(SubjectId)
-activate MapDB
-MapDB -> DB : SELECT * FROM subject_skill_mappings...
-DB --> MapDB : List<Mapping>
-deactivate MapDB
+Handler -> IMapRepo : FindAsync(SubjectId)
+activate IMapRepo
+IMapRepo -> MapRepo : FindAsync(SubjectId)
+activate MapRepo
+MapRepo -> DB : SELECT * FROM subject_skill_mappings...
+activate DB
+DB --> MapRepo : List<Mapping>
+deactivate DB
+MapRepo --> IMapRepo : List<Mapping>
+deactivate MapRepo
+IMapRepo --> Handler : List<Mapping>
+deactivate IMapRepo
 
 ' 2. Get Skill Details
 Handler -> Handler : Extract Skill IDs
-Handler -> SkillDB : GetAllAsync()
-note right: Or GetByIdsAsync if available
-activate SkillDB
-SkillDB -> DB : SELECT * FROM skills...
-DB --> SkillDB : List<Skill>
-deactivate SkillDB
+Handler -> ISkillRepo : GetAllAsync()
+activate ISkillRepo
+ISkillRepo -> SkillRepo : GetAllAsync()
+activate SkillRepo
+SkillRepo -> DB : SELECT * FROM skills...
+activate DB
+DB --> SkillRepo : List<Skill>
+deactivate DB
+SkillRepo --> ISkillRepo : List<Skill>
+deactivate SkillRepo
+ISkillRepo --> Handler : List<Skill>
+deactivate ISkillRepo
 
-' 3. Map to DTO
+' 3. Get Dependencies (Optional Context)
+Handler -> IDepRepo : GetAllAsync()
+activate IDepRepo
+IDepRepo -> DepRepo : GetAllAsync()
+activate DepRepo
+DepRepo -> DB : SELECT * FROM skill_dependencies...
+activate DB
+DB --> DepRepo : List<Dependency>
+deactivate DB
+DepRepo --> IDepRepo : List<Dependency>
+deactivate DepRepo
+IDepRepo --> Handler : List<Dependency>
+deactivate IDepRepo
+
+' 4. Map to DTO
 Handler -> Handler : Join Mappings with Skill Names
-Handler -> Handler : Fetch Prerequisites (Optional Context)
+Handler -> Handler : Join with Prerequisites
 
 Handler --> Med : List<SubjectSkillMappingDto>
 deactivate Handler

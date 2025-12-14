@@ -3,9 +3,12 @@ actor Admin
 participant ":CurriculumImport\nController" as Controller
 participant ":IMediator" as Med
 participant ":ValidateCurriculum\nQueryHandler" as Handler
-participant ":ICurriculumImportStorage" as Cache
-participant ":ICurriculumExtraction\nPlugin" as AIPlugin
+participant ":ICurriculumImportStorage" as ICache
+participant ":CurriculumImportStorage" as Cache
+participant ":ICurriculumExtraction\nPlugin" as IPlugin
+participant ":CurriculumExtraction\nPlugin" as Plugin
 participant ":CurriculumImportData\nValidator" as Validator
+database ":Storage" as DB
 
 Admin -> Controller : POST /api/admin/curriculum/validate
 activate Controller
@@ -18,17 +21,29 @@ activate Handler
 
 ' 1. Check Cache
 Handler -> Handler : ComputeHash(RawText)
-Handler -> Cache : TryGetByHashJsonAsync(Hash)
+Handler -> ICache : TryGetByHashJsonAsync(Hash)
+activate ICache
+ICache -> Cache : TryGetByHashJsonAsync(...)
 activate Cache
-Cache --> Handler : Cached JSON?
+Cache -> DB : Download(Hash)
+activate DB
+DB --> Cache : JSON Bytes
+deactivate DB
+Cache --> ICache : Cached JSON?
 deactivate Cache
+ICache --> Handler : Cached JSON?
+deactivate ICache
 
 alt Cache Miss
     ' 2. AI Extraction
-    Handler -> AIPlugin : ExtractCurriculumJsonAsync(RawText)
-    activate AIPlugin
-    AIPlugin --> Handler : JSON String
-    deactivate AIPlugin
+    Handler -> IPlugin : ExtractCurriculumJsonAsync(RawText)
+    activate IPlugin
+    IPlugin -> Plugin : ExtractCurriculumJsonAsync(...)
+    activate Plugin
+    Plugin --> IPlugin : JSON String
+    deactivate Plugin
+    IPlugin --> Handler : JSON String
+    deactivate IPlugin
 end
 
 ' 3. Parse & Validate
@@ -38,10 +53,20 @@ activate Validator
 Validator --> Handler : ValidationResult
 deactivate Validator
 
-' 4. Cache Result
+' 4. Cache Result (if valid)
 alt Is Valid
-    Handler -> Cache : SaveLatestAsync(Data, Hash)
-    note right: Cache successful parse for later import
+    Handler -> ICache : SaveLatestAsync(Data, Hash)
+    activate ICache
+    ICache -> Cache : SaveLatestAsync(...)
+    activate Cache
+    Cache -> DB : Upload(JSON)
+    activate DB
+    DB --> Cache : Success
+    deactivate DB
+    Cache --> ICache : Success
+    deactivate Cache
+    ICache --> Handler : Success
+    deactivate ICache
 end
 
 Handler --> Med : ValidateCurriculumResponse

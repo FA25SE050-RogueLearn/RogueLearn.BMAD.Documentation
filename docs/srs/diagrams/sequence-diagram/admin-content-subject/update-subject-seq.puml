@@ -3,7 +3,8 @@ actor Admin
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":UpdateSubjectHandler" as Handler
-participant ":ISubjectRepository" as Repo
+participant ":ISubjectRepository" as IRepo
+participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : PUT /api/admin/subjects/{id}
@@ -16,22 +17,36 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Fetch
-Handler -> Repo : GetByIdAsync(Id)
+Handler -> IRepo : GetByIdAsync(Id)
+activate IRepo
+IRepo -> Repo : GetByIdAsync(Id)
 activate Repo
 Repo -> DB : SELECT * ...
+activate DB
 DB --> Repo : Subject?
+deactivate DB
+Repo --> IRepo : Subject?
 deactivate Repo
+IRepo --> Handler : Subject?
+deactivate IRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
 else Found
     ' 2. Update
     Handler -> Handler : Update Properties
-    Handler -> Repo : UpdateAsync(Subject)
+    Handler -> IRepo : UpdateAsync(Subject)
+    activate IRepo
+    IRepo -> Repo : UpdateAsync(Subject)
     activate Repo
     Repo -> DB : UPDATE subjects...
+    activate DB
     DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : UpdatedEntity
     deactivate Repo
+    IRepo --> Handler : UpdatedEntity
+    deactivate IRepo
     
     Handler --> Med : UpdateSubjectResponse
 end

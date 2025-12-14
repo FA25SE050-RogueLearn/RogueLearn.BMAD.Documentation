@@ -3,11 +3,16 @@ actor Admin
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":ImportSubjectFromText\nCommandHandler" as Handler
-participant ":IHtmlCleaningService" as Cleaner
-participant ":ISyllabusExtractionPlugin" as Plugin
-participant ":IAiQueryClassificationService" as QuerySvc
-participant ":IReadingUrlService" as UrlSvc
-participant ":ISubjectRepository" as Repo
+participant ":IHtmlCleaningService" as ICleaner
+participant ":HtmlCleaningService" as Cleaner
+participant ":ISyllabusExtractionPlugin" as IPlugin
+participant ":SyllabusExtractionPlugin" as Plugin
+participant ":IAiQueryClassificationService" as IQuerySvc
+participant ":AiQueryClassificationService" as QuerySvc
+participant ":IReadingUrlService" as IUrlSvc
+participant ":ReadingUrlService" as UrlSvc
+participant ":ISubjectRepository" as IRepo
+participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : POST /api/admin/subjects/import-from-text
@@ -20,54 +25,91 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Clean & Extract
-Handler -> Cleaner : ExtractCleanTextFromHtml(RawText)
+Handler -> ICleaner : ExtractCleanTextFromHtml(RawText)
+activate ICleaner
+ICleaner -> Cleaner : ExtractCleanTextFromHtml(RawText)
 activate Cleaner
-Cleaner --> Handler : CleanText
+Cleaner --> ICleaner : CleanText
 deactivate Cleaner
+ICleaner --> Handler : CleanText
+deactivate ICleaner
 
-Handler -> Plugin : ExtractSyllabusJsonAsync(CleanText)
+Handler -> IPlugin : ExtractSyllabusJsonAsync(CleanText)
+activate IPlugin
+IPlugin -> Plugin : ExtractSyllabusJsonAsync(CleanText)
 activate Plugin
 note right: Calls Gemini AI
-Plugin --> Handler : Syllabus JSON
+Plugin --> IPlugin : Syllabus JSON
 deactivate Plugin
+IPlugin --> Handler : Syllabus JSON
+deactivate IPlugin
 
 Handler -> Handler : Deserialize to SyllabusData
 
 ' 2. URL Enrichment
 group URL Enrichment
-    Handler -> QuerySvc : GenerateBatchQueryVariantsAsync(Sessions)
+    Handler -> IQuerySvc : GenerateBatchQueryVariantsAsync(Sessions)
+    activate IQuerySvc
+    IQuerySvc -> QuerySvc : GenerateBatchQueryVariantsAsync(Sessions)
     activate QuerySvc
-    QuerySvc --> Handler : Query Variants
+    QuerySvc --> IQuerySvc : Query Variants
     deactivate QuerySvc
+    IQuerySvc --> Handler : Query Variants
+    deactivate IQuerySvc
 
     loop For Each Session
-        Handler -> UrlSvc : GetValidUrlForTopicAsync()
+        Handler -> IUrlSvc : GetValidUrlForTopicAsync()
+        activate IUrlSvc
+        IUrlSvc -> UrlSvc : GetValidUrlForTopicAsync()
         activate UrlSvc
-        UrlSvc --> Handler : Validated URL
+        UrlSvc --> IUrlSvc : Validated URL
         deactivate UrlSvc
+        IUrlSvc --> Handler : Validated URL
+        deactivate IUrlSvc
         Handler -> Handler : Update Session Data
     end
 end
 
 ' 3. Persist
-Handler -> Repo : FirstOrDefaultAsync(SubjectCode)
+Handler -> IRepo : FirstOrDefaultAsync(SubjectCode)
+activate IRepo
+IRepo -> Repo : FirstOrDefaultAsync(SubjectCode)
 activate Repo
 Repo -> DB : SELECT * FROM subjects...
+activate DB
 DB --> Repo : ExistingSubject?
+deactivate DB
+Repo --> IRepo : ExistingSubject?
 deactivate Repo
+IRepo --> Handler : ExistingSubject?
+deactivate IRepo
 
 alt Exists
-    Handler -> Repo : UpdateAsync(UpdatedSubject)
+    Handler -> IRepo : UpdateAsync(UpdatedSubject)
+    activate IRepo
+    IRepo -> Repo : UpdateAsync(UpdatedSubject)
     activate Repo
     Repo -> DB : UPDATE subjects...
+    activate DB
     DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : Success
     deactivate Repo
+    IRepo --> Handler : Success
+    deactivate IRepo
 else New
-    Handler -> Repo : AddAsync(NewSubject)
+    Handler -> IRepo : AddAsync(NewSubject)
+    activate IRepo
+    IRepo -> Repo : AddAsync(NewSubject)
     activate Repo
     Repo -> DB : INSERT INTO subjects...
+    activate DB
     DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : Success
     deactivate Repo
+    IRepo --> Handler : Success
+    deactivate IRepo
 end
 
 Handler --> Med : CreateSubjectResponse

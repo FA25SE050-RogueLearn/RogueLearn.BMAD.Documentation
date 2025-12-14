@@ -1,13 +1,18 @@
 @startuml
 actor User
-participant ":SkillsController" as Controller
+participant ":Skills\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetSkillDetail\nQueryHandler" as Handler
-participant ":ISkillRepository" as SkillRepo
-participant ":IUserSkillRepository" as UserSkillRepo
-participant ":ISkillDependency\nRepository" as DepRepo
-participant ":ISubjectSkillMapping\nRepository" as MapRepo
-participant ":IQuestRepository" as QuestRepo
+participant ":ISkill\nRepository" as ISkillRepo
+participant ":Skill\nRepository" as SkillRepo
+participant ":IUserSkill\nRepository" as IUserSkillRepo
+participant ":UserSkill\nRepository" as UserSkillRepo
+participant ":ISkillDependency\nRepository" as IDepRepo
+participant ":SkillDependency\nRepository" as DepRepo
+participant ":ISubjectSkillMapping\nRepository" as IMapRepo
+participant ":SubjectSkillMapping\nRepository" as MapRepo
+participant ":IQuest\nRepository" as IQuestRepo
+participant ":Quest\nRepository" as QuestRepo
 database ":Database" as DB
 
 User -> Controller : Click Skill Icon
@@ -20,23 +25,78 @@ Med -> Handler : Handle(query)
 activate Handler
 
 ' 1. Master Data
-Handler -> SkillRepo : GetByIdAsync(SkillId)
+Handler -> ISkillRepo : GetByIdAsync(SkillId)
+activate ISkillRepo
+ISkillRepo -> SkillRepo : GetByIdAsync(SkillId)
+activate SkillRepo
+SkillRepo -> DB : SELECT * FROM skills...
+activate DB
+DB --> SkillRepo : Skill
+deactivate DB
+SkillRepo --> ISkillRepo : Skill
+deactivate SkillRepo
+ISkillRepo --> Handler : Skill
+deactivate ISkillRepo
 
 ' 2. User Progress
-Handler -> UserSkillRepo : GetSkillsByAuthIdAsync(UserId)
-note right: Find specific UserSkill record
+Handler -> IUserSkillRepo : GetSkillsByAuthIdAsync(UserId)
+activate IUserSkillRepo
+IUserSkillRepo -> UserSkillRepo : GetSkillsByAuthIdAsync(UserId)
+activate UserSkillRepo
+UserSkillRepo -> DB : SELECT * FROM user_skills...
+activate DB
+DB --> UserSkillRepo : List<UserSkill>
+deactivate DB
+UserSkillRepo --> IUserSkillRepo : List<UserSkill>
+deactivate UserSkillRepo
+IUserSkillRepo --> Handler : List<UserSkill>
+deactivate IUserSkillRepo
 
 ' 3. Dependencies
-Handler -> DepRepo : GetAllAsync()
+Handler -> IDepRepo : GetAllAsync()
+activate IDepRepo
+IDepRepo -> DepRepo : GetAllAsync()
+activate DepRepo
+DepRepo -> DB : SELECT * FROM skill_dependencies...
+activate DB
+DB --> DepRepo : List<Dependency>
+deactivate DB
+DepRepo --> IDepRepo : List<Dependency>
+deactivate DepRepo
+IDepRepo --> Handler : List<Dependency>
+deactivate IDepRepo
+
 Handler -> Handler : Filter Prerequisites & Unlocks
 
 ' 4. Linked Quests (The path to learn this skill)
-Handler -> MapRepo : GetAllAsync()
-Handler -> Handler : Find Subjects mapping to this Skill
-Handler -> QuestRepo : GetAllAsync()
-Handler -> Handler : Find Quests linked to those Subjects
+Handler -> IMapRepo : GetAllAsync()
+activate IMapRepo
+IMapRepo -> MapRepo : GetAllAsync()
+activate MapRepo
+MapRepo -> DB : SELECT * FROM subject_skill_mappings...
+activate DB
+DB --> MapRepo : List<Mapping>
+deactivate DB
+MapRepo --> IMapRepo : List<Mapping>
+deactivate MapRepo
+IMapRepo --> Handler : List<Mapping>
+deactivate IMapRepo
+
+Handler -> IQuestRepo : GetAllAsync()
+activate IQuestRepo
+IQuestRepo -> QuestRepo : GetAllAsync()
+activate QuestRepo
+QuestRepo -> DB : SELECT * FROM quests...
+activate DB
+DB --> QuestRepo : List<Quest>
+deactivate DB
+QuestRepo --> IQuestRepo : List<Quest>
+deactivate QuestRepo
+IQuestRepo --> Handler : List<Quest>
+deactivate IQuestRepo
 
 ' 5. Assemble DTO
+Handler -> Handler : Find Quests via Mappings
 Handler -> Handler : Calculate Progress %
 Handler -> Handler : Determine "IsMet" for Prereqs
 Handler -> Handler : Determine "IsAvailable" for Unlocks

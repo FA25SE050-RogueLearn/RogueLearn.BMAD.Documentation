@@ -1,30 +1,177 @@
 ' get-learning-path-seq.puml
 @startuml
 actor Student
-participant "LearningPaths\nController" as Controller
-participant "GetMyLearningPath\nHandler" as Handler
-participant "LearningPath\nRepository" as LP_Repo
-participant "QuestChapter\nRepository" as QC_Repo
-participant "Quest\nRepository" as Q_Repo
+participant ":LearningPaths\nController" as Controller
+participant ":IMediator" as Med
+participant ":GetMyLearningPath\nQueryHandler" as Handler
+participant ":IUserProfile\nRepository" as IProfileRepo
+participant ":UserProfile\nRepository" as ProfileRepo
+participant ":ICurriculumProgramSubject\nRepository" as IProgSubjRepo
+participant ":CurriculumProgramSubject\nRepository" as ProgSubjRepo
+participant ":IClassSpecializationSubject\nRepository" as IClassSubjRepo
+participant ":ClassSpecializationSubject\nRepository" as ClassSubjRepo
+participant ":ISubject\nRepository" as ISubjRepo
+participant ":Subject\nRepository" as SubjRepo
+participant ":IStudentSemesterSubject\nRepository" as IGradeRepo
+participant ":StudentSemesterSubject\nRepository" as GradeRepo
+participant ":IQuest\nRepository" as IQuestRepo
+participant ":Quest\nRepository" as QuestRepo
+participant ":IUserQuestAttempt\nRepository" as IAttemptRepo
+participant ":UserQuestAttempt\nRepository" as AttemptRepo
+participant ":ILearningPath\nRepository" as ILPRepo
+participant ":LearningPath\nRepository" as LPRepo
+database ":Database" as DB
 
 Student -> Controller : GET /api/learning-paths/me
-Controller -> Handler : Handle(GetMyLearningPathQuery)
+activate Controller
 
+Controller -> Med : Send(GetMyLearningPathQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> LP_Repo : GetLatestByUserAsync(userId)
-    
-    alt Not Found
-        Handler --> Controller : null
-        Controller --> Student : 404 Not Found
-    else Found
-        Handler -> QC_Repo : GetChaptersByLearningPathIdOrderedAsync(pathId)
-        Handler -> Q_Repo : GetQuestsByChapterIdsAsync(chapterIds)
-        
-        Handler -> Handler : Map Entity to DTO
-        note right: Organize Quests into Chapters
-        
-        Handler --> Controller : LearningPathDto
-        Controller --> Student : 200 OK (JSON)
+
+' 1. Fetch User Profile
+Handler -> IProfileRepo : GetByAuthIdAsync(AuthUserId)
+activate IProfileRepo
+IProfileRepo -> ProfileRepo : GetByAuthIdAsync(AuthUserId)
+activate ProfileRepo
+ProfileRepo -> DB : SELECT * FROM user_profiles...
+activate DB
+DB --> ProfileRepo : UserProfile
+deactivate DB
+ProfileRepo --> IProfileRepo : UserProfile
+deactivate ProfileRepo
+IProfileRepo --> Handler : UserProfile
+deactivate IProfileRepo
+
+alt Profile Not Found
+    Handler --> Med : null
+    Med --> Controller : 404 Not Found
+else Profile Found
+    alt RouteId or ClassId is Null
+        Handler --> Med : LearningPathDto (Unassigned)
+        Med --> Controller : 200 OK (Unassigned Path)
+    else Path Configured
+        ' 2. Fetch Program Subjects
+        Handler -> IProgSubjRepo : FindAsync(RouteId)
+        activate IProgSubjRepo
+        IProgSubjRepo -> ProgSubjRepo : FindAsync(RouteId)
+        activate ProgSubjRepo
+        ProgSubjRepo -> DB : SELECT * FROM curriculum_program_subjects...
+        activate DB
+        DB --> ProgSubjRepo : List<ProgramSubject>
+        deactivate DB
+        ProgSubjRepo --> IProgSubjRepo : List<ProgramSubject>
+        deactivate ProgSubjRepo
+        IProgSubjRepo --> Handler : List<ProgramSubject>
+        deactivate IProgSubjRepo
+
+        ' 3. Fetch Class Specialization Subjects
+        Handler -> IClassSubjRepo : GetSubjectByClassIdAsync(ClassId)
+        activate IClassSubjRepo
+        IClassSubjRepo -> ClassSubjRepo : GetSubjectByClassIdAsync(ClassId)
+        activate ClassSubjRepo
+        ClassSubjRepo -> DB : SELECT * FROM class_specialization_subjects...
+        activate DB
+        DB --> ClassSubjRepo : List<Subject>
+        deactivate DB
+        ClassSubjRepo --> IClassSubjRepo : List<Subject>
+        deactivate ClassSubjRepo
+        IClassSubjRepo --> Handler : List<Subject>
+        deactivate IClassSubjRepo
+
+        ' 4. Fetch All Master Subjects Details
+        Handler -> ISubjRepo : GetByIdsAsync(AllSubjectIds)
+        activate ISubjRepo
+        ISubjRepo -> SubjRepo : GetByIdsAsync(AllSubjectIds)
+        activate SubjRepo
+        SubjRepo -> DB : SELECT * FROM subjects WHERE id IN ...
+        activate DB
+        DB --> SubjRepo : List<Subject>
+        deactivate DB
+        SubjRepo --> ISubjRepo : List<Subject>
+        deactivate SubjRepo
+        ISubjRepo --> Handler : List<Subject>
+        deactivate ISubjRepo
+
+        ' 5. Fetch Academic Records (Grades)
+        Handler -> IGradeRepo : FindAsync(AuthUserId)
+        activate IGradeRepo
+        IGradeRepo -> GradeRepo : FindAsync(AuthUserId)
+        activate GradeRepo
+        GradeRepo -> DB : SELECT * FROM student_semester_subjects...
+        activate DB
+        DB --> GradeRepo : List<GradeRecord>
+        deactivate DB
+        GradeRepo --> IGradeRepo : List<GradeRecord>
+        deactivate GradeRepo
+        IGradeRepo --> Handler : List<GradeRecord>
+        deactivate IGradeRepo
+
+        ' 6. Fetch Master Quests
+        Handler -> IQuestRepo : GetAllAsync()
+        activate IQuestRepo
+        IQuestRepo -> QuestRepo : GetAllAsync()
+        activate QuestRepo
+        QuestRepo -> DB : SELECT * FROM quests...
+        activate DB
+        DB --> QuestRepo : List<Quest>
+        deactivate DB
+        QuestRepo --> IQuestRepo : List<Quest>
+        deactivate QuestRepo
+        IQuestRepo --> Handler : List<Quest>
+        deactivate IQuestRepo
+
+        ' 7. Fetch User Attempts
+        Handler -> IAttemptRepo : FindAsync(AuthUserId)
+        activate IAttemptRepo
+        IAttemptRepo -> AttemptRepo : FindAsync(AuthUserId)
+        activate AttemptRepo
+        AttemptRepo -> DB : SELECT * FROM user_quest_attempts...
+        activate DB
+        DB --> AttemptRepo : List<Attempt>
+        deactivate DB
+        AttemptRepo --> IAttemptRepo : List<Attempt>
+        deactivate AttemptRepo
+        IAttemptRepo --> Handler : List<Attempt>
+        deactivate IAttemptRepo
+
+        ' 8. Fetch Learning Path Metadata
+        Handler -> ILPRepo : GetLatestByUserAsync(AuthUserId)
+        activate ILPRepo
+        ILPRepo -> LPRepo : GetLatestByUserAsync(AuthUserId)
+        activate LPRepo
+        LPRepo -> DB : SELECT * FROM learning_paths...
+        activate DB
+        DB --> LPRepo : LearningPath?
+        deactivate DB
+        LPRepo --> ILPRepo : LearningPath?
+        deactivate LPRepo
+        ILPRepo --> Handler : LearningPath?
+        deactivate ILPRepo
+
+        ' 9. Build Logic
+        Handler -> Handler : Group Subjects by Semester
+        loop For Each Semester Group
+            Handler -> Handler : Create Chapter DTO
+            loop For Each Subject in Group
+                Handler -> Handler : Match Quest to Subject
+                Handler -> Handler : Match Grade/Status
+                Handler -> Handler : Match Attempt (Difficulty/Progress)
+                Handler -> Handler : Create QuestSummaryDto
+            end
+            Handler -> Handler : Calculate Chapter Status
+        end
+        Handler -> Handler : Calculate Total Completion %
+
+        Handler --> Med : LearningPathDto
+        Med --> Controller : LearningPathDto
+        Controller --> Student : 200 OK
     end
+end
+
 deactivate Handler
+deactivate Med
+deactivate Controller
 @enduml

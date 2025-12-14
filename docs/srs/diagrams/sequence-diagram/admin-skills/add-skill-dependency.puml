@@ -3,7 +3,8 @@ actor Admin
 participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
 participant ":AddSkillDependency\nHandler" as Handler
-participant ":ISkillDependency\nRepository" as DepRepo
+participant ":ISkillDependency\nRepository" as IDepRepo
+participant ":SkillDependency\nRepository" as DepRepo
 database ":Database" as DB
 
 Admin -> Controller : POST /skills/{id}/dependencies
@@ -19,21 +20,35 @@ activate Handler
 Handler -> Handler : Validate SkillId != PrereqId
 
 ' 2. Check Exists
-Handler -> DepRepo : AnyAsync(SkillId, PrereqId)
+Handler -> IDepRepo : AnyAsync(SkillId, PrereqId)
+activate IDepRepo
+IDepRepo -> DepRepo : AnyAsync(SkillId, PrereqId)
 activate DepRepo
-DepRepo -> DB : SELECT 1...
+DepRepo -> DB : SELECT 1 FROM skill_dependencies...
+activate DB
 DB --> DepRepo : Exists?
+deactivate DB
+DepRepo --> IDepRepo : Exists?
 deactivate DepRepo
+IDepRepo --> Handler : Exists?
+deactivate IDepRepo
 
 alt Exists
     Handler --> Med : Throw ConflictException
 else New Dependency
     ' 3. Create
-    Handler -> DepRepo : AddAsync(Dependency)
+    Handler -> IDepRepo : AddAsync(Dependency)
+    activate IDepRepo
+    IDepRepo -> DepRepo : AddAsync(Dependency)
     activate DepRepo
     DepRepo -> DB : INSERT INTO skill_dependencies...
+    activate DB
     DB --> DepRepo : Success
+    deactivate DB
+    DepRepo --> IDepRepo : CreatedEntity
     deactivate DepRepo
+    IDepRepo --> Handler : CreatedEntity
+    deactivate IDepRepo
     
     Handler --> Med : CreatedDto
 end

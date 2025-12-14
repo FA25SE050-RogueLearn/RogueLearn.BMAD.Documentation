@@ -1,27 +1,55 @@
-' get-step-content-admin-seq.puml
 @startuml
 actor Admin
-participant "Quest Inspector" as UI
-participant "AdminSteps\nController" as Controller
-participant "GetContent\nHandler" as Handler
-participant "Step\nRepository" as DB
+participant ":QuestStepContentEditor\nController" as Controller
+participant ":IMediator" as Med
+participant ":GetQuestStepContent\nQueryHandler" as Handler
+participant ":IQuestStepRepository" as IRepo
+participant ":QuestStepRepository" as Repo
+database ":Database" as DB
 
-Admin -> UI : Inspect "Week 1"
-UI -> Controller : GET /admin/quest-steps/{id}/content
-Controller -> Handler : Handle(query)
+Admin -> Controller : GET /api/admin/quest-steps/{id}/content
+activate Controller
 
+Controller -> Med : Send(GetQuestStepContentQuery)
+activate Med
+
+Med -> Handler : Handle(query)
 activate Handler
-    Handler -> DB : GetByIdAsync(id)
-    
-    alt Not Found
-        Handler --> Controller : Throw NotFoundException
-    else Found
-        Handler -> Handler : Extract Content Property
-        note right: Raw JSON Object
-        Handler --> Controller : Return Content
-    end
-deactivate Handler
 
-Controller --> UI : 200 OK
-UI --> Admin : Display JSON Viewer
+' 1. Fetch Quest Step
+Handler -> IRepo : GetByIdAsync(QuestStepId)
+activate IRepo
+IRepo -> Repo : GetByIdAsync(QuestStepId)
+activate Repo
+Repo -> DB : SELECT * FROM quest_steps...
+activate DB
+DB --> Repo : QuestStep (with JSONB content)
+deactivate DB
+Repo --> IRepo : QuestStep
+deactivate Repo
+IRepo --> Handler : QuestStep
+deactivate IRepo
+
+alt Not Found
+    Handler --> Med : Throw NotFoundException
+    Med --> Controller : 404 Not Found
+else Found
+    ' 2. Parse Content
+    Handler -> Handler : Deserialize Content JSON
+    note right
+        Uses Newtonsoft.Json to parse
+        nested JObject/JArray structure
+    end note
+    
+    Handler -> Handler : Map to QuestStepContentResponse
+    
+    Handler --> Med : QuestStepContentResponse
+    deactivate Handler
+    
+    Med --> Controller : Response
+    deactivate Med
+    
+    Controller --> Admin : 200 OK
+    deactivate Controller
+end
 @enduml

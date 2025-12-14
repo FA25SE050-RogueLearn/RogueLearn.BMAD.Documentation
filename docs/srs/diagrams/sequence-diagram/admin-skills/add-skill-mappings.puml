@@ -2,10 +2,13 @@
 actor Admin
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
-participant ":AddSubjectSkillMapping\nHandler" as Handler
-participant ":ISubjectRepository" as SubDB
-participant ":ISkillRepository" as SkillDB
-participant ":ISubjectSkillMapping\nRepository" as MapDB
+participant ":AddSubjectSkillMapping\nCommandHandler" as Handler
+participant ":ISubject\nRepository" as ISubRepo
+participant ":Subject\nRepository" as SubRepo
+participant ":ISkill\nRepository" as ISkillRepo
+participant ":Skill\nRepository" as SkillRepo
+participant ":ISubjectSkillMapping\nRepository" as IMapRepo
+participant ":SubjectSkillMapping\nRepository" as MapRepo
 database ":Database" as DB
 
 Admin -> Controller : POST /subjects/{id}/skills
@@ -18,30 +21,69 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Validate Existence
-Handler -> SubDB : ExistsAsync(SubjectId)
-Handler -> SkillDB : ExistsAsync(SkillId)
+Handler -> ISubRepo : ExistsAsync(SubjectId)
+activate ISubRepo
+ISubRepo -> SubRepo : ExistsAsync(SubjectId)
+activate SubRepo
+SubRepo -> DB : SELECT 1 FROM subjects...
+activate DB
+DB --> SubRepo : Exists?
+deactivate DB
+SubRepo --> ISubRepo : Exists?
+deactivate SubRepo
+ISubRepo --> Handler : Exists?
+deactivate ISubRepo
+
+Handler -> ISkillRepo : ExistsAsync(SkillId)
+activate ISkillRepo
+ISkillRepo -> SkillRepo : ExistsAsync(SkillId)
+activate SkillRepo
+SkillRepo -> DB : SELECT 1 FROM skills...
+activate DB
+DB --> SkillRepo : Exists?
+deactivate DB
+SkillRepo --> ISkillRepo : Exists?
+deactivate SkillRepo
+ISkillRepo --> Handler : Exists?
+deactivate ISkillRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
 else Found
     ' 2. Check Duplicate
-    Handler -> MapDB : FirstOrDefaultAsync(SubjectId, SkillId)
-    activate MapDB
-    MapDB -> DB : SELECT...
-    DB --> MapDB : Existing?
-    deactivate MapDB
+    Handler -> IMapRepo : FirstOrDefaultAsync(SubjectId, SkillId)
+    activate IMapRepo
+    IMapRepo -> MapRepo : FirstOrDefaultAsync(...)
+    activate MapRepo
+    MapRepo -> DB : SELECT * FROM subject_skill_mappings...
+    activate DB
+    DB --> MapRepo : Existing?
+    deactivate DB
+    MapRepo --> IMapRepo : Existing?
+    deactivate MapRepo
+    IMapRepo --> Handler : Existing?
+    deactivate IMapRepo
 
     alt Exists
         Handler --> Med : Throw ConflictException
     else New Mapping
         ' 3. Create
-        Handler -> MapDB : AddAsync(NewMapping)
-        activate MapDB
-        MapDB -> DB : INSERT...
-        DB --> MapDB : Success
-        deactivate MapDB
+        Handler -> Handler : Initialize Mapping
         
-        Handler --> Med : CreatedDto
+        Handler -> IMapRepo : AddAsync(NewMapping)
+        activate IMapRepo
+        IMapRepo -> MapRepo : AddAsync(NewMapping)
+        activate MapRepo
+        MapRepo -> DB : INSERT INTO subject_skill_mappings...
+        activate DB
+        DB --> MapRepo : Success
+        deactivate DB
+        MapRepo --> IMapRepo : CreatedEntity
+        deactivate MapRepo
+        IMapRepo --> Handler : CreatedEntity
+        deactivate IMapRepo
+        
+        Handler --> Med : AddSubjectSkillMappingResponse
     end
 end
 

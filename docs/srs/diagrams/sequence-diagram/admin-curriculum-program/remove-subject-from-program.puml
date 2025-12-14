@@ -3,7 +3,8 @@ actor Admin
 participant ":CurriculumProgramSubjects\nController" as Controller
 participant ":IMediator" as Med
 participant ":RemoveSubjectFromProgram\nCommandHandler" as Handler
-participant ":ICurriculumProgramSubject\nRepository" as LinkRepo
+participant ":ICurriculumProgramSubject\nRepository" as ILinkRepo
+participant ":CurriculumProgramSubject\nRepository" as LinkRepo
 database ":Database" as DB
 
 Admin -> Controller : DELETE /programs/{pid}/subjects/{sid}
@@ -16,22 +17,36 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Find Link
-Handler -> LinkRepo : FirstOrDefaultAsync(pid, sid)
+Handler -> ILinkRepo : FirstOrDefaultAsync(pid, sid)
+activate ILinkRepo
+ILinkRepo -> LinkRepo : FirstOrDefaultAsync(pid, sid)
 activate LinkRepo
 LinkRepo -> DB : SELECT * FROM curriculum_program_subjects...
+activate DB
 DB --> LinkRepo : Mapping?
+deactivate DB
+LinkRepo --> ILinkRepo : Mapping?
 deactivate LinkRepo
+ILinkRepo --> Handler : Mapping?
+deactivate ILinkRepo
 
 alt Not Found
     Handler --> Med : Log Warning (Idempotent success)
-    ' Or throw NotFoundException depending on strictness
+    ' Handler simply returns, effectively Unit.Value
 else Found
     ' 2. Delete
-    Handler -> LinkRepo : DeleteAsync(MappingId)
+    Handler -> ILinkRepo : DeleteAsync(MappingId)
+    activate ILinkRepo
+    ILinkRepo -> LinkRepo : DeleteAsync(MappingId)
     activate LinkRepo
-    LinkRepo -> DB : DELETE...
+    LinkRepo -> DB : DELETE FROM curriculum_program_subjects...
+    activate DB
     DB --> LinkRepo : Success
+    deactivate DB
+    LinkRepo --> ILinkRepo : Success
     deactivate LinkRepo
+    ILinkRepo --> Handler : Success
+    deactivate ILinkRepo
 end
 
 Handler --> Med : Unit.Value

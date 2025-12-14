@@ -3,11 +3,16 @@ actor Admin
 participant ":CurriculumImport\nController" as Controller
 participant ":IMediator" as Med
 participant ":ImportCurriculum\nCommandHandler" as Handler
-participant ":IHtmlCleaningService" as Cleaner
-participant ":ICurriculumExtraction\nPlugin" as AIPlugin
-participant ":ICurriculumProgram\nRepository" as ProgRepo
-participant ":ISubjectRepository" as SubRepo
-participant ":ICurriculumProgramSubject\nRepository" as LinkRepo
+participant ":IHtmlCleaningService" as ICleaner
+participant ":HtmlCleaningService" as Cleaner
+participant ":ICurriculumExtraction\nPlugin" as IPlugin
+participant ":CurriculumExtraction\nPlugin" as Plugin
+participant ":ICurriculumProgram\nRepository" as IProgRepo
+participant ":CurriculumProgram\nRepository" as ProgRepo
+participant ":ISubject\nRepository" as ISubRepo
+participant ":Subject\nRepository" as SubRepo
+participant ":ICurriculumProgramSubject\nRepository" as ILinkRepo
+participant ":CurriculumProgramSubject\nRepository" as LinkRepo
 database ":Database" as DB
 
 Admin -> Controller : POST /api/admin/curriculum (HTML)
@@ -20,74 +25,166 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Clean & Parse
-Handler -> Cleaner : ExtractCleanTextFromHtml(RawText)
+Handler -> ICleaner : ExtractCleanTextFromHtml(RawText)
+activate ICleaner
+ICleaner -> Cleaner : ExtractCleanTextFromHtml(...)
 activate Cleaner
-Cleaner --> Handler : Clean Text
+Cleaner --> ICleaner : CleanText
 deactivate Cleaner
+ICleaner --> Handler : CleanText
+deactivate ICleaner
 
-Handler -> AIPlugin : ExtractCurriculumJsonAsync(CleanText)
-activate AIPlugin
-note right: Calls AI to structure data
-AIPlugin --> Handler : CurriculumImportData (JSON)
-deactivate AIPlugin
+Handler -> IPlugin : ExtractCurriculumJsonAsync(CleanText)
+activate IPlugin
+IPlugin -> Plugin : ExtractCurriculumJsonAsync(...)
+activate Plugin
+Plugin --> IPlugin : JSON String
+deactivate Plugin
+IPlugin --> Handler : JSON String
+deactivate IPlugin
 
-Handler -> Handler : Validate Data Structure
+Handler -> Handler : Deserialize & Validate JSON
 
 ' 2. Create/Update Program
-Handler -> ProgRepo : FirstOrDefaultAsync(ProgramCode)
+Handler -> IProgRepo : FirstOrDefaultAsync(ProgramCode)
+activate IProgRepo
+IProgRepo -> ProgRepo : FirstOrDefaultAsync(...)
 activate ProgRepo
-ProgRepo -> DB : SELECT...
-DB --> ProgRepo : Existing?
+ProgRepo -> DB : SELECT * FROM curriculum_programs...
+activate DB
+DB --> ProgRepo : ExistingProgram?
+deactivate DB
+ProgRepo --> IProgRepo : ExistingProgram?
 deactivate ProgRepo
+IProgRepo --> Handler : ExistingProgram?
+deactivate IProgRepo
 
 alt Exists
-    Handler -> ProgRepo : UpdateAsync(Program)
+    Handler -> IProgRepo : UpdateAsync(Program)
+    activate IProgRepo
+    IProgRepo -> ProgRepo : UpdateAsync(...)
+    activate ProgRepo
+    ProgRepo -> DB : UPDATE...
+    activate DB
+    DB --> ProgRepo : Success
+    deactivate DB
+    ProgRepo --> IProgRepo : UpdatedProgram
+    deactivate ProgRepo
+    IProgRepo --> Handler : UpdatedProgram
+    deactivate IProgRepo
 else New
-    Handler -> ProgRepo : AddAsync(Program)
+    Handler -> IProgRepo : AddAsync(Program)
+    activate IProgRepo
+    IProgRepo -> ProgRepo : AddAsync(...)
     activate ProgRepo
     ProgRepo -> DB : INSERT...
-    DB --> ProgRepo : New Program
+    activate DB
+    DB --> ProgRepo : Success
+    deactivate DB
+    ProgRepo --> IProgRepo : CreatedProgram
     deactivate ProgRepo
+    IProgRepo --> Handler : CreatedProgram
+    deactivate IProgRepo
 end
 
-' 3. Process Subjects
-loop For Each Subject in Data
-    Handler -> SubRepo : FirstOrDefaultAsync(SubjectCode)
+' 3. Process Subjects (Pass 1: Create/Update)
+loop For Each Subject Data
+    Handler -> ISubRepo : FirstOrDefaultAsync(SubjectCode)
+    activate ISubRepo
+    ISubRepo -> SubRepo : FirstOrDefaultAsync(...)
     activate SubRepo
-    SubRepo -> DB : SELECT...
+    SubRepo -> DB : SELECT * FROM subjects...
+    activate DB
     DB --> SubRepo : ExistingSubject?
+    deactivate DB
+    SubRepo --> ISubRepo : ExistingSubject?
     deactivate SubRepo
+    ISubRepo --> Handler : ExistingSubject?
+    deactivate ISubRepo
 
     alt Exists
-        Handler -> SubRepo : UpdateAsync(UpdatedSubject)
+        Handler -> ISubRepo : UpdateAsync(UpdatedSubject)
+        activate ISubRepo
+        ISubRepo -> SubRepo : UpdateAsync(...)
+        activate SubRepo
+        SubRepo -> DB : UPDATE...
+        activate DB
+        DB --> SubRepo : Success
+        deactivate DB
+        SubRepo --> ISubRepo : Success
+        deactivate SubRepo
+        ISubRepo --> Handler : Success
+        deactivate ISubRepo
     else New
-        Handler -> SubRepo : AddAsync(NewSubject)
+        Handler -> ISubRepo : AddAsync(NewSubject)
+        activate ISubRepo
+        ISubRepo -> SubRepo : AddAsync(...)
         activate SubRepo
         SubRepo -> DB : INSERT...
-        DB --> SubRepo : New Subject
+        activate DB
+        DB --> SubRepo : Success
+        deactivate DB
+        SubRepo --> ISubRepo : CreatedSubject
         deactivate SubRepo
+        ISubRepo --> Handler : CreatedSubject
+        deactivate ISubRepo
     end
+end
 
-    ' 4. Link to Program
-    Handler -> LinkRepo : AnyAsync(ProgramId, SubjectId)
+' 4. Process Prerequisites (Pass 2)
+loop For Each Processed Subject
+    Handler -> Handler : Resolve Prerequisite IDs from Codes
+    alt Prerequisites Changed
+        Handler -> ISubRepo : UpdateAsync(Subject)
+        activate ISubRepo
+        ISubRepo -> SubRepo : UpdateAsync(...)
+        activate SubRepo
+        SubRepo -> DB : UPDATE...
+        activate DB
+        DB --> SubRepo : Success
+        deactivate DB
+        SubRepo --> ISubRepo : Success
+        deactivate SubRepo
+        ISubRepo --> Handler : Success
+        deactivate ISubRepo
+    end
+end
+
+' 5. Link to Program (Pass 3)
+loop For Each Subject
+    Handler -> ILinkRepo : AnyAsync(ProgramId, SubjectId)
+    activate ILinkRepo
+    ILinkRepo -> LinkRepo : AnyAsync(...)
     activate LinkRepo
     LinkRepo -> DB : SELECT 1...
-    DB --> LinkRepo : Linked?
+    activate DB
+    DB --> LinkRepo : Exists?
+    deactivate DB
+    LinkRepo --> ILinkRepo : Exists?
     deactivate LinkRepo
+    ILinkRepo --> Handler : Exists?
+    deactivate ILinkRepo
 
     alt Not Linked
-        Handler -> LinkRepo : AddAsync(Link)
+        Handler -> ILinkRepo : AddAsync(Link)
+        activate ILinkRepo
+        ILinkRepo -> LinkRepo : AddAsync(...)
         activate LinkRepo
         LinkRepo -> DB : INSERT...
+        activate DB
         DB --> LinkRepo : Success
+        deactivate DB
+        LinkRepo --> ILinkRepo : Success
         deactivate LinkRepo
+        ILinkRepo --> Handler : Success
+        deactivate ILinkRepo
     end
 end
 
 Handler --> Med : ImportCurriculumResponse
 deactivate Handler
 
-Med --> Controller : Response
+Med --> Controller : ImportCurriculumResponse
 deactivate Med
 
 Controller --> Admin : 200 OK

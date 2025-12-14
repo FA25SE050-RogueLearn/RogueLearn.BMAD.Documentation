@@ -1,39 +1,113 @@
-' import-roadmap-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "Roadmap\nController" as Controller
-participant "ImportRoadmap\nHandler" as Handler
-participant "PdfText\nExtractor" as PDF
-participant "AI Plugin" as AI
-participant "Database" as DB
-participant "Storage" as S3
+participant ":RoadmapImport\nController" as Controller
+participant ":IMediator" as Med
+participant ":ImportClassRoadmap\nCommandHandler" as Handler
+participant ":IPdfTextExtractor" as IPDF
+participant ":PdfTextExtractor" as PDF
+participant ":IRoadmapExtractionPlugin" as IPlugin
+participant ":RoadmapExtractionPlugin" as Plugin
+participant ":IClassRepository" as IClassRepo
+participant ":ClassRepository" as ClassRepo
+participant ":IRoadmapImportStorage" as IStorage
+participant ":RoadmapImportStorage" as Storage
+database ":Database" as DB
+database ":Supabase Storage" as S3
 
-Admin -> UI : Upload "backend.pdf"
-UI -> Controller : POST /roadmap/class
-Controller -> Handler : Handle(command)
+Admin -> Controller : POST /api/admin/roadmap/import (PDF)
+activate Controller
 
+Controller -> Med : Send(ImportClassRoadmapCommand)
+activate Med
+
+Med -> Handler : Handle(command)
 activate Handler
-    Handler -> PDF : ExtractTextAsync(stream)
-    PDF --> Handler : Raw Text
-    
-    Handler -> AI : ExtractClassRoadmapJsonAsync(text)
-    AI -> AI : Call Gemini
-    AI --> Handler : RoadmapData (Hierarchy)
-    
-    Handler -> DB : Upsert Class (Career Track)
-    
-    loop Recursive Node Creation
-        Handler -> DB : Upsert ClassNode (Root)
-        Handler -> DB : Upsert ClassNode (Children)
-    end
-    
-    Handler -> S3 : SavePdfAttachmentAsync()
-    note right: Archive original file
-    
-    Handler --> Controller : Success Response
+
+' 1. Extract Text
+Handler -> IPDF : ExtractTextAsync(Stream)
+activate IPDF
+IPDF -> PDF : ExtractTextAsync(Stream)
+activate PDF
+PDF --> IPDF : Raw Text
+deactivate PDF
+IPDF --> Handler : Raw Text
+deactivate IPDF
+
+' 2. AI Parsing
+Handler -> IPlugin : ExtractClassRoadmapJsonAsync(Text)
+activate IPlugin
+IPlugin -> Plugin : ExtractClassRoadmapJsonAsync(Text)
+activate Plugin
+note right: Calls Gemini to structure data
+Plugin --> IPlugin : ClassRoadmapData (JSON Tree)
+deactivate Plugin
+IPlugin --> Handler : ClassRoadmapData (JSON Tree)
+deactivate IPlugin
+
+' 3. Persist Class & Nodes
+Handler -> Handler : Map JSON to Entities
+
+Handler -> IClassRepo : FirstOrDefaultAsync(Name)
+activate IClassRepo
+IClassRepo -> ClassRepo : FirstOrDefaultAsync(...)
+activate ClassRepo
+ClassRepo -> DB : SELECT * FROM classes...
+activate DB
+DB --> ClassRepo : ExistingClass?
+deactivate DB
+ClassRepo --> IClassRepo : ExistingClass?
+deactivate ClassRepo
+IClassRepo --> Handler : ExistingClass?
+deactivate IClassRepo
+
+alt Class Exists
+    Handler -> IClassRepo : UpdateAsync(Class)
+    activate IClassRepo
+    IClassRepo -> ClassRepo : UpdateAsync(...)
+    activate ClassRepo
+    ClassRepo -> DB : UPDATE classes...
+    activate DB
+    DB --> ClassRepo : Success
+    deactivate DB
+    ClassRepo --> IClassRepo : UpdatedClass
+    deactivate ClassRepo
+    IClassRepo --> Handler : UpdatedClass
+    deactivate IClassRepo
+else New Class
+    Handler -> IClassRepo : AddAsync(Class)
+    activate IClassRepo
+    IClassRepo -> ClassRepo : AddAsync(...)
+    activate ClassRepo
+    ClassRepo -> DB : INSERT INTO classes...
+    activate DB
+    DB --> ClassRepo : Success
+    deactivate DB
+    ClassRepo --> IClassRepo : CreatedClass
+    deactivate ClassRepo
+    IClassRepo --> Handler : CreatedClass
+    deactivate IClassRepo
+end
+
+' 4. Archive File
+Handler -> IStorage : SavePdfAttachmentAsync(...)
+activate IStorage
+IStorage -> Storage : SavePdfAttachmentAsync(...)
+activate Storage
+Storage -> S3 : Upload(PDF)
+activate S3
+S3 --> Storage : Success
+deactivate S3
+Storage --> IStorage : Success
+deactivate Storage
+IStorage --> Handler : Success
+deactivate IStorage
+
+Handler --> Med : ImportRoadmapResponse
 deactivate Handler
 
-Controller --> UI : 200 OK
-UI --> Admin : Show "Imported Successfully"
+Med --> Controller : 200 OK
+deactivate Med
+
+Controller --> Admin : Import Successful
+deactivate Controller
 @enduml

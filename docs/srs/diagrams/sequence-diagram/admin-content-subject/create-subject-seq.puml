@@ -3,7 +3,8 @@ actor Admin
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":CreateSubjectHandler" as Handler
-participant ":ISubjectRepository" as Repo
+participant ":ISubjectRepository" as IRepo
+participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : POST /api/admin/subjects
@@ -17,11 +18,18 @@ activate Handler
 
 Handler -> Handler : Initialize Subject Entity
 
-Handler -> Repo : AddAsync(Subject)
+Handler -> IRepo : AddAsync(Subject)
+activate IRepo
+IRepo -> Repo : AddAsync(Subject)
 activate Repo
 Repo -> DB : INSERT INTO subjects...
+activate DB
 DB --> Repo : Success
+deactivate DB
+Repo --> IRepo : CreatedEntity
 deactivate Repo
+IRepo --> Handler : CreatedEntity
+deactivate IRepo
 
 Handler --> Med : CreateSubjectResponse
 deactivate Handler

@@ -3,7 +3,8 @@ actor Admin
 participant ":SubjectContentEditor\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetSubjectContent\nQueryHandler" as Handler
-participant ":ISubjectRepository" as Repo
+participant ":ISubjectRepository" as IRepo
+participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : GET /api/admin/subjects/{id}/content
@@ -15,11 +16,18 @@ activate Med
 Med -> Handler : Handle(query)
 activate Handler
 
-Handler -> Repo : GetByIdAsync(SubjectId)
+Handler -> IRepo : GetByIdAsync(SubjectId)
+activate IRepo
+IRepo -> Repo : GetByIdAsync(SubjectId)
 activate Repo
 Repo -> DB : SELECT * FROM subjects...
+activate DB
 DB --> Repo : Subject
+deactivate DB
+Repo --> IRepo : Subject
 deactivate Repo
+IRepo --> Handler : Subject
+deactivate IRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException

@@ -3,7 +3,8 @@ actor Admin
 participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
 participant ":RemoveSkillDependency\nHandler" as Handler
-participant ":ISkillDependency\nRepository" as DepRepo
+participant ":ISkillDependency\nRepository" as IDepRepo
+participant ":SkillDependency\nRepository" as DepRepo
 database ":Database" as DB
 
 Admin -> Controller : DELETE /skills/{id}/dependencies/{pid}
@@ -16,21 +17,35 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Find Dependency
-Handler -> DepRepo : FirstOrDefaultAsync(SkillId, PrereqId)
+Handler -> IDepRepo : FirstOrDefaultAsync(SkillId, PrereqId)
+activate IDepRepo
+IDepRepo -> DepRepo : FirstOrDefaultAsync(SkillId, PrereqId)
 activate DepRepo
 DepRepo -> DB : SELECT * FROM skill_dependencies...
+activate DB
 DB --> DepRepo : Dependency?
+deactivate DB
+DepRepo --> IDepRepo : Dependency?
 deactivate DepRepo
+IDepRepo --> Handler : Dependency?
+deactivate IDepRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
 else Found
     ' 2. Delete
-    Handler -> DepRepo : DeleteAsync(Id)
+    Handler -> IDepRepo : DeleteAsync(Id)
+    activate IDepRepo
+    IDepRepo -> DepRepo : DeleteAsync(Id)
     activate DepRepo
     DepRepo -> DB : DELETE FROM skill_dependencies...
+    activate DB
     DB --> DepRepo : Success
+    deactivate DB
+    DepRepo --> IDepRepo : Success
     deactivate DepRepo
+    IDepRepo --> Handler : Success
+    deactivate IDepRepo
     
     Handler --> Med : Unit.Value
 end

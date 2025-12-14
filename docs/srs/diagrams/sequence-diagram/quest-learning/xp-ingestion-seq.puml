@@ -82,10 +82,32 @@ else New Event
     alt Skill Not Started
         Handler -> Handler : Create New UserSkill
         Handler -> IUserSkillRepo : AddAsync(NewUserSkill)
+        activate IUserSkillRepo
+        IUserSkillRepo -> UserSkillRepo : AddAsync(...)
+        activate UserSkillRepo
+        UserSkillRepo -> DB : INSERT...
+        activate DB
+        DB --> UserSkillRepo : Success
+        deactivate DB
+        UserSkillRepo --> IUserSkillRepo : Success
+        deactivate UserSkillRepo
+        IUserSkillRepo --> Handler : Success
+        deactivate IUserSkillRepo
     else Skill Exists
         Handler -> Handler : Add XP
         Handler -> Handler : CalculateLevel(TotalXP)
         Handler -> IUserSkillRepo : UpdateAsync(UserSkill)
+        activate IUserSkillRepo
+        IUserSkillRepo -> UserSkillRepo : UpdateAsync(...)
+        activate UserSkillRepo
+        UserSkillRepo -> DB : UPDATE...
+        activate DB
+        DB --> UserSkillRepo : Success
+        deactivate DB
+        UserSkillRepo --> IUserSkillRepo : Success
+        deactivate UserSkillRepo
+        IUserSkillRepo --> Handler : Success
+        deactivate IUserSkillRepo
     end
 
     Handler --> Med : IngestXpEventResponse

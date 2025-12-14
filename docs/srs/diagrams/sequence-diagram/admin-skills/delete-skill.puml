@@ -3,7 +3,8 @@ actor Admin
 participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
 participant ":DeleteSkill\nCommandHandler" as Handler
-participant ":ISkillRepository" as Repo
+participant ":ISkillRepository" as IRepo
+participant ":SkillRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : DELETE /api/admin/skills/{id}
@@ -16,21 +17,35 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Check Existence
-Handler -> Repo : ExistsAsync(Id)
+Handler -> IRepo : ExistsAsync(Id)
+activate IRepo
+IRepo -> Repo : ExistsAsync(Id)
 activate Repo
-Repo -> DB : SELECT 1...
+Repo -> DB : SELECT 1 FROM skills...
+activate DB
 DB --> Repo : Exists?
+deactivate DB
+Repo --> IRepo : Exists?
 deactivate Repo
+IRepo --> Handler : Exists?
+deactivate IRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
 else Found
     ' 2. Delete
-    Handler -> Repo : DeleteAsync(Id)
+    Handler -> IRepo : DeleteAsync(Id)
+    activate IRepo
+    IRepo -> Repo : DeleteAsync(Id)
     activate Repo
     Repo -> DB : DELETE FROM skills...
+    activate DB
     DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : Success
     deactivate Repo
+    IRepo --> Handler : Success
+    deactivate IRepo
     
     Handler --> Med : Unit.Value
 end

@@ -3,7 +3,8 @@ actor Admin
 participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
 participant ":GetSkillsQueryHandler" as Handler
-participant ":ISkillRepository" as Repo
+participant ":ISkillRepository" as IRepo
+participant ":SkillRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : GET /api/admin/skills
@@ -15,11 +16,18 @@ activate Med
 Med -> Handler : Handle(query)
 activate Handler
 
-Handler -> Repo : GetAllAsync()
+Handler -> IRepo : GetAllAsync()
+activate IRepo
+IRepo -> Repo : GetAllAsync()
 activate Repo
 Repo -> DB : SELECT * FROM skills
+activate DB
 DB --> Repo : List<Skill>
+deactivate DB
+Repo --> IRepo : List<Skill>
 deactivate Repo
+IRepo --> Handler : List<Skill>
+deactivate IRepo
 
 Handler -> Handler : Map to DTOs
 

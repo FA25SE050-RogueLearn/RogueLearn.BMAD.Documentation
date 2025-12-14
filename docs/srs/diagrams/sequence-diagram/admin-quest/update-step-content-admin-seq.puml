@@ -1,0 +1,71 @@
+@startuml
+actor Admin
+participant ":QuestStepContentEditor\nController" as Controller
+participant ":IMediator" as Med
+participant ":UpdateQuestStepContent\nCommandHandler" as Handler
+participant ":IQuestStepRepository" as IRepo
+participant ":QuestStepRepository" as Repo
+database ":Database" as DB
+
+Admin -> Controller : PUT /api/admin/quest-steps/{id}/content
+activate Controller
+
+Controller -> Med : Send(UpdateQuestStepContentCommand)
+activate Med
+
+Med -> Handler : Handle(command)
+activate Handler
+
+' 1. Verify Existence
+Handler -> IRepo : GetByIdAsync(QuestStepId)
+activate IRepo
+IRepo -> Repo : GetByIdAsync(QuestStepId)
+activate Repo
+Repo -> DB : SELECT * FROM quest_steps...
+activate DB
+DB --> Repo : QuestStep
+deactivate DB
+Repo --> IRepo : QuestStep
+deactivate Repo
+IRepo --> Handler : QuestStep
+deactivate IRepo
+
+alt Not Found
+    Handler --> Med : Throw NotFoundException
+    Med --> Controller : 404 Not Found
+else Found
+    ' 2. Serialize Content
+    Handler -> Handler : Construct Content Dictionary
+    note right
+        Wraps activities list:
+        { "activities": [...] }
+    end note
+    
+    Handler -> Handler : Serialize to JSON
+    
+    ' 3. Update Entity
+    Handler -> Handler : Update Properties (Content, UpdatedAt)
+    
+    Handler -> IRepo : UpdateAsync(QuestStep)
+    activate IRepo
+    IRepo -> Repo : UpdateAsync(QuestStep)
+    activate Repo
+    Repo -> DB : UPDATE quest_steps SET content = ...
+    activate DB
+    DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : UpdatedEntity
+    deactivate Repo
+    IRepo --> Handler : UpdatedEntity
+    deactivate IRepo
+    
+    Handler --> Med : UpdateQuestStepContentResponse
+    deactivate Handler
+    
+    Med --> Controller : Response
+    deactivate Med
+    
+    Controller --> Admin : 200 OK
+    deactivate Controller
+end
+@enduml

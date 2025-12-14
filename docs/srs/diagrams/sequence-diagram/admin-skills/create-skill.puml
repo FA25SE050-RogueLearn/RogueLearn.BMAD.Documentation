@@ -3,7 +3,8 @@ actor Admin
 participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
 participant ":CreateSkill\nCommandHandler" as Handler
-participant ":ISkillRepository" as Repo
+participant ":ISkillRepository" as IRepo
+participant ":SkillRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : POST /api/admin/skills
@@ -16,21 +17,35 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Check Duplicates
-Handler -> Repo : AnyAsync(Name)
+Handler -> IRepo : AnyAsync(Name)
+activate IRepo
+IRepo -> Repo : AnyAsync(Name)
 activate Repo
-Repo -> DB : SELECT 1...
+Repo -> DB : SELECT 1 FROM skills...
+activate DB
 DB --> Repo : Exists?
+deactivate DB
+Repo --> IRepo : Exists?
 deactivate Repo
+IRepo --> Handler : Exists?
+deactivate IRepo
 
 alt Exists
     Handler --> Med : Throw ConflictException
 else Unique
     ' 2. Create
-    Handler -> Repo : AddAsync(Skill)
+    Handler -> IRepo : AddAsync(Skill)
+    activate IRepo
+    IRepo -> Repo : AddAsync(Skill)
     activate Repo
     Repo -> DB : INSERT INTO skills...
+    activate DB
     DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : CreatedEntity
     deactivate Repo
+    IRepo --> Handler : CreatedEntity
+    deactivate IRepo
     
     Handler --> Med : CreateSkillResponse
 end

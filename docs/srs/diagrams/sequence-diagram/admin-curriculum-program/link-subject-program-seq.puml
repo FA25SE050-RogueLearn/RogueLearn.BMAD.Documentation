@@ -3,9 +3,12 @@ actor Admin
 participant ":CurriculumProgramSubjects\nController" as Controller
 participant ":IMediator" as Med
 participant ":AddSubjectToProgram\nCommandHandler" as Handler
-participant ":ICurriculumProgram\nRepository" as ProgRepo
-participant ":ISubjectRepository" as SubRepo
-participant ":ICurriculumProgramSubject\nRepository" as LinkRepo
+participant ":ICurriculumProgram\nRepository" as IProgRepo
+participant ":CurriculumProgram\nRepository" as ProgRepo
+participant ":ISubject\nRepository" as ISubRepo
+participant ":Subject\nRepository" as SubRepo
+participant ":ICurriculumProgramSubject\nRepository" as ILinkRepo
+participant ":CurriculumProgramSubject\nRepository" as LinkRepo
 database ":Database" as DB
 
 Admin -> Controller : POST /programs/{pid}/subjects
@@ -18,32 +21,72 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Validate Parents
-Handler -> ProgRepo : ExistsAsync(ProgramId)
+Handler -> IProgRepo : ExistsAsync(ProgramId)
+activate IProgRepo
+IProgRepo -> ProgRepo : ExistsAsync(ProgramId)
+activate ProgRepo
+ProgRepo -> DB : SELECT 1 FROM curriculum_programs...
+activate DB
+DB --> ProgRepo : Exists?
+deactivate DB
+ProgRepo --> IProgRepo : Exists?
+deactivate ProgRepo
+IProgRepo --> Handler : Exists?
+deactivate IProgRepo
+
 alt Program Not Found
     Handler --> Med : Throw NotFoundException
 end
 
-Handler -> SubRepo : ExistsAsync(SubjectId)
+Handler -> ISubRepo : ExistsAsync(SubjectId)
+activate ISubRepo
+ISubRepo -> SubRepo : ExistsAsync(SubjectId)
+activate SubRepo
+SubRepo -> DB : SELECT 1 FROM subjects...
+activate DB
+DB --> SubRepo : Exists?
+deactivate DB
+SubRepo --> ISubRepo : Exists?
+deactivate SubRepo
+ISubRepo --> Handler : Exists?
+deactivate ISubRepo
+
 alt Subject Not Found
     Handler --> Med : Throw NotFoundException
 end
 
 ' 2. Check Existing Link
-Handler -> LinkRepo : AnyAsync(ProgramId, SubjectId)
+Handler -> ILinkRepo : AnyAsync(ProgramId, SubjectId)
+activate ILinkRepo
+ILinkRepo -> LinkRepo : AnyAsync(ProgramId, SubjectId)
 activate LinkRepo
-LinkRepo -> DB : SELECT 1...
+LinkRepo -> DB : SELECT 1 FROM curriculum_program_subjects...
+activate DB
 DB --> LinkRepo : Exists?
+deactivate DB
+LinkRepo --> ILinkRepo : Exists?
 deactivate LinkRepo
+ILinkRepo --> Handler : Exists?
+deactivate ILinkRepo
 
 alt Link Exists
     Handler --> Med : Throw ConflictException
 else New Link
     ' 3. Create Link
-    Handler -> LinkRepo : AddAsync(NewLink)
+    Handler -> Handler : Initialize CurriculumProgramSubject
+    
+    Handler -> ILinkRepo : AddAsync(NewLink)
+    activate ILinkRepo
+    ILinkRepo -> LinkRepo : AddAsync(NewLink)
     activate LinkRepo
-    LinkRepo -> DB : INSERT...
+    LinkRepo -> DB : INSERT INTO curriculum_program_subjects...
+    activate DB
     DB --> LinkRepo : Success
+    deactivate DB
+    LinkRepo --> ILinkRepo : CreatedEntity
     deactivate LinkRepo
+    ILinkRepo --> Handler : CreatedEntity
+    deactivate ILinkRepo
     
     Handler --> Med : AddSubjectToProgramResponse
 end

@@ -3,7 +3,8 @@ actor Admin
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":DeleteSubjectHandler" as Handler
-participant ":ISubjectRepository" as Repo
+participant ":ISubjectRepository" as IRepo
+participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : DELETE /api/admin/subjects/{id}
@@ -15,15 +16,34 @@ activate Med
 Med -> Handler : Handle(command)
 activate Handler
 
-Handler -> Repo : GetByIdAsync(Id)
+Handler -> IRepo : GetByIdAsync(Id)
+activate IRepo
+IRepo -> Repo : GetByIdAsync(Id)
+activate Repo
+Repo -> DB : SELECT * FROM subjects...
+activate DB
+DB --> Repo : Subject?
+deactivate DB
+Repo --> IRepo : Subject?
+deactivate Repo
+IRepo --> Handler : Subject?
+deactivate IRepo
+
 alt Not Found
     Handler --> Med : Throw NotFoundException
 else Found
-    Handler -> Repo : DeleteAsync(Id)
+    Handler -> IRepo : DeleteAsync(Id)
+    activate IRepo
+    IRepo -> Repo : DeleteAsync(Id)
     activate Repo
     Repo -> DB : DELETE FROM subjects...
+    activate DB
     DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : Success
     deactivate Repo
+    IRepo --> Handler : Success
+    deactivate IRepo
     
     Handler --> Med : Unit.Value
 end

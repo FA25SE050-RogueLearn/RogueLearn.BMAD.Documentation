@@ -3,7 +3,8 @@ actor Admin
 participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
 participant ":UpdateSkill\nCommandHandler" as Handler
-participant ":ISkillRepository" as Repo
+participant ":ISkillRepository" as IRepo
+participant ":SkillRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : PUT /api/admin/skills/{id}
@@ -16,22 +17,36 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Fetch
-Handler -> Repo : GetByIdAsync(Id)
+Handler -> IRepo : GetByIdAsync(Id)
+activate IRepo
+IRepo -> Repo : GetByIdAsync(Id)
 activate Repo
-Repo -> DB : SELECT *...
+Repo -> DB : SELECT * FROM skills...
+activate DB
 DB --> Repo : Skill?
+deactivate DB
+Repo --> IRepo : Skill?
 deactivate Repo
+IRepo --> Handler : Skill?
+deactivate IRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
 else Found
     ' 2. Update
     Handler -> Handler : Update Properties
-    Handler -> Repo : UpdateAsync(Skill)
+    Handler -> IRepo : UpdateAsync(Skill)
+    activate IRepo
+    IRepo -> Repo : UpdateAsync(Skill)
     activate Repo
     Repo -> DB : UPDATE skills...
+    activate DB
     DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : UpdatedEntity
     deactivate Repo
+    IRepo --> Handler : UpdatedEntity
+    deactivate IRepo
     
     Handler --> Med : UpdateSkillResponse
 end

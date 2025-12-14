@@ -3,7 +3,8 @@ actor Admin
 participant ":SubjectContentEditor\nController" as Controller
 participant ":IMediator" as Med
 participant ":UpdateSubjectContent\nHandler" as Handler
-participant ":ISubjectRepository" as Repo
+participant ":ISubjectRepository" as IRepo
+participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : PUT /api/admin/subjects/{id}/content
@@ -16,11 +17,18 @@ Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Fetch
-Handler -> Repo : GetByIdAsync(SubjectId)
+Handler -> IRepo : GetByIdAsync(SubjectId)
+activate IRepo
+IRepo -> Repo : GetByIdAsync(SubjectId)
 activate Repo
 Repo -> DB : SELECT * FROM subjects...
+activate DB
 DB --> Repo : Subject
+deactivate DB
+Repo --> IRepo : Subject
 deactivate Repo
+IRepo --> Handler : Subject
+deactivate IRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
@@ -29,11 +37,18 @@ else Found
     Handler -> Handler : Serialize Content DTO to JSON
     Handler -> Handler : Deserialize JSON to Dictionary (for DB compatibility)
     
-    Handler -> Repo : UpdateAsync(Subject)
+    Handler -> IRepo : UpdateAsync(Subject)
+    activate IRepo
+    IRepo -> Repo : UpdateAsync(Subject)
     activate Repo
     Repo -> DB : UPDATE subjects SET content = ...
+    activate DB
     DB --> Repo : Success
+    deactivate DB
+    Repo --> IRepo : Success
     deactivate Repo
+    IRepo --> Handler : Success
+    deactivate IRepo
 
     Handler --> Med : UpdatedContent
 end

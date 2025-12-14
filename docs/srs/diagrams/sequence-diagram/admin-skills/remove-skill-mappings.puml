@@ -2,35 +2,50 @@
 actor Admin
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
-participant ":RemoveSubjectSkillMapping\nHandler" as Handler
-participant ":ISubjectSkillMapping\nRepository" as MapDB
+participant ":RemoveSubjectSkillMapping\nCommandHandler" as Handler
+participant ":ISubjectSkillMapping\nRepository" as IMapRepo
+participant ":SubjectSkillMapping\nRepository" as MapRepo
 database ":Database" as DB
 
 Admin -> Controller : DELETE /subjects/{sid}/skills/{kid}
 activate Controller
 
-Controller -> Med : Send(RemoveSkillMappingCommand)
+Controller -> Med : Send(RemoveSubjectSkillMappingCommand)
 activate Med
 
 Med -> Handler : Handle(command)
 activate Handler
 
 ' 1. Find Mapping
-Handler -> MapDB : FirstOrDefaultAsync(SubjectId, SkillId)
-activate MapDB
-MapDB -> DB : SELECT...
-DB --> MapDB : Mapping?
-deactivate MapDB
+Handler -> IMapRepo : FirstOrDefaultAsync(SubjectId, SkillId)
+activate IMapRepo
+IMapRepo -> MapRepo : FirstOrDefaultAsync(SubjectId, SkillId)
+activate MapRepo
+MapRepo -> DB : SELECT * FROM subject_skill_mappings...
+activate DB
+DB --> MapRepo : Mapping?
+deactivate DB
+MapRepo --> IMapRepo : Mapping?
+deactivate MapRepo
+IMapRepo --> Handler : Mapping?
+deactivate IMapRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
 else Found
     ' 2. Delete
-    Handler -> MapDB : DeleteAsync(MappingId)
-    activate MapDB
-    MapDB -> DB : DELETE...
-    DB --> MapDB : Success
-    deactivate MapDB
+    Handler -> IMapRepo : DeleteAsync(MappingId)
+    activate IMapRepo
+    IMapRepo -> MapRepo : DeleteAsync(MappingId)
+    activate MapRepo
+    MapRepo -> DB : DELETE FROM subject_skill_mappings...
+    activate DB
+    DB --> MapRepo : Success
+    deactivate DB
+    MapRepo --> IMapRepo : Success
+    deactivate MapRepo
+    IMapRepo --> Handler : Success
+    deactivate IMapRepo
     
     Handler --> Med : Unit.Value
 end

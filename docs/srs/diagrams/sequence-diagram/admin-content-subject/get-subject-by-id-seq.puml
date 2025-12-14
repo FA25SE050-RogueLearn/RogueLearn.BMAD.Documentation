@@ -3,7 +3,8 @@ actor Admin
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":GetSubjectByIdHandler" as Handler
-participant ":ISubjectRepository" as Repo
+participant ":ISubjectRepository" as IRepo
+participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
 Admin -> Controller : GET /api/admin/subjects/{id}
@@ -15,11 +16,18 @@ activate Med
 Med -> Handler : Handle(query)
 activate Handler
 
-Handler -> Repo : GetByIdAsync(Id)
+Handler -> IRepo : GetByIdAsync(Id)
+activate IRepo
+IRepo -> Repo : GetByIdAsync(Id)
 activate Repo
 Repo -> DB : SELECT * FROM subjects...
+activate DB
 DB --> Repo : Subject?
+deactivate DB
+Repo --> IRepo : Subject?
 deactivate Repo
+IRepo --> Handler : Subject?
+deactivate IRepo
 
 alt Not Found
     Handler --> Med : null

@@ -1,16 +1,21 @@
 @startuml
 actor User
-participant ":QuestsController" as Controller
+participant ":Quests\nController" as Controller
 participant ":IMediator" as Med
 participant ":UpdateQuestActivityProgress\nCommandHandler" as Handler
-participant ":IQuestStepRepository" as StepDB
-participant ":IUserQuestAttempt\nRepository" as AttemptDB
-participant ":ActivityValidationService" as Validator
-participant ":IUserQuestStepProgress\nRepository" as ProgressDB
-participant ":ISubjectSkillMapping\nRepository" as MappingDB
+participant ":IQuestStep\nRepository" as IStepRepo
+participant ":QuestStep\nRepository" as StepRepo
+participant ":IUserQuestAttempt\nRepository" as IAttemptRepo
+participant ":UserQuestAttempt\nRepository" as AttemptRepo
+participant ":IUserQuestStepProgress\nRepository" as IProgressRepo
+participant ":UserQuestStepProgress\nRepository" as ProgressRepo
+participant ":IQuest\nRepository" as IQuestRepo
+participant ":Quest\nRepository" as QuestRepo
+participant ":ISubjectSkillMapping\nRepository" as IMapRepo
+participant ":SubjectSkillMapping\nRepository" as MapRepo
 database ":Database" as DB
 
-User -> Controller : Complete Activity
+User -> Controller : POST /api/quests/.../progress
 activate Controller
 
 Controller -> Med : Send(UpdateQuestActivityProgressCommand)
@@ -19,58 +24,143 @@ activate Med
 Med -> Handler : Handle(command)
 activate Handler
 
-' 1. Validate Context
-Handler -> StepDB : GetByIdAsync(StepId)
-Handler -> AttemptDB : FirstOrDefaultAsync(UserId, QuestId)
+' 1. Validate Step
+Handler -> IStepRepo : GetByIdAsync(StepId)
+activate IStepRepo
+IStepRepo -> StepRepo : GetByIdAsync(StepId)
+activate StepRepo
+StepRepo -> DB : SELECT * FROM quest_steps...
+activate DB
+DB --> StepRepo : QuestStep
+deactivate DB
+StepRepo --> IStepRepo : QuestStep
+deactivate StepRepo
+IStepRepo --> Handler : QuestStep
+deactivate IStepRepo
 
-' 2. Get/Create Progress
-Handler -> ProgressDB : FirstOrDefaultAsync(AttemptId, StepId)
-activate ProgressDB
-ProgressDB -> DB : SELECT * FROM user_quest_step_progress...
-DB --> ProgressDB : Progress?
-ProgressDB --> Handler : Progress (or null)
-deactivate ProgressDB
+' 2. Validate Attempt
+Handler -> IAttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate IAttemptRepo
+IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
+activate AttemptRepo
+AttemptRepo -> DB : SELECT * FROM user_quest_attempts...
+activate DB
+DB --> AttemptRepo : Attempt
+deactivate DB
+AttemptRepo --> IAttemptRepo : Attempt
+deactivate AttemptRepo
+IAttemptRepo --> Handler : Attempt
+deactivate IAttemptRepo
+
+' 3. Get/Create Step Progress
+Handler -> IProgressRepo : FirstOrDefaultAsync(AttemptId, StepId)
+activate IProgressRepo
+IProgressRepo -> ProgressRepo : FirstOrDefaultAsync(AttemptId, StepId)
+activate ProgressRepo
+ProgressRepo -> DB : SELECT * FROM user_quest_step_progress...
+activate DB
+DB --> ProgressRepo : Progress?
+deactivate DB
+ProgressRepo --> IProgressRepo : Progress?
+deactivate ProgressRepo
+IProgressRepo --> Handler : Progress?
+deactivate IProgressRepo
 
 alt New Progress
     Handler -> Handler : Initialize New Record
 end
 
-' 3. Update Activity List
-Handler -> Handler : Add ActivityId to CompletedActivityIds
-Handler -> Handler : Check Completion Logic (Quiz vs Count)
+' 4. Update Logic
+Handler -> Handler : Update CompletedActivityIds
+Handler -> Handler : Check Completion Logic (Quiz/Count)
 
-alt Step Completed
+alt Step Completed (New Completion)
     Handler -> Handler : Set Status = Completed
-    Handler -> AttemptDB : UpdateAsync(Attempt)
-    note right: Add Step XP to Attempt Total
-
-    ' 4. Distribute Skill XP
-    Handler -> MappingDB : GetMappingsBySubjectIdsAsync()
-    activate MappingDB
-    MappingDB --> Handler : SkillMappings
-    deactivate MappingDB
     
-    loop For Each Mapped Skill
-        Handler -> Med : Send(IngestXpEventCommand)
-        note right
-            Award XP proportional to relevance
-        end note
+    ' Update Attempt XP
+    Handler -> IAttemptRepo : UpdateAsync(Attempt)
+    activate IAttemptRepo
+    IAttemptRepo -> AttemptRepo : UpdateAsync(Attempt)
+    activate AttemptRepo
+    AttemptRepo -> DB : UPDATE user_quest_attempts...
+    activate DB
+    DB --> AttemptRepo : Success
+    deactivate DB
+    AttemptRepo --> IAttemptRepo : Success
+    deactivate AttemptRepo
+    IAttemptRepo --> Handler : Success
+    deactivate IAttemptRepo
+
+    ' 5. Distribute Skill XP
+    Handler -> IQuestRepo : GetByIdAsync(QuestId)
+    activate IQuestRepo
+    IQuestRepo -> QuestRepo : GetByIdAsync(QuestId)
+    activate QuestRepo
+    QuestRepo -> DB : SELECT * FROM quests...
+    activate DB
+    DB --> QuestRepo : Quest
+    deactivate DB
+    QuestRepo --> IQuestRepo : Quest
+    deactivate QuestRepo
+    IQuestRepo --> Handler : Quest
+    deactivate IQuestRepo
+
+    alt Quest has SubjectId
+        Handler -> IMapRepo : GetMappingsBySubjectIdsAsync(SubjectId)
+        activate IMapRepo
+        IMapRepo -> MapRepo : GetMappingsBySubjectIdsAsync(SubjectId)
+        activate MapRepo
+        MapRepo -> DB : SELECT * FROM subject_skill_mappings...
+        activate DB
+        DB --> MapRepo : List<Mapping>
+        deactivate DB
+        MapRepo --> IMapRepo : List<Mapping>
+        deactivate MapRepo
+        IMapRepo --> Handler : List<Mapping>
+        deactivate IMapRepo
+        
+        loop For Each Mapping
+            Handler -> Med : Send(IngestXpEventCommand)
+            note right: Awards skill XP weighted by relevance
+        end
     end
 end
 
-' 5. Persist
-Handler -> ProgressDB : UpdateAsync(Progress)
-activate ProgressDB
-ProgressDB -> DB : UPDATE...
-DB --> ProgressDB : Success
-deactivate ProgressDB
+' 6. Persist Progress
+alt New Record
+    Handler -> IProgressRepo : AddAsync(Progress)
+    activate IProgressRepo
+    IProgressRepo -> ProgressRepo : AddAsync(Progress)
+    activate ProgressRepo
+    ProgressRepo -> DB : INSERT INTO user_quest_step_progress...
+    activate DB
+    DB --> ProgressRepo : Success
+    deactivate DB
+    ProgressRepo --> IProgressRepo : Success
+    deactivate ProgressRepo
+    IProgressRepo --> Handler : Success
+    deactivate IProgressRepo
+else Existing Record
+    Handler -> IProgressRepo : UpdateAsync(Progress)
+    activate IProgressRepo
+    IProgressRepo -> ProgressRepo : UpdateAsync(Progress)
+    activate ProgressRepo
+    ProgressRepo -> DB : UPDATE user_quest_step_progress...
+    activate DB
+    DB --> ProgressRepo : Success
+    deactivate DB
+    ProgressRepo --> IProgressRepo : Success
+    deactivate ProgressRepo
+    IProgressRepo --> Handler : Success
+    deactivate IProgressRepo
+end
 
-Handler --> Med : Success
+Handler --> Med : Unit.Value
 deactivate Handler
 
-Med --> Controller : 204 No Content
+Med --> Controller : Success
 deactivate Med
 
-Controller --> User : Updated
+Controller --> User : 204 No Content
 deactivate Controller
 @enduml
