@@ -3,15 +3,15 @@ actor User
 participant ":UserQuestProgress\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetQuestProgress\nQueryHandler" as Handler
-participant ":IUserQuestAttemptRepository" as IAttemptRepo
-participant ":UserQuestAttemptRepository" as AttemptRepo
-participant ":IQuestStepRepository" as IStepRepo
-participant ":QuestStepRepository" as StepRepo
-participant ":IUserQuestStepProgressRepository" as IProgressRepo
-participant ":UserQuestStepProgressRepository" as ProgressRepo
+participant ":IUserQuestAttempt\nRepository" as IAttemptRepo
+participant ":UserQuestAttempt\nRepository" as AttemptRepo
+participant ":IQuestStep\nRepository" as IStepRepo
+participant ":QuestStep\nRepository" as StepRepo
+participant ":IUserQuestStepProgress\nRepository" as IProgressRepo
+participant ":UserQuestStepProgress\nRepository" as ProgressRepo
 database ":Database" as DB
 
-User -> Controller : View Quest Progress
+User -> Controller : GET /api/user-progress/quests/{id}
 activate Controller
 
 Controller -> Med : Send(GetQuestProgressQuery)
@@ -20,7 +20,7 @@ activate Med
 Med -> Handler : Handle(query)
 activate Handler
 
-' 1. Get Attempt (Source of Truth)
+' 1. Get Attempt (Source of Truth for Difficulty)
 Handler -> IAttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
 activate IAttemptRepo
 IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
@@ -34,8 +34,10 @@ deactivate AttemptRepo
 IAttemptRepo --> Handler : Attempt
 deactivate IAttemptRepo
 
-alt Attempt Found
-    ' 2. Get Steps for Track
+alt Attempt Not Found
+    Handler --> Med : Throw NotFoundException
+else Attempt Found
+    ' 2. Get All Master Steps for Quest
     Handler -> IStepRepo : GetByQuestIdAsync(QuestId)
     activate IStepRepo
     IStepRepo -> StepRepo : GetByQuestIdAsync(QuestId)
@@ -49,9 +51,13 @@ alt Attempt Found
     IStepRepo --> Handler : AllSteps
     deactivate IStepRepo
 
+    ' 3. Filter Steps by Assigned Difficulty (In-Memory)
     Handler -> Handler : Filter Steps by Attempt.AssignedDifficulty
+    note right
+        e.g. Keep only "Standard" steps
+    end note
 
-    ' 3. Get Progress Records
+    ' 4. Get Existing Progress Records
     Handler -> IProgressRepo : GetByAttemptIdAsync(AttemptId)
     activate IProgressRepo
     IProgressRepo -> ProgressRepo : GetByAttemptIdAsync(AttemptId)
@@ -65,15 +71,16 @@ alt Attempt Found
     IProgressRepo --> Handler : ProgressList
     deactivate IProgressRepo
 
-    ' 4. Merge & Calculate Lock State
-    loop For Each Step
-        Handler -> Handler : Map Status from ProgressList
-        Handler -> Handler : Calculate IsLocked (Logic: PrevStep.IsCompleted?)
+    ' 5. Merge & Calculate Lock State
+    loop For Each Step in Track
+        Handler -> Handler : Match Step to Progress Record
+        Handler -> Handler : Calculate IsLocked
+        note right
+            Locked if previous step is NOT completed
+        end note
     end
 
     Handler --> Med : List<QuestStepProgressDto>
-else No Attempt
-    Handler --> Med : Throw NotFoundException
 end
 
 deactivate Handler
@@ -81,6 +88,6 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> User : 200 OK
+Controller --> User : 200 OK (Quest Map Data)
 deactivate Controller
 @enduml
