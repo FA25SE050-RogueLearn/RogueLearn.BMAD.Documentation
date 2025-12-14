@@ -1,0 +1,131 @@
+@startuml
+title Join Public Party
+
+actor ":User" as User
+participant ":PartyManagementUI" as PartyUI
+participant ":PartiesController" as Controller
+participant ":IMediator" as Med
+participant ":Mediator" as Mediator
+participant ":JoinPublicPartyCommandHandler" as Handler
+participant ":IPartyRepository" as IPartyRepo
+participant ":IPartyMemberRepository" as IMemberRepo
+participant ":IPartyInvitationRepository" as IInviteRepo
+
+User -> PartyUI : Join party
+activate PartyUI
+PartyUI -> Controller : POST /api/parties/{partyId}/join
+activate Controller
+Controller -> Med : Send(JoinPublicPartyCommand)
+activate Med
+Med -> Mediator : Send(JoinPublicPartyCommand)
+activate Mediator
+Mediator -> Handler : Handle(command)
+activate Handler
+
+Handler -> IPartyRepo : GetByIdAsync(partyId)
+activate IPartyRepo
+IPartyRepo --> Handler : Party
+deactivate IPartyRepo
+
+alt Party not found
+  Handler -> Mediator : throw BadRequest
+  deactivate Handler
+  Mediator -> Med : Error
+  deactivate Mediator
+  Med -> Controller : 400 Bad Request
+  deactivate Med
+  Controller -> User : 400 Bad Request
+  deactivate Controller
+else Private party
+  Handler -> Mediator : throw BadRequest
+  deactivate Handler
+  Mediator -> Med : Error
+  deactivate Mediator
+  Med -> Controller : 400 Bad Request
+  deactivate Med
+  Controller -> User : 400 Bad Request
+  deactivate Controller
+else Check capacity
+  Handler -> IMemberRepo : CountActiveMembersAsync(partyId)
+  activate IMemberRepo
+  IMemberRepo --> Handler : Count
+  deactivate IMemberRepo
+  alt At capacity
+    Handler -> Mediator : throw BadRequest
+    deactivate Handler
+    Mediator -> Med : Error
+    deactivate Mediator
+    Med -> Controller : 400 Bad Request
+    deactivate Med
+    Controller -> User : 400 Bad Request
+    deactivate Controller
+  else Proceed
+    Handler -> IMemberRepo : GetMemberAsync(partyId, authUserId)
+    activate IMemberRepo
+    IMemberRepo --> Handler : PartyMember or null
+    deactivate IMemberRepo
+
+    alt Existing active member
+      Handler -> Mediator : throw BadRequest
+      deactivate Handler
+      Mediator -> Med : Error
+      deactivate Mediator
+      Med -> Controller : 400 Bad Request
+      deactivate Med
+      Controller -> User : 400 Bad Request
+      deactivate Controller
+    else Reactivate existing
+      Handler -> IMemberRepo : UpdateAsync(member to Active)
+      activate IMemberRepo
+      IMemberRepo --> Handler : Success
+      deactivate IMemberRepo
+      opt Clean up invites
+        Handler -> IInviteRepo : GetPendingInvitationsByInviteeAsync(authUserId)
+        activate IInviteRepo
+        IInviteRepo --> Handler : Invitations
+        deactivate IInviteRepo
+        Handler -> IInviteRepo : DeleteRangeAsync(inviteIds for this party)
+        activate IInviteRepo
+        IInviteRepo --> Handler : Success
+        deactivate IInviteRepo
+      end
+      Handler -> Mediator : return Unit
+      deactivate Handler
+      Mediator -> Med : NoContent
+      deactivate Mediator
+      Med -> Controller : NoContent
+      deactivate Med
+      Controller -> PartyUI : 204 No Content
+      deactivate Controller
+      PartyUI -> User : Joined
+      deactivate PartyUI
+    else Add new member
+      Handler -> IMemberRepo : AddAsync(new PartyMember)
+      activate IMemberRepo
+      IMemberRepo --> Handler : Created
+      deactivate IMemberRepo
+      opt Decline pending invites for this party
+        Handler -> IInviteRepo : GetPendingInvitationsByInviteeAsync(authUserId)
+        activate IInviteRepo
+        IInviteRepo --> Handler : Invitations
+        deactivate IInviteRepo
+        Handler -> IInviteRepo : UpdateRangeAsync(set Declined for this party)
+        activate IInviteRepo
+        IInviteRepo --> Handler : Success
+        deactivate IInviteRepo
+      end
+      Handler -> Mediator : return Unit
+      deactivate Handler
+      Mediator -> Med : NoContent
+      deactivate Mediator
+      Med -> Controller : NoContent
+      deactivate Med
+      Controller -> PartyUI : 204 No Content
+      deactivate Controller
+      PartyUI -> User : Joined
+      deactivate PartyUI
+    end
+  end
+end
+
+@enduml

@@ -1,0 +1,184 @@
+@startuml
+title Apply Guild Join Request
+
+actor ":Player" as Player
+participant ":GuildManagementUI" as GuildUI
+participant ":GuildsController" as Controller
+participant ":IMediator" as Med
+participant ":ApplyGuildJoinRequestCommandHandler" as Handler
+participant ":IGuildRepository" as GuildRepo
+participant ":IGuildMemberRepository" as MemberRepo
+participant ":IGuildJoinRequestRepository" as JoinReqRepo
+participant ":IGuildInvitationRepository" as InviteRepo
+participant ":IRoleRepository" as RoleRepo
+participant ":IUserRoleRepository" as UserRoleRepo
+participant ":IGuildNotificationService" as Notify
+
+Player -> GuildUI : Apply join request
+activate GuildUI
+GuildUI -> Controller: POST /api/guilds/{guildId}/join-requests/apply
+activate Controller
+Controller -> Med: Send(ApplyGuildJoinRequestCommand)
+activate Med
+Med -> Handler: Handle(command)
+activate Handler
+
+Handler -> GuildRepo: GetByIdAsync(guildId)
+activate GuildRepo
+GuildRepo --> Handler: Guild
+deactivate GuildRepo
+
+Handler -> MemberRepo: GetMemberAsync(guildId, authUserId)
+activate MemberRepo
+MemberRepo --> Handler: GuildMember?
+deactivate MemberRepo
+
+Handler -> MemberRepo: GetMembershipsByUserAsync(authUserId)
+activate MemberRepo
+MemberRepo --> Handler: Memberships
+deactivate MemberRepo
+
+alt Already active or in another guild
+Handler --> Controller: BadRequest
+end
+
+Handler -> MemberRepo: CountActiveMembersAsync(guildId)
+activate MemberRepo
+MemberRepo --> Handler: activeCount
+deactivate MemberRepo
+
+opt Role gating
+Handler -> MemberRepo: GetMembersByGuildAsync(guildId)
+activate MemberRepo
+MemberRepo --> Handler: Members
+deactivate MemberRepo
+Handler -> RoleRepo: GetByNameAsync("Verified Lecturer")
+activate RoleRepo
+RoleRepo --> Handler: Role?
+deactivate RoleRepo
+Handler -> UserRoleRepo: GetRolesForUserAsync(guildMaster.AuthUserId)
+activate UserRoleRepo
+UserRoleRepo --> Handler: Roles
+deactivate UserRoleRepo
+end
+
+alt activeCount >= cap
+Handler --> Controller: UnprocessableEntity
+else
+Handler -> JoinReqRepo: GetRequestsByRequesterAsync(authUserId)
+activate JoinReqRepo
+JoinReqRepo --> Handler: Requests
+deactivate JoinReqRepo
+Handler -> Handler: existingForGuild = match guildId
+
+alt !guild.RequiresApproval and guild.IsPublic
+opt existingMember is null
+Handler -> MemberRepo: AddAsync(new GuildMember)
+activate MemberRepo
+MemberRepo --> Handler: Success
+deactivate MemberRepo
+
+Handler -> MemberRepo: CountActiveMembersAsync(guildId)
+activate MemberRepo
+MemberRepo --> Handler: newActiveCount
+deactivate MemberRepo
+
+Handler -> GuildRepo: UpdateAsync(guild)
+activate GuildRepo
+GuildRepo --> Handler: Success
+deactivate GuildRepo
+
+Handler -> MemberRepo: GetMembersByGuildAsync(guildId)
+activate MemberRepo
+MemberRepo --> Handler: Members
+deactivate MemberRepo
+
+Handler -> MemberRepo: UpdateRangeAsync(rank updates)
+activate MemberRepo
+MemberRepo --> Handler: Success
+deactivate MemberRepo
+end
+
+alt existingForGuild is null
+Handler -> JoinReqRepo: AddAsync(acceptedRecord)
+activate JoinReqRepo
+JoinReqRepo --> Handler: Success
+deactivate JoinReqRepo
+opt Notify available
+Handler -> Notify: NotifyJoinRequestApprovedAsync(acceptedRecord)
+activate Notify
+Notify --> Handler: Done
+deactivate Notify
+else existingForGuild exists
+Handler -> JoinReqRepo: UpdateAsync(accepted)
+activate JoinReqRepo
+JoinReqRepo --> Handler: Success
+deactivate JoinReqRepo
+opt Notify available
+Handler -> Notify: NotifyJoinRequestApprovedAsync(existingForGuild)
+activate Notify
+Notify --> Handler: Done
+deactivate Notify
+end
+
+opt InviteRepo available
+Handler -> InviteRepo: FindAsync(inviteeId = authUserId)
+activate InviteRepo
+InviteRepo --> Handler: Invitations
+deactivate InviteRepo
+Handler -> InviteRepo: UpdateRangeAsync(decline pending)
+activate InviteRepo
+InviteRepo --> Handler: Success
+deactivate InviteRepo
+
+Handler -> JoinReqRepo: GetRequestsByRequesterAsync(authUserId)
+activate JoinReqRepo
+JoinReqRepo --> Handler: Requests
+deactivate JoinReqRepo
+Handler -> JoinReqRepo: DeleteRangeAsync(pending others)
+activate JoinReqRepo
+JoinReqRepo --> Handler: Success
+deactivate JoinReqRepo
+else requires approval or private
+alt existingForGuild is null
+Handler -> JoinReqRepo: AddAsync(pending, expires +14d)
+activate JoinReqRepo
+JoinReqRepo --> Handler: Success
+deactivate JoinReqRepo
+opt Notify available
+Handler -> MemberRepo: GetMembersByGuildAsync(guildId)
+activate MemberRepo
+MemberRepo --> Handler: Members
+deactivate MemberRepo
+Handler -> Notify: NotifyJoinRequestSubmittedAsync(guildMaster.AuthUserId, request)
+activate Notify
+Notify --> Handler: Done
+deactivate Notify
+else existingForGuild exists
+Handler -> JoinReqRepo: UpdateAsync(pending, expires +14d)
+activate JoinReqRepo
+JoinReqRepo --> Handler: Success
+deactivate JoinReqRepo
+opt Notify available
+Handler -> MemberRepo: GetMembersByGuildAsync(guildId)
+activate MemberRepo
+MemberRepo --> Handler: Members
+deactivate MemberRepo
+Handler -> Notify: NotifyJoinRequestSubmittedAsync(guildMaster.AuthUserId, existingForGuild)
+activate Notify
+Notify --> Handler: Done
+deactivate Notify
+end
+end
+end
+
+Handler -> Med: return Unit
+deactivate Handler
+Med -> Controller: Unit
+deactivate Med
+Controller -> GuildUI: 204 NoContent
+deactivate Controller
+GuildUI -> Player: Done
+deactivate GuildUI
+
+@enduml

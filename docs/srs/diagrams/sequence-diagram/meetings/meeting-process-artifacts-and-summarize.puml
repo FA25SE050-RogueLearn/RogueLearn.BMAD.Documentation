@@ -1,0 +1,64 @@
+@startuml
+title Process Meeting Artifacts and Summarize
+
+actor ":User" as User
+participant ":MeetingManagementUI" as MeetingUI
+participant ":MeetingsController" as Controller
+participant ":IMediator" as Med
+participant ":Mediator" as Mediator
+participant ":ProcessArtifactsAndSummarizeCommandHandler" as Handler
+participant ":IFileSummarizationPlugin" as ISummarizer
+participant ":ContentSummarizationPlugin" as Summarizer
+participant ":IMeetingSummaryRepository" as ISummaryRepo
+
+User -> MeetingUI : Process artifacts and summarize
+activate MeetingUI
+MeetingUI -> Controller : POST /api/meetings/{meetingId}/artifacts
+activate Controller
+Controller -> Med : Send(ProcessArtifactsAndSummarizeCommand)
+activate Med
+Med -> Mediator : Send(ProcessArtifactsAndSummarizeCommand)
+activate Mediator
+Mediator -> Handler : Handle(command)
+activate Handler
+
+Handler -> Handler : Build text from artifacts (type + URL)
+
+Handler -> ISummarizer : SummarizeAsync(AiFileAttachment "artifacts.txt")
+activate ISummarizer
+ISummarizer -> Summarizer : SummarizeAsync(attachment)
+activate Summarizer
+Summarizer --> ISummarizer : Summary object (BlockNote JSON)
+deactivate Summarizer
+ISummarizer --> Handler : Summary object
+deactivate ISummarizer
+
+Handler -> ISummaryRepo : GetByMeetingAsync(meetingId)
+activate ISummaryRepo
+ISummaryRepo --> Handler : Summary?
+deactivate ISummaryRepo
+
+alt Existing summary
+Handler -> ISummaryRepo : UpdateAsync(updated SummaryText, UpdatedAt)
+activate ISummaryRepo
+ISummaryRepo --> Handler : Success
+deactivate ISummaryRepo
+else No summary
+Handler -> ISummaryRepo : AddAsync(new MeetingSummary)
+activate ISummaryRepo
+ISummaryRepo --> Handler : MeetingSummary
+deactivate ISummaryRepo
+end
+
+Handler -> Mediator : return Unit
+deactivate Handler
+Mediator -> Med : Unit
+deactivate Mediator
+Med -> Controller : Ok
+deactivate Med
+Controller -> MeetingUI : 200 OK
+deactivate Controller
+MeetingUI -> User : Done
+deactivate MeetingUI
+
+@enduml

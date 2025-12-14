@@ -1,0 +1,59 @@
+@startuml
+title Suggest Note Tags From Upload
+
+actor ":User" as User
+participant ":NoteManagementUI" as NoteUI
+participant ":NotesController" as Controller
+participant ":IMediator" as Med
+participant ":Mediator" as Mediator
+participant ":SuggestNoteTagsFromUploadQueryHandler" as UploadHandler
+participant ":ITaggingSuggestionService" as ISuggestionSvc
+participant ":TaggingSuggestionService" as SuggestionSvc
+participant ":ITagRepository" as ITagRepo
+participant ":IFileTagSuggestionPlugin" as IFileTagPlugin
+participant ":FileTagSuggestionPlugin" as FileTagPlugin
+
+User -> NoteUI : Request tag suggestions from upload
+activate NoteUI
+NoteUI -> Controller : POST /api/ai/tagging/suggest-upload [multipart]
+activate Controller
+Controller -> Med : Send(SuggestNoteTagsFromUploadQuery)
+activate Med
+Med -> Mediator : Send(SuggestNoteTagsFromUploadQuery)
+activate Mediator
+Mediator -> UploadHandler : Handle(query)
+activate UploadHandler
+
+UploadHandler -> ISuggestionSvc : SuggestFromFileAsync(authUserId, attachment, maxTags)
+activate ISuggestionSvc
+ISuggestionSvc -> SuggestionSvc : SuggestFromFileAsync(...)
+activate SuggestionSvc
+SuggestionSvc -> ITagRepo : FindAsync(t => t.AuthUserId == authUserId)
+activate ITagRepo
+ITagRepo --> SuggestionSvc : Tags
+deactivate ITagRepo
+SuggestionSvc -> IFileTagPlugin : GenerateTagSuggestionsJsonAsync(attachment, knownNames, maxTags)
+activate IFileTagPlugin
+IFileTagPlugin -> FileTagPlugin : GenerateTagSuggestionsJsonAsync
+activate FileTagPlugin
+FileTagPlugin --> IFileTagPlugin : JSON
+deactivate FileTagPlugin
+IFileTagPlugin --> SuggestionSvc : JSON
+deactivate IFileTagPlugin
+SuggestionSvc --> ISuggestionSvc : Suggestions
+deactivate SuggestionSvc
+ISuggestionSvc --> UploadHandler : Suggestions
+deactivate ISuggestionSvc
+
+UploadHandler --> Mediator : SuggestNoteTagsResponse
+deactivate UploadHandler
+Mediator --> Med : Response
+deactivate Mediator
+Med --> Controller : 200 OK
+deactivate Med
+Controller --> NoteUI : 200 OK
+deactivate Controller
+NoteUI --> User : Suggestions displayed
+deactivate NoteUI
+
+@enduml

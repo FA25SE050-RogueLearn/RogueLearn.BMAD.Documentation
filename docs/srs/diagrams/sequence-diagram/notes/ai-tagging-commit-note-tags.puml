@@ -1,0 +1,73 @@
+@startuml
+title Commit Note Tag Selections
+
+actor ":User" as User
+participant ":NoteManagementUI" as NoteUI
+participant ":NotesController" as Controller
+participant ":IMediator" as Med
+participant ":Mediator" as Mediator
+participant ":CommitNoteTagSelectionsCommandHandler" as Handler
+participant ":INoteRepository" as INoteRepo
+participant ":ITagRepository" as ITagRepo
+participant ":INoteTagRepository" as INoteTagRepo
+
+User -> NoteUI : Commit selected tags
+activate NoteUI
+NoteUI -> Controller : POST /api/ai/tagging/commit
+activate Controller
+Controller -> Med : Send(CommitNoteTagSelectionsCommand)
+activate Med
+Med -> Mediator : Send(CommitNoteTagSelectionsCommand)
+activate Mediator
+Mediator -> Handler : Handle(command)
+activate Handler
+
+Handler -> INoteRepo : GetByIdAsync(noteId)
+activate INoteRepo
+INoteRepo --> Handler : Note
+deactivate INoteRepo
+
+Handler -> ITagRepo : FindAsync(t => t.AuthUserId == authUserId)
+activate ITagRepo
+ITagRepo --> Handler : Tags
+deactivate ITagRepo
+
+Handler -> Handler : Filter selected IDs, dedupe
+loop For each new tag name
+  Handler -> ITagRepo : AddAsync(new Tag)
+  activate ITagRepo
+  ITagRepo --> Handler : Tag
+  deactivate ITagRepo
+end
+
+Handler -> INoteTagRepo : GetTagIdsForNoteAsync(noteId)
+activate INoteTagRepo
+INoteTagRepo --> Handler : TagIds
+deactivate INoteTagRepo
+
+loop Add missing
+  Handler -> INoteTagRepo : AddAsync(noteId, tagId)
+  activate INoteTagRepo
+  INoteTagRepo --> Handler : Success
+  deactivate INoteTagRepo
+end
+loop Remove extras
+  Handler -> INoteTagRepo : RemoveAsync(noteId, tagId)
+  activate INoteTagRepo
+  INoteTagRepo --> Handler : Success
+  deactivate INoteTagRepo
+end
+
+Handler -> Mediator : return CommitNoteTagSelectionsResponse
+deactivate Handler
+Mediator -> Med : Response
+deactivate Mediator
+Med -> Controller : Response
+deactivate Med
+Controller -> NoteUI : 200 OK
+deactivate Controller
+NoteUI -> User : Done
+deactivate NoteUI
+
+@enduml
+
