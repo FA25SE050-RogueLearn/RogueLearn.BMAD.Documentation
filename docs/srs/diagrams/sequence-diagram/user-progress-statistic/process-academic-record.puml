@@ -50,7 +50,8 @@ end
 ' 2. Process Subjects
 Handler -> SubRepo : GetAllAsync()
 activate SubRepo
-SubRepo -> DB : SELECT * FROM subjects...
+' Analyzed: Fetches from subjects table
+SubRepo -> DB : SELECT * FROM subjects
 DB --> SubRepo : SubjectCatalog
 deactivate SubRepo
 SubRepo --> Handler : SubjectCatalog
@@ -58,7 +59,8 @@ deactivate SubRepo
 
 Handler -> GradeRepo : FindAsync(AuthUserId)
 activate GradeRepo
-GradeRepo -> DB : SELECT * FROM student_semester_subjects...
+' Analyzed: Matches student_semester_subjects table PK/FK
+GradeRepo -> DB : SELECT * FROM student_semester_subjects \nWHERE auth_user_id = @AuthUserId
 DB --> GradeRepo : ExistingGrades
 deactivate GradeRepo
 GradeRepo --> Handler : ExistingGrades
@@ -77,7 +79,8 @@ end
 ' 3. Award XP
 Handler -> MappingRepo : GetMappingsBySubjectIdsAsync(PassedIds)
 activate MappingRepo
-MappingRepo -> DB : SELECT * FROM subject_skill_mappings...
+' Analyzed: Matches subject_skill_mappings table
+MappingRepo -> DB : SELECT * FROM subject_skill_mappings \nWHERE subject_id IN (@PassedIds)
 DB --> MappingRepo : SkillMappings
 deactivate MappingRepo
 MappingRepo --> Handler : SkillMappings
@@ -92,7 +95,7 @@ loop For Each Passed Subject
         
         Handler -> Med : Send(IngestXpEventCommand)
         note right
-            Awards XP to user skill
+            Awards XP to user_skills
             Idempotent based on SubjectId
         end note
     end

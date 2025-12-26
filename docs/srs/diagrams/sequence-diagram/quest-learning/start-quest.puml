@@ -27,7 +27,8 @@ Handler -> IQuestRepo : GetByIdAsync(QuestId)
 activate IQuestRepo
 IQuestRepo -> QuestRepo : GetByIdAsync(QuestId)
 activate QuestRepo
-QuestRepo -> DB : SELECT * FROM quests WHERE id = ...
+' Analyzed: Matches quests table
+QuestRepo -> DB : SELECT * FROM quests WHERE id = @QuestId
 activate DB
 DB --> QuestRepo : Quest Entity
 deactivate DB
@@ -42,7 +43,8 @@ alt Quest Found
     activate IAttemptRepo
     IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
     activate AttemptRepo
-    AttemptRepo -> DB : SELECT * FROM user_quest_attempts WHERE...
+    ' Analyzed: Checks user_quest_attempts for duplicates
+    AttemptRepo -> DB : SELECT * FROM user_quest_attempts \nWHERE auth_user_id = @UserId AND quest_id = @QuestId
     activate DB
     DB --> AttemptRepo : ExistingAttempt?
     deactivate DB
@@ -55,8 +57,8 @@ alt Quest Found
         ' 3. Create New Attempt
         Handler -> Handler : Create UserQuestAttempt
         note right
-            Status = "InProgress"
-            AssignedDifficulty = Quest.ExpectedDifficulty
+            Status = "InProgress" (enum)
+            AssignedDifficulty = Quest.expected_difficulty
             StartedAt = UtcNow
         end note
 
@@ -64,7 +66,8 @@ alt Quest Found
         activate IAttemptRepo
         IAttemptRepo -> AttemptRepo : AddAsync(NewAttempt)
         activate AttemptRepo
-        AttemptRepo -> DB : INSERT INTO user_quest_attempts...
+        ' Analyzed: Inserts new record
+        AttemptRepo -> DB : INSERT INTO user_quest_attempts \n(id, auth_user_id, quest_id, status, assigned_difficulty, started_at...)
         activate DB
         DB --> AttemptRepo : CreatedAttempt
         deactivate DB

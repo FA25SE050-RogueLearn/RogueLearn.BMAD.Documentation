@@ -29,7 +29,8 @@ Handler -> IRewardRepo : GetBySourceAndSkillAsync(UserId, SourceId, SkillId)
 activate IRewardRepo
 IRewardRepo -> RewardRepo : GetBySourceAndSkillAsync(...)
 activate RewardRepo
-RewardRepo -> DB : SELECT * FROM user_skill_rewards...
+' Analyzed: Matches user_skill_rewards table columns
+RewardRepo -> DB : SELECT * FROM user_skill_rewards \nWHERE auth_user_id = @UserId \nAND source_id = @SourceId AND skill_id = @SkillId
 activate DB
 DB --> RewardRepo : ExistingReward?
 deactivate DB
@@ -46,7 +47,8 @@ else New Event
     activate ISkillRepo
     ISkillRepo -> SkillRepo : GetByIdAsync(SkillId)
     activate SkillRepo
-    SkillRepo -> DB : SELECT * FROM skills...
+    ' Analyzed: Matches skills table
+    SkillRepo -> DB : SELECT * FROM skills WHERE id = @SkillId
     activate DB
     DB --> SkillRepo : Skill
     deactivate DB
@@ -60,7 +62,8 @@ else New Event
     activate IRewardRepo
     IRewardRepo -> RewardRepo : AddAsync(Reward)
     activate RewardRepo
-    RewardRepo -> DB : INSERT INTO user_skill_rewards...
+    ' Analyzed: Inserts audit log into user_skill_rewards
+    RewardRepo -> DB : INSERT INTO user_skill_rewards \n(auth_user_id, source_service, source_type, source_id, skill_id, points_awarded...)
     activate DB
     DB --> RewardRepo : Success
     deactivate DB
@@ -74,7 +77,8 @@ else New Event
     activate IUserSkillRepo
     IUserSkillRepo -> UserSkillRepo : FirstOrDefaultAsync(...)
     activate UserSkillRepo
-    UserSkillRepo -> DB : SELECT * FROM user_skills...
+    ' Analyzed: Matches user_skills table
+    UserSkillRepo -> DB : SELECT * FROM user_skills \nWHERE auth_user_id = @UserId AND skill_id = @SkillId
     activate DB
     DB --> UserSkillRepo : UserSkill?
     deactivate DB
@@ -89,7 +93,8 @@ else New Event
         activate IUserSkillRepo
         IUserSkillRepo -> UserSkillRepo : AddAsync(...)
         activate UserSkillRepo
-        UserSkillRepo -> DB : INSERT...
+        ' Analyzed: First time earning this skill
+        UserSkillRepo -> DB : INSERT INTO user_skills (auth_user_id, skill_id, experience_points, level...)
         activate DB
         DB --> UserSkillRepo : Success
         deactivate DB
@@ -104,7 +109,8 @@ else New Event
         activate IUserSkillRepo
         IUserSkillRepo -> UserSkillRepo : UpdateAsync(...)
         activate UserSkillRepo
-        UserSkillRepo -> DB : UPDATE...
+        ' Analyzed: Update existing skill progress
+        UserSkillRepo -> DB : UPDATE user_skills SET experience_points = ..., level = ... \nWHERE id = @Id
         activate DB
         DB --> UserSkillRepo : Success
         deactivate DB

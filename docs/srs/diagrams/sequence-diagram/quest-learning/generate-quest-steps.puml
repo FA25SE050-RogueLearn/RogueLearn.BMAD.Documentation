@@ -76,7 +76,9 @@ loop For Each Module
     activate IStepRepo
     IStepRepo -> StepRepo : AddRangeAsync(Steps)
     activate StepRepo
-    StepRepo -> DB : INSERT INTO quest_steps...
+    ' Analyzed: Inserts into quest_steps table
+    ' Columns: quest_id, step_number, title, description, content (jsonb), difficulty_variant
+    StepRepo -> DB : INSERT INTO quest_steps (quest_id, step_number, title, description, content, difficulty_variant...)
     activate DB
     DB --> StepRepo : Success
     deactivate DB

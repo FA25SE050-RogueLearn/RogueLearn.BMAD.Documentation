@@ -35,7 +35,8 @@ Handler -> IProfileRepo : GetByAuthIdAsync(userId)
 activate IProfileRepo
 IProfileRepo -> ProfileRepo : GetByAuthIdAsync(userId)
 activate ProfileRepo
-ProfileRepo -> DB : SELECT * FROM user_profiles WHERE...
+' Analyzed: Matches user_profiles schema (auth_user_id is the lookup key)
+ProfileRepo -> DB : SELECT * FROM user_profiles WHERE auth_user_id = @userId
 activate DB
 DB --> ProfileRepo : Record
 deactivate DB
@@ -48,7 +49,8 @@ Handler -> ISubjectRepo : GetSubjectsByRoute(RouteId)
 activate ISubjectRepo
 ISubjectRepo -> SubjectRepo : GetSubjectsByRoute(RouteId)
 activate SubjectRepo
-SubjectRepo -> DB : SELECT * FROM subjects...
+' Analyzed: Joins via curriculum_program_subjects link table
+SubjectRepo -> DB : SELECT s.* FROM subjects s \nJOIN curriculum_program_subjects cps ON s.id = cps.subject_id \nWHERE cps.program_id = @RouteId
 activate DB
 DB --> SubjectRepo : Records
 deactivate DB
@@ -61,7 +63,8 @@ Handler -> IGradeRepo : FindAsync(userId)
 activate IGradeRepo
 IGradeRepo -> GradeRepo : FindAsync(userId)
 activate GradeRepo
-GradeRepo -> DB : SELECT * FROM student_semester_subjects WHERE...
+' Analyzed: Matches student_semester_subjects table
+GradeRepo -> DB : SELECT * FROM student_semester_subjects \nWHERE auth_user_id = @userId
 activate DB
 DB --> GradeRepo : Records
 deactivate DB
@@ -76,7 +79,8 @@ loop For Each Subject
     activate IQuestRepo
     IQuestRepo -> QuestRepo : FindAsync(SubjectId)
     activate QuestRepo
-    QuestRepo -> DB : SELECT * FROM quests WHERE...
+    ' Analyzed: Matches quests table FK subject_id
+    QuestRepo -> DB : SELECT * FROM quests WHERE subject_id = @SubjectId
     activate DB
     DB --> QuestRepo : Record
     deactivate DB
@@ -99,7 +103,8 @@ loop For Each Subject
         activate IAttemptRepo
         IAttemptRepo -> AttemptRepo : FirstOrDefaultAsync(UserId, QuestId)
         activate AttemptRepo
-        AttemptRepo -> DB : SELECT * FROM user_quest_attempts WHERE...
+        ' Analyzed: Matches user_quest_attempts composite lookup
+        AttemptRepo -> DB : SELECT * FROM user_quest_attempts \nWHERE auth_user_id = @UserId AND quest_id = @QuestId
         activate DB
         DB --> AttemptRepo : ExistingAttempt?
         deactivate DB
@@ -113,6 +118,7 @@ loop For Each Subject
             activate IAttemptRepo
             IAttemptRepo -> AttemptRepo : AddAsync(NewAttempt)
             activate AttemptRepo
+            ' Analyzed: Inserts into user_quest_attempts (status='InProgress', assigned_difficulty=...)
             AttemptRepo -> DB : INSERT INTO user_quest_attempts...
             activate DB
             DB --> AttemptRepo : Success
@@ -126,6 +132,7 @@ loop For Each Subject
             activate IAttemptRepo
             IAttemptRepo -> AttemptRepo : UpdateAsync(ExistingAttempt)
             activate AttemptRepo
+            ' Analyzed: Updates existing record
             AttemptRepo -> DB : UPDATE user_quest_attempts SET...
             activate DB
             DB --> AttemptRepo : Success
