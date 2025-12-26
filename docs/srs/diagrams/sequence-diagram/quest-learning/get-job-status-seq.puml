@@ -1,18 +1,30 @@
-' get-job-status-seq.puml
 @startuml
-actor Client
-participant "QuestsController" as Controller
-participant "Hangfire\nStorage" as DB
+actor Admin
+participant AdminManagementUI as UI
+participant ":QuestsController" as Controller
+participant ":Hangfire\nStorage" as DB
 
-Client -> Controller : GET /generation-status/{jobId}
+Admin -> UI : Check Background Job Status
+activate UI
+
+UI -> Controller : GET /generation-status/{jobId}
+activate Controller
+
 Controller -> DB : GetJobData(jobId)
+activate DB
 DB --> Controller : Job Data (State)
+deactivate DB
 
 alt State == Succeeded
-    Controller --> Client : { Status: "Succeeded" }
+    Controller --> UI : 200 OK { Status: "Succeeded" }
 else State == Processing
-    Controller --> Client : { Status: "Processing" }
+    Controller --> UI : 200 OK { Status: "Processing" }
 else State == Failed
-    Controller --> Client : { Status: "Failed", Error: "..." }
+    Controller --> UI : 200 OK { Status: "Failed", Error: "..." }
 end
+deactivate Controller
+
+UI -> UI : Update Status Badge
+UI --> Admin : Show Job Result
+deactivate UI
 @enduml

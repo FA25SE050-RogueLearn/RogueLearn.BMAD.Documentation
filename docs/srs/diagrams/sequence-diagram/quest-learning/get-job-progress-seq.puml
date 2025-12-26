@@ -1,13 +1,25 @@
-' get-job-progress-seq.puml
 @startuml
-actor Client
-participant "QuestsController" as Controller
-participant "Hangfire\nStorage" as DB
+actor Admin
+participant AdminManagementUI as UI
+participant ":QuestsController" as Controller
+participant ":Hangfire\nStorage" as DB
 
-Client -> Controller : GET /generation-progress/{jobId}
+Admin -> UI : View Generation Progress
+activate UI
+
+UI -> Controller : GET /generation-progress/{jobId}
+activate Controller
+
 Controller -> DB : GetJobParameter(jobId, "Progress")
+activate DB
 DB --> Controller : JSON String
+deactivate DB
 
 Controller -> Controller : Deserialize JSON
-Controller --> Client : QuestGenerationProgressDto
+Controller --> UI : 200 OK (QuestGenerationProgressDto)
+deactivate Controller
+
+UI -> UI : Update Progress Bar %
+UI --> Admin : Display Progress
+deactivate UI
 @enduml

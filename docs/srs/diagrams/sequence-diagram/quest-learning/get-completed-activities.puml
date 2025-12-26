@@ -1,5 +1,6 @@
 @startuml
 actor User
+participant QuestManagementUI as UI
 participant ":UserQuestProgress\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetCompletedActivities\nQueryHandler" as Handler
@@ -11,7 +12,10 @@ participant ":IUserQuestStepProgress\nRepository" as IProgressRepo
 participant ":UserQuestStepProgress\nRepository" as ProgressRepo
 database ":Database" as DB
 
-User -> Controller : View Step Content
+User -> UI : Click on Quest Step
+activate UI
+
+UI -> Controller : GET /api/user-progress/steps/{id}/activities
 activate Controller
 
 Controller -> Med : Send(GetCompletedActivitiesQuery)
@@ -87,6 +91,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> User : 200 OK (Activity List)
+Controller --> UI : 200 OK (Activity List)
 deactivate Controller
+
+UI -> UI : Populate Checklist View
+UI --> User : Display Activities Content
+deactivate UI
 @enduml

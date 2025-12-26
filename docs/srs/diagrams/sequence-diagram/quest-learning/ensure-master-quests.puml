@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":AdminQuestsController" as Controller
 participant ":IMediator" as Med
 participant ":EnsureMasterQuests\nCommandHandler" as Handler
@@ -9,7 +10,10 @@ participant ":IQuestRepository" as IQuestRepo
 participant ":QuestRepository" as QuestRepo
 database ":Database" as DB
 
-Admin -> Controller : Click "Sync Master Quests"
+Admin -> UI : Click "Sync Master Quests"
+activate UI
+
+UI -> Controller : POST /api/admin/quests/sync-masters
 activate Controller
 
 Controller -> Med : Send(EnsureMasterQuestsCommand)
@@ -77,6 +81,9 @@ deactivate Handler
 Med --> Controller : Response (Counts)
 deactivate Med
 
-Controller --> Admin : 200 OK
+Controller --> UI : 200 OK (Sync Stats)
 deactivate Controller
+
+UI --> Admin : Show Sync Summary Toast
+deactivate UI
 @enduml

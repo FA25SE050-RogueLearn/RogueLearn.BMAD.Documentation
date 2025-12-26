@@ -1,6 +1,6 @@
-' get-learning-path-seq.puml
 @startuml
 actor Student
+participant QuestManagementUI as UI
 participant ":LearningPaths\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetMyLearningPath\nQueryHandler" as Handler
@@ -22,7 +22,10 @@ participant ":ILearningPath\nRepository" as ILPRepo
 participant ":LearningPath\nRepository" as LPRepo
 database ":Database" as DB
 
-Student -> Controller : GET /api/learning-paths/me
+Student -> UI : Click "My Journey" (View Path)
+activate UI
+
+UI -> Controller : GET /api/learning-paths/me
 activate Controller
 
 Controller -> Med : Send(GetMyLearningPathQuery)
@@ -47,11 +50,15 @@ deactivate IProfileRepo
 
 alt Profile Not Found
     Handler --> Med : null
-    Med --> Controller : 404 Not Found
+    Med --> Controller : null
+    Controller --> UI : 404 Not Found
+    UI --> Student : Show "Profile Missing" Error
 else Profile Found
     alt RouteId or ClassId is Null
         Handler --> Med : LearningPathDto (Unassigned)
-        Med --> Controller : 200 OK (Unassigned Path)
+        Med --> Controller : LearningPathDto (Unassigned)
+        Controller --> UI : 200 OK (Unassigned Path)
+        UI --> Student : Show "Select Class/Route" Prompt
     else Path Configured
         ' 2. Fetch Program Subjects
         Handler -> IProgSubjRepo : FindAsync(RouteId)
@@ -166,12 +173,17 @@ else Profile Found
         Handler -> Handler : Calculate Total Completion %
 
         Handler --> Med : LearningPathDto
+        deactivate Handler
         Med --> Controller : LearningPathDto
-        Controller --> Student : 200 OK
+        deactivate Med
+
+        Controller --> UI : 200 OK
+        deactivate Controller
+
+        UI -> UI : Render Quest Map Nodes
+        UI -> UI : Visualize Chapter Progress
+        UI --> Student : Display Learning Path
     end
 end
-
-deactivate Handler
-deactivate Med
-deactivate Controller
+deactivate UI
 @enduml

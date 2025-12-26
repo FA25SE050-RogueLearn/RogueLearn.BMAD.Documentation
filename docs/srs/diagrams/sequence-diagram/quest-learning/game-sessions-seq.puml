@@ -1,35 +1,50 @@
-' game-sessions-seq.puml
 @startuml
 actor Player
-participant "Game Lobby" as UI
-participant "GameSessions\nController" as Controller
-participant "CreateGameSession\nHandler" as Handler
-participant "Subject\nRepository" as SubjectDB
-participant "GameSession\nRepository" as GameDB
+participant QuestManagementUI as UI
+participant ":GameSessions\nController" as Controller
+participant ":CreateGameSession\nHandler" as Handler
+participant ":Subject\nRepository" as SubjectDB
+participant ":GameSession\nRepository" as GameDB
 
-Player -> UI : 1. Click "Start Boss Fight"
-UI -> Controller : 2. POST /sessions/create
-Controller -> Handler : 3. Handle(command)
+Player -> UI : Click "Start Boss Fight"
+activate UI
 
+UI -> Controller : POST /sessions/create
+activate Controller
+
+Controller -> Handler : Handle(command)
 activate Handler
-    Handler -> SubjectDB : 4. Get Subject Content (Syllabus)
-    
-    Handler -> Handler : 5. Extract Questions from Syllabus
-    note right
-        Filter by Difficulty
-        Randomize Selection
-    end note
-    
-    Handler -> Handler : 6. Build Question Pack JSON
-    
-    Handler -> GameDB : 7. Create GameSession
-    note right: Store Pack in JSONB
-    
-    Handler --> Controller : 8. Return SessionId + JoinCode
+
+Handler -> SubjectDB : Get Subject Content (Syllabus)
+activate SubjectDB
+SubjectDB --> Handler : Syllabus JSON
+deactivate SubjectDB
+
+Handler -> Handler : Extract & Randomize Questions
+note right
+    Filter by Difficulty
+    Randomize Selection
+end note
+
+Handler -> Handler : Build Question Pack JSON
+
+Handler -> GameDB : Create GameSession (Store Pack)
+activate GameDB
+GameDB --> Handler : SessionId + JoinCode
+deactivate GameDB
+
+Handler --> Controller : SessionId + JoinCode
 deactivate Handler
 
-Controller --> UI : 9. 200 OK
-UI -> Controller : 10. GET /sessions/{id}/pack
-Controller --> UI : 11. Question Pack JSON
-UI --> Player : 12. Load Unity Game Scene
+Controller --> UI : 200 OK
+deactivate Controller
+
+UI -> Controller : GET /sessions/{id}/pack
+activate Controller
+Controller --> UI : Question Pack JSON
+deactivate Controller
+
+UI -> UI : Initialize Game Instance (Unity)
+UI --> Player : Load Unity Game Scene
+deactivate UI
 @enduml

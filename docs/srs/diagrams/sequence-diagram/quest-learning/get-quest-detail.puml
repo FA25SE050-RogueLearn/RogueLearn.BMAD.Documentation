@@ -1,5 +1,6 @@
 @startuml
 actor User
+participant QuestManagementUI as UI
 participant ":QuestsController" as Controller
 participant ":IMediator" as Med
 participant ":GetQuestById\nQueryHandler" as Handler
@@ -11,7 +12,10 @@ participant ":IQuestStepRepository" as IStepRepo
 participant ":QuestStepRepository" as StepRepo
 database ":Database" as DB
 
-User -> Controller : View Quest Details
+User -> UI : Click "View Quest Details"
+activate UI
+
+UI -> Controller : GET /api/quests/{id}
 activate Controller
 
 Controller -> Med : Send(GetQuestByIdQuery)
@@ -82,6 +86,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> User : 200 OK
+Controller --> UI : 200 OK
 deactivate Controller
+
+UI -> UI : Render Steps & Difficulty
+UI --> User : Display Quest Interface
+deactivate UI
 @enduml

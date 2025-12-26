@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":CurriculumProgramSubjects\nController" as Controller
 participant ":IMediator" as Med
 participant ":RemoveSubjectFromProgram\nCommandHandler" as Handler
@@ -7,7 +8,10 @@ participant ":ICurriculumProgramSubject\nRepository" as ILinkRepo
 participant ":CurriculumProgramSubject\nRepository" as LinkRepo
 database ":Database" as DB
 
-Admin -> Controller : DELETE /programs/{pid}/subjects/{sid}
+Admin -> UI : Click "Remove Subject" & Confirm
+activate UI
+
+UI -> Controller : DELETE /programs/{pid}/subjects/{sid}
 activate Controller
 
 Controller -> Med : Send(RemoveSubjectFromProgramCommand)
@@ -54,6 +58,10 @@ deactivate Handler
 Med --> Controller : Success
 deactivate Med
 
-Controller --> Admin : 204 No Content
+Controller --> UI : 204 No Content
 deactivate Controller
+
+UI -> UI : Remove Item from List
+UI --> Admin : Show "Subject Removed" Success
+deactivate UI
 @enduml

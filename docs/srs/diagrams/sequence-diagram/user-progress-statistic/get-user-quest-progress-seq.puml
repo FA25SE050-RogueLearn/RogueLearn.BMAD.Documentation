@@ -1,5 +1,6 @@
 @startuml
 actor User
+participant QuestManagementUI as UI
 participant ":UserQuestProgress\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetQuestProgress\nQueryHandler" as Handler
@@ -11,7 +12,10 @@ participant ":IUserQuestStepProgress\nRepository" as IProgressRepo
 participant ":UserQuestStepProgress\nRepository" as ProgressRepo
 database ":Database" as DB
 
-User -> Controller : GET /api/user-progress/quests/{id}
+User -> UI : Open Quest Map / Resume Quest
+activate UI
+
+UI -> Controller : GET /api/user-progress/quests/{id}
 activate Controller
 
 Controller -> Med : Send(GetQuestProgressQuery)
@@ -88,6 +92,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> User : 200 OK (Quest Map Data)
+Controller --> UI : 200 OK (Quest Map Data)
 deactivate Controller
+
+UI -> UI : Render Steps & Lock Status
+UI --> User : Display Progress Map
+deactivate UI
 @enduml

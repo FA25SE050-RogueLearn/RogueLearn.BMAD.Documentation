@@ -1,5 +1,6 @@
 @startuml
 actor Student
+participant AcademicRecordManagementUI as UI
 participant ":UsersController" as Controller
 participant ":IMediator" as Med
 participant ":GetAcademicStatus\nQueryHandler" as Handler
@@ -11,7 +12,10 @@ participant ":ISubjectRepository" as SubjectRepo
 participant ":SubjectRepository" as SubjectRepoImpl
 database ":Database" as DB
 
-Student -> Controller : View Academic Status
+Student -> UI : Click "View Academic Status"
+activate UI
+
+UI -> Controller : GET /api/academic/status
 activate Controller
 
 Controller -> Med : Send(GetAcademicStatusQuery)
@@ -36,7 +40,9 @@ deactivate EnrollRepo
 
 alt No Enrollment
     Handler --> Med : Return null
-    Med --> Controller : 404 Not Found
+    Med --> Controller : Return null
+    Controller --> UI : 404 Not Found
+    UI --> Student : Show "No Enrollment Found"
 else Enrollment Found
     ' 2. Get Grades
     Handler -> GradeRepo : FindAsync(AuthUserId)
@@ -75,12 +81,17 @@ else Enrollment Found
     end note
 
     Handler --> Med : GetAcademicStatusResponse
+    deactivate Handler
+
+    Med --> Controller : Response
+    deactivate Med
+
+    Controller --> UI : 200 OK (DTO)
+    deactivate Controller
+
+    UI -> UI : Render GPA Charts & Tables
+    UI --> Student : Display Academic Dashboard
 end
 
-deactivate Handler
-Med --> Controller : Response
-deactivate Med
-
-Controller --> Student : 200 OK
-deactivate Controller
+deactivate UI
 @enduml

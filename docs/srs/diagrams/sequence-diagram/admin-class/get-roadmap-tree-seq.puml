@@ -1,13 +1,17 @@
 ' get-roadmap-tree-seq.puml
 @startuml
 actor User
-participant "Roadmap UI" as UI
-participant "Nodes\nController" as Controller
+participant QuestManagementUI as UI
+participant ":Nodes\nController" as Controller
 participant "GetTree\nHandler" as Handler
 participant "Node\nRepository" as DB
 
 User -> UI : View Class Roadmap
+activate UI
+
 UI -> Controller : GET /classes/{id}/nodes/tree
+activate Controller
+
 Controller -> Handler : Handle(query)
 
 activate Handler
@@ -22,5 +26,9 @@ activate Handler
 deactivate Handler
 
 Controller --> UI : 200 OK (JSON Tree)
-UI --> User : Render Visual Graph
+deactivate Controller
+
+UI -> UI : Render Visual Graph
+UI --> User : Display Roadmap Tree
+deactivate UI
 @enduml

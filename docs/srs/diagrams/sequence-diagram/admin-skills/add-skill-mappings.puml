@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":AddSubjectSkillMapping\nCommandHandler" as Handler
@@ -11,7 +12,10 @@ participant ":ISubjectSkillMapping\nRepository" as IMapRepo
 participant ":SubjectSkillMapping\nRepository" as MapRepo
 database ":Database" as DB
 
-Admin -> Controller : POST /subjects/{id}/skills
+Admin -> UI : Select Skill & Click "Add Mapping"
+activate UI
+
+UI -> Controller : POST /subjects/{id}/skills
 activate Controller
 
 Controller -> Med : Send(AddSubjectSkillMappingCommand)
@@ -91,6 +95,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Admin : 201 Created
+Controller --> UI : 201 Created
 deactivate Controller
+
+UI -> UI : Refresh Mappings List
+UI --> Admin : Show "Mapping Added" Success
+deactivate UI
 @enduml

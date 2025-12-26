@@ -1,5 +1,6 @@
 @startuml
 actor User
+participant SkillManagementUI as UI
 participant ":Skills\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetSkillDetail\nQueryHandler" as Handler
@@ -15,7 +16,10 @@ participant ":IQuest\nRepository" as IQuestRepo
 participant ":Quest\nRepository" as QuestRepo
 database ":Database" as DB
 
-User -> Controller : Click Skill Icon
+User -> UI : Click Skill Icon
+activate UI
+
+UI -> Controller : GET /api/skills/{id}
 activate Controller
 
 Controller -> Med : Send(GetSkillDetailQuery)
@@ -107,6 +111,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> User : 200 OK
+Controller --> UI : 200 OK (Skill Details)
 deactivate Controller
+
+UI -> UI : Render Skill Detail Panel
+UI --> User : Display Skill Details
+deactivate UI
 @enduml

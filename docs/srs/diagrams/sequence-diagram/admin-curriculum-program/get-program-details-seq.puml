@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":CurriculumPrograms\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetCurriculumProgramDetails\nQueryHandler" as Handler
@@ -11,7 +12,10 @@ participant ":ISubjectRepository" as ISubRepo
 participant ":SubjectRepository" as SubRepo
 database ":Database" as DB
 
-Admin -> Controller : GET /api/admin/programs/{id}/details
+Admin -> UI : Click "View Program Details"
+activate UI
+
+UI -> Controller : GET /api/admin/programs/{id}/details
 activate Controller
 
 Controller -> Med : Send(GetCurriculumProgramDetailsQuery)
@@ -78,6 +82,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Admin : 200 OK
+Controller --> UI : 200 OK (Details DTO)
 deactivate Controller
+
+UI -> UI : Render Completion Charts & Subject List
+UI --> Admin : Display Program Analytics
+deactivate UI
 @enduml

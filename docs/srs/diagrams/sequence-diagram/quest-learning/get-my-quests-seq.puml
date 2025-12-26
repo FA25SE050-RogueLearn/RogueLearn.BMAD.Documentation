@@ -1,5 +1,6 @@
 @startuml
 actor User
+participant QuestManagementUI as UI
 participant ":QuestsController" as Controller
 participant ":IMediator" as Med
 participant ":GetMyQuestsWithSubjects\nQueryHandler" as Handler
@@ -9,7 +10,10 @@ participant ":ISubjectRepository" as ISubjectRepo
 participant ":SubjectRepository" as SubjectRepo
 database ":Database" as DB
 
-User -> Controller : View "My Quests"
+User -> UI : Click "My Quests"
+activate UI
+
+UI -> Controller : GET /api/quests/mine
 activate Controller
 
 Controller -> Med : Send(GetMyQuestsWithSubjectsQuery)
@@ -59,6 +63,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> User : 200 OK
+Controller --> UI : 200 OK (List DTO)
 deactivate Controller
+
+UI -> UI : Render List with Icons
+UI --> User : Display Quests
+deactivate UI
 @enduml

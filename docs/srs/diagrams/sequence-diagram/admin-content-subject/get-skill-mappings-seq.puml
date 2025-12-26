@@ -1,14 +1,18 @@
 ' get-skill-mappings-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "SubjectsController" as Controller
+participant AdminManagementUI as UI
+participant ":SubjectsController" as Controller
 participant "GetSkillMappings\nHandler" as Handler
 participant "MappingRepo" as MapDB
 participant "SkillRepo" as SkillDB
 
 Admin -> UI : View Subject Skills
+activate UI
+
 UI -> Controller : GET /subjects/{id}/skills
+activate Controller
+
 Controller -> Handler : Handle(query)
 
 activate Handler
@@ -24,5 +28,10 @@ activate Handler
     Handler --> Controller : List<SubjectSkillMappingDto>
 deactivate Handler
 
-Controller --> UI : 200 OK
+Controller --> UI : 200 OK (Mappings List)
+deactivate Controller
+
+UI -> UI : Render Mappings Table
+UI --> Admin : Display Skill Mappings
+deactivate UI
 @enduml

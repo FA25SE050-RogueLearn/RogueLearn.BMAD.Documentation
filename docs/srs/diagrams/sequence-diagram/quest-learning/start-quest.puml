@@ -1,5 +1,6 @@
 @startuml
 actor User
+participant QuestManagementUI as UI
 participant ":QuestsController" as Controller
 participant ":IMediator" as Med
 participant ":StartQuestCommandHandler" as Handler
@@ -9,7 +10,10 @@ participant ":IUserQuestAttemptRepository" as IAttemptRepo
 participant ":UserQuestAttemptRepository" as AttemptRepo
 database ":Database" as DB
 
-User -> Controller : Click "Start Quest"
+User -> UI : Click "Start Quest"
+activate UI
+
+UI -> Controller : POST /api/quests/{id}/start
 activate Controller
 
 Controller -> Med : Send(StartQuestCommand)
@@ -82,6 +86,10 @@ deactivate Handler
 Med --> Controller : Result
 deactivate Med
 
-Controller --> User : 200 OK
+Controller --> UI : 200 OK
 deactivate Controller
+
+UI -> UI : Change Button to "Continue"
+UI --> User : Open Quest View
+deactivate UI
 @enduml

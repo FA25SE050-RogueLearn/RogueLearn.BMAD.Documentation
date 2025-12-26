@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":CurriculumImport\nController" as Controller
 participant ":IMediator" as Med
 participant ":ValidateCurriculum\nQueryHandler" as Handler
@@ -10,7 +11,10 @@ participant ":CurriculumExtraction\nPlugin" as Plugin
 participant ":CurriculumImportData\nValidator" as Validator
 database ":Storage" as DB
 
-Admin -> Controller : POST /api/admin/curriculum/validate
+Admin -> UI : Paste Curriculum & Click "Validate"
+activate UI
+
+UI -> Controller : POST /api/admin/curriculum/validate
 activate Controller
 
 Controller -> Med : Send(ValidateCurriculumQuery)
@@ -75,6 +79,10 @@ deactivate Handler
 Med --> Controller : Response (JSON Preview)
 deactivate Med
 
-Controller --> Admin : 200 OK
+Controller --> UI : 200 OK (Validation Result)
 deactivate Controller
+
+UI -> UI : Render Preview Table
+UI --> Admin : Display Validation Results
+deactivate UI
 @enduml

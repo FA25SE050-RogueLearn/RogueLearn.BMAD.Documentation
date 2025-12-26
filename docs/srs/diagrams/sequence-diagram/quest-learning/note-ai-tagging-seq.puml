@@ -1,34 +1,49 @@
-' note-ai-tagging-seq.puml
 @startuml
 actor User
-participant "Arsenal UI" as UI
-participant "NotesController" as Controller
-participant "CreateNoteWithAI\nHandler" as Handler
-participant "Summarization\nPlugin" as Summarizer
-participant "Tagging\nService" as Tagger
-participant "Database" as DB
+participant NoteManagementUI as UI
+participant ":NotesController" as Controller
+participant ":CreateNoteWithAI\nHandler" as Handler
+participant ":Summarization\nPlugin" as Summarizer
+participant ":Tagging\nService" as Tagger
+database ":Database" as DB
 
-User -> UI : 1. Upload File / Paste Text
-UI -> Controller : 2. Request Create (POST)
-Controller -> Handler : 3. Handle(command)
+User -> UI : Upload File / Paste Text
+activate UI
 
+UI -> Controller : Request Create (POST)
+activate Controller
+
+Controller -> Handler : Handle(command)
 activate Handler
-    Handler -> Summarizer : 4. Summarize Content
-    Summarizer --> Handler : Structured Content (BlockNote JSON)
 
-    Handler -> DB : 5. Save Note (Content Only)
-    
-    Handler -> Tagger : 6. Request Tag Suggestions
-    Tagger -> Tagger : 7. Call AI (Gemini)
-    Tagger --> Handler : List of Tags (e.g. ["C#", "Web"])
-    
-    loop For Each Tag
-        Handler -> DB : 8. Find or Create Tag
-        Handler -> DB : 9. Link Tag to Note
-    end
-    
-    Handler --> Controller : 10. Return Note + Tags
+Handler -> Summarizer : Summarize Content
+activate Summarizer
+Summarizer --> Handler : Structured Content (JSON)
+deactivate Summarizer
+
+Handler -> DB : Save Note (Content Only)
+activate DB
+DB --> Handler : NoteId
+deactivate DB
+
+Handler -> Tagger : Request Tag Suggestions
+activate Tagger
+Tagger -> Tagger : Call AI (Gemini)
+Tagger --> Handler : List of Tags
+deactivate Tagger
+
+loop For Each Tag
+    Handler -> DB : Find or Create Tag
+    Handler -> DB : Link Tag to Note
+end
+
+Handler --> Controller : Return Note + Tags
 deactivate Handler
 
-Controller --> UI : 11. Display Note in Library
+Controller --> UI : 200 OK
+deactivate Controller
+
+UI -> UI : Animate Tag Cloud
+UI --> User : Display Note in Library
+deactivate UI
 @enduml

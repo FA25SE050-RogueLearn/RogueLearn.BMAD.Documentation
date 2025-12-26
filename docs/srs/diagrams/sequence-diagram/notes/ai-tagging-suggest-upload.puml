@@ -2,7 +2,7 @@
 title Suggest Note Tags From Upload
 
 actor ":User" as User
-participant ":NoteManagementUI" as NoteUI
+participant NoteManagementUI as NoteUI
 participant ":NotesController" as Controller
 participant ":IMediator" as Med
 participant ":Mediator" as Mediator

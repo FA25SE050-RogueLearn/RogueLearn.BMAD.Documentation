@@ -1,13 +1,17 @@
 @startuml
 title 3.18.2 Sequence Diagram - Get Step Activities
 actor Student
-participant "UserQuestProgress\nController" as Controller
-participant "GetCompletedActivities\nQueryHandler" as Handler
-participant "IQuestStep\nRepository" as StepDB
-participant "IUserQuestAttempt\nRepository" as AttemptDB
-participant "IUserQuestStepProgress\nRepository" as ProgressDB
+participant QuestManagementUI as UI
+participant ":UserQuestProgress\nController" as Controller
+participant ":GetCompletedActivities\nQueryHandler" as Handler
+participant ":IQuestStep\nRepository" as StepDB
+participant ":IUserQuestAttempt\nRepository" as AttemptDB
+participant ":IUserQuestStepProgress\nRepository" as ProgressDB
 
-Student -> Controller : GET /quests/{qid}/steps/{sid}/activities
+Student -> UI : Open Step Activities
+activate UI
+
+UI -> Controller : GET /quests/{qid}/steps/{sid}/activities
 activate Controller
 
 Controller -> Handler : Handle(Query)
@@ -61,6 +65,10 @@ end
 
 deactivate Handler
 
-Controller --> Student : 200 OK (Activity List)
+Controller --> UI : 200 OK (Activity List)
 deactivate Controller
+
+UI -> UI : Render Checklist
+UI --> Student : Display Activities
+deactivate UI
 @enduml

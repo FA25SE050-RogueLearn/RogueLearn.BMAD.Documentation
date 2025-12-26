@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":ClassSpecialization\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetSpecializationSubjects\nHandler" as Handler
@@ -7,7 +8,10 @@ participant ":IClassSpecializationSubject\nRepository" as IRepo
 participant ":ClassSpecializationSubject\nRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : GET /classes/{id}/subjects
+Admin -> UI : View Class Specializations
+activate UI
+
+UI -> Controller : GET /classes/{id}/subjects
 activate Controller
 
 Controller -> Med : Send(GetSpecializationSubjectsQuery)
@@ -37,6 +41,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Admin : 200 OK
+Controller --> UI : 200 OK (Specialization List)
 deactivate Controller
+
+UI -> UI : Render Specializations Table
+UI --> Admin : Display Specialization Subjects
+deactivate UI
 @enduml

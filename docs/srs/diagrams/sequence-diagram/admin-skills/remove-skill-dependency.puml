@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
 participant ":RemoveSkillDependency\nHandler" as Handler
@@ -7,7 +8,10 @@ participant ":ISkillDependency\nRepository" as IDepRepo
 participant ":SkillDependency\nRepository" as DepRepo
 database ":Database" as DB
 
-Admin -> Controller : DELETE /skills/{id}/dependencies/{pid}
+Admin -> UI : Click "Remove" on Dependency
+activate UI
+
+UI -> Controller : DELETE /skills/{id}/dependencies/{pid}
 activate Controller
 
 Controller -> Med : Send(RemoveSkillDependencyCommand)
@@ -54,6 +58,10 @@ deactivate Handler
 Med --> Controller : Success
 deactivate Med
 
-Controller --> Admin : 204 No Content
+Controller --> UI : 204 No Content
 deactivate Controller
+
+UI -> UI : Remove Item from List
+UI --> Admin : Show "Dependency Removed" Success
+deactivate UI
 @enduml

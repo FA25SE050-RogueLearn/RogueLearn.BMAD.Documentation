@@ -1,7 +1,7 @@
 ' game-session-result-seq.puml
 @startuml
 participant "Unity Game Server" as Game
-participant "GameSessions\nController" as Controller
+participant ":GameSessions\nController" as Controller
 participant "ProcessMatchResult\nHandler" as Handler
 participant "GameSession\nRepository" as SessionDB
 participant "MatchResult\nRepository" as ResultDB

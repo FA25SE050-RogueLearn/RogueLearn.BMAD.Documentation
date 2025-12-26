@@ -1,33 +1,48 @@
-' onboarding-completion.puml
 @startuml
 actor Student
-participant "OnboardingUI" as UI
-participant "OnboardingController" as Controller
-participant "CompleteOnboarding\nHandler" as Handler
-participant "Database" as DB
+participant ProfileManagementUI as UI
+participant ":OnboardingController" as Controller
+participant ":CompleteOnboarding\nHandler" as Handler
+database ":Database" as DB
 
-Student -> UI : 1. Select Program & Class, Click "Start Journey"
-UI -> Controller : 2. Send CompleteOnboarding request
-Controller -> Handler : 3. Call Handle(command)
+Student -> UI : Select Program & Class, Click "Start Journey"
+activate UI
 
-Handler -> DB : 4. Fetch User Profile
+UI -> Controller : Send CompleteOnboarding request
+activate Controller
+
+Controller -> Handler : Handle(command)
+activate Handler
+
+Handler -> DB : Fetch User Profile
+activate DB
 alt Profile Not Found OR Already Completed
-    DB --> Handler : Return Error / Validation Fail
-    Handler --> Controller : Return Bad Request
-    Controller --> UI : 5.1 Display Error
+    DB --> Handler : null / exists
+    Handler --> Controller : Return Validation Fail
+    Controller --> UI : 400 Bad Request
+    UI --> Student : Display Error Message
 else Valid Profile
-    Handler -> DB : 6. Validate Program ID exists
-    Handler -> DB : 7. Validate Class ID exists
+    DB --> Handler : UserProfile
+    deactivate DB
     
-    Handler -> DB : 8. Update User Profile
-    note right
-        Set RouteId = ProgramId
-        Set ClassId = CareerRoadmapId
-        Set OnboardingCompleted = true
-    end note
+    Handler -> DB : Validate Program & Class IDs
+    activate DB
+    DB --> Handler : Valid
+    deactivate DB
     
-    Handler --> Controller : 9. Return Success (204 No Content)
-    Controller --> UI : 10. Redirect to Dashboard
-    UI --> Student : 11. Show Main Dashboard
+    Handler -> DB : Update User Profile (RouteId, ClassId, Completed=true)
+    activate DB
+    DB --> Handler : Success
+    deactivate DB
+    
+    Handler --> Controller : 204 No Content
+    deactivate Handler
+
+    Controller --> UI : 204 No Content
+    deactivate Controller
+
+    UI -> UI : Redirect to Dashboard
+    UI --> Student : Show Main Dashboard
 end
+deactivate UI
 @enduml

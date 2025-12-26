@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":QuestFeedback\nController" as Controller
 participant ":IMediator" as Med
 participant ":ResolveQuestStepFeedback\nCommandHandler" as Handler
@@ -7,7 +8,10 @@ participant ":IUserQuestStepFeedback\nRepository" as IRepo
 participant ":UserQuestStepFeedback\nRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : PATCH /admin/quests/feedback/{id}
+Admin -> UI : Mark Feedback as Resolved / Add Notes
+activate UI
+
+UI -> Controller : PATCH /admin/quests/feedback/{id}
 activate Controller
 
 Controller -> Med : Send(ResolveQuestStepFeedbackCommand)
@@ -32,9 +36,14 @@ deactivate IRepo
 
 alt Feedback Not Found
     Handler --> Med : Throw NotFoundException
+    deactivate Handler
     Med --> Controller : 404 Not Found
+    deactivate Med
+    Controller --> UI : 404 Not Found
+    UI --> Admin : Show Error Toast
 else Feedback Found
     ' 2. Update State
+    activate Handler
     Handler -> Handler : Update Properties
     note right
         IsResolved = true/false
@@ -57,11 +66,16 @@ else Feedback Found
     deactivate IRepo
     
     Handler --> Med : Unit.Value
+    deactivate Handler
+    
+    Med --> Controller : Result
+    deactivate Med
+
+    Controller --> UI : 204 No Content
+    deactivate Controller
+
+    UI -> UI : Gray out Resolved Item
+    UI --> Admin : Show "Feedback Resolved" Confirmation
 end
-
-Med --> Controller : Result
-deactivate Med
-
-Controller --> Admin : 204 No Content
-deactivate Controller
+deactivate UI
 @enduml

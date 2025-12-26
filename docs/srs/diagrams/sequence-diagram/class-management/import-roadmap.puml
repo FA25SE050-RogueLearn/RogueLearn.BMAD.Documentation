@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":RoadmapImport\nController" as Controller
 participant ":IMediator" as Med
 participant ":ImportClassRoadmap\nHandler" as Handler
@@ -8,7 +9,10 @@ participant ":IRoadmapExtractionPlugin" as AI
 participant ":IClassRepository" as ClassDB
 participant ":IRoadmapImportStorage" as S3
 
-Admin -> Controller : POST /roadmap/class (PDF)
+Admin -> UI : Upload Roadmap PDF & Click "Import"
+activate UI
+
+UI -> Controller : POST /roadmap/class (PDF)
 activate Controller
 
 Controller -> Med : Send(ImportClassRoadmapCommand)
@@ -46,6 +50,10 @@ deactivate Handler
 Med --> Controller : 200 OK
 deactivate Med
 
-Controller --> Admin : Import Successful
+Controller --> UI : 200 OK (Import Stats)
 deactivate Controller
+
+UI -> UI : Refresh Roadmap View
+UI --> Admin : Show "Import Successful" Toast
+deactivate UI
 @enduml

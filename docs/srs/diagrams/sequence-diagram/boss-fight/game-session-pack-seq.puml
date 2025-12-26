@@ -1,7 +1,7 @@
 ' game-session-pack-seq.puml
 @startuml
 participant "Unity Game Client" as Game
-participant "GameSessions\nController" as Controller
+participant ":GameSessions\nController" as Controller
 participant "GetPack\nHandler" as Handler
 participant "GameSession\nRepository" as DB
 

@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":QuestStepContentEditor\nController" as Controller
 participant ":IMediator" as Med
 participant ":UpdateQuestStepContent\nCommandHandler" as Handler
@@ -7,7 +8,10 @@ participant ":IQuestStepRepository" as IRepo
 participant ":QuestStepRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : PUT /api/admin/quest-steps/{id}/content
+Admin -> UI : Click "Save Content"
+activate UI
+
+UI -> Controller : PUT /api/admin/quest-steps/{id}/content
 activate Controller
 
 Controller -> Med : Send(UpdateQuestStepContentCommand)
@@ -32,9 +36,14 @@ deactivate IRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
+    deactivate Handler
     Med --> Controller : 404 Not Found
+    deactivate Med
+    Controller --> UI : 404 Not Found
+    UI --> Admin : Show "Step Not Found" Error
 else Found
     ' 2. Serialize Content
+    activate Handler
     Handler -> Handler : Construct Content Dictionary
     note right
         Wraps activities list:
@@ -65,7 +74,11 @@ else Found
     Med --> Controller : Response
     deactivate Med
     
-    Controller --> Admin : 200 OK
+    Controller --> UI : 200 OK
     deactivate Controller
+    
+    UI -> UI : Refresh Preview
+    UI --> Admin : Show "Content Updated" Toast
 end
+deactivate UI
 @enduml

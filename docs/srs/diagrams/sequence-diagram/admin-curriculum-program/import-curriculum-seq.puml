@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":CurriculumImport\nController" as Controller
 participant ":IMediator" as Med
 participant ":ImportCurriculum\nCommandHandler" as Handler
@@ -15,7 +16,10 @@ participant ":ICurriculumProgramSubject\nRepository" as ILinkRepo
 participant ":CurriculumProgramSubject\nRepository" as LinkRepo
 database ":Database" as DB
 
-Admin -> Controller : POST /api/admin/curriculum (HTML)
+Admin -> UI : Upload Curriculum HTML & Click "Import"
+activate UI
+
+UI -> Controller : POST /api/admin/curriculum (HTML)
 activate Controller
 
 Controller -> Med : Send(ImportCurriculumCommand)
@@ -187,6 +191,10 @@ deactivate Handler
 Med --> Controller : ImportCurriculumResponse
 deactivate Med
 
-Controller --> Admin : 200 OK
+Controller --> UI : 200 OK (Import Stats)
 deactivate Controller
+
+UI -> UI : Refresh Programs List
+UI --> Admin : Show "Import Successful" Toast
+deactivate UI
 @enduml

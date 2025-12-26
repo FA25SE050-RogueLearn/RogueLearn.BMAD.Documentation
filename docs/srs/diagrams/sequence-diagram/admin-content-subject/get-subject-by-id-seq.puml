@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":GetSubjectByIdHandler" as Handler
@@ -7,7 +8,10 @@ participant ":ISubjectRepository" as IRepo
 participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : GET /api/admin/subjects/{id}
+Admin -> UI : Click "View Subject Details"
+activate UI
+
+UI -> Controller : GET /api/admin/subjects/{id}
 activate Controller
 
 Controller -> Med : Send(GetSubjectByIdQuery)
@@ -32,13 +36,19 @@ deactivate IRepo
 alt Not Found
     Handler --> Med : null
     Med --> Controller : 404 Not Found
+    Controller --> UI : 404 Not Found
+    UI --> Admin : Show "Subject Not Found" Error
 else Found
     Handler -> Handler : Map to DTO
     Handler --> Med : SubjectDto
     Med --> Controller : 200 OK
+    Controller --> UI : 200 OK (Subject Details)
+    UI -> UI : Render Subject Details
+    UI --> Admin : Display Subject Information
 end
 
 deactivate Handler
 deactivate Med
 deactivate Controller
+deactivate UI
 @enduml

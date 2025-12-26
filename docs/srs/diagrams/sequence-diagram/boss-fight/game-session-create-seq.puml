@@ -1,14 +1,18 @@
 ' game-session-create-seq.puml
 @startuml
 actor Player
-participant "Web Lobby" as UI
-participant "GameSessions\nController" as Controller
+participant QuestManagementUI as UI
+participant ":GameSessions\nController" as Controller
 participant "CreateGameSession\nHandler" as Handler
 participant "Subject\nRepository" as SubjectDB
 participant "GameSession\nRepository" as GameDB
 
 Player -> UI : Select Subject & Click "Start Boss Fight"
+activate UI
+
 UI -> Controller : POST /sessions/create
+activate Controller
+
 Controller -> Handler : Handle(command)
 
 activate Handler
@@ -37,5 +41,9 @@ activate Handler
 deactivate Handler
 
 Controller --> UI : 200 OK { joinCode: "123456" }
+deactivate Controller
+
+UI -> UI : Display Join Code
 UI --> Player : Launch Unity Client with Code
+deactivate UI
 @enduml

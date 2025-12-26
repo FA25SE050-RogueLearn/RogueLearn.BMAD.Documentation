@@ -2,7 +2,7 @@
 title Join Public Party
 
 actor ":User" as User
-participant ":PartyManagementUI" as PartyUI
+participant PartyManagementUI as PartyUI
 participant ":PartiesController" as Controller
 participant ":IMediator" as Med
 participant ":Mediator" as Mediator

@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":SubjectContentEditor\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetSubjectContent\nQueryHandler" as Handler
@@ -7,7 +8,10 @@ participant ":ISubjectRepository" as IRepo
 participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : GET /api/admin/subjects/{id}/content
+Admin -> UI : Click "Edit Subject Content"
+activate UI
+
+UI -> Controller : GET /api/admin/subjects/{id}/content
 activate Controller
 
 Controller -> Med : Send(GetSubjectContentQuery)
@@ -42,6 +46,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Admin : 200 OK
+Controller --> UI : 200 OK (Content DTO)
 deactivate Controller
+
+UI -> UI : Populate Content Editor
+UI --> Admin : Display Content Editor
+deactivate UI
 @enduml

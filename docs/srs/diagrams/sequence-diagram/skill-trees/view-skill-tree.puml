@@ -1,5 +1,6 @@
 @startuml
 actor User
+participant QuestManagementUI as UI
 participant ":SkillsController" as Controller
 participant ":IMediator" as Med
 participant ":GetSkillTree\nQueryHandler" as Handler
@@ -11,7 +12,10 @@ participant ":ISkillDependencyRepository" as IDepRepo
 participant ":SkillDependencyRepository" as DepRepo
 database ":Database" as DB
 
-User -> Controller : View Skill Tree
+User -> UI : Click "View Skill Tree"
+activate UI
+
+UI -> Controller : GET /api/skills/tree
 activate Controller
 
 Controller -> Med : Send(GetSkillTreeQuery)
@@ -72,6 +76,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> User : 200 OK
+Controller --> UI : 200 OK (Tree Data)
 deactivate Controller
+
+UI -> UI : Render Skill Tree Graph
+UI --> User : Display Skill Tree
+deactivate UI
 @enduml

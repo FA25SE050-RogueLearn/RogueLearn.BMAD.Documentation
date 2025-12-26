@@ -1,5 +1,6 @@
 @startuml
 actor User
+participant QuestManagementUI as UI
 participant ":QuestsController" as Controller
 participant ":IMediator" as Med
 participant ":SubmitQuizAnswer\nCommandHandler" as Handler
@@ -17,7 +18,10 @@ participant ":IUserQuestStepProgress\nRepository" as IProgressRepo
 participant ":UserQuestStepProgress\nRepository" as ProgressRepo
 database ":Database" as DB
 
-User -> Controller : Submit Quiz Answers
+User -> UI : Select Answers & Click "Submit Quiz"
+activate UI
+
+UI -> Controller : POST /api/quests/quiz-submissions
 activate Controller
 
 Controller -> Med : Send(SubmitQuizAnswerCommand)
@@ -129,6 +133,11 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> User : 200 OK (Score & Result)
+Controller --> UI : 200 OK (Score & Result)
 deactivate Controller
+
+UI -> UI : Render Result Overlay
+UI -> UI : Play XP Gain Animation (if passed)
+UI --> User : Display Score & Feedback
+deactivate UI
 @enduml

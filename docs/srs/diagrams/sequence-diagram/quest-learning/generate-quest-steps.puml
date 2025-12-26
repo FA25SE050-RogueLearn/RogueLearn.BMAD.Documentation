@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":AdminQuestsController" as Controller
 participant ":IBackgroundJobClient" as JobQueue
 participant ":IQuestStepGenerationService" as IService
@@ -14,7 +15,10 @@ participant ":IQuestStepRepository" as IStepRepo
 participant ":QuestStepRepository" as StepRepo
 database ":Database" as DB
 
-Admin -> Controller : Click "Generate Steps"
+Admin -> UI : Click "Generate Steps"
+activate UI
+
+UI -> Controller : POST /api/admin/quests/generate-steps
 activate Controller
 
 Controller -> JobQueue : Schedule(GenerateQuestStepsAsync)
@@ -22,8 +26,11 @@ activate JobQueue
 JobQueue --> Controller : JobId
 deactivate JobQueue
 
-Controller --> Admin : 202 Accepted
+Controller --> UI : 202 Accepted (JobId)
 deactivate Controller
+
+UI --> Admin : Show "Generation Queued" Toast
+deactivate UI
 
 note right of JobQueue: Async Background Process
 

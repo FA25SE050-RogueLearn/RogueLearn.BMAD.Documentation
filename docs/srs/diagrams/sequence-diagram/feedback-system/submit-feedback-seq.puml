@@ -1,5 +1,6 @@
 @startuml
 actor Student
+participant QuestManagementUI as UI
 participant ":QuestFeedback\nController" as Controller
 participant ":IMediator" as Med
 participant ":SubmitQuestStepFeedback\nCommandHandler" as Handler
@@ -11,7 +12,10 @@ participant ":IUserQuestStepFeedback\nRepository" as IFeedbackRepo
 participant ":UserQuestStepFeedback\nRepository" as FeedbackRepo
 database ":Database" as DB
 
-Student -> Controller : POST /quests/{qid}/steps/{sid}/feedback
+Student -> UI : Submit Feedback on Quest Step
+activate UI
+
+UI -> Controller : POST /quests/{qid}/steps/{sid}/feedback
 activate Controller
 
 Controller -> Med : Send(SubmitQuestStepFeedbackCommand)
@@ -84,6 +88,10 @@ end
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Student : 201 Created
+Controller --> UI : 201 Created
 deactivate Controller
+
+UI -> UI : Show Success Message
+UI --> Student : Display "Feedback Submitted" Toast
+deactivate UI
 @enduml

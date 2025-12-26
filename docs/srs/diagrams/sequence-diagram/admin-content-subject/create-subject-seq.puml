@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":CreateSubjectHandler" as Handler
@@ -7,7 +8,10 @@ participant ":ISubjectRepository" as IRepo
 participant ":SubjectRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : POST /api/admin/subjects
+Admin -> UI : Enter Subject Details & Click "Create"
+activate UI
+
+UI -> Controller : POST /api/admin/subjects
 activate Controller
 
 Controller -> Med : Send(CreateSubjectCommand)
@@ -37,6 +41,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Admin : 201 Created
+Controller --> UI : 201 Created
 deactivate Controller
+
+UI -> UI : Refresh Subjects List
+UI --> Admin : Show "Subject Created" Success
+deactivate UI
 @enduml

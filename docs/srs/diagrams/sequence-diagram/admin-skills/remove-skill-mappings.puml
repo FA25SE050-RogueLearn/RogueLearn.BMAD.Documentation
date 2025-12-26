@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":RemoveSubjectSkillMapping\nCommandHandler" as Handler
@@ -7,7 +8,10 @@ participant ":ISubjectSkillMapping\nRepository" as IMapRepo
 participant ":SubjectSkillMapping\nRepository" as MapRepo
 database ":Database" as DB
 
-Admin -> Controller : DELETE /subjects/{sid}/skills/{kid}
+Admin -> UI : Click "Remove" on Mapping
+activate UI
+
+UI -> Controller : DELETE /subjects/{sid}/skills/{kid}
 activate Controller
 
 Controller -> Med : Send(RemoveSubjectSkillMappingCommand)
@@ -54,6 +58,10 @@ deactivate Handler
 Med --> Controller : Success
 deactivate Med
 
-Controller --> Admin : 204 No Content
+Controller --> UI : 204 No Content
 deactivate Controller
+
+UI -> UI : Remove Item from List
+UI --> Admin : Show "Mapping Removed" Success
+deactivate UI
 @enduml

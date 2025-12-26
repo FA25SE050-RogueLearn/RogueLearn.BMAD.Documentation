@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":AdminSkillsController" as Controller
 participant ":IMediator" as Med
 participant ":AddSkillDependency\nHandler" as Handler
@@ -7,7 +8,10 @@ participant ":ISkillDependency\nRepository" as IDepRepo
 participant ":SkillDependency\nRepository" as DepRepo
 database ":Database" as DB
 
-Admin -> Controller : POST /skills/{id}/dependencies
+Admin -> UI : Select Prerequisite Skill & Click "Add"
+activate UI
+
+UI -> Controller : POST /skills/{id}/dependencies
 activate Controller
 
 Controller -> Med : Send(AddSkillDependencyCommand)
@@ -57,6 +61,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Admin : 201 Created
+Controller --> UI : 201 Created
 deactivate Controller
+
+UI -> UI : Refresh Dependencies List
+UI --> Admin : Show "Dependency Added" Success
+deactivate UI
 @enduml

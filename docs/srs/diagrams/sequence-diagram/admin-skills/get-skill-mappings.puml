@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":SubjectsController" as Controller
 participant ":IMediator" as Med
 participant ":GetSubjectSkillMappings\nHandler" as Handler
@@ -11,7 +12,10 @@ participant ":ISkillDependency\nRepository" as IDepRepo
 participant ":SkillDependency\nRepository" as DepRepo
 database ":Database" as DB
 
-Admin -> Controller : GET /subjects/{id}/skills
+Admin -> UI : View Subject Skill Mappings
+activate UI
+
+UI -> Controller : GET /subjects/{id}/skills
 activate Controller
 
 Controller -> Med : Send(GetSubjectSkillMappingsQuery)
@@ -73,6 +77,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Admin : 200 OK
+Controller --> UI : 200 OK (Mappings List)
 deactivate Controller
+
+UI -> UI : Render Mappings Table
+UI --> Admin : Display Skill Mappings
+deactivate UI
 @enduml

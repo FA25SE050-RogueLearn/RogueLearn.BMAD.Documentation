@@ -2,7 +2,7 @@
 title Apply Guild Join Request
 
 actor ":Player" as Player
-participant ":GuildManagementUI" as GuildUI
+participant GuildCommunityManagementUI as GuildUI
 participant ":GuildsController" as Controller
 participant ":IMediator" as Med
 participant ":ApplyGuildJoinRequestCommandHandler" as Handler

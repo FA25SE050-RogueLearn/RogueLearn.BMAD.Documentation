@@ -1,15 +1,19 @@
 ' manage-specialization-subjects-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "Specialization\nController" as Controller
+participant AdminManagementUI as UI
+participant ":Specialization\nController" as Controller
 participant "AddSubject\nHandler" as Handler
 participant "ClassRepository" as ClassDB
 participant "SubjectRepository" as SubDB
 participant "JoinTableRepo" as JoinDB
 
-Admin -> UI : Select Class -> Add Subject
+Admin -> UI : Select Class & Add Subject
+activate UI
+
 UI -> Controller : POST /specialization-subjects
+activate Controller
+
 Controller -> Handler : Handle(command)
 
 activate Handler
@@ -31,4 +35,9 @@ activate Handler
 deactivate Handler
 
 Controller --> UI : 201 Created
+deactivate Controller
+
+UI -> UI : Refresh Specialization List
+UI --> Admin : Show "Subject Added" Success
+deactivate UI
 @enduml

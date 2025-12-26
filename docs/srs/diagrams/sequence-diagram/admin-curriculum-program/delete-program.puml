@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":CurriculumPrograms\nController" as Controller
 participant ":IMediator" as Med
 participant ":DeleteCurriculumProgram\nCommandHandler" as Handler
@@ -7,7 +8,10 @@ participant ":ICurriculumProgram\nRepository" as IRepo
 participant ":CurriculumProgram\nRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : DELETE /api/admin/programs/{id}
+Admin -> UI : Click "Delete Program" & Confirm
+activate UI
+
+UI -> Controller : DELETE /api/admin/programs/{id}
 activate Controller
 
 Controller -> Med : Send(DeleteCurriculumProgramCommand)
@@ -32,9 +36,14 @@ deactivate IRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
+    deactivate Handler
     Med --> Controller : 404 Not Found
+    deactivate Med
+    Controller --> UI : 404 Not Found
+    UI --> Admin : Show Error Notification
 else Found
     ' 2. Delete
+    activate Handler
     Handler -> IRepo : DeleteAsync(Id)
     activate IRepo
     IRepo -> Repo : DeleteAsync(Id)
@@ -49,12 +58,15 @@ else Found
     deactivate IRepo
 
     Handler --> Med : Unit.Value
+    deactivate Handler
+    Med --> Controller : Success
+    deactivate Med
+
+    Controller --> UI : 204 No Content
+    deactivate Controller
+    
+    UI -> UI : Remove Item from List
+    UI --> Admin : Show "Program Deleted" Success
 end
-
-deactivate Handler
-Med --> Controller : Success
-deactivate Med
-
-Controller --> Admin : 204 No Content
-deactivate Controller
+deactivate UI
 @enduml

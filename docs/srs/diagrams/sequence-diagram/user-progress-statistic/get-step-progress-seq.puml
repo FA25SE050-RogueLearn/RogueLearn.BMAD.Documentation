@@ -1,5 +1,6 @@
 @startuml
 actor User
+participant QuestManagementUI as UI
 participant ":UserQuestProgress\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetStepProgress\nQueryHandler" as Handler
@@ -11,7 +12,10 @@ participant ":IUserQuestStepProgressRepository" as IProgressRepo
 participant ":UserQuestStepProgressRepository" as ProgressRepo
 database ":Database" as DB
 
-User -> Controller : View Step Details
+User -> UI : Click Step Icon
+activate UI
+
+UI -> Controller : GET /api/steps/{id}/progress
 activate Controller
 
 Controller -> Med : Send(GetStepProgressQuery)
@@ -83,6 +87,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> User : 200 OK
+Controller --> UI : 200 OK (Details DTO)
 deactivate Controller
+
+UI -> UI : Render Progress Bar & Content
+UI --> User : Open Step Detail View
+deactivate UI
 @enduml

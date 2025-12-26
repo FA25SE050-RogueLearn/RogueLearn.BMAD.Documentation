@@ -1,13 +1,17 @@
 ' remove-skill-mapping-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "SubjectsController" as Controller
+participant AdminManagementUI as UI
+participant ":SubjectsController" as Controller
 participant "RemoveMapping\nHandler" as Handler
 participant "MappingRepository" as DB
 
-Admin -> UI : Click "Remove" on Skill
+Admin -> UI : Click "Remove" on Skill Mapping
+activate UI
+
 UI -> Controller : DELETE /subjects/{sid}/skills/{kid}
+activate Controller
+
 Controller -> Handler : Handle(command)
 
 activate Handler
@@ -22,5 +26,9 @@ activate Handler
 deactivate Handler
 
 Controller --> UI : 204 No Content
-UI --> Admin : Remove row from table
+deactivate Controller
+
+UI -> UI : Remove Item from List
+UI --> Admin : Show "Mapping Removed" Success
+deactivate UI
 @enduml

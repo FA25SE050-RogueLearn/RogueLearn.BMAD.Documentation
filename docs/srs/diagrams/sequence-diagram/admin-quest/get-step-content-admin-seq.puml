@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":QuestStepContentEditor\nController" as Controller
 participant ":IMediator" as Med
 participant ":GetQuestStepContent\nQueryHandler" as Handler
@@ -7,7 +8,10 @@ participant ":IQuestStepRepository" as IRepo
 participant ":QuestStepRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : GET /api/admin/quest-steps/{id}/content
+Admin -> UI : Select Quest Step to Edit
+activate UI
+
+UI -> Controller : GET /api/admin/quest-steps/{id}/content
 activate Controller
 
 Controller -> Med : Send(GetQuestStepContentQuery)
@@ -32,9 +36,14 @@ deactivate IRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
+    deactivate Handler
     Med --> Controller : 404 Not Found
+    deactivate Med
+    Controller --> UI : 404 Not Found
+    UI --> Admin : Show Error Message
 else Found
     ' 2. Parse Content
+    activate Handler
     Handler -> Handler : Deserialize Content JSON
     note right
         Uses Newtonsoft.Json to parse
@@ -49,7 +58,11 @@ else Found
     Med --> Controller : Response
     deactivate Med
     
-    Controller --> Admin : 200 OK
+    Controller --> UI : 200 OK (Content DTO)
     deactivate Controller
+    
+    UI -> UI : Populate Editor Fields
+    UI --> Admin : Display Content Editor
 end
+deactivate UI
 @enduml

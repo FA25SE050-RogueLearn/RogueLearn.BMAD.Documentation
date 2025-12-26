@@ -1,5 +1,6 @@
 @startuml
-actor "System (Academic Sync)" as Sys
+actor Student
+participant QuestManagementUI as UI
 participant ":UsersController" as Controller
 participant ":IMediator" as Med
 participant ":GenerateQuestLine\nCommandHandler" as Handler
@@ -17,7 +18,10 @@ participant ":IUserQuestAttemptRepository" as IAttemptRepo
 participant ":UserQuestAttemptRepository" as AttemptRepo
 database ":Database" as DB
 
-Sys -> Controller : ProcessMyAcademicRecord()
+Student -> UI : Click "Sync Quest Line"
+activate UI
+
+UI -> Controller : ProcessMyAcademicRecord()
 activate Controller
 
 Controller -> Med : Send(GenerateQuestLineCommand)
@@ -140,6 +144,10 @@ deactivate Handler
 Med --> Controller : Success
 deactivate Med
 
-Controller --> Sys : 200 OK
+Controller --> UI : 200 OK (Quest Line Updated)
 deactivate Controller
+
+UI -> UI : Animate New Quests
+UI --> Student : Show Updated Map
+deactivate UI
 @enduml

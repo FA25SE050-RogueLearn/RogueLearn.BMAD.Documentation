@@ -1,5 +1,6 @@
 @startuml
 actor Admin
+participant AdminManagementUI as UI
 participant ":CurriculumPrograms\nController" as Controller
 participant ":IMediator" as Med
 participant ":UpdateCurriculumProgram\nCommandHandler" as Handler
@@ -7,7 +8,10 @@ participant ":ICurriculumProgram\nRepository" as IRepo
 participant ":CurriculumProgram\nRepository" as Repo
 database ":Database" as DB
 
-Admin -> Controller : PUT /api/admin/programs/{id}
+Admin -> UI : Edit Program Details & Click "Update"
+activate UI
+
+UI -> Controller : PUT /api/admin/programs/{id}
 activate Controller
 
 Controller -> Med : Send(UpdateCurriculumProgramCommand)
@@ -32,9 +36,14 @@ deactivate IRepo
 
 alt Not Found
     Handler --> Med : Throw NotFoundException
+    deactivate Handler
     Med --> Controller : 404 Not Found
+    deactivate Med
+    Controller --> UI : 404 Not Found
+    UI --> Admin : Show Error Notification
 else Found
     ' 2. Update Fields
+    activate Handler
     Handler -> Handler : Update Properties
     note right
         Name, Code, Description,
@@ -57,12 +66,15 @@ else Found
     deactivate IRepo
 
     Handler --> Med : UpdateCurriculumProgramResponse
+    deactivate Handler
+    Med --> Controller : Response
+    deactivate Med
+
+    Controller --> UI : 200 OK
+    deactivate Controller
+
+    UI -> UI : Refresh List View
+    UI --> Admin : Show "Program Updated" Success
 end
-
-deactivate Handler
-Med --> Controller : Response
-deactivate Med
-
-Controller --> Admin : 200 OK
-deactivate Controller
+deactivate UI
 @enduml

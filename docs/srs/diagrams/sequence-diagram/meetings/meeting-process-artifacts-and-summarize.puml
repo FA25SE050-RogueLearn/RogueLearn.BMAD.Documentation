@@ -2,7 +2,7 @@
 title Process Meeting Artifacts and Summarize
 
 actor ":User" as User
-participant ":MeetingManagementUI" as MeetingUI
+participant ProfileManagementUI as MeetingUI
 participant ":MeetingsController" as Controller
 participant ":IMediator" as Med
 participant ":Mediator" as Mediator

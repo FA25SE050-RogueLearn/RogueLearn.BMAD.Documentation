@@ -1,5 +1,6 @@
 @startuml
-actor "System/User" as Client
+actor User
+participant SystemManagementUI as UI
 participant ":UserSkillsController" as Controller
 participant ":IMediator" as Med
 participant ":IngestXpEvent\nCommandHandler" as Handler
@@ -11,7 +12,10 @@ participant ":IUserSkillRepository" as IUserSkillRepo
 participant ":UserSkillRepository" as UserSkillRepo
 database ":Database" as DB
 
-Client -> Controller : POST /api/users/skills/xp
+User -> UI : Perform Action (e.g., Claim XP)
+activate UI
+
+UI -> Controller : POST /api/users/skills/xp
 activate Controller
 
 Controller -> Med : Send(IngestXpEventCommand)
@@ -117,6 +121,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Client : 200 OK
+Controller --> UI : 200 OK (XP Updated)
 deactivate Controller
+
+UI -> UI : Animate XP Bar
+UI --> User : Show Level Up Popup (if applicable)
+deactivate UI
 @enduml

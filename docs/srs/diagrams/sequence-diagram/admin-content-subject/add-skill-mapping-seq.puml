@@ -1,15 +1,19 @@
 ' add-skill-mapping-seq.puml
 @startuml
 actor Admin
-participant "Admin UI" as UI
-participant "SubjectsController" as Controller
+participant AdminManagementUI as UI
+participant ":SubjectsController" as Controller
 participant "AddSkillMapping\nHandler" as Handler
 participant "SubjectRepository" as SubDB
 participant "SkillRepository" as SkillDB
 participant "MappingRepository" as MapDB
 
-Admin -> UI : Select Skill -> Add
+Admin -> UI : Select Skill & Click "Add Mapping"
+activate UI
+
 UI -> Controller : POST /subjects/{id}/skills
+activate Controller
+
 Controller -> Handler : Handle(command)
 
 activate Handler
@@ -31,5 +35,9 @@ activate Handler
 deactivate Handler
 
 Controller --> UI : 201 Created
-UI --> Admin : Update List
+deactivate Controller
+
+UI -> UI : Refresh Mappings List
+UI --> Admin : Show "Mapping Added" Success
+deactivate UI
 @enduml

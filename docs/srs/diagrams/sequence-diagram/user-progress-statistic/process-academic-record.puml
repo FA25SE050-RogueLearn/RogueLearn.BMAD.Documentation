@@ -1,5 +1,6 @@
 @startuml
 actor Student
+participant AcademicRecordManagementUI as UI
 participant ":UsersController" as Controller
 participant ":IMediator" as Med
 participant ":ProcessAcademicRecord\nHandler" as Handler
@@ -12,7 +13,10 @@ participant ":ISubjectSkillMapping\nRepository" as MappingRepo
 participant ":IGradeExperienceCalculator" as Calc
 database ":Database" as DB
 
-Student -> Controller : Upload Transcript (HTML)
+Student -> UI : Select Transcript File
+activate UI
+
+UI -> Controller : Upload Transcript (HTML)
 activate Controller
 
 Controller -> Med : Send(ProcessAcademicRecordCommand)
@@ -103,6 +107,10 @@ deactivate Handler
 Med --> Controller : Response
 deactivate Med
 
-Controller --> Student : 200 OK
+Controller --> UI : 200 OK (Stats Updated)
 deactivate Controller
+
+UI -> UI : Refresh Progress Bars
+UI --> Student : Show Success Toast
+deactivate UI
 @enduml
